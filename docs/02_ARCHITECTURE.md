@@ -1,25 +1,25 @@
 # KIẾN TRÚC KỸ THUẬT & QUY ĐỊNH MÃ NGUỒN
 ## 1. Công Nghệ
-- **Frontend:** Flutter SDK (Dart) - Hỗ trợ Android, iOS, Web.
-- **Backend & Database:** Supabase (PostgreSQL + Realtime + Auth).
-- **Thanh toán:** VietQR API mở (`https://img.vietqr.io/image/...`).
-- **Quản lý trạng thái (State Management):** `Provider` (đơn giản, dễ hiểu, tránh phức tạp hóa cho người mới).
-## 2. Cấu Trúc Thư Mục Tiêu Chuẩn (lib/)
+- **Frontend:** Flutter 3.47+ (Dart 3.13+)
+- **Backend & Database:** Supabase (PostgreSQL Singapore region)
+  - URL: `https://vqelcjxljddxoyplgcvm.supabase.co`
+- **Dịch vụ thanh toán:** VietQR Open API (`https://img.vietqr.io/image/...`)
+- **Thư viện chính:** `supabase_flutter`, `provider`, `intl`, `url_launcher`
+## 2. Cấu Trúc Thư Mục Thực Tế (`lib/`)
+
+  
 
 lib/
 ├── core/
-│   ├── constants/       # Màu sắc, chuỗi chữ cố định, API URL
-│   ├── theme/           # Giao diện Sáng/Tối
-│   └── utils/           # Hàm tiện ích (Hàm tạo VietQR, định dạng tiền VNĐ)
+│   ├── app_constants.dart    # Chứa khóa Supabase, màu sắc, danh sách link Affiliate
+│   └── vietqr_helper.dart    # Hàm sinh URL ảnh VietQR chuẩn NAPAS
 ├── data/
-│   ├── models/          # Các class dữ liệu: Venue, Session, Club, Player
-│   └── services/        # Kết nối Supabase: supabase_service.dart
-├── providers/           # Quản lý dữ liệu app (SessionProvider, VenueProvider)
+│   └── supabase_service.dart # Gọi API Supabase: getVenues, getSessions, createSession, joinSession
 ├── screens/
-│   ├── home/            # Màn hình Kèo Hôm Nay & Tìm vãng lai
-│   ├── venues/          # Màn hình Danh bạ sân Nha Trang
-│   └── tools/           # Bảng điểm, Máy tính chia tiền VietQR
-└── widgets/             # Các thành phần tái sử dụng (Thẻ kèo, Nút bấm, Banner)
+│   ├── home_screen.dart      # Tab 1: Kèo Hôm Nay, Đăng Kèo, Banner Affiliate Shopee
+│   ├── venues_screen.dart    # Tab 2: Danh bạ 5 sân Nha Trang, gọi hotline
+│   └── tools_screen.dart     # Tab 3: Bảng điểm BWF, Sổ Kèo Nợ Nước Ngọt, Máy chia tiền VietQR
+└── main.dart                 # Khởi tạo Supabase và thanh điều hướng 3 Tab
 
 ## 3. Quy Tắc VietQR
 Sử dụng cú pháp URL chuẩn:
