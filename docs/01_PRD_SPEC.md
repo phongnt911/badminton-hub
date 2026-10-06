@@ -58,8 +58,11 @@
 
 ---
 
-### ⏳ Giai đoạn 2 (DỰ KIẾN LÀM TIẾP THEO):
-- [ ] **Nâng cấp Đăng ký Slot Vãng lai:** Nhập tên và SĐT thật khi giữ chỗ, chủ kèo duyệt danh sách, nút Check-in có mặt và Đã thanh toán.
-- [ ] **Tạo Nhóm / CLB Cố Định:** Cho phép tạo CLB riêng (VD: CLB Biển Xanh), quản lý quỹ tháng cố định.
-- [ ] **Xếp sân xoay tua công bằng (Fair Rotation):** Thuật toán gợi ý người ngồi ngoài lâu nhất vào sân tiếp theo.
-- [ ] **Bảng xếp hạng vui vẻ:** Thống kê Winrate %, Chuỗi thắng (Win streak) của thành viên trong nhóm.
+### ⏳ Giai đoạn 2 (ĐANG THỰC HIỆN):
+- [x] **Nâng cấp Đăng ký Slot Vãng lai (Phần 1):** Đã thêm form nhập Tên và SĐT thật khi bấm Giữ Chỗ.
+- [x] **Nâng cấp Đăng ký Slot Vãng lai (Phần 2):** Đã xây dựng màn hình `SessionDetailScreen` để chủ kèo điểm danh, xác nhận thu tiền và hiện QR VietQR tại sân.
+- [x] **Quản lý Nhóm / CLB Cố Định:** Đã xây dựng màn hình `ClubsScreen`. Cho phép tạo CLB, xem chi tiết và ghi Sổ Quỹ Thu/Chi rõ ràng.
+- [x] **Tái cấu trúc Kiến trúc (Refactor):** Đã chuyển đổi State Management sang `Provider` và tách tầng Data.
+- [x] **Xếp sân xoay tua công bằng (Fair Rotation):** Đã tạo tab thuật toán `FairMatchmaker` giúp ghép trận 4 người vào sân ưu tiên người nghỉ nhiều.
+- [x] **Bảng xếp hạng vui vẻ:** Đã tạo màn hình `LeaderboardScreen` đọc thành tích từ Supabase và gắn danh hiệu vui nhộn.
+- [x] **Gian hàng Đối Tác Nha Trang:** Đã thêm thẻ shop thể thao 2/4 và Shop VNB vào dưới cùng danh bạ `venues_screen.dart`.

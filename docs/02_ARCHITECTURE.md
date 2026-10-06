@@ -14,12 +14,17 @@ lib/
 │   ├── app_constants.dart    # Chứa khóa Supabase, màu sắc, danh sách link Affiliate
 │   └── vietqr_helper.dart    # Hàm sinh URL ảnh VietQR chuẩn NAPAS
 ├── data/
-│   └── supabase_service.dart # Gọi API Supabase: getVenues, getSessions, createSession, joinSession
+│   └── supabase_service.dart # (Repository) Gọi API Supabase: CRUD Venues, Sessions, Clubs, Transactions
+├── providers/                # Tầng quản lý State (MVVM)
+│   ├── club_provider.dart    # State cho Quản lý CLB & Sổ Quỹ
+│   └── session_provider.dart # State cho Kèo vãng lai & Điểm danh
 ├── screens/
 │   ├── home_screen.dart      # Tab 1: Kèo Hôm Nay, Đăng Kèo, Banner Affiliate Shopee
 │   ├── venues_screen.dart    # Tab 2: Danh bạ 5 sân Nha Trang, gọi hotline
-│   └── tools_screen.dart     # Tab 3: Bảng điểm BWF, Sổ Kèo Nợ Nước Ngọt, Máy chia tiền VietQR
-└── main.dart                 # Khởi tạo Supabase và thanh điều hướng 3 Tab
+│   ├── clubs_screen.dart     # Tab 3: Quản lý CLB, Tạo nhóm, xem Sổ Quỹ
+│   ├── tools_screen.dart     # Tab 4: Bảng điểm BWF, Sổ Kèo Nợ Nước Ngọt, Máy chia tiền VietQR
+│   └── session_detail_screen.dart # Chi tiết kèo, điểm danh & thu tiền
+└── main.dart                 # Khởi tạo Supabase, MultiProvider và thanh điều hướng 4 Tab
 
 ## 3. Quy Tắc VietQR
 Sử dụng cú pháp URL chuẩn:

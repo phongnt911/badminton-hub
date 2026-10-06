@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../core/app_constants.dart';
 import '../core/vietqr_helper.dart';
+import 'fair_matchmaker.dart';
+import 'leaderboard.dart';
 
 // Model lưu vết kèo độ sau trận
 class MatchDebt {
@@ -426,7 +428,7 @@ class _ToolsScreenState extends State<ToolsScreen> {
     final serverCourtSide = (serverScore % 2 == 0) ? 'Ô Phải ➡️' : 'Ô Trái ⬅️';
 
     return DefaultTabController(
-      length: 3,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -443,12 +445,17 @@ class _ToolsScreenState extends State<ToolsScreen> {
             ),
           ],
           bottom: const TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             indicatorColor: Colors.white,
             labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
             tabs: [
               Tab(icon: Icon(Icons.scoreboard), text: 'Bảng Điểm'),
-              Tab(icon: Icon(Icons.menu_book), text: 'Sổ Kèo Nợ'),
-              Tab(icon: Icon(Icons.qr_code), text: 'Chia VietQR'),
+              Tab(icon: Icon(Icons.menu_book), text: 'Sổ Nợ'),
+              Tab(icon: Icon(Icons.qr_code), text: 'Chia Tiền'),
+              Tab(icon: Icon(Icons.group), text: 'Xoay Tua Sân'),
+              Tab(icon: Icon(Icons.emoji_events), text: 'Xếp Hạng'),
             ],
           ),
         ),
@@ -977,6 +984,11 @@ class _ToolsScreenState extends State<ToolsScreen> {
                 ],
               ),
             ),
+            // ================= TAB 4: XOAY TUA SÂN =================
+            const FairMatchmaker(),
+            
+            // ================= TAB 5: BẢNG XẾP HẠNG =================
+            const LeaderboardScreen(),
           ],
         ),
       ),

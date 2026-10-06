@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:provider/provider.dart';
 import '../core/app_constants.dart';
-import '../data/supabase_service.dart';
+import '../providers/session_provider.dart';
+import 'session_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,18 +14,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SupabaseService _service = SupabaseService();
-  late Future<List<Map<String, dynamic>>> _sessionsFuture;
-
   @override
   void initState() {
     super.initState();
-    _refresh();
-  }
-
-  void _refresh() {
-    setState(() {
-      _sessionsFuture = _service.getSessions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SessionProvider>().fetchSessions();
     });
   }
 
@@ -89,22 +84,17 @@ class _HomeScreenState extends State<HomeScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () async {
-              final now = DateFormat('yyyy-MM-dd').format(DateTime.now());
-              await _service.createSession(
-                venueName: venueCtrl.text,
-                playDate: now,
-                startTime: '17:30',
-                endTime: '19:30',
-                maxSlots: int.tryParse(slotsCtrl.text) ?? 6,
-                estimatedCost: int.tryParse(costCtrl.text) ?? 40000,
-                contactPhone: phoneCtrl.text,
-                levelRequirement: 'Giao lưu vui vẻ',
+              await context.read<SessionProvider>().createSession(
+                venueCtrl.text,
+                '17:30 - 19:30',
+                int.tryParse(slotsCtrl.text) ?? 6,
+                int.tryParse(costCtrl.text) ?? 40000,
+                phoneCtrl.text,
               );
               if (!ctx.mounted) return;
               Navigator.pop(ctx);
-              _refresh();
               
-              if (!context.mounted) return;
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Đã đăng kèo thành công!')),
               );
@@ -157,20 +147,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 return;
               }
 
-              await _service.joinSession(
-                sessionId: sessionId,
-                playerName: nameCtrl.text,
-                phone: phoneCtrl.text,
-                currentJoined: currentJoined,
-                maxSlots: maxSlots,
+              await context.read<SessionProvider>().joinSession(
+                sessionId,
+                nameCtrl.text,
+                phoneCtrl.text,
+                currentJoined,
+                maxSlots,
               );
 
               if (!ctx.mounted) return;
               Navigator.pop(ctx);
               
-              _refresh();
-              
-              if (!context.mounted) return;
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Đăng ký slot thành công!'),
@@ -205,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () async => _refresh(),
+        onRefresh: () async => context.read<SessionProvider>().fetchSessions(),
         child: ListView(
           padding: const EdgeInsets.all(12),
           children: [
@@ -302,11 +290,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 8),
 
-            // 2. DANH SÁCH KÈO LẤY TỪ SUPABASE
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _sessionsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            // 2. DANH SÁCH KÈO LẤY TỪ PROVIDER
+            Consumer<SessionProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(32),
@@ -314,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
-                final sessions = snapshot.data ?? [];
+                final sessions = provider.sessions;
                 if (sessions.isEmpty) {
                   return const Center(
                     child: Text(
@@ -329,12 +316,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     final max = s['max_slots'] ?? 6;
                     final isFull = joined >= max;
 
-                    return Card(
-                      elevation: 2,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => SessionDetailScreen(
+                              sessionId: s['id'],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       child: Padding(
                         padding: const EdgeInsets.all(14),
                         child: Column(
@@ -414,6 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+                      ),
                       ),
                     );
                   }).toList(),

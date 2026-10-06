@@ -39,8 +39,11 @@ class _VenuesScreenState extends State<VenuesScreen> {
         backgroundColor: AppConstants.primaryColor,
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _venuesFuture,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _venuesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -54,6 +57,8 @@ class _VenuesScreenState extends State<VenuesScreen> {
           }
 
           return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(12),
             itemCount: venues.length,
             itemBuilder: (context, index) {
@@ -150,6 +155,39 @@ class _VenuesScreenState extends State<VenuesScreen> {
             },
           );
         },
+      ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '🏪 Đối Tác & Shop Căng Vợt',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            _buildPartnerCard('Shop VNB Nha Trang', 'Chuyên căng vợt Yonex, Lining chuẩn số ký.', '0905123456', Icons.store, Colors.orange),
+            _buildPartnerCard('Cửa hàng Thể Thao 2/4', 'Căng cước lưới Yonex BG65, BG66. Trả vợt 2h.', '0905123457', Icons.sports_tennis, Colors.blue),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPartnerCard(String name, String desc, String phone, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: color, size: 32),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(desc),
+        trailing: IconButton(
+          icon: const Icon(Icons.phone, color: Colors.green),
+          onPressed: () => _makeCall(phone),
+        ),
       ),
     );
   }

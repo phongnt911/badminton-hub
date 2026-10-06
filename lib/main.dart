@@ -5,17 +5,30 @@ import 'core/app_constants.dart';
 import 'screens/home_screen.dart';
 import 'screens/venues_screen.dart';
 import 'screens/tools_screen.dart';
+import 'screens/clubs_screen.dart';
+
+import 'package:provider/provider.dart';
+import 'package:badminton_hub/providers/club_provider.dart';
+import 'package:badminton_hub/providers/session_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Khởi tạo Supabase với thông số của bạn
-    await Supabase.initialize(
-      url: AppConstants.supabaseUrl,
-      publishableKey: AppConstants.supabaseAnonKey,
-    );
+  await Supabase.initialize(
+    url: AppConstants.supabaseUrl,
+    publishableKey: AppConstants.supabaseAnonKey,
+  );
 
-  runApp(const BadmintonHubApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ClubProvider()),
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
+      ],
+      child: const BadmintonHubApp(),
+    ),
+  );
 }
 
 class BadmintonHubApp extends StatelessWidget {
@@ -48,6 +61,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> _screens = const [
     HomeScreen(),
     VenuesScreen(),
+    ClubsScreen(),
     ToolsScreen(),
   ];
 
@@ -66,6 +80,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           NavigationDestination(
             icon: Icon(Icons.location_on),
             label: 'Sân Nha Trang',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.group),
+            label: 'CLB & Quỹ',
           ),
           NavigationDestination(icon: Icon(Icons.build), label: 'Tiện Ích'),
         ],
