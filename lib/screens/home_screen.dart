@@ -100,13 +100,84 @@ class _HomeScreenState extends State<HomeScreen> {
                 contactPhone: phoneCtrl.text,
                 levelRequirement: 'Giao lưu vui vẻ',
               );
+              if (!ctx.mounted) return;
               Navigator.pop(ctx);
               _refresh();
+              
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Đã đăng kèo thành công!')),
               );
             },
             child: const Text('Đăng Kèo'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Hộp thoại nhập tên và sđt khi giữ chỗ
+  void _showJoinDialog(String sessionId, int currentJoined, int maxSlots) {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('📝 Đăng Ký Tham Gia'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Tên hiển thị'),
+            ),
+            TextField(
+              controller: phoneCtrl,
+              decoration: const InputDecoration(labelText: 'Số điện thoại'),
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppConstants.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              if (nameCtrl.text.isEmpty || phoneCtrl.text.isEmpty) {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Vui lòng nhập đủ thông tin!')),
+                );
+                return;
+              }
+
+              await _service.joinSession(
+                sessionId: sessionId,
+                playerName: nameCtrl.text,
+                phone: phoneCtrl.text,
+                currentJoined: currentJoined,
+                maxSlots: maxSlots,
+              );
+
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx);
+              
+              _refresh();
+              
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Đăng ký slot thành công!'),
+                ),
+              );
+            },
+            child: const Text('Giữ Chỗ'),
           ),
         ],
       ),
@@ -331,24 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ElevatedButton(
                                   onPressed: isFull
                                       ? null
-                                      : () async {
-                                          await _service.joinSession(
-                                            sessionId: s['id'],
-                                            playerName: 'Khách Vãng Lai',
-                                            phone: '0905000000',
-                                            currentJoined: joined,
-                                            maxSlots: max,
-                                          );
-                                          _refresh();
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                    'Đăng ký slot thành công!',
-                                                  ),
-                                                ),
-                                              );
-                                        },
+                                      : () => _showJoinDialog(s['id'], joined, max),
+
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppConstants.primaryColor,
                                     foregroundColor: Colors.white,
