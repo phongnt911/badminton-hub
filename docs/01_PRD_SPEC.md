@@ -1,6 +1,6 @@
 # PRD — Badminton Hub
 
-Phiên bản 1.0 · 14/10/2026. Đây là yêu cầu đích, không phải báo cáo hoàn thành.
+Phiên bản 1.1 · 14/10/2026. Đây là yêu cầu đích, không phải báo cáo hoàn thành.
 
 ## 1. Định vị và mục tiêu
 
@@ -79,3 +79,12 @@ BH-08 bổ sung gợi ý xoay tua từ người có mặt và lưu trạng thái
 ## 9. Những điều cần xác nhận khi tiếp cận host
 
 Thu phí theo buổi hay tháng; số sân/người; cách đăng ký; thành viên/khách có phí khác nhau không; ai là thủ quỹ; quy tắc hủy và khách đến muộn; mong muốn thực tế với kèo độ. Quyết định mới phải cập nhật tài liệu liên quan trước khi code phần bị ảnh hưởng.
+
+## 10. Quy tắc bổ sung từ review v1.1
+
+- Public chỉ thấy projection thông tin buổi/sân; không đọc contacts, cờ thanh toán hoặc bảng người chơi gốc. Client không có direct write cho đăng ký/điểm danh/tiền/quyền. RPC trả trạng thái và kết quả thật, UI không suy ra thành công từ HTTP không lỗi hoặc UPDATE 0 hàng.
+- Mỗi thay đổi input ảnh hưởng khoản phải thu tăng billing_input_version của buổi. Bản chốt phí chỉ được dùng khi source_version bằng phiên bản hiện tại. Khi lỗi thời, vẫn xem lịch sử/phí cũ có nhãn, nhưng không tạo QR, nộp/xác nhận thu tiền mặt/chuyển khoản hoặc complete trước khi chốt lại. Không xóa tiền đã xác nhận; outstanding cũ không được trình bày là số phải trả cuối cùng.
+- Buổi miễn phí cũng phải có revision hợp lệ với charges 0; không bỏ qua quy tắc phiên bản bằng nút xác nhận miễn phí.
+- Danh sách chờ không giữ slot. Host/cohost phát hành lời mời có hạn; người được mời chấp nhận rồi DB kiểm tra lại slot. Không được chấp nhận khi chưa được mời, lời mời hết hạn/thu hồi hoặc sai người. Khách không account được host ghi nhận sự đồng ý và chấp nhận thay, có audit; không biến host-added guest thành tài khoản giả.
+- Deadline mời mặc định 30 phút, không vượt registration_deadline/starts_at. Nếu không còn cửa sổ hợp lệ, host dùng luồng thêm khách trực tiếp khi buổi in_progress, không kéo dài lời mời lặng lẽ.
+- Mất mạng/quyền/schema thiếu phải hiện lỗi và retry; không coi lỗi là empty, không giữ spinner vô hạn. Cập nhật giao diện chỉ sau kết quả DB được xác nhận; retry giữ request_id.

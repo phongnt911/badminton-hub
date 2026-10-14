@@ -1,6 +1,6 @@
 # Luồng màn hình và nội dung UI
 
-Đặc tả v1.0, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
+Đặc tả v1.1, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
 
 ## 1. Điều hướng
 
@@ -55,3 +55,10 @@ MVP hỗ trợ copy link/nội dung để host tự gửi Zalo/Facebook, không 
 ## 5. Công cụ trên sân sau pilot
 
 Bảng điểm, xoay tua và giao lưu mở từ session in_progress, dùng danh sách present. Không yêu cầu nhập lại danh sách người bằng tên tự do. Xoay tua cho host xem gợi ý trước xác nhận; có manual override. Kèo giao lưu được đồng ý trước trận, lưu vật phẩm/số lượng/participant IDs; sửa/undo kết quả không tạo khoản trùng. Quy tắc bảng điểm phải ghi phiên bản/thể thức; không tự gắn nhãn chuẩn BWF khi chưa kiểm tra luật áp dụng.
+
+## 6. UI bổ sung từ review v1.1
+
+- billing_state=stale: banner "Dữ liệu tính phí đã thay đổi, cần chốt lại"; chỉ xem bản cũ với nhãn lịch sử; disable QR/nộp/confirm/cash/complete, server cũng chặn. Nút Chốt lại chỉ cho finance, hiện lý do và phần đã thu.
+- Waitlist: người chơi thấy chưa được mời hoặc lời mời có thời hạn và nút chấp nhận. Host có Mời/Thu hồi; lời mời không hứa giữ slot. Guest chưa account: host ghi nhận đồng ý, không tạo login giả.
+- Form ngày/giờ phải dùng giá trị đã nhập, kể cả ngày mai/qua nửa đêm; không gán literal giờ hoặc DateTime.now() làm ngày mọi buổi.
+- Schema chưa có, permission denied và lỗi mạng là error có retry, không empty. Các switch điểm danh/thu tiền chỉ thay state sau kết quả RPC; refresh cũng cần handling và kiểm tra route còn mounted.

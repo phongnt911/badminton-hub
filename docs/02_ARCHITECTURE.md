@@ -1,6 +1,6 @@
 # Kiến trúc tổng thể — đặc tả đích
 
-Phiên bản 1.0 · 14/10/2026. Giữ Flutter/Dart, Provider, Supabase PostgreSQL/Auth/Storage. Phiên bản SDK thực tế lấy từ pubspec và toolchain đã xác minh, không tự nâng SDK theo tài liệu.
+Phiên bản 1.1 · 14/10/2026. Giữ Flutter/Dart, Provider, Supabase PostgreSQL/Auth/Storage. Phiên bản SDK thực tế lấy từ pubspec và toolchain đã xác minh, không tự nâng SDK theo tài liệu.
 
 ## 1. Sơ đồ hệ thống
 
@@ -105,3 +105,9 @@ Log mã lỗi, operation/request ID, thời gian; không log JWT, SĐT, tài kho
 - ADR-04: ledger là nguồn số dư, charges + confirmed payments là nguồn công nợ.
 - ADR-05: MVP không ghi offline, không tích hợp ngân hàng tự động.
 - ADR-06: schema tài liệu là hợp đồng đích; migration được viết/kiểm thử trong BH-02, không áp dụng tự động chỉ vì có tài liệu.
+
+## 9. ADR và yêu cầu sau review v1.1
+
+[11_ARCHITECTURE_DECISIONS.md](11_ARCHITECTURE_DECISIONS.md) chứa context, phương án, quyết định và chi phí của ADR-01 đến ADR-09. Các nhãn ADR ở phần 8 là tóm tắt, bản chi tiết ở file 11 là nguồn chuẩn.
+
+Giữ module trong một app/một DB. Không thêm backend hay đầy đủ domain/use-case/port/adapter cho mọi CRUD. Transaction DB bảo vệ đăng ký và tiền; thông báo tương lai có thể async nhưng không quyết định nguồn số liệu. Billing freshness dựa trên phiên bản input/revision. Projection/UI phải thể hiện stale và server chặn thao tác thu/complete. Lời mời waitlist có trạng thái lưu tại DB, không chỉ biến state màn hình.
