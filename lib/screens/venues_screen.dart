@@ -92,8 +92,8 @@ class _VenuesScreenState extends State<VenuesScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: AppConstants.primaryColor.withOpacity(
-                                0.15,
+                              color: AppConstants.primaryColor.withValues(
+                                alpha: 0.15,
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),

@@ -130,16 +130,20 @@ class _ToolsScreenState extends State<ToolsScreen> {
 
     if (maxPoints == 21) {
       // Luật 21: Thắng khi đạt 21 và cách 2 điểm, hoặc chạm mốc 30 trước
-      if (scoreA >= 21 && (scoreA - scoreB >= 2 || scoreA == 30))
+      if (scoreA >= 21 && (scoreA - scoreB >= 2 || scoreA == 30)) {
         teamAWon = true;
-      if (scoreB >= 21 && (scoreB - scoreA >= 2 || scoreB == 30))
+      }
+      if (scoreB >= 21 && (scoreB - scoreA >= 2 || scoreB == 30)) {
         teamBWon = true;
+      }
     } else {
       // Set 11 điểm
-      if (scoreA >= 11 && (scoreA - scoreB >= 2 || scoreA == 15))
+      if (scoreA >= 11 && (scoreA - scoreB >= 2 || scoreA == 15)) {
         teamAWon = true;
-      if (scoreB >= 11 && (scoreB - scoreA >= 2 || scoreB == 15))
+      }
+      if (scoreB >= 11 && (scoreB - scoreA >= 2 || scoreB == 15)) {
         teamBWon = true;
+      }
     }
 
     if (teamAWon || teamBWon) {

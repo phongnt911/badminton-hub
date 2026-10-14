@@ -135,16 +135,16 @@ void main() async {
   try {
     final request = await httpClient.postUrl(url);
     request.headers.set('apikey', key);
-    request.headers.set('Authorization', 'Bearer ' + key);
+    request.headers.set('Authorization', 'Bearer $key');
     request.headers.set('Content-Type', 'application/json');
     
     request.add(utf8.encode(jsonEncode(dbData)));
     final response = await request.close();
     final responseBody = await response.transform(utf8.decoder).join();
-    print('Status: ' + response.statusCode.toString());
-    print('Body: ' + responseBody);
+    stdout.writeln('Status: ${response.statusCode}');
+    stdout.writeln('Body: $responseBody');
   } catch (e) {
-    print('Error: ' + e.toString());
+    stderr.writeln('Error: $e');
   } finally {
     httpClient.close();
   }
