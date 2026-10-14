@@ -1,29 +1,47 @@
-# 🏸 Badminton Nha Trang Hub
+# Badminton Hub
 
-Ứng dụng di động đa nền tảng (Android, iOS, Web, Windows) dành cho cộng đồng người chơi cầu lông và chủ nhóm tại TP. Nha Trang.
+Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
----
+## Tài liệu để triển khai
 
-## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN TRÊN MÁY TÍNH MỚI (Windows / macOS)
+Bắt đầu tại **[docs/00_START_HERE.md](docs/00_START_HERE.md)**. Bộ đặc tả v1.0 ngày 14/10/2026 gồm:
 
-Khi chuyển sang máy tính mới (ở nhà, công ty, hoặc MacBook), bạn chỉ cần làm đúng các bước sau:
+- [Yêu cầu sản phẩm](docs/01_PRD_SPEC.md).
+- [Kiến trúc tổng thể](docs/02_ARCHITECTURE.md).
+- [Cơ sở dữ liệu, ERD và phân quyền](docs/03_DATABASE.md).
+- [Quy tắc cho Antigravity/AI](docs/04_LLM_RULES.md).
+- [Hợp đồng thao tác nghiệp vụ](docs/08_DOMAIN_CONTRACTS.md).
+- [Backlog và nghiệm thu](docs/09_IMPLEMENTATION_PLAN.md).
+- [Luồng màn hình](docs/10_SCREEN_FLOWS.md).
+- [Rà soát code và tham khảo Vmito](docs/07_HOST_FIRST_REVIEW.md).
 
-### 1. Chuẩn bị công cụ trên máy mới:
-- Đã cài **Git** và **GitHub Desktop**.
-- Đã cài **VS Code** (kèm Extension **Flutter**).
-- Đã cài **Flutter SDK** và thêm vào biến môi trường Path.
+Code hiện tại là demo, chưa hoàn thành yêu cầu v1.0. Đợt cập nhật tài liệu chưa đổi ứng dụng hoặc database live. SQL 05/06 là legacy; không chạy để tạo schema mới hoặc vào production.
 
-### 2. Kéo code về máy mới bằng GitHub Desktop:
-1. Mở **GitHub Desktop** -> `File` -> `Clone repository...`
-2. Chọn repo: `phongnt911/badminton-hub` -> Bấm **Clone**.
-3. Bấm nút: **Open in Visual Studio Code**.
+## Chạy dự án hiện có
 
-### 3. Cài thư viện và chạy App:
-Mở Terminal trong VS Code và gõ 2 lệnh:
+Cài Git, Flutter SDK tương thích `pubspec.yaml`, VS Code/extensions nếu cần. Clone repo và mở thư mục:
+
 ```bash
+git clone https://github.com/phongnt911/badminton-hub.git
+cd badminton-hub
 flutter pub get
-flutter run -d windows   # Trên máy Windows
-# HOẶC
-flutter run -d chrome    # Chạy trên trình duyệt Chrome
-# HOẶC (trên MacBook)
-flutter run -d macos     # hoặc cắm iPhone/máy ảo iOS
+flutter run -d chrome
+# Windows: flutter run -d windows
+# macOS: flutter run -d macos
+# Mobile: flutter devices rồi chọn thiết bị
+```
+
+Bản demo hiện dùng cấu hình Supabase trong `lib/core/app_constants.dart`; chỉ chạy môi trường có dữ liệu/quyền phù hợp, không thao tác thử lên dữ liệu thật. BH-01/BH-02 sẽ tách môi trường cấu hình và migration theo kiến trúc mới.
+
+## Kiểm tra khi triển khai
+
+```bash
+flutter analyze
+flutter test
+```
+
+Test hiện có chưa xác minh luồng thật; bổ sung theo tiêu chí từng ticket. Kiểm tra DB/RLS/RPC dùng local/staging theo backlog, không nối test với production.
+
+## Dùng với Antigravity
+
+Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (bắt đầu BH-01). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.

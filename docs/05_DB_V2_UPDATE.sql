@@ -1,3 +1,7 @@
+-- LEGACY: SQL cua demo truoc dac ta v1.0 ngay 14/10/2026.
+-- KHONG chay lam migration moi hoac tren production.
+-- Doc docs/00_START_HERE.md va docs/03_DATABASE.md; migration dich se viet trong BH-02.
+
 -- 1. Cập nhật bảng session_players (Thêm cột check-in & thanh toán)
 ALTER TABLE session_players ADD COLUMN IF NOT EXISTS has_arrived BOOLEAN DEFAULT FALSE;
 ALTER TABLE session_players ADD COLUMN IF NOT EXISTS has_paid BOOLEAN DEFAULT FALSE;

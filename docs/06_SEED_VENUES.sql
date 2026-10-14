@@ -1,3 +1,7 @@
+-- LEGACY: SQL cua demo truoc dac ta v1.0 ngay 14/10/2026.
+-- KHONG chay lam migration moi hoac tren production.
+-- Doc docs/00_START_HERE.md va docs/03_DATABASE.md; migration dich se viet trong BH-02.
+
 -- Script chèn dữ liệu các sân cầu lông tại Nha Trang (Cập nhật T10/2026)
 -- Chạy đoạn mã này trong SQL Editor của Supabase
 

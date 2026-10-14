@@ -1,21 +1,29 @@
-# BỘ QUY TẮC DÀNH CHO CÁC AI/LLM THAM GIA DỰ ÁN
+# Quy tắc cho Antigravity và các AI tham gia dự án
 
-Tài liệu này là BẮT BUỘC ĐỌC đối với mọi LLM (ChatGPT, Claude, Gemini, Copilot...) trước khi đọc mã nguồn hoặc tạo/chỉnh sửa code.
+## 1. Nguồn yêu cầu
 
-## 1. Thông tin Chủ dự án
-- Người phát triển là người mới bắt đầu (Beginner / Non-tech). 
-- Mục tiêu: Code chuẩn mực, sạch sẽ, dễ bảo trì, giải thích bằng Tiếng Việt dễ hiểu.
-- KHÔNG dùng từ ngữ quá hàn lâm, không refactor phức tạp khi chưa được yêu cầu.
+Bắt đầu tại `docs/00_START_HERE.md`, đọc PRD, kiến trúc, database, domain contracts, backlog và screen flows. Các file 01/02/03/08/09/10 là đặc tả đích chuẩn. 07 là rà soát lịch sử. SQL 05/06 là legacy, không chạy để dựng schema mới. Nếu yêu cầu mới của chủ dự án khác tài liệu, ưu tiên yêu cầu mới và cập nhật các tài liệu liên quan.
 
-## 2. Nguyên tắc Code
-- **Chậm mà chắc:** Làm từng tính năng một. Không viết code dở dang hoặc tạo quá nhiều file cùng lúc.
-- **Bảo toàn cấu trúc:** Tuân thủ 100% cấu trúc thư mục quy định tại `docs/02_ARCHITECTURE.md`. Không tự ý tạo thư mục hay kiến trúc riêng.
-- **Thư viện (Dependencies):** Không tự tiện thêm thư viện mới vào `pubspec.yaml` nếu không thảo luận trước với người dùng.
-- **Comment Tiếng Việt:** Viết chú thích rõ ràng ở các hàm logic quan trọng (đặc biệt là tính tiền, tạo VietQR, tính điểm).
-- **Xử lý ngoại lệ (Error Handling):** Mọi chức năng gọi mạng hoặc CSDL phải có đủ 3 trạng thái: Đang tải (Loading), Lỗi (Error), và Không có dữ liệu (Empty).
+Phân biệt rõ đã có code, đã kiểm thử và yêu cầu tương lai. Không ghi hoàn thành 100% từ việc có giao diện. Người phát triển cần giải thích tiếng Việt dễ hiểu, file/command cụ thể và kết quả kiểm tra có bằng chứng.
 
-## 3. Quy trình làm việc khi nhận yêu cầu mới
-1. Đọc lại `docs/01_PRD_SPEC.md` để hiểu nghiệp vụ.
-2. Nêu rõ kế hoạch: Sẽ tạo/sửa những file nào, mục đích là gì.
-3. Cung cấp mã nguồn trọn vẹn (không viết tắt `// code cũ ở đây...` gây nhầm lẫn cho người mới).
-4. Hướng dẫn người dùng cách kiểm thử (Test) trên thiết bị.
+## 2. Cách triển khai
+
+- Làm từng ticket tại 09_IMPLEMENTATION_PLAN, hoàn thành một luồng có thể kiểm thử trước khi mở rộng.
+- Đọc code/schema thực tế; nêu phạm vi và các file sẽ sửa trước khi thực hiện. Không tự áp dụng DB remote vì tài liệu có schema.
+- Giữ Flutter + Provider + Supabase. Cấu trúc đích theo 02_ARCHITECTURE; thêm model/repository dần theo ticket, không tạo nhiều scaffold rỗng hoặc đổi framework.
+- Không tự thêm dependency mới khi chưa thảo luận với chủ dự án. Có thể dùng thư viện hiện có và SDK chính thức đã được cài.
+- Mọi network state có loading/error/empty, mutation có submitting và chống bấm trùng. Không nuốt lỗi rồi báo thành công.
+- Quyền nằm tại RLS/RPC; ẩn nút chỉ là trải nghiệm. Client không ghi bộ đếm, số dư, role, confirmed_by hoặc audit actor tùy ý.
+- Tiền nguyên VNĐ; thời gian UTC/timestamptz, hiển thị giờ Việt Nam. QR không xác nhận đã thu tiền.
+- Không tự gộp tên/SĐT thành người dùng hoặc chủ CLB. Không đưa service-role/secrets vào source/client/log.
+- Comment tiếng Việt tại logic tiền, slot và phân quyền; code đầy đủ, không placeholder giả thành tính năng hoạt động.
+
+## 3. Kiểm thử và báo cáo
+
+Chạy kiểm tra phù hợp ticket, ưu tiên quyền chéo CLB, hai đăng ký slot cuối, retry không trùng, chia tiền chính xác và quỹ nhất quán. Test thật luồng được sửa; không thay bằng widget Text giả. Test DB ở local/staging, không dùng tài chính hay thông tin thật trong fixture. Nếu thiếu toolchain/backend, báo rõ phần chưa chạy.
+
+Kết thúc ticket: liệt kê thay đổi, tiêu chí nghiệm thu đạt/chưa đạt, lệnh đã chạy, việc cấu hình ngoài code và cập nhật trạng thái backlog có bằng chứng. Không thay đổi DB production, auth settings, billing hoặc deploy nếu phạm vi chức năng chưa bao gồm hành động đó. Không tự xóa dữ liệu để sửa migration; chuẩn bị kế hoạch chuyển đổi có đối chiếu.
+
+## 4. Đồng bộ
+
+Commit thay đổi liên quan, không gộp sửa ngoài phạm vi. Trước push kiểm tra remote và tránh ghi đè thay đổi người khác. Khi làm trên nhánh khác main, nói rõ nhánh để chủ dự án mở đúng trong Antigravity. Chỉ merge/deploy khi nằm trong yêu cầu được giao.
