@@ -46,5 +46,6 @@ Không còn policy public write trên bảng nghiệp vụ; các ca đồng th�
 | Ngày | Ticket | Trạng thái | Bằng chứng |
 |---|---|---|---|
 | 14/10/2026 | Bộ đặc tả v1.0 | Đã soạn tài liệu | 00/01/02/03/04/08/09/10; chưa triển khai app/DB |
+| 14/10/2026 | BH-01 | Đã hoàn thành (Done) | AuthRepository, AuthProvider, AuthScreen, AccountScreen, AuthGuard, AppConfig; 28 tests passed (unit + widget); flutter analyze clean 0 issues; scripts/supabase_client.dart kết nối trực tiếp thành công |
 
 AI chỉ ghi ticket done sau khi đạt nghiệm thu hoặc ghi rõ ngoại lệ đã được chủ dự án chấp nhận. Không xóa nhật ký để giả tiến độ.

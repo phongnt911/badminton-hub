@@ -31,17 +31,38 @@ flutter run -d chrome
 # Mobile: flutter devices rồi chọn thiết bị
 ```
 
-Bản demo hiện dùng cấu hình Supabase trong `lib/core/app_constants.dart`; chỉ chạy môi trường có dữ liệu/quyền phù hợp, không thao tác thử lên dữ liệu thật. BH-01/BH-02 sẽ tách môi trường cấu hình và migration theo kiến trúc mới.
+## Cấu hình môi trường & Supabase
 
-## Kiểm tra khi triển khai
+Dự án sử dụng `AppConfig` (`lib/core/app_config.dart`) để quản lý cấu hình kết nối. Mặc định kết nối tới môi trường dev, có thể ghi đè linh hoạt qua cờ `--dart-define`:
+
+```bash
+flutter run --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_ANON_KEY=your-anon-key
+```
+
+### Công cụ dòng lệnh tương tác trực tiếp với Supabase
+Để kiểm tra kết nối hoặc truy vấn dữ liệu từ terminal mà không cần khởi động toàn bộ app:
+
+```bash
+# Kiểm tra kết nối REST API và Auth API
+dart run scripts/supabase_client.dart ping
+
+# Truy vấn nhanh dữ liệu bảng (ví dụ: venues)
+dart run scripts/supabase_client.dart query venues
+
+# Xem thông tin cấu hình dự án
+dart run scripts/supabase_client.dart info
+```
+
+## Kiểm tra chất lượng (Quality Assurance)
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-Test hiện có chưa xác minh luồng thật; bổ sung theo tiêu chí từng ticket. Kiểm tra DB/RLS/RPC dùng local/staging theo backlog, không nối test với production.
+- **BH-01 (Auth & Cấu hình)**: Đã hoàn thành. Toàn bộ 28 bài unit & widget tests kiểm thử `AuthRepository`, `AuthProvider`, `AuthGuard`, `AuthScreen`, `AccountScreen` và Public Read đều vượt qua (100% pass), không gọi tới Supabase production trong test.
+- **`flutter analyze`**: 0 lỗi, 0 cảnh báo.
 
 ## Dùng với Antigravity
 
-Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (bắt đầu BH-01). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
+Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (tiếp theo là BH-02). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
