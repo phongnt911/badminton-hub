@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'app_config.dart';
+
 class AppConstants {
-  // 1. Khóa kết nối Supabase của bạn
-  static const String supabaseUrl = 'https://vqelcjxljddxoyplgcvm.supabase.co';
-  static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxjanhsamRkeG95cGxnY3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODc0NjIsImV4cCI6MjEwNjg2MzQ2Mn0.u_lf-7_EYW9SGuVL5iiOw5hXiuiR-Sq4HE7xw-kdgpg';
+  // 1. Khóa kết nối Supabase (lấy từ cấu hình động AppConfig)
+  static String get supabaseUrl => AppConfig.supabaseUrl;
+  static String get supabaseAnonKey => AppConfig.supabaseAnonKey;
 
   // 2. Màu sắc chủ đạo (Xanh lá thể thao năng động)
   static const Color primaryColor = Color(0xFF00A86B); // Xanh Emerald

@@ -10,11 +10,13 @@ import 'screens/clubs_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:badminton_hub/providers/club_provider.dart';
 import 'package:badminton_hub/providers/session_provider.dart';
+import 'package:badminton_hub/providers/auth_provider.dart';
+import 'screens/account_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Khởi tạo Supabase với thông số của bạn
+  // Khởi tạo Supabase với thông số cấu hình từ AppConfig / AppConstants
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
     publishableKey: AppConstants.supabaseAnonKey,
@@ -23,6 +25,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ClubProvider()),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
       ],
@@ -63,6 +66,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     VenuesScreen(),
     ClubsScreen(),
     ToolsScreen(),
+    AccountScreen(),
   ];
 
   @override
@@ -86,6 +90,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'CLB & Quỹ',
           ),
           NavigationDestination(icon: Icon(Icons.build), label: 'Tiện Ích'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Tài Khoản'),
         ],
       ),
     );
