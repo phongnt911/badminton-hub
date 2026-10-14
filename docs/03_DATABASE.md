@@ -1,4 +1,4 @@
-# Cơ sở dữ liệu — mô hình đích v1.0
+# Cơ sở dữ liệu — mô hình đích v1.1
 
 14/10/2026 · PostgreSQL/Supabase. Đây là thiết kế để viết migration BH-02, chưa phải mô tả schema live. SQL cũ 05/06 không đủ để tạo hệ thống này.
 
@@ -59,7 +59,7 @@ id PK; name/address NOT NULL; area, phone_number, map_url, image_url nullable; c
 
 ### sessions
 
-id PK; club_id FK nullable; host_user_id FK NOT NULL; venue_id FK NOT NULL; title NOT NULL; description nullable; starts_at/ends_at timestamptz NOT NULL; capacity integer NOT NULL > 0; court_count integer NOT NULL > 0; level_requirement nullable; visibility (`private`,`unlisted`,`public`), default unlisted; lifecycle (`draft`,`published`,`in_progress`,`completed`,`cancelled`); approval_mode (`host_approval`,`auto_confirm`); fee_mode (`fixed`,`split_actual`); member_fee_vnd/guest_fee_vnd bigint >= 0 nullable chỉ khi split; registration_deadline/cancellation_deadline timestamptz; receiver_club_bank_account_id hoặc receiver_host_bank_account_id FK; receiver_snapshot jsonb nullable; version bigint NOT NULL default 1; created_at/updated_at.
+id PK; club_id FK nullable; host_user_id FK NOT NULL; venue_id FK NOT NULL; title NOT NULL; description nullable; starts_at/ends_at timestamptz NOT NULL; capacity integer NOT NULL > 0; court_count integer NOT NULL > 0; level_requirement nullable; visibility (`private`,`unlisted`,`public`), default unlisted; lifecycle (`draft`,`published`,`in_progress`,`completed`,`cancelled`); approval_mode (`host_approval`,`auto_confirm`); fee_mode (`fixed`,`split_actual`); member_fee_vnd/guest_fee_vnd bigint >= 0 nullable chỉ khi split; registration_deadline/cancellation_deadline timestamptz; receiver_club_bank_account_id hoặc receiver_host_bank_account_id FK; receiver_snapshot jsonb nullable; version bigint NOT NULL default 1; billing_input_version bigint NOT NULL default 1 CHECK > 0; created_at/updated_at.
 
 CHECK ends_at > starts_at, registration_deadline <= ends_at, cancellation_deadline <= starts_at. Fixed yêu cầu đủ hai mức phí. Receiver phải thuộc đúng CLB/host; snapshot được chốt khi publish/chốt phí và chỉ qua API riêng cho người có quyền. Không expose snapshot trên public row. Thay ngân hàng sau khi đã thu cần xác nhận rõ và audit; không đổi mã tham chiếu của payment.
 
@@ -87,7 +87,7 @@ id PK; session_id FK; category (`court`,`shuttle`,`other`); title text NOT NULL;
 
 ### charge_revisions và session_charges
 
-`charge_revisions`: id PK; session_id FK; revision_no integer > 0; status (`active`,`superseded`); allocation_total_vnd bigint >= 0; fee_mode snapshot; reason nullable; finalized_by FK; finalized_at timestamptz. UNIQUE(session_id,revision_no), partial UNIQUE(session_id) WHERE status='active'. Revision đầu không yêu cầu lý do; revision sau bắt buộc lý do.
+`charge_revisions`: id PK; session_id FK; revision_no integer > 0; source_version bigint NOT NULL CHECK > 0; status (`active`,`superseded`); allocation_total_vnd bigint >= 0; fee_mode snapshot; reason nullable; finalized_by FK; finalized_at timestamptz. UNIQUE(session_id,revision_no), partial UNIQUE(session_id) WHERE status='active'. Revision đầu không yêu cầu lý do; revision sau bắt buộc lý do.
 
 `session_charges`: id PK; revision_id FK; session_player_id FK; amount_due_vnd bigint >= 0; reason nullable; created_at; UNIQUE(revision_id,session_player_id). Player phải thuộc cùng session với revision, kiểm tra DB trigger/RPC. Có bản ghi 0 cho người được miễn phí, không bỏ mất dấu vết. Charge đã chốt immutable; tạo revision mới. Tất cả khoản thu chỉ bắt đầu sau finalization trong MVP.
 
@@ -147,3 +147,25 @@ Tất cả bảng bật RLS. Anonymous không có INSERT/UPDATE/DELETE bảng ng
 ## 7. Mô hình giai đoạn sau
 
 session_templates chỉ lưu cấu hình; matches(session_id,court_no,status), match_players(match_id,player_id,team), match_results versioned; challenges(match_id,item,quantity,status) và participants theo ID. Người đang playing không vào hai sân; số trận chỉ tăng sau kết thúc xác nhận. Elo/statistics là projection từ kết quả, không theo tên tự do. Các bảng này chưa thuộc migration MVP bắt buộc.
+
+## 8. Bản chốt phí và lời mời danh sách chờ (v1.1)
+
+### Phiên bản dữ liệu tính phí
+
+sessions.billing_input_version do DB tăng, client không được đặt. charge_revisions.source_version là snapshot phiên bản mà DB đã tính. `billing_state` là projection: chưa có revision → unfinalized; active.source_version != session.billing_input_version → stale; bằng nhau → current. Không lưu một cờ needs_refinalization độc lập có thể lệch nguồn.
+
+Tăng phiên bản trong cùng transaction khi thêm/đảo posted expense, thay đổi attendance, confirmed roster (kể cả khách sau chốt), agreed_fee/exemption/fee_mode hoặc thông tin khác thay đổi tập người/số tiền phải thu. Không tăng khi chỉ đổi contact/tên hiển thị/ghi chú hay xác nhận payment; payment không làm thay đổi amount_due. Cập nhật receiver dùng quy trình riêng, không trộn với phiên bản phép chia phí. Với thay đổi roster sau chốt, dùng quyền finance hoặc báo cần finance xử lý; cohost chỉ vận hành không tự thay tài chính đã chốt.
+
+finalize giữ lock session và input liên quan, kiểm tra expected_billing_input_version, tạo active revision có source_version khớp trong cùng transaction. Tất cả charges bao phủ người present, kể cả 0; người không chịu phí nhưng đã có confirmed payment không được bỏ mất khỏi kiểm tra đối chiếu. Nếu giảm due dưới số đã thu, báo cần xử lý trước, không tự đảo thanh toán thật.
+
+### waitlist_invitations
+
+id UUID PK; session_player_id UUID FK NOT NULL; invited_by UUID FK profiles NOT NULL; invited_at timestamptz NOT NULL; expires_at timestamptz NOT NULL; status (`pending`,`accepted`,`revoked`,`expired`); accepted_by UUID FK nullable; accepted_at nullable; acceptance_mode (`self`,`host_recorded`) nullable; consent_note text nullable; revoked_by UUID FK nullable; revoked_at nullable; created_at/updated_at.
+
+CHECK expires_at > invited_at. Partial UNIQUE(session_player_id) WHERE status='pending'; index(session_player_id,status,expires_at). RPC trước khi tạo invitation mới phải chuyển pending đã quá giờ sang expired trong cùng transaction. Trạng thái hết hạn tính từ thời gian DB, không chờ cron mới có hiệu lực. Expires_at không vượt deadline đăng ký/starts_at. Không chứa secret token vì MVP nhận theo account player, không self-service guest token.
+
+Chỉ host/cohost đúng session được mời/thu hồi. Player linked xem lời mời của mình. Guest không account: host/cohost ghi nhận đồng ý bằng consent_note và audit khi accept thay; không cho account khác tự accept guest. Accept/revoke/cancel khóa session → player → invitation; kiểm tra invitation player thuộc session và quyền người gọi, status/time, vòng đời và slot. Accepted không giữ slot riêng: chuyển player thành confirmed cùng transaction. Hủy player/buổi thu hồi pending invitations; revoke sau accepted dùng luồng cancel registration với quy tắc tương ứng.
+
+### Cổng quyền và schema
+
+Chỉ có table grant hoặc RLS enabled chưa chứng minh quyền đúng. Migration/tests phải kiểm tra grants + policy + RPC execution + payload projection; anon không đọc phone/has_paid, không insert flags; authenticated không sửa player khác. Bổ sung migration tạo clubs/club_transactions trước khi client gọi các bảng đó; không chạy SQL legacy để lấp schema thiếu. Tests dùng role app, không lấy postgres admin làm kết quả nghiệm thu quyền.

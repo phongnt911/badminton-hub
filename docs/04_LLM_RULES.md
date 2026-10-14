@@ -27,3 +27,9 @@ Kết thúc ticket: liệt kê thay đổi, tiêu chí nghiệm thu đạt/chưa
 ## 4. Đồng bộ
 
 Commit thay đổi liên quan, không gộp sửa ngoài phạm vi. Trước push kiểm tra remote và tránh ghi đè thay đổi người khác. Khi làm trên nhánh khác main, nói rõ nhánh để chủ dự án mở đúng trong Antigravity. Chỉ merge/deploy khi nằm trong yêu cầu được giao.
+
+## 5. Điều kiện v1.1 cho Antigravity
+
+Đọc ADR và prompt pack 11/12. Không chữa bộ đếm bằng public UPDATE policy; không chạy truy vấn bằng postgres rồi kết luận role app đúng. So sánh schema live với migrations, không giả định clubs/quỹ đã có. billing_state stale phải được bảo vệ bằng RPC, không chỉ UI. Không tạo lớp domain/use-case/adapter cho CRUD nếu chưa có trách nhiệm thực.
+
+Prompt pack giao việc từng phạm vi; thiếu local/staging thì tiếp tục chuẩn bị code/test và báo phần chưa chạy, không tự dùng production để test. Khi task là tài liệu, không áp dụng migration. Trạng thái review gồm "đã đặc tả cách sửa" và "đã triển khai/kiểm thử", không gộp làm done.
