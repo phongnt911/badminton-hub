@@ -1,0 +1,357 @@
+{
+  "timestamp": "20261015173937",
+  "tested_commit": "9f2d455bf767691ac9c4cecb08dbb4d8fe314187",
+  "worktree_dirty": false,
+  "migration_sha256": {
+    "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "20261015140216_bh03_identity_retry_session_fixes.sql": "3424bb8a37979e9985722c4bd92db68ba875a4d3221e2874ff113799a3560e3e",
+    "20261015151445_pre_bh04_hardening.sql": "404edb4a0b6bbbe8aebb5788c34ab5d799072f915bb5274611890ee09ceb59db",
+    "20261015163000_bh04_sessions.sql": "489f13e230949ac398cf0ffb32c91c4b3bdd91303f3a7b957d228920094479b2",
+    "20261015163001_bh04_review_fixes.sql": "d2d134b570cec5fa297a88c1ce13771c857daf72c0fe617b17560742e3dd52a0",
+    "20261015170500_bh05_registrations.sql": "356f5831649eb4d09efa624402679cce67211056ce44e09cf6088715970ac588",
+    "20261016090000_bh05_review_fixes.sql": "f0e2573c0f95e1108511f78acece37f90eaa0cb7c63093389e25a8878bc5e30e",
+    "20261016091000_bh05_a3_cancel_revokes_invitations.sql": "8895c9550a2611915b218ab92b5742a37acaca6f3ed8e88c951efc7a7b0fba72"
+  },
+  "total": 84,
+  "passed": 84,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "anon không gọi được request_join_session (ACL)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session bắt buộc request_id",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session host_approval: pending, không chiếm slot, replay cùng key",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session auto_confirm: confirmed và chốt agreed_fee fixed",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session auto_confirm hết chỗ: waitlisted, không vượt sức chứa",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn đăng ký trùng (DUPLICATE_PARTICIPANT)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session cùng request_id khác payload trả IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "đăng ký lại sau cancelled dùng lại player_id (không thêm ID)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn buổi chưa publish (INVALID_STATE)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn sau registration_deadline (DEADLINE_PASSED)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session buổi private: member CLB vào được, người ngoài FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "name": "decide_registration duyệt pending và chặn duyệt thẳng waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "decide_registration chặn khi hết chỗ (CAPACITY_FULL)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player thêm guest và member CLB (guest user_id NULL, giữ contact riêng)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player chặn member ngoài CLB (INVALID_INPUT)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player hết chỗ: CAPACITY_FULL hoặc waitlist khi host chọn",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player fee_exempt cần quyền tài chính (cohost không finance bị chặn)",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration: tự hủy đúng hạn, chặn người khác và quá hạn",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration người đã present cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "record_attendance: chỉ in_progress, chỉ confirmed, replay cùng kết quả",
+      "status": "PASS"
+    },
+    {
+      "name": "invite_waitlisted_player: tạo lời mời không giữ slot, replay cùng key, chặn non-waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "invite_waitlisted_player chặn expiry ngoài biên (quá khứ/vượt starts_at)",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation: hết chỗ CAPACITY_FULL, giải phóng chỗ thì confirmed, accept lặp không thêm slot",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation sai người nhận trả FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation: lời mời thu hồi/hết hạn trả đúng mã",
+      "status": "PASS"
+    },
+    {
+      "name": "revoke_waitlist_invitation chặn lời mời đã accepted (dùng hủy đăng ký)",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation host_recorded: cần consent, không cho account khác, ghi mode+consent",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration thu hồi lời mời pending cùng transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "get_my_waitlist_invitation: đúng người nhận lời mời, người khác NULL",
+      "status": "PASS"
+    },
+    {
+      "name": "người ngoài/buổi không duyệt được và không đọc contact qua RPC",
+      "status": "PASS"
+    },
+    {
+      "name": "không có direct write cho authenticated trên session_players/waitlist_invitations",
+      "status": "PASS"
+    },
+    {
+      "name": "hai kết nối tranh slot cuối: chỉ một confirmed, người kia waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "hai kết nối duyệt cạnh tranh: không vượt sức chứa (người thua CAPACITY_FULL)",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 add_session_player: thêm confirmed sau chốt phí cần quyền tài chính (cohost FORBIDDEN, finance cho phép)",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 decide_registration: duyệt confirmed sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 cancel_registration: hủy confirmed sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 accept_waitlist_invitation: nhận chỗ sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A2 update_session: từ chối hạ capacity dưới số đã confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "A2 race: hạ capacity đấu với join — confirmed không vượt capacity",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 huỷ buổi thu hồi lời mời pending; get_my_waitlist_invitation không trả lời mời đã huỷ",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 race: huỷ buổi đấu với accept — không để lời mời pending khi buổi đã huỷ",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 replay huỷ buổi không tạo thêm tác dụng phụ",
+      "status": "PASS"
+    },
+    {
+      "name": "anon không gọi được request_join_session (ACL)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session bắt buộc request_id",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session host_approval: pending, không chiếm slot, replay cùng key",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session auto_confirm: confirmed và chốt agreed_fee fixed",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session auto_confirm hết chỗ: waitlisted, không vượt sức chứa",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn đăng ký trùng (DUPLICATE_PARTICIPANT)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session cùng request_id khác payload trả IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "đăng ký lại sau cancelled dùng lại player_id (không thêm ID)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn buổi chưa publish (INVALID_STATE)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session chặn sau registration_deadline (DEADLINE_PASSED)",
+      "status": "PASS"
+    },
+    {
+      "name": "request_join_session buổi private: member CLB vào được, người ngoài FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "name": "decide_registration duyệt pending và chặn duyệt thẳng waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "decide_registration chặn khi hết chỗ (CAPACITY_FULL)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player thêm guest và member CLB (guest user_id NULL, giữ contact riêng)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player chặn member ngoài CLB (INVALID_INPUT)",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player hết chỗ: CAPACITY_FULL hoặc waitlist khi host chọn",
+      "status": "PASS"
+    },
+    {
+      "name": "add_session_player fee_exempt cần quyền tài chính (cohost không finance bị chặn)",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration: tự hủy đúng hạn, chặn người khác và quá hạn",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration người đã present cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "record_attendance: chỉ in_progress, chỉ confirmed, replay cùng kết quả",
+      "status": "PASS"
+    },
+    {
+      "name": "invite_waitlisted_player: tạo lời mời không giữ slot, replay cùng key, chặn non-waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "invite_waitlisted_player chặn expiry ngoài biên (quá khứ/vượt starts_at)",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation: hết chỗ CAPACITY_FULL, giải phóng chỗ thì confirmed, accept lặp không thêm slot",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation sai người nhận trả FORBIDDEN",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation: lời mời thu hồi/hết hạn trả đúng mã",
+      "status": "PASS"
+    },
+    {
+      "name": "revoke_waitlist_invitation chặn lời mời đã accepted (dùng hủy đăng ký)",
+      "status": "PASS"
+    },
+    {
+      "name": "accept_waitlist_invitation host_recorded: cần consent, không cho account khác, ghi mode+consent",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_registration thu hồi lời mời pending cùng transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "get_my_waitlist_invitation: đúng người nhận lời mời, người khác NULL",
+      "status": "PASS"
+    },
+    {
+      "name": "người ngoài/buổi không duyệt được và không đọc contact qua RPC",
+      "status": "PASS"
+    },
+    {
+      "name": "không có direct write cho authenticated trên session_players/waitlist_invitations",
+      "status": "PASS"
+    },
+    {
+      "name": "hai kết nối tranh slot cuối: chỉ một confirmed, người kia waitlisted",
+      "status": "PASS"
+    },
+    {
+      "name": "hai kết nối duyệt cạnh tranh: không vượt sức chứa (người thua CAPACITY_FULL)",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 add_session_player: thêm confirmed sau chốt phí cần quyền tài chính (cohost FORBIDDEN, finance cho phép)",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 decide_registration: duyệt confirmed sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 cancel_registration: hủy confirmed sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A1 accept_waitlist_invitation: nhận chỗ sau chốt phí cần quyền tài chính",
+      "status": "PASS"
+    },
+    {
+      "name": "A2 update_session: từ chối hạ capacity dưới số đã confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "A2 race: hạ capacity đấu với join — confirmed không vượt capacity",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 huỷ buổi thu hồi lời mời pending; get_my_waitlist_invitation không trả lời mời đã huỷ",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 race: huỷ buổi đấu với accept — không để lời mời pending khi buổi đã huỷ",
+      "status": "PASS"
+    },
+    {
+      "name": "A3 replay huỷ buổi không tạo thêm tác dụng phụ",
+      "status": "PASS"
+    }
+  ]
+}

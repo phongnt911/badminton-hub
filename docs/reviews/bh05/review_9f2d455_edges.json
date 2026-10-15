@@ -1,0 +1,48 @@
+[
+  {
+    "db": "bh05_clean_20261015173937",
+    "case": "cohost without finance adds confirmed after finalize",
+    "expected": "FORBIDDEN",
+    "returncode": 3,
+    "finance": "f",
+    "actual": "",
+    "stderr": "ERROR:  FORBIDDEN: Cần quyền tài chính để thêm người đã xác nhận sau khi chốt phí\nCONTEXT:  PL/pgSQL function add_session_player(uuid,uuid,text,text,boolean,boolean,uuid) line 117 at RAISE\n"
+  },
+  {
+    "db": "bh05_clean_20261015173937",
+    "case": "session cancellation revokes invitation",
+    "expected": "revoked",
+    "actual": "revoked"
+  },
+  {
+    "db": "bh05_clean_20261015173937",
+    "case": "capacity cannot shrink below confirmed",
+    "expected": "reject; capacity >= confirmed",
+    "returncode": 3,
+    "actual": "2|2",
+    "stderr": "ERROR:  CAPACITY_FULL: Sức chứa mới nhỏ hơn số người đã xác nhận (2)\nCONTEXT:  PL/pgSQL function update_session(uuid,bigint,uuid,text,timestamp with time zone,timestamp with time zone,integer,integer,text,text,text,text,text,bigint,bigint,timestamp with time zone,timestamp with time zone,uuid) line 59 at RAISE\n"
+  },
+  {
+    "db": "bh05_legacy_20261015173937",
+    "case": "cohost without finance adds confirmed after finalize",
+    "expected": "FORBIDDEN",
+    "returncode": 3,
+    "finance": "f",
+    "actual": "",
+    "stderr": "ERROR:  FORBIDDEN: Cần quyền tài chính để thêm người đã xác nhận sau khi chốt phí\nCONTEXT:  PL/pgSQL function add_session_player(uuid,uuid,text,text,boolean,boolean,uuid) line 117 at RAISE\n"
+  },
+  {
+    "db": "bh05_legacy_20261015173937",
+    "case": "session cancellation revokes invitation",
+    "expected": "revoked",
+    "actual": "revoked"
+  },
+  {
+    "db": "bh05_legacy_20261015173937",
+    "case": "capacity cannot shrink below confirmed",
+    "expected": "reject; capacity >= confirmed",
+    "returncode": 3,
+    "actual": "2|2",
+    "stderr": "ERROR:  CAPACITY_FULL: Sức chứa mới nhỏ hơn số người đã xác nhận (2)\nCONTEXT:  PL/pgSQL function update_session(uuid,bigint,uuid,text,timestamp with time zone,timestamp with time zone,integer,integer,text,text,text,text,text,bigint,bigint,timestamp with time zone,timestamp with time zone,uuid) line 59 at RAISE\n"
+  }
+]
