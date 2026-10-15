@@ -820,4 +820,70 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('An'), findsWidgets);
   });
+
+  testWidgets('C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => waitlistedInviteSession);
+    final secondLoad = Completer<WaitlistInvitation?>();
+    var attempts = 0;
+    when(() => sessionRepository.getMyWaitlistInvitation('s1')).thenAnswer((
+      _,
+    ) async {
+      attempts++;
+      if (attempts == 2) return secondLoad.future;
+      if (attempts == 3) return null;
+      return const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's1',
+      );
+    });
+
+    await tester.pumpWidget(
+      buildAuthed(
+        const SessionDetailScreen(sessionId: 's1'),
+        p.auth,
+        p.session,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Chấp nhận lời mời'), findsOneWidget);
+
+    // Làm mới: đang tải lại lời mời → không được bật nút bằng cache cũ.
+    await tester.tap(find.byTooltip('Tải lại'));
+    await tester.pumpAndSettle();
+    expect(find.text('Đang tải lời mời…'), findsOneWidget);
+    expect(find.text('Chấp nhận lời mời'), findsNothing);
+
+    // Response thành công hợp lệ → bật lại nút.
+    secondLoad.complete(
+      const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Đang tải lời mời…'), findsNothing);
+    expect(find.text('Chấp nhận lời mời'), findsOneWidget);
+
+    // Làm mới trả null hợp lệ → không còn nút, không lỗi.
+    await tester.tap(find.byTooltip('Tải lại'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chấp nhận lời mời'), findsNothing);
+    expect(find.text('Đã xảy ra lỗi. Vui lòng thử lại sau.'), findsNothing);
+
+    // Làm mới lỗi → hiện lỗi + thử lại, không còn nút chấp nhận.
+    when(
+      () => sessionRepository.getMyWaitlistInvitation('s1'),
+    ).thenThrow(Exception('offline'));
+    await tester.tap(find.byTooltip('Tải lại'));
+    await tester.pumpAndSettle();
+    expect(find.text('Đã xảy ra lỗi. Vui lòng thử lại sau.'), findsOneWidget);
+    expect(find.text('Thử lại lời mời'), findsOneWidget);
+    expect(find.text('Chấp nhận lời mời'), findsNothing);
+  });
 }

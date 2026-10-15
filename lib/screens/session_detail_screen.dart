@@ -703,11 +703,13 @@ class _PlayerRegistrationCard extends StatelessWidget {
         reg.registrationStatus == 'confirmed' ||
         reg.registrationStatus == 'waitlisted';
     final isWaitlisted = reg.registrationStatus == 'waitlisted';
-    // C1: chỉ coi là "có lời mời" khi tải thành công; lỗi/đang tải thì không
-    // trình bày dữ liệu cũ như lời mời đã xác minh.
-    final hasInvitation =
-        isWaitlisted && invitationErrorMessage == null && invitation != null;
-    final canAccept = isWaitlisted && hasInvitation;
+    // C1/C1-R: chỉ coi là "có lời mời" khi tải xong thành công, không lỗi và
+    // không đang tải lại — không dùng cache cũ chưa được xác minh lại.
+    final hasInvitation = isWaitlisted &&
+        !isLoadingInvitation &&
+        invitationErrorMessage == null &&
+        invitation != null;
+    final canAccept = hasInvitation;
 
     return Card(
       color: Colors.green.shade50,

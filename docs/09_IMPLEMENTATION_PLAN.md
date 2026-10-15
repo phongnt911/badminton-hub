@@ -277,3 +277,16 @@ Review [review_8974d3c.md](reviews/bh05/review_8974d3c.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Chưa đạt phần C** tại `48b4ad2` (code `ef88f05`), theo [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md). Còn C1-R mức P2: nút accept vẫn enabled khi đang refresh lời mời có cache.
 - Kiểm chứng độc lập: analyze sạch, 131/131 Flutter, 84/84 DB; 4 probe UI gồm 3 PASS/1 FAIL tái hiện phần còn lại. NOT RUN trong báo cáo.
 - Đây là kết luận sau vòng sửa 1, thay trạng thái Chờ review của bản sửa; không tự sửa code, merge main hoặc apply remote DB. Reviewer tự chốt, không cần xác nhận.
+
+### BH-05C — Vòng sửa review 2 (C1-R) — 16/10/2026
+
+Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa đạt** với C1-R (P2). Đây là vòng sửa thứ 2 (giới hạn tối đa 2 vòng theo IMPLEMENTER.md).
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| C1-R — đang tải lại lời mời vẫn cho chấp nhận bằng cache cũ | P2 | **Đã sửa (chờ review)** | 1 test widget tái hiện FAIL trước sửa, PASS sau |
+
+- Cách sửa (chỉ trong `lib/screens/session_detail_screen.dart`, không đổi RPC/quyền/DB): `hasInvitation`/`canAccept` loại trạng thái đang tải — điều kiện `isWaitlisted && !isLoadingInvitation && invitationErrorMessage == null && invitation != null`, nên nút "Chấp nhận lời mời" chỉ bật sau khi response thành công hợp lệ; nhánh lỗi+thử lại giữ nguyên.
+- Test thêm: `test/screens/session_detail_screen_test.dart` "C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ" (cache cũ + refresh đang chờ → ẩn nút; response hợp lệ → bật lại; null hợp lệ → không nút, không lỗi; lỗi → hiện lỗi + thử lại). FAIL trước sửa (`Found 1 widget "Chấp nhận lời mời"`, kỳ vọng none), PASS sau sửa.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**132/132 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md).
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`; host thu hồi lời mời qua HTTP trong lúc client refresh.
