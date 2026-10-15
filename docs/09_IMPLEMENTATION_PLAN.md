@@ -134,3 +134,13 @@ Chủ dự án yêu cầu IDE tiếp tục BH-03 từ code hiện có sau remedi
 | 15/10/2026 | C1–C5 code + forward SQL + tests | Flutter 61/61; analyze 0 issues; DB clean/legacy BH-03 48+14, BH-02 47, tổng 109 PASS; docs/17_BH03_REMEDIATION.md | PostgreSQL Auth stub; chưa full Supabase HTTP/JWT/thiết bị thật, chưa apply production |
 
 Giữ request_id bắt buộc và guest user_id NULL tới khi có acceptance thật. Kiểm chuỗi migration mới và client cùng rollout; không đánh dấu production đã chạy từ kết quả DB cô lập.
+
+## Rà soát tổng hợp BH-01 → BH-03 (15/10/2026)
+
+Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend architect, software architect), kết luận tại [18_REVIEW_CONSOLIDATED_BH01_BH03.md](18_REVIEW_CONSOLIDATED_BH01_BH03.md). Baseline BH-03 là `88dd247`; HEAD khi tổng hợp `a433349`.
+
+- Chạy lại độc lập tại HEAD: `flutter analyze` 0 issues; `flutter test` 61/61; DB tests 33/33 (`rls_test_results_20261015145918.json`) + 14/14 (`extended_results_20261015145918.json`) + 48/48 (`bh03_test_results_20261015145923.json`) + 14/14 retry (`bh03_retry_results_20261015145923.json`) = 109/109.
+- Đã đóng bởi `a433349` (C1–C5): consent `user_id`, race idempotency, vòng đời private state sau logout, request key, hash payload.
+- **Chặn tiếp tục (P0)**, còn mở: (X1) lớp demo `SupabaseService`/`SessionProvider` còn ghi bộ đếm/số dư trực tiếp và dùng cột demo không có trong schema v1.1 — app "nửa migration"; (X2) cấu hình mặc định trỏ production, `AppConfig.environment` không có tác dụng, `scripts/update_db.dart` ghi thẳng project thật.
+- **Còn mở tại HEAD**: phân trang `list_club_members` (đã tái hiện: bỏ qua `limit`, `offset>0` trả NULL); lỗi tải Thành viên/Tài khoản quỹ hiển thị thành empty; `list_my_clubs` thiếu `balance_vnd`; RPC đọc chưa REVOKE PUBLIC/anon; invariant clean/legacy lệch; test cấu trúc thay test hành vi. Ghi chú trung thực: mục "số dư quỹ" ở danh sách CLB (BH-03C) không đúng thực tế.
+- Giới hạn: chưa kiểm PostgREST HTTP/JWT thật, concurrency đa kết nối, thiết bị thật, production.
