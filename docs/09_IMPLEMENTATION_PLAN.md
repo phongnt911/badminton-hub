@@ -208,3 +208,41 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 - Bằng chứng độc lập: analyze sạch; 104/104 Flutter, 84/84 DB và 6/6 probe hồi quy đúng kỳ vọng. Báo cáo và bằng chứng đã push tại `b55a793`.
 - Các dòng Chờ review/Chưa đạt phía trên là lịch sử trước remediation, không phải trạng thái hiện tại. Phần B/C chưa được nghiệm thu trong kết luận này.
 - NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, staging/production apply và các lịch cạnh tranh bổ sung được liệt kê trong báo cáo. Không tự merge main hoặc deploy; bước tiếp theo chờ chủ dự án giao.
+
+### BH-05B — Model / Repository / Provider + test đơn vị — 16/10/2026
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05B Dart (model/repository/provider) | **Chờ review** | Nhánh `feat/bh05b-data`, tách từ `feat/bh05a-db` (`7bc4423`). File: `lib/models/session.dart`, `lib/data/session_repository.dart`, `lib/providers/session_provider.dart`, `test/providers/session_provider_test.dart` (nguyên bản đã viết sẵn ở `814d85b` trên `main`, không viết lại). |
+
+- Phạm vi: chỉ lớp Dart phía client (model `SessionPlayer` invitation fields/`WaitlistInvitation`/`RegistrationResult`; repository gọi RPC BH-05; provider `myInvitation`/`fetchMyInvitation`/`_runPlayerMutation`; 7 test provider). Không bao gồm UI phần C.
+- Lệnh đã chạy trên nhánh `feat/bh05b-data`: `flutter analyze` (**0 issue**); `flutter test` (**111/111 PASS** — 104 nền của A + 7 test B).
+- Không chạy runner DB: phần B không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
+- NOT RUN: kiểm thử thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (phần B chỉ được test bằng unit test với provider giả, chưa gọi RPC qua mạng); apply staging/production. UI phần C chưa tách nhánh/nghiệm thu.
+- Ghi chú phạm vi tài liệu: `docs/08_DOMAIN_CONTRACTS.md` §12 và `docs/22_BH05_HANDOFF.md` hiện chỉ có trên `main` (từ `814d85b`/`aa90066`), chưa đưa vào nhánh A/B; cần chủ dự án quyết nơi đặt.
+
+### BH-05B — Kết luận cuối cùng của reviewer (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần B** tại `135d7bd`, theo [review_135d7bd.md](reviews/bh05/review_135d7bd.md). Còn B1/B2 mức P2 về lỗi tải lời mời và state lời mời cũ.
+- Analyze sạch, 111/111 Flutter và 84/84 DB PASS; hai probe bổ sung tái hiện lỗi. NOT RUN được liệt kê trong báo cáo.
+- Reviewer tự chốt kết luận, không cần chủ dự án xác nhận; trạng thái Chờ review phía trên là lịch sử. Không sửa code, merge main hoặc apply DB remote trong lượt này.
+
+### BH-05B — Vòng sửa review 1 (B1, B2) — 16/10/2026
+
+Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa đạt** với B1 (P2) và B2 (P2). Đã sửa cả hai.
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| B1 — lỗi tải lời mời bị nuốt thành "không có lời mời" | P2 | **Đã sửa (chờ review)** | Test mới tái hiện FAIL trước sửa, PASS sau sửa; `flutter test` **118/118** |
+| B2 — làm mới chi tiết vẫn giữ lời mời cũ | P2 | **Đã sửa (chờ review)** | Cùng bộ test |
+
+- Cách sửa (chỉ trong `lib/providers/session_provider.dart`; không đổi DB/migration/hợp đồng RPC): thêm state riêng `isLoadingInvitation`/`invitationErrorMessage` và `_invitationSerial`; `fetchMyInvitation` tách loading/error, chỉ coi response thành công `null` là rỗng (không nuốt exception), giữ guard auth/session, chống phản hồi đến trễ bằng serial; `fetchSessionDetail` khi chi tiết mới không còn `waitlisted` thì `_resetInvitation()` (xoá state + vô hiệu hoá phản hồi đang bay).
+- Test thêm vào `test/providers/session_provider_test.dart` (FAIL trước sửa, PASS sau sửa): B1 lỗi/loading/null-hợp-lệ/retry; B2 waitlisted→confirmed, waitlisted→không còn đăng ký, phản hồi lời mời đến trễ.
+- Lệnh đã chạy trên nhánh `feat/bh05b-data`: `flutter analyze` (**0 issue**); `flutter test` (**118/118 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — không đổi vì B không chạm DB).
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (unit test vẫn dùng repository giả, chưa gọi RPC qua mạng); apply staging/production.
+
+### BH-05B — Kết luận cuối cùng sau review cf65199 (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt phần B** tại `cf65199`, theo [review_cf65199.md](reviews/bh05/review_cf65199.md). Reviewer tự chốt theo quy tắc hiện hành, không cần chủ dự án xác nhận.
+- Kiểm chứng độc lập: analyze sạch; 118/118 Flutter, 84/84 DB, 2/2 probe hồi quy PASS. Các trạng thái Chờ review/Chưa đạt trước đây là lịch sử.
+- NOT RUN và giới hạn nằm trong báo cáo; chưa nghiệm thu UI phần C, HTTP/JWT/thiết bị thật hoặc deploy production. Không tự merge main hay chuyển sang triển khai C.
