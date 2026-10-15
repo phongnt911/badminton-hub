@@ -161,3 +161,14 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 ## Sửa review BH-04 R1–R4 — 15/10/2026
 
 Đã sửa lifecycle replay bằng forward migration, link routing/absolute URL, request key mới sau thành công, roster loading/error/retry. 104/104 Flutter và 161/161 DB PASS; analyze sạch. Chi tiết/giới hạn tại [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md); chưa apply remote DB hoặc kiểm HTTP/JWT/OS links.
+
+## BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ — 15/10/2026
+
+| Ngày | Ticket | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 15/10/2026 | BH-05 đăng ký/duyệt/huỷ/lời mời | ĐÃ TRIỂN KHAI (local/staging) | Forward migration `supabase/migrations/20261015170500_bh05_registrations.sql` (SHA256 `356f5831649eb4d09efa624402679cce67211056ce44e09cf6088715970ac588`): 9 RPC mutation/đọc + mở rộng `list_session_players`, helper nội bộ bị REVOKE khỏi client. Flutter **116/116 PASS** (104 regression + 12 mới), analyze 0 issue. DB **227/227 PASS** (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 66). Chi tiết/giới hạn: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md). |
+
+- Phạm vi đã làm: đăng ký tự phục vụ (`host_approval`→`pending`, `auto_confirm`→`confirmed` nếu còn chỗ, ngược lại `waitlisted`); host/cohost thêm thành viên CLB đúng ID hoặc khách chưa có tài khoản (`host_recorded`, không tự liên kết theo tên/SĐT); duyệt/từ chối/đưa vào danh sách chờ; huỷ theo hạn (người chơi) hoặc theo quyền (host); điểm danh khi `in_progress`; lời mời nhận chỗ (không giữ slot, mặc định `min(now()+30p, deadline, starts_at)`) và accept đơn dùng một lần kiểm lại người nhận/state/hết hạn/deadline/slot.
+- Chỉ `confirmed` giữ chỗ và được xem/đọc thông tin thanh toán; `pending`/`waitlisted` không giữ slot. Client không ghi bộ đếm/role/số dư/tác nhân audit.
+- Giới hạn: PostgreSQL + Auth stub, **chưa** kiểm PostgREST HTTP/JWT thật, thiết bị thật hay apply production; chưa diễn tập migration/backup trên staging thật.
+- Ticket tiếp theo: **BH-06** (chốt phí / QR / thu tiền) theo AG-06 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md).

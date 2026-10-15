@@ -146,3 +146,25 @@ Helper `validate_session_config(...)` dùng chung và bị `REVOKE` khỏi mọi
 ### BH-04 sau review R1–R4
 
 Lifecycle idempotency hash chỉ từ session_id/action đầu vào; retry cùng key trả kết quả cũ dù DB version đã tăng. Client giữ key khi chưa rõ kết quả, xóa key khi có response thành công và tạo key mới cho ý định tiếp theo. Roster có loading/error/retry riêng. Web route `/sessions/:id` nối vào MaterialApp; URL chia sẻ phải có origin (APP_BASE_URL hoặc web origin), hosting cần fallback index.html. Chi tiết giới hạn trong 21_BH04_REMEDIATION.
+
+## 12. BH-05 đăng ký / duyệt / huỷ / lời mời (đã triển khai — migration `20261015170500_bh05_registrations.sql`)
+
+Migration nối tiếp chuỗi v1.1 (không sửa lịch sử migration cũ). Mọi RPC mutation: `SECURITY DEFINER`, `search_path = public, pg_temp`, bắt buộc `p_request_id`, idempotency theo actor/operation/request + hash canonical chỉ từ input ổn định, có audit, `REVOKE PUBLIC/anon` + `GRANT authenticated`. Ghi bộ đếm/số dư/tác nhân audit chỉ ở phía DB. Chỉ `confirmed` giữ chỗ; `pending`/`waitlisted` không giữ slot và không đọc thông tin ngân hàng/QR.
+
+RPC mutation (đều trả JSONB `{player_id, session_id, registration_status, attendance_status, participant_type, fee_exempt, agreed_fee_vnd, confirmed_count, capacity, seats_left, session_version}`; các RPC lời mời trả thêm `invitation_id`, `invitation_status`):
+
+- `request_join_session(p_session_id, p_contact?, p_request_id)` — người chơi tự đăng ký buổi đã công bố. `approval_mode='host_approval'` ⇒ `pending`; `approval_mode='auto_confirm'` ⇒ `confirmed` nếu còn chỗ, ngược lại `waitlisted`. Một đăng ký mỗi người/buổi. Khoá session (`FOR UPDATE`) rồi kiểm lại lifecycle/deadline/state trong một transaction.
+- `add_session_player(p_session_id, p_member_id?, p_guest_name?, p_contact?, p_fee_exempt, p_allow_waitlist, p_request_id)` — host/cohost thêm thành viên CLB (chọn đúng `member_id`, **không** tự khớp tên/SĐT) hoặc khách chưa có tài khoản (`participant_type='guest'`, `user_id NULL`). Khách luôn `host_recorded`; hết chỗ mà không `p_allow_waitlist` ⇒ `CAPACITY_FULL`, có ⇒ `waitlisted`. `p_fee_exempt` cần quyền tài chính.
+- `decide_registration(p_session_id, p_player_id, p_decision, p_reason?, p_request_id)` — `p_decision ∈ {confirmed, waitlisted, rejected}`; chỉ management. `waitlisted→confirmed` **bị từ chối** trực tiếp (phải qua lời mời); `FOR UPDATE` session + player, kiểm lại state và sức chứa.
+- `cancel_registration(p_session_id, p_player_id, p_reason?, p_request_id)` — người chơi tự huỷ theo `cancellation_deadline`; host/quản lý huỷ theo quyền; `confirmed`/`pending`/`waitlisted` → `cancelled`, giải phóng slot khi trước đây là `confirmed`.
+- `record_attendance(p_session_id, p_player_id, p_attendance, p_request_id)` — chỉ `confirmed` và `lifecycle='in_progress'`; `p_attendance ∈ {present, no_show}`.
+- `invite_waitlisted_player(p_session_id, p_player_id, p_expires_at?, p_request_id)` — host/cohost; người chơi đang `waitlisted`, buổi `published`, trước deadline. `expires_at` mặc định `min(now()+30 phút, registration_deadline, starts_at)` và phải ở tương lai; hết hạn lời mời cũ trước khi tạo mới. Lời mời **không** giữ slot, gắn cặp (session, player).
+- `revoke_waitlist_invitation(p_session_id, p_invitation_id, p_reason?, p_request_id)` — đúng quyền, chỉ lời mời `pending`; lời mời đã accepted phải đi qua `cancel_registration`.
+- `accept_waitlist_invitation(p_session_id, p_invitation_id, p_consent_note?, p_request_id)` — self: `auth.uid()` khớp `user_id` của player; `host_recorded`: host/cohost đúng buổi + khách chưa liên kết account + `p_consent_note` không rỗng. Trong một transaction khoá session → player → invitation, kiểm lại người nhận/state/hết hạn/deadline/slot; đơn dùng một lần, retry trả kết quả trước đó và **không** thêm slot.
+
+RPC đọc:
+
+- `get_my_waitlist_invitation(p_session_id)` — `authenticated`; trả lời mời `pending` của chính người dùng (không lộ token/SĐT).
+- `list_session_players(...)` được `CREATE OR REPLACE` thêm `pending_invitation_id`, `pending_invitation_expires_at`; giữ nguyên grant cũ (chỉ management).
+
+Helper nội bộ `registration_result(...)` và `bump_billing_input_version(...)` bị `REVOKE` khỏi mọi role client. `accept_waitlist_invitation` cho khách cần đồng ý không rỗng; mọi chuyển trạng thái đều kiểm lại lifecycle/deadline/quyền/state ở DB. Bằng chứng/giới hạn: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
