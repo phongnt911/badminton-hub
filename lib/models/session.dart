@@ -247,6 +247,10 @@ class SessionPlayer {
   final DateTime? confirmedAt;
   final String? phoneNumber;
 
+  /// Lời mời danh sách chờ còn hiệu lực (chỉ có khi `waitlisted`).
+  final String? pendingInvitationId;
+  final DateTime? pendingInvitationExpiresAt;
+
   const SessionPlayer({
     required this.id,
     this.userId,
@@ -259,9 +263,14 @@ class SessionPlayer {
     this.requestedAt,
     this.confirmedAt,
     this.phoneNumber,
+    this.pendingInvitationId,
+    this.pendingInvitationExpiresAt,
   });
 
   bool get isConfirmed => registrationStatus == 'confirmed';
+  bool get isPending => registrationStatus == 'pending';
+  bool get isWaitlisted => registrationStatus == 'waitlisted';
+  bool get hasPendingInvitation => pendingInvitationId != null;
 
   factory SessionPlayer.fromJson(Map<String, dynamic> json) {
     return SessionPlayer(
@@ -282,6 +291,13 @@ class SessionPlayer {
           ? null
           : DateTime.tryParse(json['confirmed_at'].toString()),
       phoneNumber: json['phone_number']?.toString(),
+      pendingInvitationId: json['pending_invitation_id']?.toString(),
+      pendingInvitationExpiresAt:
+          json['pending_invitation_expires_at'] == null
+              ? null
+              : DateTime.tryParse(
+                  json['pending_invitation_expires_at'].toString(),
+                ),
     );
   }
 
@@ -297,7 +313,99 @@ class SessionPlayer {
         'requested_at': requestedAt?.toIso8601String(),
         'confirmed_at': confirmedAt?.toIso8601String(),
         'phone_number': phoneNumber,
+        'pending_invitation_id': pendingInvitationId,
+        'pending_invitation_expires_at':
+            pendingInvitationExpiresAt?.toIso8601String(),
       };
+}
+
+/// Lời mời nhận chỗ đang chờ (không giữ slot cho tới khi được chấp nhận).
+class WaitlistInvitation {
+  final String invitationId;
+  final String playerId;
+  final String sessionId;
+  final String status;
+  final DateTime? invitedAt;
+  final DateTime? expiresAt;
+
+  const WaitlistInvitation({
+    required this.invitationId,
+    required this.playerId,
+    this.sessionId = '',
+    this.status = 'pending',
+    this.invitedAt,
+    this.expiresAt,
+  });
+
+  bool get isPending => status == 'pending';
+
+  factory WaitlistInvitation.fromJson(Map<String, dynamic> json) {
+    return WaitlistInvitation(
+      invitationId:
+          (json['invitation_id'] ?? json['id'])?.toString() ?? '',
+      playerId: (json['player_id'] ?? json['session_player_id'])?.toString() ?? '',
+      sessionId: json['session_id']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'pending',
+      invitedAt: json['invited_at'] == null
+          ? null
+          : DateTime.tryParse(json['invited_at'].toString()),
+      expiresAt: json['expires_at'] == null
+          ? null
+          : DateTime.tryParse(json['expires_at'].toString()),
+    );
+  }
+}
+
+/// Kết quả logic của một mutation đăng ký (RPC trả ID/trạng thái/version).
+class RegistrationResult {
+  final String playerId;
+  final String sessionId;
+  final String registrationStatus;
+  final String attendanceStatus;
+  final String participantType;
+  final bool feeExempt;
+  final int? agreedFeeVnd;
+  final int confirmedCount;
+  final int capacity;
+  final int seatsLeft;
+  final int? sessionVersion;
+  final String? invitationId;
+  final String? invitationStatus;
+
+  const RegistrationResult({
+    required this.playerId,
+    required this.sessionId,
+    this.registrationStatus = 'pending',
+    this.attendanceStatus = 'not_checked_in',
+    this.participantType = 'guest',
+    this.feeExempt = false,
+    this.agreedFeeVnd,
+    this.confirmedCount = 0,
+    this.capacity = 0,
+    this.seatsLeft = 0,
+    this.sessionVersion,
+    this.invitationId,
+    this.invitationStatus,
+  });
+
+  factory RegistrationResult.fromJson(Map<String, dynamic> json) {
+    int? asInt(dynamic v) => v == null ? null : (v as num).toInt();
+    return RegistrationResult(
+      playerId: json['player_id']?.toString() ?? '',
+      sessionId: json['session_id']?.toString() ?? '',
+      registrationStatus: json['registration_status']?.toString() ?? 'pending',
+      attendanceStatus: json['attendance_status']?.toString() ?? 'not_checked_in',
+      participantType: json['participant_type']?.toString() ?? 'guest',
+      feeExempt: json['fee_exempt'] == true,
+      agreedFeeVnd: asInt(json['agreed_fee_vnd']),
+      confirmedCount: asInt(json['confirmed_count']) ?? 0,
+      capacity: asInt(json['capacity']) ?? 0,
+      seatsLeft: asInt(json['seats_left']) ?? 0,
+      sessionVersion: asInt(json['session_version']),
+      invitationId: json['invitation_id']?.toString(),
+      invitationStatus: json['invitation_status']?.toString(),
+    );
+  }
 }
 
 /// Bộ lọc khám phá buổi công khai (PD-02) — thủ công, không cần GPS.

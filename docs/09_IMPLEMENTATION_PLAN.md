@@ -198,3 +198,15 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 - Bằng chứng độc lập: analyze sạch; 104/104 Flutter, 84/84 DB và 6/6 probe hồi quy đúng kỳ vọng. Báo cáo và bằng chứng đã push tại `b55a793`.
 - Các dòng Chờ review/Chưa đạt phía trên là lịch sử trước remediation, không phải trạng thái hiện tại. Phần B/C chưa được nghiệm thu trong kết luận này.
 - NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, staging/production apply và các lịch cạnh tranh bổ sung được liệt kê trong báo cáo. Không tự merge main hoặc deploy; bước tiếp theo chờ chủ dự án giao.
+
+### BH-05B — Model / Repository / Provider + test đơn vị — 16/10/2026
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05B Dart (model/repository/provider) | **Chờ review** | Nhánh `feat/bh05b-data`, tách từ `feat/bh05a-db` (`7bc4423`). File: `lib/models/session.dart`, `lib/data/session_repository.dart`, `lib/providers/session_provider.dart`, `test/providers/session_provider_test.dart` (nguyên bản đã viết sẵn ở `814d85b` trên `main`, không viết lại). |
+
+- Phạm vi: chỉ lớp Dart phía client (model `SessionPlayer` invitation fields/`WaitlistInvitation`/`RegistrationResult`; repository gọi RPC BH-05; provider `myInvitation`/`fetchMyInvitation`/`_runPlayerMutation`; 7 test provider). Không bao gồm UI phần C.
+- Lệnh đã chạy trên nhánh `feat/bh05b-data`: `flutter analyze` (**0 issue**); `flutter test` (**111/111 PASS** — 104 nền của A + 7 test B).
+- Không chạy runner DB: phần B không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
+- NOT RUN: kiểm thử thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (phần B chỉ được test bằng unit test với provider giả, chưa gọi RPC qua mạng); apply staging/production. UI phần C chưa tách nhánh/nghiệm thu.
+- Ghi chú phạm vi tài liệu: `docs/08_DOMAIN_CONTRACTS.md` §12 và `docs/22_BH05_HANDOFF.md` hiện chỉ có trên `main` (từ `814d85b`/`aa90066`), chưa đưa vào nhánh A/B; cần chủ dự án quyết nơi đặt.
