@@ -1,0 +1,28 @@
+00:00 +0: loading /workspace/badminton-hub/test/providers/review_bh05b_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review: invitation load error remains observable
+00:00 +0 -1: review: invitation load error remains observable [E]
+  Expected: not null
+    Actual: <null>
+  no invitation and failed request must be distinguishable
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/providers/review_bh05b_probe_test.dart 118:5   main.<fn>
+  
+00:00 +0 -1: review: non-waitlisted refresh clears old invitation
+00:00 +0 -2: review: non-waitlisted refresh clears old invitation [E]
+  Expected: null
+    Actual: <Instance of 'WaitlistInvitation'>
+  old invitation must not survive registration state change
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/providers/review_bh05b_probe_test.dart 132:5   main.<fn>
+  
+00:00 +0 -2: (tearDownAll)
+00:00 +0 -2: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/providers/review_bh05b_probe_test.dart: review: invitation load error remains observable
+  /workspace/badminton-hub/test/providers/review_bh05b_probe_test.dart: review: non-waitlisted refresh clears old invitation
