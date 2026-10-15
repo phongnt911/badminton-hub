@@ -290,3 +290,9 @@ Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa 
 - Test thêm: `test/screens/session_detail_screen_test.dart` "C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ" (cache cũ + refresh đang chờ → ẩn nút; response hợp lệ → bật lại; null hợp lệ → không nút, không lỗi; lỗi → hiện lỗi + thử lại). FAIL trước sửa (`Found 1 widget "Chấp nhận lời mời"`, kỳ vọng none), PASS sau sửa.
 - Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**132/132 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md).
 - NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`; host thu hồi lời mời qua HTTP trong lúc client refresh.
+
+### BH-05C — Kết luận cuối cùng review 1f1f9ce (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt phần C** tại `1f1f9ce` (code `7707a76`), theo [review_1f1f9ce.md](reviews/bh05/review_1f1f9ce.md). Reviewer tự chốt sau vòng sửa 2, không cần xác nhận.
+- Kiểm chứng độc lập: analyze sạch, 132/132 Flutter, 84/84 DB và 4/4 probe hồi quy PASS. Các trạng thái Chưa đạt/Chờ review trước đây là lịch sử.
+- NOT RUN và giới hạn trong báo cáo; chưa nghiệm thu toàn A/B/C trên main hoặc triển khai production. Không sửa code, merge main hoặc apply DB remote.
