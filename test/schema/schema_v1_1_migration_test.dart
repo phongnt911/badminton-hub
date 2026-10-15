@@ -178,5 +178,20 @@ void main() {
       // F7: Đóng đường đọc SĐT qua bảng session_players cũ cho finance không có quyền quản lý
       expect(sqlContent.contains('CREATE POLICY "session_players_select_auth" ON public.session_players\n  FOR SELECT TO authenticated\n  USING (\n    user_id = auth.uid() OR\n    public.has_session_management_access(session_id, auth.uid())\n  );'), isTrue);
     });
+
+    test('Đảm bảo khắc phục đầy đủ các phát hiện review H1–H3 (Finance Roster, Snapshot Protection, Legacy Sync)', () {
+      // H1: Helper has_session_player_finance_access và player_outstanding security_barrier
+      expect(sqlContent.contains('FUNCTION public.has_session_player_finance_access'), isTrue);
+      expect(sqlContent.contains('VIEW public.player_outstanding\nWITH (security_barrier = true)'), isTrue);
+      expect(sqlContent.contains('public.has_session_player_finance_access(session_player_id, auth.uid())'), isTrue);
+
+      // H2: sessions_select_auth không cấp cho member/pending; get_session_payment_instructions RPC
+      expect(sqlContent.contains('FUNCTION public.get_session_payment_instructions'), isTrue);
+      expect(sqlContent.contains('CREATE POLICY "sessions_select_auth" ON public.sessions\n  FOR SELECT TO authenticated\n  USING (\n    host_user_id = auth.uid() OR\n    public.has_session_management_access(id, auth.uid()) OR\n    public.has_session_finance_access(id, auth.uid())\n  );'), isTrue);
+
+      // H3: sync_legacy_session_columns đồng bộ tên sân từ venue_id và cập nhật thời gian
+      expect(sqlContent.contains('SELECT v.name INTO NEW.venue_name FROM public.venues v WHERE v.id = NEW.venue_id;'), isTrue);
+      expect(sqlContent.contains('NEW.starts_at IS DISTINCT FROM OLD.starts_at'), isTrue);
+    });
   });
 }

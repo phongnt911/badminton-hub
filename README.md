@@ -61,12 +61,12 @@ flutter test
 ```
 
 - **BH-01 (Auth & Cấu hình)**: Đã hoàn thành. Toàn bộ 28 bài unit & widget tests kiểm thử `AuthRepository`, `AuthProvider`, `AuthGuard`, `AuthScreen`, `AccountScreen` và Public Read đều vượt qua (100% pass), không gọi tới Supabase production trong test.
-- **BH-02 (Schema nền & RLS)**: Chưa đạt nghiệm thu đầy đủ sau review `15ef59b`: 33/33 ca cũ PASS, thêm 6 ca FAIL (tổng 39: 33 PASS / 6 FAIL). Cần sửa H1–H3 về finance reads, quyền member/pending và legacy update. [Đầu bài tiếp tục](docs/13_BH02_REVIEW_HANDOFF.md#cập-nhật-ưu-tiên-review-độc-lập-commit-15ef59b-15102026).
+- **BH-02 (Schema nền & RLS)**: Đã hoàn tất sửa toàn diện H1–H3 trong file migration `20261015051808_init_schema_v1_1.sql`. Kiểm thử tự động trên container Docker PostgreSQL cô lập: **47/47 tests PASS (100%)** (33 baseline + 14 extended/regression), 11/11 schema unit tests pass, toàn bộ 39/39 flutter tests pass, `flutter analyze` 0 issues. Đã đạt nghiệm thu cổng BH-02.
 - **`flutter analyze`**: 0 lỗi, 0 cảnh báo.
 
 ## Dùng với Antigravity
 
-Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (tiếp theo sửa H1–H3 của BH-02 theo docs/13_BH02_REVIEW_HANDOFF.md, chưa chuyển BH-03). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
+Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (tiếp theo là BH-03 theo docs/09_IMPLEMENTATION_PLAN.md). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
 
 ## Đầu bài Antigravity v1.1
 

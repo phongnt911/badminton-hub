@@ -225,18 +225,30 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NEW.title IS NOT NULL AND NEW.venue_name IS NULL THEN
-    NEW.venue_name := NEW.title;
+  -- 1. Đồng bộ tên sân: lấy từ bảng venues theo venue_id, không suy từ title (H3)
+  IF NEW.venue_id IS NOT NULL AND (TG_OP = 'INSERT' OR NEW.venue_id IS DISTINCT FROM OLD.venue_id OR NEW.venue_name IS NULL) THEN
+    SELECT v.name INTO NEW.venue_name FROM public.venues v WHERE v.id = NEW.venue_id;
   END IF;
-  IF NEW.starts_at IS NOT NULL AND NEW.play_date IS NULL THEN
+
+  -- 2. Đồng bộ ngày và giờ bắt đầu khi starts_at được đặt hoặc thay đổi (H3)
+  IF NEW.starts_at IS NOT NULL AND (TG_OP = 'INSERT' OR NEW.starts_at IS DISTINCT FROM OLD.starts_at OR NEW.play_date IS NULL OR NEW.start_time IS NULL) THEN
     NEW.play_date := (NEW.starts_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date;
-  END IF;
-  IF NEW.starts_at IS NOT NULL AND NEW.start_time IS NULL THEN
     NEW.start_time := (NEW.starts_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::time;
   END IF;
-  IF NEW.ends_at IS NOT NULL AND NEW.end_time IS NULL THEN
+
+  -- 3. Đồng bộ giờ kết thúc khi ends_at được đặt hoặc thay đổi (H3)
+  IF NEW.ends_at IS NOT NULL AND (TG_OP = 'INSERT' OR NEW.ends_at IS DISTINCT FROM OLD.ends_at OR NEW.end_time IS NULL) THEN
     NEW.end_time := (NEW.ends_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::time;
   END IF;
+
+  -- 4. Nếu client legacy insert chỉ truyền play_date và start_time, tự động tính starts_at nếu thiếu
+  IF NEW.starts_at IS NULL AND NEW.play_date IS NOT NULL AND NEW.start_time IS NOT NULL THEN
+    NEW.starts_at := (NEW.play_date + NEW.start_time) AT TIME ZONE 'Asia/Ho_Chi_Minh';
+  END IF;
+  IF NEW.ends_at IS NULL AND NEW.play_date IS NOT NULL AND NEW.end_time IS NOT NULL THEN
+    NEW.ends_at := (NEW.play_date + NEW.end_time) AT TIME ZONE 'Asia/Ho_Chi_Minh';
+  END IF;
+
   RETURN NEW;
 END;
 $$;
@@ -326,10 +338,9 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF NEW.display_name IS NOT NULL AND NEW.player_name IS NULL THEN
+  IF NEW.display_name IS NOT NULL AND (TG_OP = 'INSERT' OR NEW.display_name IS DISTINCT FROM OLD.display_name OR NEW.player_name IS NULL) THEN
     NEW.player_name := NEW.display_name;
-  END IF;
-  IF NEW.player_name IS NOT NULL AND NEW.display_name IS NULL THEN
+  ELSIF NEW.player_name IS NOT NULL AND (TG_OP = 'INSERT' OR NEW.display_name IS NULL) THEN
     NEW.display_name := NEW.player_name;
   END IF;
   RETURN NEW;
@@ -670,6 +681,25 @@ AS $$
   );
 $$;
 
+-- Kiểm tra quyền tài chính đối với một người chơi trong buổi (H1)
+CREATE OR REPLACE FUNCTION public.has_session_player_finance_access(p_session_player_id UUID, p_user_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.session_players sp
+    WHERE sp.id = p_session_player_id
+      AND (
+        sp.user_id = p_user_id OR
+        public.has_session_management_access(sp.session_id, p_user_id) OR
+        public.has_session_finance_access(sp.session_id, p_user_id)
+      )
+  );
+$$;
+
 -- ============================================================================
 -- 11. CÁC VIEWS VÀ PROJECTIONS BẢO VỆ DỮ LIỆU
 -- ============================================================================
@@ -722,9 +752,9 @@ FROM public.clubs c
 LEFT JOIN public.club_transactions t ON c.id = t.club_id
 GROUP BY c.id, c.name;
 
--- View công nợ người chơi (Active revision charges - confirmed payments)
+-- View công nợ người chơi (Active revision charges - confirmed payments) (H1)
 CREATE OR REPLACE VIEW public.player_outstanding
-WITH (security_invoker = true)
+WITH (security_barrier = true)
 AS
 SELECT 
   sp.id AS session_player_id,
@@ -744,7 +774,12 @@ LEFT JOIN (
   FROM public.payments
   WHERE status = 'confirmed'
   GROUP BY session_player_id
-) p ON p.session_player_id = sp.id;
+) p ON p.session_player_id = sp.id
+WHERE (
+  sp.user_id = auth.uid() OR
+  public.has_session_management_access(sp.session_id, auth.uid()) OR
+  public.has_session_finance_access(sp.session_id, auth.uid())
+);
 
 -- ============================================================================
 -- 12. RPC IDEMPOTENCY & AUDIT HELPER FUNCTIONS
@@ -956,6 +991,55 @@ BEGIN
 END;
 $$;
 
+-- RPC lấy hướng dẫn thanh toán cho buổi chơi (H2 - chỉ host, management, finance hoặc người chơi đã confirmed)
+CREATE OR REPLACE FUNCTION public.get_session_payment_instructions(p_session_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_actor UUID := auth.uid();
+  v_session RECORD;
+  v_authorized BOOLEAN := FALSE;
+BEGIN
+  IF v_actor IS NULL THEN
+    RAISE EXCEPTION 'UNAUTHENTICATED: Cần đăng nhập để xem thông tin thanh toán' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT s.id, s.host_user_id, s.receiver_snapshot
+  INTO v_session
+  FROM public.sessions s
+  WHERE s.id = p_session_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'NOT_FOUND: Buổi chơi không tồn tại' USING ERRCODE = 'P0002';
+  END IF;
+
+  IF v_session.host_user_id = v_actor OR
+     public.has_session_management_access(p_session_id, v_actor) OR
+     public.has_session_finance_access(p_session_id, v_actor) THEN
+    v_authorized := TRUE;
+  ELSE
+    SELECT EXISTS (
+      SELECT 1 FROM public.session_players
+      WHERE session_id = p_session_id
+        AND user_id = v_actor
+        AND registration_status = 'confirmed'
+    ) INTO v_authorized;
+  END IF;
+
+  IF NOT v_authorized THEN
+    RAISE EXCEPTION 'FORBIDDEN: Chỉ người chơi đã được xác nhận (confirmed) mới có thể xem thông tin thanh toán' USING ERRCODE = '42501';
+  END IF;
+
+  RETURN jsonb_build_object(
+    'session_id', v_session.id,
+    'receiver_snapshot', v_session.receiver_snapshot
+  );
+END;
+$$;
+
 -- ============================================================================
 -- 13. KÍCH HOẠT VÀ THIẾT LẬP ROW LEVEL SECURITY (RLS) TRÊN TẤT CẢ CÁC BẢNG
 -- ============================================================================
@@ -1014,6 +1098,8 @@ GRANT SELECT ON public.player_outstanding TO authenticated;
 -- Cấp quyền thực thi RPC công khai và nghiệp vụ
 GRANT EXECUTE ON FUNCTION public.get_session_public_detail(UUID) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_registration(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_session_payment_instructions(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.has_session_player_finance_access(UUID, UUID) TO authenticated;
 
 -- Thu hồi quyền thực thi helper nội bộ từ PUBLIC, anon, authenticated (F1)
 REVOKE EXECUTE ON FUNCTION public.check_idempotency(TEXT, UUID, TEXT) FROM PUBLIC, anon, authenticated;
@@ -1112,15 +1198,13 @@ CREATE POLICY "host_bank_accounts_select_own" ON public.host_bank_accounts
   FOR SELECT TO authenticated
   USING (user_id = auth.uid());
 
--- sessions: host/staff/owner đọc đầy đủ; thành viên CLB và người tham gia đọc buổi published/in_progress/completed (F2)
+-- sessions: chỉ host/management/finance đọc toàn bảng raw; member/player đọc qua projection whitelist và RPC (H2)
 CREATE POLICY "sessions_select_auth" ON public.sessions
   FOR SELECT TO authenticated
   USING (
     host_user_id = auth.uid() OR
     public.has_session_management_access(id, auth.uid()) OR
-    public.has_session_finance_access(id, auth.uid()) OR
-    (club_id IS NOT NULL AND public.is_club_member_active(club_id, auth.uid()) AND lifecycle IN ('published', 'in_progress', 'completed')) OR
-    (public.is_session_participant(id, auth.uid()) AND lifecycle IN ('published', 'in_progress', 'completed'))
+    public.has_session_finance_access(id, auth.uid())
   );
 
 -- session_staff: host của buổi, owner CLB, và chính nhân sự đó được đọc
@@ -1201,19 +1285,12 @@ CREATE POLICY "session_charges_select_auth" ON public.session_charges
     )
   );
 
--- payments: finance đọc tất cả trong buổi; player chỉ đọc thanh toán của mình
+-- payments: finance/management đọc tất cả trong buổi; player chỉ đọc thanh toán của mình (H1)
 CREATE POLICY "payments_select_auth" ON public.payments
   FOR SELECT TO authenticated
   USING (
     submitted_by = auth.uid() OR
-    EXISTS (
-      SELECT 1 FROM public.session_players sp
-      WHERE sp.id = payments.session_player_id
-        AND (
-          sp.user_id = auth.uid() OR
-          public.has_session_finance_access(sp.session_id, auth.uid())
-        )
-    )
+    public.has_session_player_finance_access(session_player_id, auth.uid())
   );
 
 -- club_transactions: chỉ owner và treasurer của CLB đọc sổ quỹ

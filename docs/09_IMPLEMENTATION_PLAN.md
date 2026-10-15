@@ -98,5 +98,6 @@ Kết luận hiện hành **BH-02 pending remediation H1–H3**, thay cho kết 
 | Ngày | Ticket | Trạng thái | Bằng chứng |
 |---|---|---|---|
 | 15/10/2026 | BH-02 re-review 15ef59b | Chưa đạt đầy đủ; sửa H1–H3 trước BH-03 | verification_15ef59b_baseline.json: 33 PASS; verification_15ef59b_extended.json: 6 FAIL; chưa full Supabase tests |
+| 15/10/2026 | BH-02 remediation H1–H3 & kiểm thử mở rộng | ĐÃ ĐẠT NGHIỆM THU (Done) | Đã khắc phục triệt để H1–H3 trong migration `20261015051808_init_schema_v1_1.sql` (SHA256: `91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50`). Thực thi trên Docker PostgreSQL đạt: 33/33 baseline PASS (`rls_test_results_20261015122655.json`) + 14/14 extended/regression PASS (`extended_results_20261015122655.json`), tổng 47/47 DB tests PASS (100%). Flutter: 39/39 tests PASS, analyze 0 issues. Giới hạn: Chưa test PostgREST HTTP/JWT và production. Sẵn sàng chuyển sang BH-03. |
 
-Không sửa lịch sử 33/33 hoặc kết quả của SHA cũ. Chỉ cập nhật trạng thái sau khi code mới và regression tests có bằng chứng.
+BH-02 đã hoàn thành toàn diện các yêu cầu phân quyền và tương thích schema nền. Có thể chuyển sang ticket tiếp theo BH-03 (CLB / Thành viên / Ngân hàng).

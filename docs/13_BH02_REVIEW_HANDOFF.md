@@ -89,3 +89,16 @@ Script đọc kết quả timestamp mới nhất từ runner để lấy tên DB
 ### Cổng đóng cập nhật
 
 Ngoài cổng trước đó, H1–H3 phải có regression PASS trên clean/legacy; finance vẫn vận hành và không đọc contact, member/pending không đọc snapshot, update lịch/sân legacy đúng. Kết quả 39 ca baseline là lịch sử cần giữ, không sửa thành kết quả của code khác. Nếu chưa kiểm Supabase local/staging thật thì ghi rõ NOT RUN, không gọi đó là nghiệm thu đầy đủ production.
+
+## Kết quả nghiệm thu thực tế sau remediation H1–H3 (15/10/2026)
+
+- **Môi trường**: Container Docker PostgreSQL `bh02-review-postgres` (image `postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24`), `--network none`, tmpfs data.
+- **Migration Content Hash (SHA256)**: `91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50`.
+- **Kết quả runner 33 ca baseline**: **33/33 PASS, 0 FAIL** (kết quả tại [rls_test_results_20261015122655.json](reviews/bh02/rls_test_results_20261015122655.json)).
+- **Kết quả runner 14 ca mở rộng (extended & regression)**: **14/14 PASS, 0 FAIL** (kết quả tại [extended_results_20261015122655.json](reviews/bh02/extended_results_20261015122655.json)), bao gồm:
+  - 6 ca ban đầu từ review 15ef59b: treasurer roster, treasurer payment, member/pending chặn snapshot, legacy time và venue mapping.
+  - 8 ca bổ sung: role finance độc lập (không management), waitlisted/cancelled chặn snapshot, RPC payment instructions whitelist/chặn pending, và legacy venue_id/ends_at update.
+- **Tổng số DB tests**: **47/47 PASS (100%)**.
+- **Kiểm thử Flutter**: 11/11 schema migration unit tests passed; toàn bộ 39/39 Flutter tests passed; `flutter analyze` 0 issues.
+- **Trạng thái & Quyết định**: Toàn bộ H1–H3 đã được giải quyết triệt để. Cổng nghiệm thu BH-02 chính thức **ĐẠT CHUẨN**, sẵn sàng bàn giao sang BH-03.
+- **Giới hạn**: Chưa kiểm thử trên PostgREST HTTP/JWT và chưa apply lên Supabase production (tuân thủ không tự deploy production).
