@@ -39,4 +39,4 @@ Diff `git diff origin/main...HEAD` (main remote `da1285d`, merge-base `d8dfe74`)
 
 ## Kết luận
 
-**Chưa đạt** phần B tại `135d7bd` — còn B1 và B2 mức P2. Báo cáo được push lên nhánh review theo yêu cầu thường trực; chưa sửa code, chưa đổi trạng thái ticket thành Đạt, chưa merge main. Chờ chủ dự án xác nhận kết luận và hướng xử lý.
+**Chưa đạt** phần B tại `135d7bd` — còn B1 và B2 mức P2. Báo cáo được push lên nhánh review theo yêu cầu thường trực; chưa sửa code, chưa đổi trạng thái ticket thành Đạt, chưa merge main. Reviewer chốt kết luận cuối cùng **Chưa đạt** phần B tại 135d7bd; không cần chủ dự án xác nhận. Người triển khai xử lý B1/B2 trước khi gửi review lại.

@@ -210,3 +210,9 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 - Không chạy runner DB: phần B không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
 - NOT RUN: kiểm thử thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (phần B chỉ được test bằng unit test với provider giả, chưa gọi RPC qua mạng); apply staging/production. UI phần C chưa tách nhánh/nghiệm thu.
 - Ghi chú phạm vi tài liệu: `docs/08_DOMAIN_CONTRACTS.md` §12 và `docs/22_BH05_HANDOFF.md` hiện chỉ có trên `main` (từ `814d85b`/`aa90066`), chưa đưa vào nhánh A/B; cần chủ dự án quyết nơi đặt.
+
+### BH-05B — Kết luận cuối cùng của reviewer (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần B** tại `135d7bd`, theo [review_135d7bd.md](reviews/bh05/review_135d7bd.md). Còn B1/B2 mức P2 về lỗi tải lời mời và state lời mời cũ.
+- Analyze sạch, 111/111 Flutter và 84/84 DB PASS; hai probe bổ sung tái hiện lỗi. NOT RUN được liệt kê trong báo cáo.
+- Reviewer tự chốt kết luận, không cần chủ dự án xác nhận; trạng thái Chờ review phía trên là lịch sử. Không sửa code, merge main hoặc apply DB remote trong lượt này.
