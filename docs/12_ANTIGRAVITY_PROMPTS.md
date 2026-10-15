@@ -51,3 +51,7 @@ Chỉ commit/push trong lượt chức năng nếu người dùng giao hoặc ph
 ## AG-02R: Sửa BH-02 sau kiểm thử thực thi
 
 Nếu đang tiếp tục sau commit 3fa3cda, dùng prompt trong [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md) thay vì chạy AG-02 từ đầu hoặc sang AG-03. Kết quả baseline 33 ca/18 PASS/15 FAIL là bằng chứng để giữ regression tests; không tự đổi expected để đóng lỗi.
+
+## AG-02R2: Finance, member/pending và legacy update
+
+Sau commit 15ef59b, dùng prompt H1–H3 trong mục cập nhật cuối [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md). Giữ 33 ca cũ PASS, bổ sung/sửa 6 ca mở rộng trước khi chốt nghiệm thu. Không coi kết quả 33/33 cũ là đủ cho toàn bộ finance/private-field read contracts.

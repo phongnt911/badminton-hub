@@ -59,3 +59,33 @@ Runner không chứa triển khai sửa lỗi. Nếu API read được đổi sa
 - **File bằng chứng**: [rls_test_results_20261015115541.json](reviews/bh02/rls_test_results_20261015115541.json).
 - **Kiểm thử Flutter**: 10/10 schema migration tests passed; toàn bộ 38/38 flutter tests passed; `flutter analyze` 0 issues.
 - **Kết luận**: BH-02 chính thức **ĐÃ ĐẠT NGHIỆM THU**, đủ điều kiện chuyển sang ticket BH-03.
+
+## Cập nhật ưu tiên: review độc lập commit 15ef59b (15/10/2026)
+
+**Trạng thái hiện hành: BH-02 chưa đạt nghiệm thu đầy đủ, chờ sửa H1–H3.** Mục nghiệm thu 33/33 phía trên giữ làm lịch sử của bộ ca cũ, không phải kết luận cuối sau review mở rộng. Đã xác nhận độc lập 33/33 ca cũ PASS; thêm 6 ca FAIL, tổng 39 ca = 33 PASS / 6 FAIL. Không sửa expected để hợp thức hóa lỗi.
+
+Bằng chứng: [review bổ sung](reviews/bh02/review_15ef59b.md), [33 ca cũ](reviews/bh02/verification_15ef59b_baseline.json), [6 ca bổ sung](reviews/bh02/verification_15ef59b_extended.json). Tất cả là PostgreSQL cô lập với Auth stub tối thiểu, chưa kiểm full Supabase HTTP/JWT/production.
+
+| ID | Mức | Cần sửa | Acceptance |
+|---|---|---|---|
+| H1 | P1 | Finance mất roster join nên không thấy công nợ/payment; sửa F7 không được làm mất chức năng finance | Treasurer/session finance thấy 2 khoản nợ và payment confirmed 20.000đ; contact mới/legacy vẫn bị chặn; host/player riêng vẫn đúng |
+| H2 | P1 | Raw sessions cho member chưa tham gia và pending guest đọc receiver_snapshot | Member chưa tham gia, pending/waitlisted/rejected/cancelled không đọc snapshot/contact private; confirmed chỉ nhận payment instructions theo quyền; public/unlisted projection vẫn dùng được |
+| H3 | P2 | Trigger legacy chỉ điền khi NULL, venue_name lấy title | Đổi starts_at/ends_at cập nhật ngày/giờ legacy; đổi venue_id cập nhật tên sân đúng; tiêu đề buổi không thay tên sân; giữ dữ liệu cũ chưa xác minh |
+
+### Prompt tiếp tục cho Antigravity
+
+> Đọc AGENTS.md, docs/00_START_HERE.md và mục cập nhật review 15ef59b trong docs/13_BH02_REVIEW_HANDOFF.md cùng review/JSON liên kết. Chưa chuyển BH-03. Giữ 33 ca cũ đang PASS và sửa H1–H3, mỗi nhóm commit liên quan. H1: cung cấp financial roster/outstanding/payments có authorization phù hợp; không khôi phục đọc toàn bảng player cho finance vì sẽ lộ phone legacy. H2: không cấp raw private session fields cho member/pending; dùng whitelist projection và payment instructions riêng. H3: đồng bộ legacy theo trường nguồn có quy tắc rõ khi INSERT/UPDATE và mapping sân từ venue_id; không suy tên sân từ title. Đọc spec 03/08/ADR và SQL hiện tại trước sửa. Xác định migration đã apply/shared ở môi trường nào: nếu có thì tạo forward migration, không sửa lịch sử đã triển khai; nếu chưa biết thì ghi rõ. Thêm regression tests cho treasurer và role finance theo buổi không management, member không đăng ký, các trạng thái registration, sửa ngày/giờ/venue legacy và fixture có dữ liệu trước migration. Chạy local/staging, giữ cả bảo mật lẫn các read chức năng đúng. Báo từng ca PASS/FAIL/NOT RUN, tested commit, migration content hash/worktree state và giới hạn full Supabase. Không tự apply production, không đánh dấu done chỉ từ sqlContent.contains hoặc 33/33 bộ cũ.
+
+### Chạy các ca bổ sung
+
+Sau khi dựng container theo hướng dẫn phía trên, chạy runner 33 ca tạo DB test và kết quả timestamp; rồi chạy:
+
+```bash
+python docs/reviews/bh02/extended_tests_15ef59b.py
+```
+
+Script đọc kết quả timestamp mới nhất từ runner để lấy tên DB clean/legacy vừa seed, chạy 6 ca trong BEGIN/ROLLBACK, xuất extended_results_<timestamp>.json và không ghi đè bằng chứng baseline. Cần cùng BH02_TEST_CONTAINER nếu dùng tên container khác. Đây là harness tái hiện baseline 15ef59b; khi sửa read API thành RPC an toàn, cập nhật đường gọi test theo contract nhưng giữ quyền mong đợi, các ca raw private read phải tiếp tục chặn. Bổ sung ca theo session_finance độc lập và các status ngoài pending vì 6 ca hiện chưa bao phủ hết.
+
+### Cổng đóng cập nhật
+
+Ngoài cổng trước đó, H1–H3 phải có regression PASS trên clean/legacy; finance vẫn vận hành và không đọc contact, member/pending không đọc snapshot, update lịch/sân legacy đúng. Kết quả 39 ca baseline là lịch sử cần giữ, không sửa thành kết quả của code khác. Nếu chưa kiểm Supabase local/staging thật thì ghi rõ NOT RUN, không gọi đó là nghiệm thu đầy đủ production.

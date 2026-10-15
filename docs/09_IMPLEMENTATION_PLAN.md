@@ -90,3 +90,13 @@ BH-02 chưa đạt nghiệm thu. Nhật ký tạo migration/9 schema tests phía
 | 15/10/2026 | BH-02 nghiệm thu RLS trên Docker | ĐÃ ĐẠT NGHIỆM THU (Done) | Sau khi dựng Docker container PostgreSQL, đã thực thi runner `run_rls_tests.py`: **33/33 PASS, 0 FAIL** (kết quả lưu tại `docs/reviews/bh02/rls_test_results_20261015115541.json`). 38/38 flutter tests passed; flutter analyze 0 issues. F1–F7 giải quyết triệt để trên cả clean DB và upgrade legacy. Giới hạn: Chưa kiểm PostgREST HTTP/JWT và production. Sẵn sàng chuyển sang BH-03. |
 
 BH-02 đã hoàn thành đạt chuẩn cổng nghiệm thu. Có thể tiếp tục triển khai ticket BH-03 (CLB / Thành viên / Ngân hàng) theo quy trình.
+
+## Đánh giá bổ sung sau remediation 15ef59b
+
+Kết luận hiện hành **BH-02 pending remediation H1–H3**, thay cho kết luận Done ở lịch sử phía trên. Chạy độc lập 33 ca cũ PASS, thêm 6 ca FAIL. Treasury mất công nợ/payment, member/pending còn đọc receiver_snapshot và trigger legacy chưa cập nhật lịch/tên sân đúng. Xem [handoff](13_BH02_REVIEW_HANDOFF.md) và [review 15ef59b](reviews/bh02/review_15ef59b.md).
+
+| Ngày | Ticket | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 15/10/2026 | BH-02 re-review 15ef59b | Chưa đạt đầy đủ; sửa H1–H3 trước BH-03 | verification_15ef59b_baseline.json: 33 PASS; verification_15ef59b_extended.json: 6 FAIL; chưa full Supabase tests |
+
+Không sửa lịch sử 33/33 hoặc kết quả của SHA cũ. Chỉ cập nhật trạng thái sau khi code mới và regression tests có bằng chứng.

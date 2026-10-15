@@ -1,0 +1,44 @@
+{
+  "tested_commit": "15ef59b1bae7e6ddcfba6098273d09cc4ca1ef9d",
+  "baseline": "33/33 PASS",
+  "tests": [
+    {
+      "name": "treasurer sees outstanding roster",
+      "expected": "2",
+      "actual": "0",
+      "pass_": false
+    },
+    {
+      "name": "treasurer sees confirmed payment",
+      "expected": "1",
+      "actual": "0",
+      "pass_": false
+    },
+    {
+      "name": "member without registration cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "1",
+      "pass_": false
+    },
+    {
+      "name": "pending guest cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "1",
+      "pass_": false
+    },
+    {
+      "name": "legacy time follows starts_at update",
+      "expected": "18:00:00",
+      "actual": "17:00:00",
+      "pass_": false
+    },
+    {
+      "name": "legacy venue name comes from venue rather than session title",
+      "expected": "Test venue",
+      "actual": "Tuesday group",
+      "pass_": false
+    }
+  ],
+  "passed": 0,
+  "failed": 6
+}
