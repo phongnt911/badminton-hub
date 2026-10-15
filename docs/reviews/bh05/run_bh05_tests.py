@@ -209,6 +209,29 @@ def run_suite(db):
         return json.loads(must_user(db, actor,
             f"SELECT public.request_join_session('{sid}'::uuid, {contact_sql}, '{key}');", 'join'))
 
+    def finalize_billing(sid, actor=1):
+        # Tạo revision 'active' (mô phỏng đã chốt phí) để kiểm gate quyền tài chính.
+        must(db, f"""
+          INSERT INTO public.charge_revisions(
+            session_id, revision_no, source_version, status,
+            allocation_total_vnd, fee_mode, finalized_by)
+          SELECT '{sid}', 1, s.billing_input_version, 'active', 0, s.fee_mode, {q(actor)}
+          FROM public.sessions s WHERE s.id = '{sid}';
+        """, 'finalize billing')
+
+    def confirmed_count(sid):
+        return int(must(db, f"SELECT count(*) FROM public.session_players WHERE session_id='{sid}' AND registration_status='confirmed';", 'confirmed count'))
+
+    def capacity_of(sid):
+        return int(must(db, f"SELECT capacity FROM public.sessions WHERE id='{sid}';", 'capacity'))
+
+    def update_session_sql(sid, version, capacity, title='Cap'):
+        return (f"SELECT public.update_session(p_session_id=>'{sid}'::uuid, p_version=>{version}, "
+                f"p_venue_id=>'{SHARED['venue']}'::uuid, p_title=>'{title}', "
+                f"p_starts_at=>'{iso(1)}', p_ends_at=>'{iso(1, 2)}', p_capacity=>{capacity}, "
+                f"p_court_count=>2, p_visibility=>'unlisted', p_approval_mode=>'auto_confirm', "
+                f"p_fee_mode=>'split_actual', p_request_id=>'{newreq()}');")
+
     # ------------------------------------------------------------------ #
     def t_anon_cannot_join():
         sid = create_and_publish(1, 'AnonJoin')
@@ -599,6 +622,84 @@ def run_suite(db):
         assert conf == '1', f"duyệt cạnh tranh không vượt sức chứa: {conf}; T2={e2.strip()}"
         assert 'CAPACITY_FULL' in e2, f"người thua phải CAPACITY_FULL: {e2.strip()}"
     run_test("hai kết nối duyệt cạnh tranh: không vượt sức chứa (người thua CAPACITY_FULL)", t_race_decide_capacity)
+
+    # --- Vòng sửa review 7fcbdee: A1 (gate finance) và A2 (capacity) ---------- #
+
+    def t_a1_add_confirmed_requires_finance_after_finalize():
+        sid = create_and_publish(1, 'FinAdd', capacity=8)
+        must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES "
+                 f"('{sid}', {q(2)}, 'cohost', 'active'), "
+                 f"('{sid}', {q(4)}, 'cohost', 'active'), ('{sid}', {q(4)}, 'finance', 'active');", 'staff')
+        finalize_billing(sid)
+        before = must(db, f"SELECT billing_input_version FROM public.sessions WHERE id='{sid}';", 'biv before')
+        r = user_exec(db, 2, f"SELECT public.add_session_player('{sid}'::uuid, NULL, 'Khách F', NULL, FALSE, FALSE, '{newreq()}');")
+        assert expect_error(r, 'FORBIDDEN'), f"cohost không finance không được thêm confirmed sau chốt phí: {r.stderr}"
+        ok = json.loads(must_user(db, 4, f"SELECT public.add_session_player('{sid}'::uuid, NULL, 'Khách F', NULL, FALSE, FALSE, '{newreq()}');", 'cohost+finance add'))
+        assert ok['registration_status'] == 'confirmed', ok
+        after = must(db, f"SELECT billing_input_version FROM public.sessions WHERE id='{sid}';", 'biv after')
+        assert int(after) == int(before) + 1, f"thêm confirmed sau chốt phí phải tăng billing_input_version: {before}->{after}"
+    run_test("A1 add_session_player: thêm confirmed sau chốt phí cần quyền tài chính (cohost FORBIDDEN, finance cho phép)", t_a1_add_confirmed_requires_finance_after_finalize)
+
+    def t_a1_decide_confirmed_requires_finance_after_finalize():
+        sid = create_and_publish(1, 'FinDecide', approval='host_approval', capacity=8)
+        must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES ('{sid}', {q(2)}, 'cohost', 'active');", 'cohost')
+        j = join(5, sid)
+        finalize_billing(sid)
+        r = user_exec(db, 2, f"SELECT public.decide_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'confirmed', NULL, '{newreq()}');")
+        assert expect_error(r, 'FORBIDDEN'), f"cohost không finance không được duyệt confirmed sau chốt phí: {r.stderr}"
+        ok = json.loads(must_user(db, 1, f"SELECT public.decide_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'confirmed', NULL, '{newreq()}');", 'host decide after finalize'))
+        assert ok['registration_status'] == 'confirmed', ok
+    run_test("A1 decide_registration: duyệt confirmed sau chốt phí cần quyền tài chính", t_a1_decide_confirmed_requires_finance_after_finalize)
+
+    def t_a1_cancel_confirmed_requires_finance_after_finalize():
+        sid = create_and_publish(1, 'FinCancel', approval='auto_confirm', capacity=8)
+        must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES ('{sid}', {q(2)}, 'cohost', 'active');", 'cohost')
+        j = join(6, sid)
+        assert j['registration_status'] == 'confirmed', j
+        finalize_billing(sid)
+        r = user_exec(db, 2, f"SELECT public.cancel_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'x', '{newreq()}');")
+        assert expect_error(r, 'FORBIDDEN'), f"cohost không finance không được hủy confirmed sau chốt phí: {r.stderr}"
+        ok = json.loads(must_user(db, 1, f"SELECT public.cancel_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'y', '{newreq()}');", 'host cancel after finalize'))
+        assert ok['registration_status'] == 'cancelled', ok
+    run_test("A1 cancel_registration: hủy confirmed sau chốt phí cần quyền tài chính", t_a1_cancel_confirmed_requires_finance_after_finalize)
+
+    def t_a1_accept_confirmed_requires_finance_after_finalize():
+        sid = create_and_publish(1, 'FinAccept', approval='auto_confirm', capacity=2)
+        must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES ('{sid}', {q(2)}, 'cohost', 'active');", 'cohost')
+        join(5, sid)
+        j6 = join(6, sid)
+        w = join(7, sid)
+        assert w['registration_status'] == 'waitlisted', w
+        inv = json.loads(must_user(db, 1, f"SELECT public.invite_waitlisted_player('{sid}'::uuid, '{w['player_id']}'::uuid, NULL, '{newreq()}');", 'invite'))
+        must_user(db, 6, f"SELECT public.cancel_registration('{sid}'::uuid, '{j6['player_id']}'::uuid, NULL, '{newreq()}');", 'free slot')
+        finalize_billing(sid)
+        r = user_exec(db, 7, f"SELECT public.accept_waitlist_invitation('{sid}'::uuid, '{inv['invitation_id']}'::uuid, NULL, '{newreq()}');")
+        assert expect_error(r, 'FORBIDDEN'), f"nhận chỗ sau chốt phí cần quyền tài chính: {r.stderr}"
+    run_test("A1 accept_waitlist_invitation: nhận chỗ sau chốt phí cần quyền tài chính", t_a1_accept_confirmed_requires_finance_after_finalize)
+
+    def t_a2_update_capacity_below_confirmed():
+        sid = create_and_publish(1, 'CapShrink', approval='auto_confirm', capacity=2)
+        join(5, sid)
+        join(6, sid)
+        assert confirmed_count(sid) == 2
+        v = must(db, f"SELECT version FROM public.sessions WHERE id='{sid}';", 'version')
+        r = user_exec(db, 1, update_session_sql(sid, v, 1, 'CapShrink'))
+        assert expect_error(r, 'CAPACITY_FULL'), f"không được hạ capacity dưới confirmed: {r.stderr}"
+        assert capacity_of(sid) == 2, 'capacity phải giữ nguyên khi bị từ chối'
+    run_test("A2 update_session: từ chối hạ capacity dưới số đã confirmed", t_a2_update_capacity_below_confirmed)
+
+    def t_a2_race_update_capacity_vs_join():
+        sid = create_and_publish(1, 'CapRace', approval='auto_confirm', capacity=2)
+        join(5, sid)
+        join(6, sid)
+        v = must(db, f"SELECT version FROM public.sessions WHERE id='{sid}';", 'version')
+        s1 = tx_script(1, update_session_sql(sid, v, 1, 'CapRace') + "\nSELECT pg_sleep(1.5);")
+        s2 = tx_script(7, f"SELECT pg_sleep(0.2);\nSELECT public.request_join_session('{sid}'::uuid, NULL, '{newreq()}');")
+        run_concurrent(db, [s1, s2])
+        cap, conf = capacity_of(sid), confirmed_count(sid)
+        assert conf <= cap, f"confirmed không được vượt capacity sau commit: confirmed={conf}, capacity={cap}"
+        assert cap >= 2, f"capacity không được hạ xuống dưới confirmed: {cap}"
+    run_test("A2 race: hạ capacity đấu với join — confirmed không vượt capacity", t_a2_race_update_capacity_vs_join)
 
 
 run_suite(CLEAN)
