@@ -194,4 +194,159 @@ class SessionRepository {
     });
     return _toSession(response);
   }
+
+  // --- BH-05: đăng ký, duyệt, huỷ, điểm danh và lời mời danh sách chờ ----- //
+
+  RegistrationResult _toResult(dynamic response) => RegistrationResult.fromJson(
+    Map<String, dynamic>.from(response as Map),
+  );
+
+  WaitlistInvitation _toInvitation(dynamic response) =>
+      WaitlistInvitation.fromJson(Map<String, dynamic>.from(response as Map));
+
+  /// Người chơi tự gửi yêu cầu tham gia buổi đã công bố.
+  Future<RegistrationResult> requestJoinSession({
+    required String requestId,
+    required String sessionId,
+    String? contact,
+  }) async {
+    final response = await _client.rpc('request_join_session', params: {
+      'p_session_id': sessionId,
+      'p_contact': contact,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Host/cohost thêm thành viên CLB hoặc khách chưa có tài khoản.
+  Future<RegistrationResult> addSessionPlayer({
+    required String requestId,
+    required String sessionId,
+    String? memberId,
+    String? guestName,
+    String? contact,
+    bool feeExempt = false,
+    bool allowWaitlist = false,
+  }) async {
+    final response = await _client.rpc('add_session_player', params: {
+      'p_session_id': sessionId,
+      'p_member_id': memberId,
+      'p_guest_name': guestName,
+      'p_contact': contact,
+      'p_fee_exempt': feeExempt,
+      'p_allow_waitlist': allowWaitlist,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Host/cohost duyệt/từ chối/đưa vào danh sách chờ một đăng ký.
+  Future<RegistrationResult> decideRegistration({
+    required String requestId,
+    required String sessionId,
+    required String playerId,
+    required String decision,
+    String? reason,
+  }) async {
+    final response = await _client.rpc('decide_registration', params: {
+      'p_session_id': sessionId,
+      'p_player_id': playerId,
+      'p_decision': decision,
+      'p_reason': reason,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Hủy đăng ký (người chơi tự hủy theo hạn, hoặc host/quản lý theo quyền).
+  Future<RegistrationResult> cancelRegistration({
+    required String requestId,
+    required String sessionId,
+    required String playerId,
+    String? reason,
+  }) async {
+    final response = await _client.rpc('cancel_registration', params: {
+      'p_session_id': sessionId,
+      'p_player_id': playerId,
+      'p_reason': reason,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Điểm danh người đã confirmed khi buổi đang diễn ra.
+  Future<RegistrationResult> recordAttendance({
+    required String requestId,
+    required String sessionId,
+    required String playerId,
+    required String attendance,
+  }) async {
+    final response = await _client.rpc('record_attendance', params: {
+      'p_session_id': sessionId,
+      'p_player_id': playerId,
+      'p_attendance': attendance,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Host phát hành lời mời nhận chỗ cho người trong danh sách chờ.
+  Future<WaitlistInvitation> inviteWaitlistedPlayer({
+    required String requestId,
+    required String sessionId,
+    required String playerId,
+    DateTime? expiresAt,
+  }) async {
+    final response = await _client.rpc('invite_waitlisted_player', params: {
+      'p_session_id': sessionId,
+      'p_player_id': playerId,
+      'p_expires_at': expiresAt?.toUtc().toIso8601String(),
+      'p_request_id': requestId,
+    });
+    return _toInvitation(response);
+  }
+
+  /// Thu hồi lời mời đang chờ (chưa được chấp nhận).
+  Future<WaitlistInvitation> revokeWaitlistInvitation({
+    required String requestId,
+    required String sessionId,
+    required String invitationId,
+    String? reason,
+  }) async {
+    final response = await _client.rpc('revoke_waitlist_invitation', params: {
+      'p_session_id': sessionId,
+      'p_invitation_id': invitationId,
+      'p_reason': reason,
+      'p_request_id': requestId,
+    });
+    return _toInvitation(response);
+  }
+
+  /// Chấp nhận lời mời: người nhận tự xác nhận hoặc host ghi nhận đồng ý cho khách.
+  Future<RegistrationResult> acceptWaitlistInvitation({
+    required String requestId,
+    required String sessionId,
+    required String invitationId,
+    String? consentNote,
+  }) async {
+    final response = await _client.rpc('accept_waitlist_invitation', params: {
+      'p_session_id': sessionId,
+      'p_invitation_id': invitationId,
+      'p_consent_note': consentNote,
+      'p_request_id': requestId,
+    });
+    return _toResult(response);
+  }
+
+  /// Lời mời đang chờ của chính người dùng trong buổi (nếu có).
+  Future<WaitlistInvitation?> getMyWaitlistInvitation(String sessionId) async {
+    final response = await _client.rpc(
+      'get_my_waitlist_invitation',
+      params: {'p_session_id': sessionId},
+    );
+    if (response is Map) {
+      return _toInvitation(response);
+    }
+    return null;
+  }
 }

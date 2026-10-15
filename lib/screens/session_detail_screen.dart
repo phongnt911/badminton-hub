@@ -6,16 +6,49 @@ import '../core/app_constants.dart';
 import '../core/app_routes.dart';
 import '../core/auth_guard.dart';
 import '../core/time_utils.dart';
+import '../models/club.dart';
 import '../models/session.dart';
 import '../providers/auth_provider.dart';
+import '../providers/club_provider.dart';
 import '../providers/session_provider.dart';
 import 'session_form_screen.dart';
+
+/// Nhãn tiếng Việt cho trạng thái đăng ký (giá trị lưu ở DB vẫn là tiếng Anh).
+String registrationStatusLabel(String status) {
+  switch (status) {
+    case 'pending':
+      return 'Chờ duyệt';
+    case 'confirmed':
+      return 'Đã xác nhận';
+    case 'waitlisted':
+      return 'Danh sách chờ';
+    case 'cancelled':
+      return 'Đã huỷ';
+    case 'rejected':
+      return 'Bị từ chối';
+    default:
+      return status;
+  }
+}
+
+String attendanceStatusLabel(String status) {
+  switch (status) {
+    case 'present':
+      return 'Có mặt';
+    case 'no_show':
+      return 'Vắng';
+    case 'not_checked_in':
+      return 'Chưa điểm danh';
+    default:
+      return status;
+  }
+}
 
 /// Chi tiết buổi chơi — đọc qua `get_session_public_detail` (projection whitelist).
 ///
 /// Guest mở được link public/unlisted; draft/private sẽ bị server từ chối và hiển
 /// thị thông điệp tương ứng. Guest bấm đăng ký sẽ được đưa qua đăng nhập rồi trở
-/// lại đúng buổi này (PD-01).
+/// lại đúng buổi này (PD-01). Mọi mutation đi qua RPC có `request_id` (BH-05).
 class SessionDetailScreen extends StatefulWidget {
   final String sessionId;
 
@@ -37,7 +70,76 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   Future<void> _reload() =>
       context.read<SessionProvider>().fetchSessionDetail(widget.sessionId);
 
-  Future<void> _register() async {
+  /// Chạy mutation và phản hồi kết quả; khoá nút trong lúc gửi (`isSubmitting`).
+  Future<void> _runAction(
+    Future<bool> Function() action,
+    String success,
+  ) async {
+    final provider = context.read<SessionProvider>();
+    final ok = await action();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok ? success : (provider.submitErrorMessage ?? 'Thao tác thất bại.'),
+        ),
+        backgroundColor: ok ? AppConstants.primaryColor : Colors.red,
+      ),
+    );
+  }
+
+  Future<bool> _confirm(String title, String message) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Không'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Đồng ý'),
+          ),
+        ],
+      ),
+    );
+    return result == true;
+  }
+
+  Future<String?> _askReason(String title) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Lý do (tùy chọn)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Huỷ bỏ'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
+
+  /// Đăng ký tham gia: guest được đưa qua đăng nhập rồi trở lại đúng buổi.
+  Future<void> _join() async {
     final ok = await requireAuth(
       context,
       returnRoute: AppRoutes.sessionPath(widget.sessionId),
@@ -45,10 +147,33 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     if (!ok || !mounted) return;
     await _reload();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Chức năng đăng ký tham gia sẽ có ở BH-05.'),
+    await _runAction(
+      () => context.read<SessionProvider>().requestJoinSession(),
+      'Đã gửi yêu cầu tham gia buổi chơi.',
+    );
+  }
+
+  Future<void> _cancelOwnRegistration() async {
+    final reg = context.read<SessionProvider>().currentSession?.myRegistration;
+    if (reg == null) return;
+    if (!await _confirm('Huỷ đăng ký', 'Bạn chắc chắn muốn huỷ đăng ký buổi này?')) {
+      return;
+    }
+    if (!mounted) return;
+    await _runAction(
+      () => context.read<SessionProvider>().cancelRegistration(playerId: reg.playerId),
+      'Đã huỷ đăng ký.',
+    );
+  }
+
+  Future<void> _acceptInvitation() async {
+    final invitation = context.read<SessionProvider>().myInvitation;
+    if (invitation == null) return;
+    await _runAction(
+      () => context.read<SessionProvider>().acceptWaitlistInvitation(
+        invitationId: invitation.invitationId,
       ),
+      'Đã xác nhận chỗ trong buổi.',
     );
   }
 
@@ -65,28 +190,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   }
 
   Future<void> _cancel() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Huỷ buổi chơi'),
-        content: const Text('Bạn chắc chắn muốn huỷ buổi chơi này?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Không'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Huỷ buổi'),
-          ),
-        ],
-      ),
+    final confirmed = await _confirm(
+      'Huỷ buổi chơi',
+      'Bạn chắc chắn muốn huỷ buổi chơi này?',
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     final provider = context.read<SessionProvider>();
     final result = await provider.cancelSession(widget.sessionId);
     if (!mounted) return;
@@ -126,6 +234,88 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     );
     if (!mounted) return;
     if (updated != null) await _reload();
+  }
+
+  Future<void> _addPlayer() async {
+    final session = context.read<SessionProvider>().currentSession;
+    if (session == null) return;
+    final request = await showDialog<_AddPlayerRequest>(
+      context: context,
+      builder: (_) => _AddPlayerDialog(
+        clubId: session.clubId,
+        canSetFeeExempt: session.canViewFinance,
+      ),
+    );
+    if (request == null || !mounted) return;
+    await _runAction(
+      () => context.read<SessionProvider>().addSessionPlayer(
+        memberId: request.memberId,
+        guestName: request.guestName,
+        contact: request.contact,
+        feeExempt: request.feeExempt,
+        allowWaitlist: request.allowWaitlist,
+      ),
+      'Đã thêm người vào buổi.',
+    );
+  }
+
+  Future<void> _decide(SessionPlayer player, String decision) async {
+    if (decision == 'rejected') {
+      if (!await _confirm(
+        'Từ chối đăng ký',
+        'Từ chối đăng ký của ${player.displayName}?',
+      )) {
+        return;
+      }
+      if (!mounted) return;
+    }
+    await _runAction(
+      () => context.read<SessionProvider>().decideRegistration(
+        playerId: player.id,
+        decision: decision,
+      ),
+      'Đã cập nhật đăng ký.',
+    );
+  }
+
+  Future<void> _hostCancel(SessionPlayer player) async {
+    final reason = await _askReason('Huỷ đăng ký của ${player.displayName}');
+    if (reason == null || !mounted) return;
+    await _runAction(
+      () => context.read<SessionProvider>().cancelRegistration(
+        playerId: player.id,
+        reason: reason,
+      ),
+      'Đã huỷ đăng ký.',
+    );
+  }
+
+  Future<void> _invite(SessionPlayer player) async {
+    await _runAction(
+      () => context.read<SessionProvider>().inviteWaitlistedPlayer(playerId: player.id),
+      'Đã gửi lời mời nhận chỗ.',
+    );
+  }
+
+  Future<void> _revoke(SessionPlayer player) async {
+    final invitationId = player.pendingInvitationId;
+    if (invitationId == null) return;
+    await _runAction(
+      () => context.read<SessionProvider>().revokeWaitlistInvitation(
+        invitationId: invitationId,
+      ),
+      'Đã thu hồi lời mời.',
+    );
+  }
+
+  Future<void> _attendance(SessionPlayer player, String status) async {
+    await _runAction(
+      () => context.read<SessionProvider>().recordAttendance(
+        playerId: player.id,
+        attendance: status,
+      ),
+      'Đã cập nhật điểm danh.',
+    );
   }
 
   void _showResult(Session? result, {required String success, String? error}) {
@@ -321,11 +511,18 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               onDuplicate: _duplicate,
             )
           else if (auth.isAuthenticated)
-            _RegistrationStatus(session: session, onRegister: _register)
+            _PlayerRegistrationCard(
+              session: session,
+              invitation: provider.myInvitation,
+              submitting: submitted,
+              onJoin: _join,
+              onCancel: _cancelOwnRegistration,
+              onAccept: _acceptInvitation,
+            )
           else
             Center(
               child: ElevatedButton.icon(
-                onPressed: _register,
+                onPressed: _join,
                 icon: const Icon(Icons.login),
                 label: const Text('Đăng nhập để đăng ký'),
                 style: ElevatedButton.styleFrom(
@@ -336,9 +533,20 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             ),
           if (provider.canManagePlayers) ...[
             const SizedBox(height: 24),
-            const Text(
-              'Danh sách đăng ký',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Danh sách đăng ký',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: submitted ? null : _addPlayer,
+                  icon: const Icon(Icons.person_add_alt),
+                  label: const Text('Thêm người'),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             if (provider.isLoadingPlayers)
@@ -355,7 +563,16 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 ],
               )
             else
-              _PlayersList(players: provider.currentPlayers),
+              _PlayersList(
+                players: provider.currentPlayers,
+                session: session,
+                submitting: submitted,
+                onDecide: _decide,
+                onCancel: _hostCancel,
+                onInvite: _invite,
+                onRevoke: _revoke,
+                onAttendance: _attendance,
+              ),
           ],
         ],
       ),
@@ -414,43 +631,104 @@ class _ManagementActions extends StatelessWidget {
   }
 }
 
-class _RegistrationStatus extends StatelessWidget {
+/// Trạng thái đăng ký của chính người chơi + hành động hợp lệ.
+class _PlayerRegistrationCard extends StatelessWidget {
   final Session session;
-  final VoidCallback onRegister;
+  final WaitlistInvitation? invitation;
+  final bool submitting;
+  final VoidCallback onJoin;
+  final VoidCallback onCancel;
+  final VoidCallback onAccept;
 
-  const _RegistrationStatus({required this.session, required this.onRegister});
+  const _PlayerRegistrationCard({
+    required this.session,
+    required this.invitation,
+    required this.submitting,
+    required this.onJoin,
+    required this.onCancel,
+    required this.onAccept,
+  });
 
   @override
   Widget build(BuildContext context) {
     final reg = session.myRegistration;
-    if (reg != null) {
-      return Card(
-        color: Colors.green.shade50,
-        child: ListTile(
-          leading: const Icon(Icons.check_circle, color: Colors.green),
-          title: const Text('Bạn đã đăng ký buổi này'),
-          subtitle: Text('Trạng thái: ${reg.registrationStatus}'),
-        ),
-      );
-    }
-    if (!session.isShareable || session.isFull) {
-      return Card(
-        child: ListTile(
-          leading: const Icon(Icons.info_outline),
-          title: Text(
-            session.isFull ? 'Buổi đã đủ người' : 'Buổi chưa mở đăng ký',
+    if (reg == null) {
+      if (!session.isShareable || session.isFull) {
+        return Card(
+          child: ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(
+              session.isFull ? 'Buổi đã đủ người' : 'Buổi chưa mở đăng ký',
+            ),
+          ),
+        );
+      }
+      return Center(
+        child: ElevatedButton.icon(
+          onPressed: submitting ? null : onJoin,
+          icon: const Icon(Icons.how_to_reg),
+          label: const Text('Đăng ký tham gia'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppConstants.primaryColor,
+            foregroundColor: Colors.white,
           ),
         ),
       );
     }
-    return Center(
-      child: ElevatedButton.icon(
-        onPressed: onRegister,
-        icon: const Icon(Icons.how_to_reg),
-        label: const Text('Đăng ký tham gia'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppConstants.primaryColor,
-          foregroundColor: Colors.white,
+
+    final active = reg.registrationStatus == 'pending' ||
+        reg.registrationStatus == 'confirmed' ||
+        reg.registrationStatus == 'waitlisted';
+    final canAccept = reg.registrationStatus == 'waitlisted' && invitation != null;
+
+    return Card(
+      color: Colors.green.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.event_available, color: Colors.green),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Đăng ký của bạn: ${registrationStatusLabel(reg.registrationStatus)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            if (reg.registrationStatus == 'waitlisted' && invitation != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Lời mời nhận chỗ còn hiệu lực đến '
+                  '${formatVietnamDateTime(invitation!.expiresAt)}.',
+                  style: TextStyle(color: Colors.grey[800]),
+                ),
+              ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (canAccept)
+                  FilledButton.icon(
+                    onPressed: submitting ? null : onAccept,
+                    icon: const Icon(Icons.check),
+                    label: const Text('Chấp nhận lời mời'),
+                  ),
+                if (active)
+                  OutlinedButton.icon(
+                    onPressed: submitting ? null : onCancel,
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text('Huỷ đăng ký'),
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -459,7 +737,24 @@ class _RegistrationStatus extends StatelessWidget {
 
 class _PlayersList extends StatelessWidget {
   final List<SessionPlayer> players;
-  const _PlayersList({required this.players});
+  final Session session;
+  final bool submitting;
+  final void Function(SessionPlayer, String) onDecide;
+  final void Function(SessionPlayer) onCancel;
+  final void Function(SessionPlayer) onInvite;
+  final void Function(SessionPlayer) onRevoke;
+  final void Function(SessionPlayer, String) onAttendance;
+
+  const _PlayersList({
+    required this.players,
+    required this.session,
+    required this.submitting,
+    required this.onDecide,
+    required this.onCancel,
+    required this.onInvite,
+    required this.onRevoke,
+    required this.onAttendance,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -474,26 +769,317 @@ class _PlayersList extends StatelessWidget {
     }
     return Column(
       children: players
-          .map(
-            (p) => Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
+          .map((p) => _PlayerRow(
+                player: p,
+                inProgress: session.isInProgress,
+                submitting: submitting,
+                onDecide: onDecide,
+                onCancel: onCancel,
+                onInvite: onInvite,
+                onRevoke: onRevoke,
+                onAttendance: onAttendance,
+              ))
+          .toList(),
+    );
+  }
+}
+
+class _PlayerRow extends StatelessWidget {
+  final SessionPlayer player;
+  final bool inProgress;
+  final bool submitting;
+  final void Function(SessionPlayer, String) onDecide;
+  final void Function(SessionPlayer) onCancel;
+  final void Function(SessionPlayer) onInvite;
+  final void Function(SessionPlayer) onRevoke;
+  final void Function(SessionPlayer, String) onAttendance;
+
+  const _PlayerRow({
+    required this.player,
+    required this.inProgress,
+    required this.submitting,
+    required this.onDecide,
+    required this.onCancel,
+    required this.onInvite,
+    required this.onRevoke,
+    required this.onAttendance,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = player.registrationStatus == 'pending' ||
+        player.registrationStatus == 'confirmed' ||
+        player.registrationStatus == 'waitlisted';
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
                   backgroundColor: AppConstants.primaryColor,
                   child: Text(
-                    p.displayName.isNotEmpty ? p.displayName[0] : '?',
+                    player.displayName.isNotEmpty ? player.displayName[0] : '?',
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                title: Text(p.displayName),
-                subtitle: Text(
-                  '${p.registrationStatus}'
-                  '${p.phoneNumber != null ? ' · ${p.phoneNumber}' : ''}',
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        player.displayName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${registrationStatusLabel(player.registrationStatus)}'
+                        '${player.registrationStatus == 'confirmed' ? ' · ${attendanceStatusLabel(player.attendanceStatus)}' : ''}'
+                        '${player.phoneNumber != null ? ' · ${player.phoneNumber}' : ''}',
+                        style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                if (player.isPending)
+                  TextButton(
+                    onPressed: submitting ? null : () => onDecide(player, 'confirmed'),
+                    child: const Text('Duyệt'),
+                  ),
+                if (player.isPending)
+                  TextButton(
+                    onPressed: submitting ? null : () => onDecide(player, 'waitlisted'),
+                    child: const Text('Chờ chỗ'),
+                  ),
+                if (player.isPending)
+                  TextButton(
+                    onPressed: submitting ? null : () => onDecide(player, 'rejected'),
+                    child: const Text('Từ chối'),
+                  ),
+                if (player.isWaitlisted && !player.hasPendingInvitation)
+                  TextButton(
+                    onPressed: submitting ? null : () => onInvite(player),
+                    child: const Text('Mời nhận chỗ'),
+                  ),
+                if (player.isWaitlisted && player.hasPendingInvitation)
+                  TextButton(
+                    onPressed: submitting ? null : () => onRevoke(player),
+                    child: const Text('Thu hồi lời mời'),
+                  ),
+                if (player.isConfirmed && inProgress &&
+                    player.attendanceStatus != 'present')
+                  TextButton(
+                    onPressed: submitting ? null : () => onAttendance(player, 'present'),
+                    child: const Text('Có mặt'),
+                  ),
+                if (player.isConfirmed && inProgress &&
+                    player.attendanceStatus != 'no_show')
+                  TextButton(
+                    onPressed: submitting ? null : () => onAttendance(player, 'no_show'),
+                    child: const Text('Vắng'),
+                  ),
+                if (active)
+                  TextButton(
+                    onPressed: submitting ? null : () => onCancel(player),
+                    child: const Text('Huỷ'),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddPlayerRequest {
+  final String? memberId;
+  final String? guestName;
+  final String? contact;
+  final bool feeExempt;
+  final bool allowWaitlist;
+
+  const _AddPlayerRequest({
+    this.memberId,
+    this.guestName,
+    this.contact,
+    this.feeExempt = false,
+    this.allowWaitlist = false,
+  });
+}
+
+/// Thêm thành viên CLB (theo ID đã xác thực) hoặc khách chưa có tài khoản.
+class _AddPlayerDialog extends StatefulWidget {
+  final String? clubId;
+  final bool canSetFeeExempt;
+
+  const _AddPlayerDialog({this.clubId, this.canSetFeeExempt = false});
+
+  @override
+  State<_AddPlayerDialog> createState() => _AddPlayerDialogState();
+}
+
+class _AddPlayerDialogState extends State<_AddPlayerDialog> {
+  final _guestName = TextEditingController();
+  final _contact = TextEditingController();
+  ClubProvider? _clubProvider;
+  bool _guestMode = true;
+  String? _memberId;
+  bool _feeExempt = false;
+  bool _allowWaitlist = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _guestMode = widget.clubId == null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = _tryClubProvider(context);
+      if (provider == null) return;
+      _clubProvider = provider;
+      if (widget.clubId != null && provider.currentMembers.isEmpty) {
+        provider.fetchMembers(widget.clubId!);
+      }
+    });
+  }
+
+  static ClubProvider? _tryClubProvider(BuildContext context) {
+    try {
+      return Provider.of<ClubProvider>(context, listen: false);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _guestName.dispose();
+    _contact.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final name = _guestName.text.trim();
+    if (!_guestMode && _memberId == null) return;
+    if (_guestMode && name.isEmpty) return;
+    Navigator.pop(
+      context,
+      _AddPlayerRequest(
+        memberId: _guestMode ? null : _memberId,
+        guestName: _guestMode ? name : null,
+        contact: _contact.text.trim().isEmpty ? null : _contact.text.trim(),
+        feeExempt: widget.canSetFeeExempt && _feeExempt,
+        allowWaitlist: _allowWaitlist,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = _clubProvider;
+    final members = provider?.currentMembers ?? const <ClubMember>[];
+    final hasClub = widget.clubId != null && provider != null;
+
+    return AlertDialog(
+      title: const Text('Thêm người vào buổi'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasClub)
+              Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Khách mới'),
+                    selected: _guestMode,
+                    onSelected: (_) => setState(() => _guestMode = true),
+                  ),
+                  ChoiceChip(
+                    label: const Text('Thành viên CLB'),
+                    selected: !_guestMode,
+                    onSelected: (_) => setState(() => _guestMode = false),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
+            if (_guestMode) ...[
+              TextField(
+                controller: _guestName,
+                decoration: const InputDecoration(
+                  labelText: 'Tên khách',
+                  border: OutlineInputBorder(),
                 ),
               ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _contact,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Số điện thoại (tùy chọn)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ] else
+              DropdownButtonFormField<String>(
+                initialValue: _memberId,
+                decoration: const InputDecoration(
+                  labelText: 'Thành viên CLB',
+                  border: OutlineInputBorder(),
+                ),
+                items: members
+                    .where((m) => m.status == 'active')
+                    .map(
+                      (m) => DropdownMenuItem(
+                        value: m.id,
+                        child: Text(m.displayName),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() => _memberId = value),
+              ),
+            if (!_guestMode && members.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Chưa tải được danh sách thành viên CLB.',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                ),
+              ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Vào danh sách chờ nếu hết chỗ'),
+              value: _allowWaitlist,
+              onChanged: (v) => setState(() => _allowWaitlist = v),
             ),
-          )
-          .toList(),
+            if (widget.canSetFeeExempt)
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Miễn phí (cần quyền tài chính)'),
+                value: _feeExempt,
+                onChanged: (v) => setState(() => _feeExempt = v),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Huỷ'),
+        ),
+        ElevatedButton(onPressed: _submit, child: const Text('Thêm')),
+      ],
     );
   }
 }

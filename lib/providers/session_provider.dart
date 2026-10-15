@@ -142,6 +142,7 @@ class SessionProvider extends ChangeNotifier {
     _currentSessionId = null;
     _currentSession = null;
     _currentPlayers = [];
+    _myInvitation = null;
     _playersErrorMessage = null;
     _isLoadingPlayers = false;
     _detailErrorMessage = null;
@@ -231,12 +232,14 @@ class SessionProvider extends ChangeNotifier {
   String? _currentSessionId;
   Session? _currentSession;
   List<SessionPlayer> _currentPlayers = [];
+  WaitlistInvitation? _myInvitation;
   bool _isLoadingDetail = false;
   String? _detailErrorMessage;
 
   String? get currentSessionId => _currentSessionId;
   Session? get currentSession => _currentSession;
   List<SessionPlayer> get currentPlayers => _currentPlayers;
+  WaitlistInvitation? get myInvitation => _myInvitation;
   bool get isLoadingDetail => _isLoadingDetail;
   String? get detailErrorMessage => _detailErrorMessage;
 
@@ -255,6 +258,7 @@ class SessionProvider extends ChangeNotifier {
       _currentSessionId = sessionId;
       _currentSession = null;
       _currentPlayers = [];
+      _myInvitation = null;
       _playersErrorMessage = null;
       _isLoadingPlayers = false;
     }
@@ -274,6 +278,8 @@ class SessionProvider extends ChangeNotifier {
       notifyListeners();
       if (session.canManage) {
         await fetchSessionPlayers(sessionId);
+      } else if (session.myRegistration?.registrationStatus == 'waitlisted') {
+        await fetchMyInvitation(sessionId);
       }
     } catch (e) {
       if (_generation == generation &&
@@ -463,6 +469,264 @@ class SessionProvider extends ChangeNotifier {
         startsAt: startsAt,
         endsAt: endsAt,
       ),
+    );
+  }
+
+  // --- BH-05: đăng ký, duyệt, huỷ, điểm danh và lời mời ------------------- //
+
+  /// Tải lời mời đang chờ của chính người dùng (chỉ khi đang ở danh sách chờ).
+  Future<void> fetchMyInvitation(String sessionId) async {
+    final generation = _generation;
+    if (_authUserId == null) {
+      if (_currentSessionId == sessionId) {
+        _myInvitation = null;
+        notifyListeners();
+      }
+      return;
+    }
+    try {
+      final invitation = await _repository.getMyWaitlistInvitation(sessionId);
+      if (_generation == generation && _currentSessionId == sessionId) {
+        _myInvitation = invitation;
+        notifyListeners();
+      }
+    } catch (_) {
+      if (_generation == generation && _currentSessionId == sessionId) {
+        _myInvitation = null;
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Chạy mutation đăng ký: chống nhấn lặp, giữ request key khi lỗi, làm mới
+  /// chi tiết (và danh sách người/lời mời) sau khi thành công.
+  Future<bool> _runPlayerMutation({
+    required String operation,
+    required List<Object?> payload,
+    required String? requestId,
+    required Future<void> Function(String key) call,
+  }) async {
+    if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey(operation, payload, requestId);
+    _isSubmitting = true;
+    _submitErrorMessage = null;
+    notifyListeners();
+
+    try {
+      await call(key);
+      if (_generation != generation) return false;
+      // Xoá key ngay sau khi server xác nhận, trước khi làm mới danh sách (R3).
+      if (_pendingRequests[operation]?.id == key) {
+        _pendingRequests.remove(operation);
+      }
+      final sessionId = _currentSessionId;
+      if (sessionId != null) {
+        await fetchSessionDetail(sessionId);
+      }
+      return _generation == generation;
+    } catch (e) {
+      if (_generation == generation) {
+        _submitErrorMessage = domainErrorMessage(e);
+      }
+      return false;
+    } finally {
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  String? _sessionIdForMutation() => _currentSessionId;
+
+  Future<bool> requestJoinSession({String? contact, String? requestId}) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'request_join_session',
+      payload: [sessionId, contact],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.requestJoinSession(
+          requestId: key,
+          sessionId: sessionId,
+          contact: contact,
+        );
+      },
+    );
+  }
+
+  Future<bool> addSessionPlayer({
+    String? memberId,
+    String? guestName,
+    String? contact,
+    bool feeExempt = false,
+    bool allowWaitlist = false,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'add_session_player',
+      payload: [
+        sessionId,
+        memberId,
+        guestName,
+        contact,
+        feeExempt,
+        allowWaitlist,
+      ],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.addSessionPlayer(
+          requestId: key,
+          sessionId: sessionId,
+          memberId: memberId,
+          guestName: guestName,
+          contact: contact,
+          feeExempt: feeExempt,
+          allowWaitlist: allowWaitlist,
+        );
+      },
+    );
+  }
+
+  Future<bool> decideRegistration({
+    required String playerId,
+    required String decision,
+    String? reason,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'decide_registration',
+      payload: [sessionId, playerId, decision, reason],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.decideRegistration(
+          requestId: key,
+          sessionId: sessionId,
+          playerId: playerId,
+          decision: decision,
+          reason: reason,
+        );
+      },
+    );
+  }
+
+  Future<bool> cancelRegistration({
+    required String playerId,
+    String? reason,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'cancel_registration',
+      payload: [sessionId, playerId, reason],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.cancelRegistration(
+          requestId: key,
+          sessionId: sessionId,
+          playerId: playerId,
+          reason: reason,
+        );
+      },
+    );
+  }
+
+  Future<bool> recordAttendance({
+    required String playerId,
+    required String attendance,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'record_attendance',
+      payload: [sessionId, playerId, attendance],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.recordAttendance(
+          requestId: key,
+          sessionId: sessionId,
+          playerId: playerId,
+          attendance: attendance,
+        );
+      },
+    );
+  }
+
+  Future<bool> inviteWaitlistedPlayer({
+    required String playerId,
+    DateTime? expiresAt,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'invite_waitlisted_player',
+      payload: [
+        sessionId,
+        playerId,
+        expiresAt?.toUtc().toIso8601String(),
+      ],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.inviteWaitlistedPlayer(
+          requestId: key,
+          sessionId: sessionId,
+          playerId: playerId,
+          expiresAt: expiresAt,
+        );
+      },
+    );
+  }
+
+  Future<bool> revokeWaitlistInvitation({
+    required String invitationId,
+    String? reason,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'revoke_waitlist_invitation',
+      payload: [sessionId, invitationId, reason],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.revokeWaitlistInvitation(
+          requestId: key,
+          sessionId: sessionId,
+          invitationId: invitationId,
+          reason: reason,
+        );
+      },
+    );
+  }
+
+  Future<bool> acceptWaitlistInvitation({
+    required String invitationId,
+    String? consentNote,
+    String? requestId,
+  }) {
+    final sessionId = _sessionIdForMutation();
+    if (sessionId == null) return Future.value(false);
+    return _runPlayerMutation(
+      operation: 'accept_waitlist_invitation',
+      payload: [sessionId, invitationId, consentNote],
+      requestId: requestId,
+      call: (key) async {
+        await _repository.acceptWaitlistInvitation(
+          requestId: key,
+          sessionId: sessionId,
+          invitationId: invitationId,
+          consentNote: consentNote,
+        );
+      },
     );
   }
 }

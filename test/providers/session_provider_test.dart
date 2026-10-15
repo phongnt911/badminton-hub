@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -352,6 +354,307 @@ void main() {
     expect(provider.currentSession, isNull);
     expect(provider.publicSessions, isEmpty);
     expect(provider.submitErrorMessage, isNull);
+    provider.dispose();
+  });
+
+  // --- BH-05 -------------------------------------------------------------- //
+
+  const joinResult = RegistrationResult(
+    playerId: 'p1',
+    sessionId: 's1',
+    registrationStatus: 'pending',
+    confirmedCount: 2,
+    capacity: 8,
+    seatsLeft: 6,
+  );
+
+  test('requestJoinSession gửi request_id, làm mới chi tiết và trả true', () async {
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async => session);
+    when(
+      () => repo.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+
+    final provider = buildProvider();
+    await provider.fetchSessionDetail('s1');
+    final ok = await provider.requestJoinSession(contact: '0900');
+
+    expect(ok, isTrue);
+    verify(
+      () => repo.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: '0900',
+      ),
+    ).called(1);
+    verify(() => repo.getSessionDetail('s1')).called(2);
+    provider.dispose();
+  });
+
+  test('requestJoinSession lỗi giữ nguyên request_id khi retry, xoay key sau thành công', () async {
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async => session);
+    final keys = <String>[];
+    var attempts = 0;
+    when(
+      () => repo.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer((invocation) async {
+      keys.add(invocation.namedArguments[#requestId] as String);
+      attempts++;
+      if (attempts == 1) throw Exception('timeout');
+      return joinResult;
+    });
+
+    final provider = buildProvider();
+    await provider.fetchSessionDetail('s1');
+    expect(await provider.requestJoinSession(), isFalse);
+    expect(provider.submitErrorMessage, isNotNull);
+    expect(await provider.requestJoinSession(), isTrue);
+    expect(keys.first, keys[1], reason: 'retry cùng ý định dùng lại UUID');
+    expect(await provider.requestJoinSession(), isTrue);
+    expect(keys[2], isNot(keys[1]), reason: 'ý định mới xoay UUID');
+    provider.dispose();
+  });
+
+  test('chặn double-submit khi đang gửi', () async {
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async => session);
+    final completer = Completer<RegistrationResult>();
+    when(
+      () => repo.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer((_) => completer.future);
+
+    final provider = buildProvider();
+    await provider.fetchSessionDetail('s1');
+    final first = provider.requestJoinSession();
+    expect(provider.isSubmitting, isTrue);
+    final second = await provider.requestJoinSession();
+    expect(second, isFalse, reason: 'lần nhấn thứ hai bị chặn');
+
+    completer.complete(joinResult);
+    await first;
+    expect(provider.isSubmitting, isFalse);
+    verify(
+      () => repo.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).called(1);
+    provider.dispose();
+  });
+
+  test('buổi waitlisted tải lời mời của tôi', () async {
+    const waitlisted = Session(
+      id: 's1',
+      title: 'Buổi chờ',
+      capacity: 8,
+      lifecycle: 'published',
+      confirmedCount: 8,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'waitlisted',
+      ),
+    );
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async => waitlisted);
+    when(() => repo.getMyWaitlistInvitation('s1')).thenAnswer(
+      (_) async => const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+
+    expect(provider.myInvitation?.invitationId, 'i1');
+    provider.dispose();
+  });
+
+  test('accept/cancel/decide/attendance/add/invite/revoke gọi repository đúng', () async {
+    when(() => repo.getSessionDetail('s2'))
+        .thenAnswer((_) async => managedSession);
+    when(
+      () => repo.listSessionPlayers(
+        's2',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async => const []);
+    when(
+      () => repo.decideRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        playerId: any(named: 'playerId'),
+        decision: any(named: 'decision'),
+        reason: any(named: 'reason'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+    when(
+      () => repo.cancelRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        playerId: any(named: 'playerId'),
+        reason: any(named: 'reason'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+    when(
+      () => repo.recordAttendance(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        playerId: any(named: 'playerId'),
+        attendance: any(named: 'attendance'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+    when(
+      () => repo.addSessionPlayer(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        memberId: any(named: 'memberId'),
+        guestName: any(named: 'guestName'),
+        contact: any(named: 'contact'),
+        feeExempt: any(named: 'feeExempt'),
+        allowWaitlist: any(named: 'allowWaitlist'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+    when(
+      () => repo.inviteWaitlistedPlayer(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        playerId: any(named: 'playerId'),
+        expiresAt: any(named: 'expiresAt'),
+      ),
+    ).thenAnswer(
+      (_) async => const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's2',
+      ),
+    );
+    when(
+      () => repo.revokeWaitlistInvitation(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        invitationId: any(named: 'invitationId'),
+        reason: any(named: 'reason'),
+      ),
+    ).thenAnswer(
+      (_) async => const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's2',
+      ),
+    );
+    when(
+      () => repo.acceptWaitlistInvitation(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        invitationId: any(named: 'invitationId'),
+        consentNote: any(named: 'consentNote'),
+      ),
+    ).thenAnswer((_) async => joinResult);
+
+    final provider = buildProvider();
+    await provider.fetchSessionDetail('s2');
+
+    expect(await provider.decideRegistration(playerId: 'p1', decision: 'confirmed'), isTrue);
+    expect(await provider.cancelRegistration(playerId: 'p1', reason: 'test'), isTrue);
+    expect(await provider.recordAttendance(playerId: 'p1', attendance: 'present'), isTrue);
+    expect(
+      await provider.addSessionPlayer(guestName: 'Khách', allowWaitlist: true),
+      isTrue,
+    );
+    expect(await provider.inviteWaitlistedPlayer(playerId: 'p1'), isTrue);
+    expect(await provider.revokeWaitlistInvitation(invitationId: 'i1'), isTrue);
+    expect(await provider.acceptWaitlistInvitation(invitationId: 'i1'), isTrue);
+
+    verify(
+      () => repo.decideRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: 's2',
+        playerId: 'p1',
+        decision: 'confirmed',
+        reason: null,
+      ),
+    ).called(1);
+    verify(
+      () => repo.addSessionPlayer(
+        requestId: any(named: 'requestId'),
+        sessionId: 's2',
+        memberId: null,
+        guestName: 'Khách',
+        contact: null,
+        feeExempt: false,
+        allowWaitlist: true,
+      ),
+    ).called(1);
+    verify(
+      () => repo.recordAttendance(
+        requestId: any(named: 'requestId'),
+        sessionId: 's2',
+        playerId: 'p1',
+        attendance: 'present',
+      ),
+    ).called(1);
+    provider.dispose();
+  });
+
+  test('phản hồi chi tiết đến muộn của phiên cũ không lộ state', () async {
+    final completer = Completer<Session>();
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) => completer.future);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    final pending = provider.fetchSessionDetail('s1');
+    auth.changeUser('user-b');
+    completer.complete(session);
+    await pending;
+
+    expect(provider.currentSession, isNull);
+    expect(provider.myInvitation, isNull);
+    provider.dispose();
+  });
+
+  test('đăng xuất xoá lời mời đang chờ', () async {
+    const waitlisted = Session(
+      id: 's1',
+      title: 'Buổi chờ',
+      capacity: 8,
+      lifecycle: 'published',
+      confirmedCount: 8,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'waitlisted',
+      ),
+    );
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async => waitlisted);
+    when(() => repo.getMyWaitlistInvitation('s1')).thenAnswer(
+      (_) async => const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation, isNotNull);
+
+    auth.changeUser(null);
+    expect(provider.myInvitation, isNull);
+    expect(provider.currentSession, isNull);
     provider.dispose();
   });
 }
