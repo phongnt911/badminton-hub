@@ -47,3 +47,7 @@ v1.1 · 14/10/2026. Dùng lần lượt, mỗi lượt giao một prompt. Chưa 
 - Việc còn thiếu/blocker và prompt tiếp theo theo phụ thuộc.
 
 Chỉ commit/push trong lượt chức năng nếu người dùng giao hoặc phạm vi hiện hành bao gồm. Không biến một prompt thành code toàn bộ backlog.
+
+## AG-02R: Sửa BH-02 sau kiểm thử thực thi
+
+Nếu đang tiếp tục sau commit 3fa3cda, dùng prompt trong [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md) thay vì chạy AG-02 từ đầu hoặc sang AG-03. Kết quả baseline 33 ca/18 PASS/15 FAIL là bằng chứng để giữ regression tests; không tự đổi expected để đóng lỗi.

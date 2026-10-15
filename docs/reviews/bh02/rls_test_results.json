@@ -1,0 +1,310 @@
+{
+  "tested_commit": "3fa3cdae72ef08895d3ad62f3a31e95dc5b7fa35",
+  "container": "bh02-review-postgres",
+  "clean_database": "bh02_clean_20261015105343",
+  "legacy_database": "bh02_legacy_20261015105343",
+  "auth": "minimal auth.users/auth.uid stubs; no PostgREST or full Supabase stack",
+  "migration_clean": "PASS",
+  "migration_legacy_execution": "PASS",
+  "tests": [
+    {
+      "name": "anon venues active read",
+      "db": "clean",
+      "role": "anon",
+      "actor": null,
+      "expected": "1",
+      "actual": "1",
+      "pass": true
+    },
+    {
+      "name": "anon raw player denied",
+      "db": "clean",
+      "role": "anon",
+      "actor": null,
+      "expected": "permission denied",
+      "actual": "ERROR:  42501: permission denied for table session_players\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": true
+    },
+    {
+      "name": "outsider player rows hidden",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "player sees own row",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "1",
+      "actual": "1",
+      "pass": true
+    },
+    {
+      "name": "player cannot see other row",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "cohost sees session roster",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 5,
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "name": "outsider contacts hidden",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "player only own contact",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "1",
+      "actual": "1",
+      "pass": true
+    },
+    {
+      "name": "treasurer cannot read contacts",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 4,
+      "expected": "0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "outsider ledger hidden",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "treasurer reads ledger",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 4,
+      "expected": "1",
+      "actual": "1",
+      "pass": true
+    },
+    {
+      "name": "player cannot self elevate",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "permission denied",
+      "actual": "ERROR:  42501: permission denied for table app_roles\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": true
+    },
+    {
+      "name": "player cannot direct insert paid flag",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "permission denied",
+      "actual": "ERROR:  42501: permission denied for table payments\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": true
+    },
+    {
+      "name": "outsider cannot update private profile",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "name": "anon cannot forge audit",
+      "db": "clean",
+      "role": "anon",
+      "actor": null,
+      "expected": "permission denied",
+      "actual": "t",
+      "pass": false
+    },
+    {
+      "name": "outsider cannot forge foreign audit",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "permission denied",
+      "actual": "t",
+      "pass": false
+    },
+    {
+      "name": "client cannot preseed idempotency",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "permission denied",
+      "actual": "true",
+      "pass": false
+    },
+    {
+      "name": "outsider cannot read bank snapshot",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "denied or 0",
+      "actual": "1",
+      "pass": false
+    },
+    {
+      "name": "outsider cannot list unlisted drafts",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "denied or 0",
+      "actual": "1",
+      "pass": false
+    },
+    {
+      "name": "anon public summary correct count",
+      "db": "clean",
+      "role": "anon",
+      "actor": null,
+      "expected": "2",
+      "actual": "ERROR:  42501: permission denied for table sessions\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": false
+    },
+    {
+      "name": "outsider public summary correct count",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "2",
+      "actual": "0",
+      "pass": false
+    },
+    {
+      "name": "player public summary correct count",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "2",
+      "actual": "1",
+      "pass": false
+    },
+    {
+      "name": "host public summary correct count",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 1,
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "name": "player sees own outstanding",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 2,
+      "expected": "70000,20000,50000",
+      "actual": "",
+      "pass": false
+    },
+    {
+      "name": "host sees player outstanding",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 1,
+      "expected": "70000,20000,50000",
+      "actual": "70000,20000,50000",
+      "pass": true
+    },
+    {
+      "name": "host can read own bank",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 1,
+      "expected": "1",
+      "actual": "ERROR:  42501: permission denied for table host_bank_accounts\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": false
+    },
+    {
+      "name": "owner can read club bank",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 1,
+      "expected": "1",
+      "actual": "ERROR:  42501: permission denied for table club_bank_accounts\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": false
+    },
+    {
+      "name": "treasurer can read club bank",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 4,
+      "expected": "1",
+      "actual": "ERROR:  42501: permission denied for table club_bank_accounts\nLOCATION:  aclcheck_error, aclchk.c:2843",
+      "pass": false
+    },
+    {
+      "name": "public detail hides private fields",
+      "db": "clean",
+      "role": "anon",
+      "actor": null,
+      "expected": "f",
+      "actual": "f",
+      "pass": true
+    },
+    {
+      "name": "outsider private detail blocked",
+      "db": "clean",
+      "role": "authenticated",
+      "actor": 3,
+      "expected": "permission denied",
+      "actual": "ERROR:  42501: FORBIDDEN: Không có quyền xem buổi chơi nội bộ này\nCONTEXT:  PL/pgSQL function get_session_public_detail(uuid) line 29 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897",
+      "pass": true
+    },
+    {
+      "name": "new schema session insert into legacy",
+      "db": "legacy",
+      "role": "postgres",
+      "actor": 1,
+      "expected": "New payload",
+      "actual": "ERROR:  23502: null value in column \"venue_name\" of relation \"sessions\" violates not-null constraint\nDETAIL:  Failing row contains (7c38ee39-705a-463a-bf1e-3f8032f5905d, null, null, null, null, 6, 1, 40000, null, null, open, 2026-10-15 10:53:46.421673+00, null, 00000000-0000-0000-0000-000000000001, 00000000-0000-0000-0000-000000000201, New payload, null, 2026-10-21 10:00:00+00, 2026-10-21 12:00:00+00, 8, 2, unlisted, draft, host_approval, split_actual, null, null, null, null, null, null, null, 1, 1, 2026-10-15 10:53:46.421673+00).\nSCHEMA NAME:  public\nTABLE NAME:  sessions\nCOLUMN NAME:  venue_name\nLOCATION:  ExecConstraints, execMain.c:2022",
+      "pass": false
+    },
+    {
+      "name": "new schema player insert into legacy",
+      "db": "legacy",
+      "role": "postgres",
+      "actor": 1,
+      "expected": "New player",
+      "actual": "ERROR:  23502: null value in column \"player_name\" of relation \"session_players\" violates not-null constraint\nDETAIL:  Failing row contains (dbef81ae-cf84-48b5-8428-1d0d149f97e3, 00000000-0000-0000-0000-000000000301, null, null, f, f, 2026-10-15 10:53:46.486957+00, 00000000-0000-0000-0000-000000000003, null, New player, pending, not_checked_in, self, guest, f, null, 2026-10-15 10:53:46.486957+00, null, null, null, null, 00000000-0000-0000-0000-000000000001, 2026-10-15 10:53:46.486957+00).\nSCHEMA NAME:  public\nTABLE NAME:  session_players\nCOLUMN NAME:  player_name\nLOCATION:  ExecConstraints, execMain.c:2022",
+      "pass": false
+    },
+    {
+      "name": "treasurer cannot read legacy contact",
+      "db": "legacy",
+      "role": "authenticated",
+      "actor": 4,
+      "expected": "denied or 0",
+      "actual": "2",
+      "pass": false
+    }
+  ],
+  "passed": 18,
+  "failed": 15
+}

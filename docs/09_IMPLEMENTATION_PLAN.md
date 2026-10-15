@@ -78,3 +78,13 @@ Snapshot 14/10/2026, code c8e5428 trước cập nhật tài liệu: public DB c
 | Ngày | Ticket | Trạng thái | Bằng chứng |
 |---|---|---|---|
 | 14/10/2026 | Đặc tả v1.1 sau review | Đã cập nhật tài liệu | P1/P2 → contract/tests; ADR-01..09; prompt AG-00..07; chưa thay app/DB |
+
+## Cập nhật review và DB tests 15/10/2026
+
+BH-02 chưa đạt nghiệm thu. Nhật ký tạo migration/9 schema tests phía trên giữ làm lịch sử, không phải xác nhận quyền đúng. Đã chạy 33 ca PostgreSQL cô lập với Auth stub: 18 PASS / 15 FAIL; F1–F6 tái hiện và F7 contact legacy bổ sung. Xem [bàn giao và tiêu chí sửa](13_BH02_REVIEW_HANDOFF.md). Chưa kiểm full Supabase HTTP/JWT và production.
+
+| Ngày | Ticket | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 15/10/2026 | BH-02 review/RLS | Chưa đạt, chờ sửa F1–F7 | docs/reviews/bh02/rls_test_results.json; 33 ca: 18 PASS / 15 FAIL, baseline 3fa3cda |
+
+Không đóng R1/R3 hoặc chuyển BH-03 chỉ từ định nghĩa schema; ưu tiên sửa theo bảng handoff và chạy lại DB tests.
