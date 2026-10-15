@@ -220,6 +220,46 @@ ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS version BIGINT NOT NULL DEF
 ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS billing_input_version BIGINT NOT NULL DEFAULT 1 CHECK (billing_input_version > 0);
 ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
+CREATE OR REPLACE FUNCTION public.sync_legacy_session_columns()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.title IS NOT NULL AND NEW.venue_name IS NULL THEN
+    NEW.venue_name := NEW.title;
+  END IF;
+  IF NEW.starts_at IS NOT NULL AND NEW.play_date IS NULL THEN
+    NEW.play_date := (NEW.starts_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::date;
+  END IF;
+  IF NEW.starts_at IS NOT NULL AND NEW.start_time IS NULL THEN
+    NEW.start_time := (NEW.starts_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::time;
+  END IF;
+  IF NEW.ends_at IS NOT NULL AND NEW.end_time IS NULL THEN
+    NEW.end_time := (NEW.ends_at AT TIME ZONE 'Asia/Ho_Chi_Minh')::time;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+-- Xử lý tương thích schema legacy cho sessions (F4)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'sessions' AND column_name = 'venue_name'
+  ) THEN
+    ALTER TABLE public.sessions ALTER COLUMN venue_name DROP NOT NULL;
+    ALTER TABLE public.sessions ALTER COLUMN play_date DROP NOT NULL;
+    ALTER TABLE public.sessions ALTER COLUMN start_time DROP NOT NULL;
+    ALTER TABLE public.sessions ALTER COLUMN end_time DROP NOT NULL;
+
+    DROP TRIGGER IF EXISTS trg_sync_legacy_sessions ON public.sessions;
+    CREATE TRIGGER trg_sync_legacy_sessions
+    BEFORE INSERT OR UPDATE ON public.sessions
+    FOR EACH ROW EXECUTE FUNCTION public.sync_legacy_session_columns();
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.session_staff (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES public.sessions(id) ON DELETE CASCADE,
@@ -275,14 +315,57 @@ ALTER TABLE public.session_players ADD COLUMN IF NOT EXISTS checked_in_by UUID R
 ALTER TABLE public.session_players ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES public.profiles(id);
 ALTER TABLE public.session_players ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_session_players_session_user ON public.session_players(session_id, user_id) WHERE user_id IS NOT NULL;
-CREATE UNIQUE INDEX IF NOT EXISTS idx_session_players_session_member ON public.session_players(session_id, club_member_id) WHERE club_member_id IS NOT NULL;
-
 CREATE TABLE IF NOT EXISTS public.session_player_contacts (
   player_id UUID PRIMARY KEY REFERENCES public.session_players(id) ON DELETE CASCADE,
   phone_number TEXT,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE OR REPLACE FUNCTION public.sync_legacy_session_player_columns()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.display_name IS NOT NULL AND NEW.player_name IS NULL THEN
+    NEW.player_name := NEW.display_name;
+  END IF;
+  IF NEW.player_name IS NOT NULL AND NEW.display_name IS NULL THEN
+    NEW.display_name := NEW.player_name;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+-- Xử lý tương thích schema legacy cho session_players (F4 & F7)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'session_players' AND column_name = 'player_name'
+  ) THEN
+    ALTER TABLE public.session_players ALTER COLUMN player_name DROP NOT NULL;
+
+    DROP TRIGGER IF EXISTS trg_sync_legacy_session_players ON public.session_players;
+    CREATE TRIGGER trg_sync_legacy_session_players
+    BEFORE INSERT OR UPDATE ON public.session_players
+    FOR EACH ROW EXECUTE FUNCTION public.sync_legacy_session_player_columns();
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'session_players' AND column_name = 'phone_number'
+  ) THEN
+    -- Cách ly & backfill dữ liệu SĐT cũ sang session_player_contacts
+    INSERT INTO public.session_player_contacts (player_id, phone_number)
+    SELECT sp.id, sp.phone_number
+    FROM public.session_players sp
+    WHERE sp.phone_number IS NOT NULL
+    ON CONFLICT (player_id) DO NOTHING;
+  END IF;
+END $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_session_players_session_user ON public.session_players(session_id, user_id) WHERE user_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_session_players_session_member ON public.session_players(session_id, club_member_id) WHERE club_member_id IS NOT NULL;
 
 -- Bảng lời mời từ danh sách chờ (ADR-09)
 CREATE TABLE IF NOT EXISTS public.waitlist_invitations (
@@ -591,9 +674,9 @@ $$;
 -- 11. CÁC VIEWS VÀ PROJECTIONS BẢO VỆ DỮ LIỆU
 -- ============================================================================
 
--- View công khai tóm tắt buổi chơi (ẩn contact, ngân hàng, ledger)
+-- View công khai tóm tắt buổi chơi (ẩn contact, ngân hàng, ledger - security definer whitelist)
 CREATE OR REPLACE VIEW public.public_session_summary
-WITH (security_invoker = true)
+WITH (security_barrier = true)
 AS
 SELECT 
   s.id,
@@ -912,6 +995,8 @@ GRANT SELECT, INSERT, UPDATE ON public.profile_private TO authenticated;
 GRANT SELECT ON public.clubs TO authenticated;
 GRANT SELECT ON public.club_members TO authenticated;
 GRANT SELECT ON public.member_contacts TO authenticated;
+GRANT SELECT ON public.club_bank_accounts TO authenticated;
+GRANT SELECT ON public.host_bank_accounts TO authenticated;
 GRANT SELECT ON public.sessions TO authenticated;
 GRANT SELECT ON public.session_staff TO authenticated;
 GRANT SELECT ON public.session_players TO authenticated;
@@ -926,12 +1011,14 @@ GRANT SELECT ON public.audit_events TO authenticated;
 GRANT SELECT ON public.club_balance TO authenticated;
 GRANT SELECT ON public.player_outstanding TO authenticated;
 
--- Cấp quyền thực thi RPC
+-- Cấp quyền thực thi RPC công khai và nghiệp vụ
 GRANT EXECUTE ON FUNCTION public.get_session_public_detail(UUID) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_registration(UUID) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.check_idempotency(TEXT, UUID, TEXT) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.record_idempotency(TEXT, UUID, TEXT, JSONB) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.log_audit_event(UUID, UUID, TEXT, UUID, TEXT, JSONB, JSONB, TEXT, UUID) TO authenticated;
+
+-- Thu hồi quyền thực thi helper nội bộ từ PUBLIC, anon, authenticated (F1)
+REVOKE EXECUTE ON FUNCTION public.check_idempotency(TEXT, UUID, TEXT) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.record_idempotency(TEXT, UUID, TEXT, JSONB) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.log_audit_event(UUID, UUID, TEXT, UUID, TEXT, JSONB, JSONB, TEXT, UUID) FROM PUBLIC, anon, authenticated;
 
 -- Xóa các policy cũ nếu có
 DO $$
@@ -1025,15 +1112,15 @@ CREATE POLICY "host_bank_accounts_select_own" ON public.host_bank_accounts
   FOR SELECT TO authenticated
   USING (user_id = auth.uid());
 
--- sessions: host/staff/owner đọc đầy đủ; thành viên CLB đọc private; người ngoài đọc unlisted/public
+-- sessions: host/staff/owner đọc đầy đủ; thành viên CLB và người tham gia đọc buổi published/in_progress/completed (F2)
 CREATE POLICY "sessions_select_auth" ON public.sessions
   FOR SELECT TO authenticated
   USING (
     host_user_id = auth.uid() OR
-    visibility IN ('public', 'unlisted') OR
-    (club_id IS NOT NULL AND public.is_club_member_active(club_id, auth.uid())) OR
     public.has_session_management_access(id, auth.uid()) OR
-    public.is_session_participant(id, auth.uid())
+    public.has_session_finance_access(id, auth.uid()) OR
+    (club_id IS NOT NULL AND public.is_club_member_active(club_id, auth.uid()) AND lifecycle IN ('published', 'in_progress', 'completed')) OR
+    (public.is_session_participant(id, auth.uid()) AND lifecycle IN ('published', 'in_progress', 'completed'))
   );
 
 -- session_staff: host của buổi, owner CLB, và chính nhân sự đó được đọc
@@ -1044,13 +1131,12 @@ CREATE POLICY "session_staff_select_auth" ON public.session_staff
     public.has_session_management_access(session_id, auth.uid())
   );
 
--- session_players: host/cohost/finance đọc buổi của mình; player đọc bản ghi của mình
+-- session_players: host/cohost đọc buổi của mình; player đọc bản ghi của mình (finance KHÔNG đọc trực tiếp danh sách người chơi, F7)
 CREATE POLICY "session_players_select_auth" ON public.session_players
   FOR SELECT TO authenticated
   USING (
     user_id = auth.uid() OR
-    public.has_session_management_access(session_id, auth.uid()) OR
-    public.has_session_finance_access(session_id, auth.uid())
+    public.has_session_management_access(session_id, auth.uid())
   );
 
 -- session_player_contacts: host/cohost đọc; player đọc của chính mình; finance KHÔNG đọc
@@ -1086,10 +1172,18 @@ CREATE POLICY "session_expenses_select_auth" ON public.session_expenses
   FOR SELECT TO authenticated
   USING (public.has_session_finance_access(session_id, auth.uid()));
 
--- charge_revisions: host, finance, owner CLB, treasurer CLB đọc
+-- charge_revisions: host, finance, owner CLB, treasurer CLB đọc; confirmed players đọc revision buổi mình tham gia để xem công nợ (F5)
 CREATE POLICY "charge_revisions_select_auth" ON public.charge_revisions
   FOR SELECT TO authenticated
-  USING (public.has_session_finance_access(session_id, auth.uid()));
+  USING (
+    public.has_session_finance_access(session_id, auth.uid()) OR
+    EXISTS (
+      SELECT 1 FROM public.session_players sp
+      WHERE sp.session_id = charge_revisions.session_id
+        AND sp.user_id = auth.uid()
+        AND sp.registration_status = 'confirmed'
+    )
+  );
 
 -- session_charges: finance đọc tất cả; player chỉ đọc charge của mình
 CREATE POLICY "session_charges_select_auth" ON public.session_charges

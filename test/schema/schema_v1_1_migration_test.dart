@@ -149,5 +149,34 @@ void main() {
       // 5. Kiểm tra thời gian buổi chơi ends_at > starts_at
       expect(sqlContent.contains('chk_session_times CHECK (ends_at > starts_at)'), isTrue);
     });
+
+    test('Đảm bảo khắc phục đầy đủ các phát hiện review F1–F7 (Security & Compatibility)', () {
+      // F1: Thu hồi execute helper nội bộ từ PUBLIC, anon, authenticated
+      expect(sqlContent.contains('REVOKE EXECUTE ON FUNCTION public.check_idempotency(TEXT, UUID, TEXT) FROM PUBLIC, anon, authenticated;'), isTrue);
+      expect(sqlContent.contains('REVOKE EXECUTE ON FUNCTION public.record_idempotency(TEXT, UUID, TEXT, JSONB) FROM PUBLIC, anon, authenticated;'), isTrue);
+      expect(sqlContent.contains('REVOKE EXECUTE ON FUNCTION public.log_audit_event(UUID, UUID, TEXT, UUID, TEXT, JSONB, JSONB, TEXT, UUID) FROM PUBLIC, anon, authenticated;'), isTrue);
+
+      // F2: Không mở raw sessions public/unlisted tự do trên bảng gốc
+      expect(sqlContent.contains("visibility IN ('public', 'unlisted') OR"), isFalse);
+
+      // F3: Public session summary view áp dụng security_barrier để tổng hợp số liệu chính xác cho anon & mọi role
+      expect(sqlContent.contains('VIEW public.public_session_summary\nWITH (security_barrier = true)'), isTrue);
+
+      // F4: Tương thích legacy: Gỡ NOT NULL trên cột cũ và có trigger đồng bộ dữ liệu
+      expect(sqlContent.contains('ALTER TABLE public.sessions ALTER COLUMN venue_name DROP NOT NULL;'), isTrue);
+      expect(sqlContent.contains('ALTER TABLE public.session_players ALTER COLUMN player_name DROP NOT NULL;'), isTrue);
+      expect(sqlContent.contains('FUNCTION public.sync_legacy_session_columns'), isTrue);
+      expect(sqlContent.contains('FUNCTION public.sync_legacy_session_player_columns'), isTrue);
+
+      // F5: Cho phép người chơi confirmed đọc charge_revisions buổi của mình để xem công nợ
+      expect(sqlContent.contains('sp.registration_status = \'confirmed\''), isTrue);
+
+      // F6: Cấp SELECT trên bank accounts cho authenticated để owner/treasurer/host đọc tài khoản thuộc quyền
+      expect(sqlContent.contains('GRANT SELECT ON public.club_bank_accounts TO authenticated;'), isTrue);
+      expect(sqlContent.contains('GRANT SELECT ON public.host_bank_accounts TO authenticated;'), isTrue);
+
+      // F7: Đóng đường đọc SĐT qua bảng session_players cũ cho finance không có quyền quản lý
+      expect(sqlContent.contains('CREATE POLICY "session_players_select_auth" ON public.session_players\n  FOR SELECT TO authenticated\n  USING (\n    user_id = auth.uid() OR\n    public.has_session_management_access(session_id, auth.uid())\n  );'), isTrue);
+    });
   });
 }

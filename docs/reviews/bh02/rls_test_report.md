@@ -77,3 +77,10 @@ Kết quả đầy đủ gồm expected/actual: [rls_test_results.json](rls_test
 Runner tái hiện nằm tại [run_rls_tests.py](run_rls_tests.py); hướng dẫn dựng lại và chạy ở [13_BH02_REVIEW_HANDOFF.md](../../13_BH02_REVIEW_HANDOFF.md). Không giả định container Codex tồn tại trên máy Windows.
 
 BH-02 chưa đạt acceptance. Ưu tiên F1/F2/F7, sau đó F3/F4 và F5/F6; sửa migration/quyền/read contracts và chạy lại cùng ca. Không đổi expected để biến FAIL thành PASS. Lượt kiểm thử không sửa code; báo cáo được publish trong lượt tài liệu sau đó.
+
+## Cập nhật kết quả sau sửa lỗi (15/10/2026)
+
+Đã áp dụng các bản sửa lỗi F1–F7 trong `supabase/migrations/20261015051808_init_schema_v1_1.sql` và thực thi runner `run_rls_tests.py` trong Docker:
+- **Kết quả**: **33/33 PASS (100%)**, 0 FAIL.
+- **Bằng chứng**: [rls_test_results_20261015115541.json](rls_test_results_20261015115541.json).
+- **Trạng thái**: BH-02 hoàn tất nghiệm thu RLS và migration.

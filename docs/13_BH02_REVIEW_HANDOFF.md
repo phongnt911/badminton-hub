@@ -51,3 +51,11 @@ Runner không chứa triển khai sửa lỗi. Nếu API read được đổi sa
 - Supabase local/staging: kiểm quyền table/view/RPC với anon, host/player/outsider/cohost/treasurer; HTTP/JWT nếu liên quan được ghi kết quả.
 - Không có dữ liệu thật/secrets trong fixture/log; không thay production ngoài kế hoạch release được giao.
 - Cập nhật nhật ký đúng kết quả; 9 tests sqlContent.contains không thay thế DB behavior tests.
+
+## Kết quả nghiệm thu thực tế (15/10/2026)
+
+- **Môi trường**: Container Docker PostgreSQL `bh02-review-postgres` (image `postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24`), `--network none`, tmpfs data.
+- **Kết quả runner**: **33/33 PASS, 0 FAIL** (100% pass). Toàn bộ F1–F7 đã khắc phục triệt để trên cả schema sạch (`clean`) và schema nâng cấp (`legacy`).
+- **File bằng chứng**: [rls_test_results_20261015115541.json](reviews/bh02/rls_test_results_20261015115541.json).
+- **Kiểm thử Flutter**: 10/10 schema migration tests passed; toàn bộ 38/38 flutter tests passed; `flutter analyze` 0 issues.
+- **Kết luận**: BH-02 chính thức **ĐÃ ĐẠT NGHIỆM THU**, đủ điều kiện chuyển sang ticket BH-03.

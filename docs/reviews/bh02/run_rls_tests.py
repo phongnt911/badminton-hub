@@ -10,7 +10,7 @@ CLEAN='bh02_clean_'+stamp
 LEGACY='bh02_legacy_'+stamp
 
 def sql(db,query):
- return subprocess.run(['docker','exec','-i',CONTAINER,'psql','-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-U','postgres','-d',db],input=query,text=True,capture_output=True)
+ return subprocess.run(['docker','exec','-i',CONTAINER,'psql','-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-v','VERBOSITY=verbose','-U','postgres','-d',db],input=query,text=True,encoding='utf-8',capture_output=True)
 def must(db,query,label):
  r=sql(db,query)
  if r.returncode: raise RuntimeError(label+': '+r.stderr)
@@ -23,7 +23,7 @@ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(
 GRANT USAGE ON SCHEMA auth TO anon,authenticated;
 GRANT EXECUTE ON FUNCTION auth.uid() TO anon,authenticated;
 """
-migration=(ROOT.parents[2]/'supabase/migrations/20261015051808_init_schema_v1_1.sql').read_text()
+migration=(ROOT.parents[2]/'supabase/migrations/20261015051808_init_schema_v1_1.sql').read_text(encoding='utf-8')
 for db in [CLEAN,LEGACY]:
  must('postgres','CREATE DATABASE '+db+';', 'create database')
  must(db,setup,'auth stub')
@@ -112,7 +112,7 @@ case('treasurer cannot read legacy contact',f"SELECT count(*) FROM session_playe
 
 tested_commit=subprocess.check_output(['git','-C',str(ROOT.parents[2]),'rev-parse','HEAD'],text=True).strip()
 report={'tested_commit':tested_commit,'container':CONTAINER,'clean_database':CLEAN,'legacy_database':LEGACY,'auth':'minimal auth.users/auth.uid stubs; no PostgREST or full Supabase stack','migration_clean':'PASS','migration_legacy_execution':'PASS','tests':results,'passed':sum(x['pass'] for x in results),'failed':sum(not x['pass'] for x in results)}
-(ROOT/('rls_test_results_'+stamp+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2))
+(ROOT/('rls_test_results_'+stamp+'.json')).write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(f"TOTAL {len(results)} PASS {report['passed']} FAIL {report['failed']}")
 
 print('Results file:', ROOT/('rls_test_results_'+stamp+'.json'))

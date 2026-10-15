@@ -86,5 +86,7 @@ BH-02 chưa đạt nghiệm thu. Nhật ký tạo migration/9 schema tests phía
 | Ngày | Ticket | Trạng thái | Bằng chứng |
 |---|---|---|---|
 | 15/10/2026 | BH-02 review/RLS | Chưa đạt, chờ sửa F1–F7 | docs/reviews/bh02/rls_test_results.json; 33 ca: 18 PASS / 15 FAIL, baseline 3fa3cda |
+| 15/10/2026 | BH-02 remediation F1–F7 | Đã sửa code migration v1.1 & cập nhật test suite; DB tests runner: NOT RUN (thiếu Docker local) | Đã sửa `20261015051808_init_schema_v1_1.sql` xử lý triệt để F1–F7; `schema_v1_1_migration_test.dart` 10/10 tests passed; toàn bộ 38/38 flutter tests passed, flutter analyze 0 issues. Runner `run_rls_tests.py` chưa chạy trên máy Windows do thiếu Docker (ghi nhận blocker đúng hướng dẫn); không tự ý apply lên production. |
+| 15/10/2026 | BH-02 nghiệm thu RLS trên Docker | ĐÃ ĐẠT NGHIỆM THU (Done) | Sau khi dựng Docker container PostgreSQL, đã thực thi runner `run_rls_tests.py`: **33/33 PASS, 0 FAIL** (kết quả lưu tại `docs/reviews/bh02/rls_test_results_20261015115541.json`). 38/38 flutter tests passed; flutter analyze 0 issues. F1–F7 giải quyết triệt để trên cả clean DB và upgrade legacy. Giới hạn: Chưa kiểm PostgREST HTTP/JWT và production. Sẵn sàng chuyển sang BH-03. |
 
-Không đóng R1/R3 hoặc chuyển BH-03 chỉ từ định nghĩa schema; ưu tiên sửa theo bảng handoff và chạy lại DB tests.
+BH-02 đã hoàn thành đạt chuẩn cổng nghiệm thu. Có thể tiếp tục triển khai ticket BH-03 (CLB / Thành viên / Ngân hàng) theo quy trình.
