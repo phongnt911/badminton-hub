@@ -301,13 +301,19 @@ Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa 
 - Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**132/132 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md).
 - NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`; host thu hồi lời mời qua HTTP trong lúc client refresh.
 
+### BH-05C — Kết luận cuối cùng review 1f1f9ce (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt phần C** tại `1f1f9ce` (code `7707a76`), theo [review_1f1f9ce.md](reviews/bh05/review_1f1f9ce.md). Reviewer tự chốt sau vòng sửa 2, không cần xác nhận.
+- Kiểm chứng độc lập: analyze sạch, 132/132 Flutter, 84/84 DB và 4/4 probe hồi quy PASS. Các trạng thái Chưa đạt/Chờ review trước đây là lịch sử.
+- NOT RUN và giới hạn trong báo cáo; chưa nghiệm thu toàn A/B/C trên main hoặc triển khai production. Không sửa code, merge main hoặc apply DB remote.
+
 ### BH-05 — Tích hợp A+B+C trên nhánh `feat/bh05-integration` (16/10/2026)
 
 | Ngày | Hạng mục | Trạng thái | Bằng chứng |
 |---|---|---|---|
-| 16/10/2026 | Tích hợp A→B→C | **Chờ review** | Nhánh `feat/bh05-integration` (tách từ `main` = `da1285d`): merge A `eecf24a`, B `a0f5d35`, C `b126f17`; commit bằng chứng `3867c99`, `153f72a`, `6742e69`, `830dfbf`, `0979bbe`, `bae8bcd`. |
+| 16/10/2026 | Tích hợp A→B→C | **Chờ review** | Nhánh `feat/bh05-integration` (tách từ `main` = `da1285d`): merge A `eecf24a`, B `a0f5d35`, C `b126f17`, kết luận Đạt C `678ee95`; commit bằng chứng `3867c99`, `153f72a`, `6742e69`, `830dfbf`, `0979bbe`, `bae8bcd`. |
 
 - Lệnh đã chạy trên cây tích hợp `b126f17`: `flutter analyze` (**0 issue**); `flutter test` (**132/132 PASS**); `python docs/reviews/bh02/run_rls_tests.py` (**33/33**), `python docs/reviews/bh02/extended_tests_15ef59b.py` (**14/14**), `python docs/reviews/bh03/run_bh03_tests.py` (**48/48**), `python docs/reviews/bh03/run_bh03_retry_tests.py` (**22/22**), `python docs/reviews/bh04/run_bh04_tests.py` (**44/44**), `python docs/reviews/bh05/run_bh05_tests.py` (**84/84**) — tổng DB **245/245 PASS**. Mỗi runner commit ngay JSON để `worktree_dirty=false`; các commit này chỉ thêm tệp JSON (`git diff b126f17 HEAD` không đổi mã nguồn/migration).
 - Giải xung đột: `docs/09` (giữ cả snapshot 15/10 trên `main` và tường thuật A/B/C); `run_bh05_tests.py` (lấy bản A, 42 kịch bản); `session_provider.dart` + test (lấy bản B — diff so với `main` chỉ còn hunk B1/B2); `session_detail_screen.dart` + test (lấy bản C — C1/C2/C3/C1-R); `club_provider.dart` + test auto-merge. Kết quả: `git diff feat/bh05c-ui -- lib test supabase` rỗng ⇒ mã tích hợp = cây C đã review.
 - Bàn giao/điểm tiếp tục: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
-- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, cạnh tranh qua HTTP, và **nghiệm thu độc lập đồng thời A/B/C** trên nhánh tích hợp. Phần A/B đã Đạt độc lập; phần C mới sửa C1-R ở vòng sửa 2 và **chờ review**. Không tự merge `main` hay deploy.
+- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, cạnh tranh qua HTTP, và **nghiệm thu độc lập chính bản tích hợp**. A, B, C đều đã Đạt độc lập (A `9f2d455`, B `cf65199`, C `1f1f9ce`); bản tích hợp hợp nhất các bản đã Đạt, **chờ review tổng**. Không tự merge `main` hay deploy.

@@ -1,0 +1,8 @@
+00:00 +0: loading /workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review: invitation RPC failure is visible with retry
+00:00 +1: review: full published session still permits waitlist request
+00:00 +2: review: add member loads club roster without visiting club screen
+00:01 +3: review: refreshing cached invitation disables accept
+00:01 +4: (tearDownAll)
+00:01 +4: All tests passed!
