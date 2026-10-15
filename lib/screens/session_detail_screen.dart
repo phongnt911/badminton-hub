@@ -6,7 +6,6 @@ import '../core/app_constants.dart';
 import '../core/app_routes.dart';
 import '../core/auth_guard.dart';
 import '../core/time_utils.dart';
-import '../models/club.dart';
 import '../models/session.dart';
 import '../providers/auth_provider.dart';
 import '../providers/club_provider.dart';
@@ -514,10 +513,14 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             _PlayerRegistrationCard(
               session: session,
               invitation: provider.myInvitation,
+              isLoadingInvitation: provider.isLoadingInvitation,
+              invitationErrorMessage: provider.invitationErrorMessage,
               submitting: submitted,
               onJoin: _join,
               onCancel: _cancelOwnRegistration,
               onAccept: _acceptInvitation,
+              onRetryInvitation: () =>
+                  provider.fetchMyInvitation(widget.sessionId),
             )
           else
             Center(
@@ -635,51 +638,76 @@ class _ManagementActions extends StatelessWidget {
 class _PlayerRegistrationCard extends StatelessWidget {
   final Session session;
   final WaitlistInvitation? invitation;
+  final bool isLoadingInvitation;
+  final String? invitationErrorMessage;
   final bool submitting;
   final VoidCallback onJoin;
   final VoidCallback onCancel;
   final VoidCallback onAccept;
+  final VoidCallback onRetryInvitation;
 
   const _PlayerRegistrationCard({
     required this.session,
     required this.invitation,
+    required this.isLoadingInvitation,
+    required this.invitationErrorMessage,
     required this.submitting,
     required this.onJoin,
     required this.onCancel,
     required this.onAccept,
+    required this.onRetryInvitation,
   });
 
   @override
   Widget build(BuildContext context) {
     final reg = session.myRegistration;
     if (reg == null) {
-      if (!session.isShareable || session.isFull) {
+      if (!session.isShareable) {
         return Card(
           child: ListTile(
             leading: const Icon(Icons.info_outline),
-            title: Text(
-              session.isFull ? 'Buổi đã đủ người' : 'Buổi chưa mở đăng ký',
-            ),
+            title: const Text('Buổi chưa mở đăng ký'),
           ),
         );
       }
-      return Center(
-        child: ElevatedButton.icon(
-          onPressed: submitting ? null : onJoin,
-          icon: const Icon(Icons.how_to_reg),
-          label: const Text('Đăng ký tham gia'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppConstants.primaryColor,
-            foregroundColor: Colors.white,
+      // C2: buổi còn mở đăng ký thì luôn cho gửi yêu cầu; RPC quyết định chỗ
+      // trống (auto_confirm → waitlisted) hay chờ host duyệt (pending).
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (session.isFull)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'Buổi đã đủ người. Đăng ký để vào danh sách chờ.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+            ),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: submitting ? null : onJoin,
+              icon: const Icon(Icons.how_to_reg),
+              label: const Text('Đăng ký tham gia'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppConstants.primaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
 
     final active = reg.registrationStatus == 'pending' ||
         reg.registrationStatus == 'confirmed' ||
         reg.registrationStatus == 'waitlisted';
-    final canAccept = reg.registrationStatus == 'waitlisted' && invitation != null;
+    final isWaitlisted = reg.registrationStatus == 'waitlisted';
+    // C1: chỉ coi là "có lời mời" khi tải thành công; lỗi/đang tải thì không
+    // trình bày dữ liệu cũ như lời mời đã xác minh.
+    final hasInvitation =
+        isWaitlisted && invitationErrorMessage == null && invitation != null;
+    final canAccept = isWaitlisted && hasInvitation;
 
     return Card(
       color: Colors.green.shade50,
@@ -700,7 +728,32 @@ class _PlayerRegistrationCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (reg.registrationStatus == 'waitlisted' && invitation != null)
+            if (isWaitlisted && isLoadingInvitation)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Đang tải lời mời…',
+                  style: TextStyle(color: Colors.grey[800]),
+                ),
+              )
+            else if (isWaitlisted && invitationErrorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      invitationErrorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    TextButton(
+                      onPressed: submitting ? null : onRetryInvitation,
+                      child: const Text('Thử lại lời mời'),
+                    ),
+                  ],
+                ),
+              )
+            else if (hasInvitation)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
@@ -932,25 +985,16 @@ class _AddPlayerDialog extends StatefulWidget {
 class _AddPlayerDialogState extends State<_AddPlayerDialog> {
   final _guestName = TextEditingController();
   final _contact = TextEditingController();
-  ClubProvider? _clubProvider;
   bool _guestMode = true;
   String? _memberId;
   bool _feeExempt = false;
   bool _allowWaitlist = false;
+  bool _rosterRequested = false;
 
   @override
   void initState() {
     super.initState();
     _guestMode = widget.clubId == null;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final provider = _tryClubProvider(context);
-      if (provider == null) return;
-      _clubProvider = provider;
-      if (widget.clubId != null && provider.currentMembers.isEmpty) {
-        provider.fetchMembers(widget.clubId!);
-      }
-    });
   }
 
   static ClubProvider? _tryClubProvider(BuildContext context) {
@@ -962,6 +1006,21 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Tải roster theo đúng CLB của buổi, kể cả khi màn CLB chưa từng chọn CLB đó.
+    if (_rosterRequested) return;
+    final clubId = widget.clubId;
+    if (clubId == null) return;
+    final provider = _tryClubProvider(context);
+    if (provider == null) return;
+    _rosterRequested = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) provider.fetchClubRoster(clubId);
+    });
+  }
+
+  @override
   void dispose() {
     _guestName.dispose();
     _contact.dispose();
@@ -969,14 +1028,18 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
   }
 
   void _submit() {
+    final clubId = widget.clubId;
+    final hasClub = clubId != null && _tryClubProvider(context) != null;
+    final memberMode = !_guestMode && hasClub;
+    final memberId = _memberId;
     final name = _guestName.text.trim();
-    if (!_guestMode && _memberId == null) return;
-    if (_guestMode && name.isEmpty) return;
+    if (memberMode && memberId == null) return;
+    if (!memberMode && name.isEmpty) return;
     Navigator.pop(
       context,
       _AddPlayerRequest(
-        memberId: _guestMode ? null : _memberId,
-        guestName: _guestMode ? name : null,
+        memberId: memberMode ? memberId : null,
+        guestName: memberMode ? null : name,
         contact: _contact.text.trim().isEmpty ? null : _contact.text.trim(),
         feeExempt: widget.canSetFeeExempt && _feeExempt,
         allowWaitlist: _allowWaitlist,
@@ -986,9 +1049,16 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = _clubProvider;
-    final members = provider?.currentMembers ?? const <ClubMember>[];
-    final hasClub = widget.clubId != null && provider != null;
+    // Nghe ClubProvider để cập nhật khi roster đang tải/xong/lỗi.
+    ClubProvider? provider;
+    try {
+      provider = Provider.of<ClubProvider>(context);
+    } catch (_) {
+      provider = null;
+    }
+    final clubId = widget.clubId;
+    final hasClub = clubId != null && provider != null;
+    final memberMode = !_guestMode && hasClub;
 
     return AlertDialog(
       title: const Text('Thêm người vào buổi'),
@@ -1003,18 +1073,18 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
                 children: [
                   ChoiceChip(
                     label: const Text('Khách mới'),
-                    selected: _guestMode,
+                    selected: !memberMode,
                     onSelected: (_) => setState(() => _guestMode = true),
                   ),
                   ChoiceChip(
                     label: const Text('Thành viên CLB'),
-                    selected: !_guestMode,
+                    selected: memberMode,
                     onSelected: (_) => setState(() => _guestMode = false),
                   ),
                 ],
               ),
             const SizedBox(height: 8),
-            if (_guestMode) ...[
+            if (!memberMode) ...[
               TextField(
                 controller: _guestName,
                 decoration: const InputDecoration(
@@ -1031,32 +1101,7 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
                   border: OutlineInputBorder(),
                 ),
               ),
-            ] else
-              DropdownButtonFormField<String>(
-                initialValue: _memberId,
-                decoration: const InputDecoration(
-                  labelText: 'Thành viên CLB',
-                  border: OutlineInputBorder(),
-                ),
-                items: members
-                    .where((m) => m.status == 'active')
-                    .map(
-                      (m) => DropdownMenuItem(
-                        value: m.id,
-                        child: Text(m.displayName),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => _memberId = value),
-              ),
-            if (!_guestMode && members.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  'Chưa tải được danh sách thành viên CLB.',
-                  style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                ),
-              ),
+            ] else ..._buildMemberPicker(provider, clubId),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Vào danh sách chờ nếu hết chỗ'),
@@ -1081,5 +1126,53 @@ class _AddPlayerDialogState extends State<_AddPlayerDialog> {
         ElevatedButton(onPressed: _submit, child: const Text('Thêm')),
       ],
     );
+  }
+
+  List<Widget> _buildMemberPicker(ClubProvider provider, String clubId) {
+    if (provider.isLoadingRoster) {
+      return [
+        Text(
+          'Đang tải danh sách thành viên…',
+          style: TextStyle(color: Colors.grey[700], fontSize: 12),
+        ),
+      ];
+    }
+    if (provider.rosterErrorMessage != null) {
+      return [
+        Text(
+          provider.rosterErrorMessage!,
+          style: const TextStyle(color: Colors.red, fontSize: 12),
+        ),
+        TextButton(
+          onPressed: () => provider.fetchClubRoster(clubId),
+          child: const Text('Thử lại'),
+        ),
+      ];
+    }
+    final activeMembers =
+        provider.rosterMembers.where((m) => m.status == 'active').toList();
+    if (activeMembers.isEmpty) {
+      return [
+        Text(
+          'CLB chưa có thành viên đang hoạt động.',
+          style: TextStyle(color: Colors.grey[700], fontSize: 12),
+        ),
+      ];
+    }
+    return [
+      DropdownButtonFormField<String>(
+        initialValue: _memberId,
+        decoration: const InputDecoration(
+          labelText: 'Thành viên CLB',
+          border: OutlineInputBorder(),
+        ),
+        items: activeMembers
+            .map(
+              (m) => DropdownMenuItem(value: m.id, child: Text(m.displayName)),
+            )
+            .toList(),
+        onChanged: (value) => setState(() => _memberId = value),
+      ),
+    ];
   }
 }

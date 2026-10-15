@@ -253,3 +253,21 @@ Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Chưa đạt phần C**, theo [review_8974d3c.md](reviews/bh05/review_8974d3c.md). Còn C1/C2/C3 mức P2: UI lỗi/tải lời mời, đăng ký waitlist khi đầy và roster trong dialog thành viên CLB.
 - Kiểm thử độc lập: analyze sạch, 123/123 Flutter và 84/84 DB PASS; 3 probe UI bổ sung FAIL tái hiện lỗi. NOT RUN và cách sửa trong báo cáo.
 - Trạng thái Chờ review phía trên là lịch sử. Reviewer tự chốt, không cần xác nhận; không sửa code, merge main hoặc apply DB remote.
+
+### BH-05C — Vòng sửa review 1 (C1, C2, C3) — 16/10/2026
+
+Review [review_8974d3c.md](reviews/bh05/review_8974d3c.md) kết luận **Chưa đạt** với C1/C2/C3 (đều P2). Đã sửa cả ba.
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| C1 — UI bỏ qua loading/error lời mời của provider B | P2 | **Đã sửa (chờ review)** | 2 test widget tái hiện FAIL trước sửa, PASS sau |
+| C2 — buổi đầy chặn luôn đăng ký vào danh sách chờ | P2 | **Đã sửa (chờ review)** | 1 test widget tái hiện FAIL trước sửa, PASS sau |
+| C3 — dialog thành viên dùng roster sai scope, không theo dõi tải | P2 | **Đã sửa (chờ review)** | 2 test widget + 3 test provider roster |
+
+- Cách sửa:
+  - C1: `_PlayerRegistrationCard` nhận `isLoadingInvitation`/`invitationErrorMessage` + callback thử lại; hiển thị "Đang tải lời mời…", lỗi kèm "Thử lại lời mời" gọi `fetchMyInvitation`, và chỉ cho "Chấp nhận lời mời" khi tải thành công (không trình bày dữ liệu cũ khi lỗi).
+  - C2: bỏ chặn theo `session.isFull` khi buổi còn mở đăng ký; vẫn hiện "Đăng ký tham gia" (kèm ghi chú vào danh sách chờ khi đầy) để RPC quyết định chỗ/pending, không dùng count phía client thay quy tắc server.
+  - C3: thêm API roster có scope trên `ClubProvider` (`fetchClubRoster`/`rosterMembers`/`isLoadingRoster`/`rosterErrorMessage`/`clearClubRoster`, có serial chống phản hồi trễ), dialog "Thêm người" tự tải roster theo `clubId` của buổi và `watch` provider (hiện loading/error/empty/thử lại, không dùng `currentMembers` của CLB khác). Không đổi migration/quyền DB.
+- Test thêm: `test/screens/session_detail_screen_test.dart` C1×2, C2×1, C3×2; `test/providers/club_provider_test.dart` roster scope ×3 (tải/lỗi-thử lại/đổi CLB chống rò rỉ + phản hồi trễ). 5 test widget FAIL trước sửa (11 pass/5 fail), sau sửa PASS.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**131/131 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md mục "Sửa theo review").
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (widget test dùng provider/repository giả); apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.

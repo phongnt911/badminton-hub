@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:badminton_hub/providers/club_provider.dart';
@@ -139,6 +141,83 @@ void main() {
       expect(res, isNull);
       expect(provider.isSubmitting, isFalse);
       expect(provider.submitErrorMessage, contains('Tên CLB đã tồn tại'));
+    });
+  });
+
+  group('ClubProvider Scoped Roster Tests (BH-05C)', () {
+    const memberC1 = ClubMember(id: 'm1', clubId: 'c1', displayName: 'An');
+    const memberC2 = ClubMember(id: 'm2', clubId: 'c2', displayName: 'Bình');
+
+    test('fetchClubRoster tải roster theo clubId và bật/tắt loading', () async {
+      when(() => mockRepo.listClubMembers(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      )).thenAnswer((_) async => [memberC1]);
+
+      final future = provider.fetchClubRoster('c1');
+      expect(provider.isLoadingRoster, isTrue);
+      expect(provider.rosterClubId, 'c1');
+
+      await future;
+
+      expect(provider.isLoadingRoster, isFalse);
+      expect(provider.rosterMembers.single.displayName, 'An');
+      expect(provider.rosterErrorMessage, isNull);
+    });
+
+    test('fetchClubRoster lỗi ghi error và thử lại phục hồi', () async {
+      var attempts = 0;
+      when(() => mockRepo.listClubMembers(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      )).thenAnswer((_) async {
+        attempts++;
+        if (attempts == 1) throw Exception('offline');
+        return [memberC1];
+      });
+
+      await provider.fetchClubRoster('c1');
+      expect(provider.isLoadingRoster, isFalse);
+      expect(provider.rosterErrorMessage, isNotNull);
+      expect(provider.rosterMembers, isEmpty);
+
+      await provider.fetchClubRoster('c1');
+      expect(provider.rosterErrorMessage, isNull);
+      expect(provider.rosterMembers.single.displayName, 'An');
+    });
+
+    test('đổi CLB xoá roster ngay và bỏ phản hồi đến trễ của CLB cũ', () async {
+      final c1 = Completer<List<ClubMember>>();
+      when(() => mockRepo.listClubMembers(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      )).thenAnswer((_) => c1.future);
+      when(() => mockRepo.listClubMembers(
+        'c2',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      )).thenAnswer((_) async => [memberC2]);
+
+      final first = provider.fetchClubRoster('c1');
+      expect(provider.rosterClubId, 'c1');
+
+      await provider.fetchClubRoster('c2');
+      expect(provider.rosterClubId, 'c2');
+      expect(provider.rosterMembers.single.displayName, 'Bình');
+
+      c1.complete([memberC1]);
+      await first;
+
+      expect(provider.rosterClubId, 'c2');
+      expect(provider.rosterMembers.single.displayName, 'Bình');
+
+      provider.clearAll();
+      expect(provider.rosterClubId, isNull);
+      expect(provider.rosterMembers, isEmpty);
+      expect(provider.isLoadingRoster, isFalse);
     });
   });
 }

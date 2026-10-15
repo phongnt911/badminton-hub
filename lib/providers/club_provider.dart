@@ -95,6 +95,19 @@ class ClubProvider extends ChangeNotifier {
   bool get isLoadingMembers => _isLoadingMembers;
   String? get membersErrorMessage => _membersErrorMessage;
 
+  // Roster tách theo CLB của buổi (dialog "Thêm người"), độc lập với CLB đang
+  // chọn ở màn CLB để không phụ thuộc điều hướng và không rò rỉ CLB khác.
+  String? _rosterClubId;
+  List<ClubMember> _rosterMembers = [];
+  bool _isLoadingRoster = false;
+  String? _rosterErrorMessage;
+  int _rosterSerial = 0;
+
+  String? get rosterClubId => _rosterClubId;
+  List<ClubMember> get rosterMembers => _rosterMembers;
+  bool get isLoadingRoster => _isLoadingRoster;
+  String? get rosterErrorMessage => _rosterErrorMessage;
+
   // State tài khoản ngân hàng của CLB
   BankAccount? _currentBankAccount;
   bool _isLoadingBank = false;
@@ -199,6 +212,51 @@ class ClubProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  /// Tải roster của đúng `clubId` cho dialog thêm người, không cần CLB đó đang
+  /// được chọn ở màn CLB. Đổi CLB xoá roster cũ ngay và bỏ phản hồi đến trễ.
+  Future<void> fetchClubRoster(String clubId) async {
+    final generation = _generation;
+    final serial = ++_rosterSerial;
+    if (_rosterClubId != clubId) {
+      _rosterClubId = clubId;
+      _rosterMembers = [];
+    }
+    _isLoadingRoster = true;
+    _rosterErrorMessage = null;
+    notifyListeners();
+
+    try {
+      final members = await _repository.listClubMembers(clubId);
+      if (_generation == generation &&
+          serial == _rosterSerial &&
+          _rosterClubId == clubId) {
+        _rosterMembers = members;
+      }
+    } catch (_) {
+      if (_generation == generation &&
+          serial == _rosterSerial &&
+          _rosterClubId == clubId) {
+        _rosterErrorMessage = 'Không thể tải danh sách thành viên CLB.';
+      }
+    } finally {
+      if (_generation == generation &&
+          serial == _rosterSerial &&
+          _rosterClubId == clubId) {
+        _isLoadingRoster = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Xoá roster tạm của dialog thêm người (không đụng CLB đang chọn).
+  void clearClubRoster() {
+    _rosterSerial++;
+    _rosterClubId = null;
+    _rosterMembers = [];
+    _rosterErrorMessage = null;
+    _isLoadingRoster = false;
   }
 
   /// Tải tài khoản ngân hàng của CLB
@@ -551,6 +609,7 @@ class ClubProvider extends ChangeNotifier {
     _clubsErrorMessage = null;
     _isSubmitting = false;
     _submitErrorMessage = null;
+    clearClubRoster();
     clearCurrentClub();
   }
 }
