@@ -1,0 +1,339 @@
+{
+  "tested_commit": "153f72a86e3a18f948fe93563d9e45ca985b4648",
+  "worktree_dirty": false,
+  "migration_sha256": {
+    "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "20261015140216_bh03_identity_retry_session_fixes.sql": "33f3c6ff4d8ad2f2ad23d645600012fd9a0f95b5952f2b3f979b4f84d3d06d44",
+    "20261015151445_pre_bh04_hardening.sql": "6c8d4af94f40d284e45438f6aa08644bcca14433a0c5d0f133a1e2853bd055b9",
+    "20261015163000_bh04_sessions.sql": "489f13e230949ac398cf0ffb32c91c4b3bdd91303f3a7b957d228920094479b2",
+    "20261015163001_bh04_review_fixes.sql": "2603d799a577708f126f5b104319a7763051f6d5204569d224fb7b69986c4538",
+    "20261015170500_bh05_registrations.sql": "2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51",
+    "20261016090000_bh05_review_fixes.sql": "629a0cad48587fe7516f48962d4a5c44fac69c493fb1b1b0f1e42a535ef369a7",
+    "20261016091000_bh05_a3_cancel_revokes_invitations.sql": "5981843750597ec54864bdf99e26a75d920dfb8c889bda0f6a748b60a09a0442"
+  },
+  "tests": [
+    {
+      "name": "bh03_clean_20261015185119: pagination stable and bounded",
+      "passed": true,
+      "actual": [
+        [
+          {
+            "id": "83cb1b84-d602-4546-9f8b-a1b639d14fb2",
+            "role": "owner",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": "00000000-0000-0000-0000-000000000001",
+            "joined_at": "2026-10-15T18:51:20.391541+00:00",
+            "contact_note": null,
+            "display_name": "User 1",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "f29d8138-2b88-40c9-9e13-98241e47f2b1",
+            "role": "host",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": "00000000-0000-0000-0000-000000000005",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Host Club",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "df5cfe34-2635-4bf1-aeda-4496d09e82a9",
+            "role": "treasurer",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": "00000000-0000-0000-0000-000000000002",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Member Regular",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "dcbec244-c843-4bc0-ac8b-d219e2f31d88",
+            "role": "treasurer",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": "00000000-0000-0000-0000-000000000004",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Thá»§ Quá»¹",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "a48d1c8b-bb9e-4af3-82b7-2d6bb665aa3e",
+            "role": "member",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": null,
+            "joined_at": "2026-10-15T18:51:21.026736+00:00",
+            "contact_note": "Ghi chÃº cáº­p nháº­t",
+            "display_name": "ChÃº Báº£y (Sá»­a TÃªn)",
+            "phone_number": "0999999999"
+          }
+        ],
+        [
+          {
+            "id": "2038b971-a727-4d2a-be0d-937700ef53fd",
+            "role": "member",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": null,
+            "joined_at": "2026-10-15T18:51:21.272034+00:00",
+            "contact_note": null,
+            "display_name": "ThÃ nh viÃªn do host thÃªm",
+            "phone_number": "0988776655"
+          }
+        ],
+        [
+          {
+            "id": "54879ee6-8a14-49ef-987d-a9ba8522343c",
+            "role": "member",
+            "status": "active",
+            "club_id": "5a9ca6cb-009f-4b84-aac3-98c20fd311de",
+            "user_id": "00000000-0000-0000-0000-000000000007",
+            "joined_at": null,
+            "contact_note": "RiÃªng tÆ° cá»§a 7",
+            "display_name": "Member Khong Quy",
+            "phone_number": "0977112233"
+          }
+        ],
+        []
+      ]
+    },
+    {
+      "name": "bh03_clean_20261015185119: ACL list_my_clubs()",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_clean_20261015185119: ACL get_club_detail(uuid)",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_clean_20261015185119: ACL list_club_members(uuid,integer,integer)",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_clean_20261015185119: consent required",
+      "passed": true,
+      "actual": "ERROR:  FORBIDDEN: Account linking requires verified acceptance\nCONTEXT:  PL/pgSQL function add_club_member(uuid,text,text,text,uuid,uuid) line 46 at RAISE\n"
+    },
+    {
+      "name": "bh03_clean_20261015185119: request id required",
+      "passed": true,
+      "actual": "ERROR:  INVALID_INPUT: request_id is required\nCONTEXT:  PL/pgSQL function create_club(text,text,text,uuid) line 13 at RAISE\n"
+    },
+    {
+      "name": "bh03_clean_20261015185119: changed contact note conflicts",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('add_club_member', p_request_id, v_payload_hash)\"\nPL/pgSQL function add_club_member(uuid,text,text,text,uuid,uuid) line 37 at SQL statement\n"
+    },
+    {
+      "name": "bh03_clean_20261015185119: changed bank name conflicts",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('set_club_bank_account', p_request_id, v_payload_hash)\"\nPL/pgSQL function set_club_bank_account(uuid,text,text,text,uuid) line 32 at SQL statement\n"
+    },
+    {
+      "name": "bh03_clean_20261015185119: field boundaries cannot collide",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('create_club', p_request_id, v_payload_hash)\"\nPL/pgSQL function create_club(text,text,text,uuid) line 33 at SQL statement\n"
+    },
+    {
+      "name": "bh03_clean_20261015185119: concurrent replay returns one club",
+      "passed": true,
+      "actual": {
+        "ids": [
+          "3744b185-6b7e-4c57-925a-2231419df7d4",
+          "3744b185-6b7e-4c57-925a-2231419df7d4"
+        ],
+        "count": "1"
+      }
+    },
+    {
+      "name": "bh03_clean_20261015185119: concurrent changed payload conflicts",
+      "passed": true,
+      "actual": {
+        "count": "1",
+        "errors": [
+          "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('create_club', p_request_id, v_payload_hash)\"\nPL/pgSQL function create_club(text,text,text,uuid) line 33 at SQL statement\n",
+          ""
+        ]
+      }
+    },
+    {
+      "name": "bh03_legacy_20261015185119: pagination stable and bounded",
+      "passed": true,
+      "actual": [
+        [
+          {
+            "id": "2fba011d-1b92-426c-8c3f-1f40b69f2669",
+            "role": "owner",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": "00000000-0000-0000-0000-000000000001",
+            "joined_at": "2026-10-15T18:51:23.525295+00:00",
+            "contact_note": null,
+            "display_name": "User 1",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "64c3aadb-bc07-4c0d-a069-340dba2b643c",
+            "role": "host",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": "00000000-0000-0000-0000-000000000005",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Host Club",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "f3728b4b-56b7-40a3-9b5b-90badd60274d",
+            "role": "treasurer",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": "00000000-0000-0000-0000-000000000002",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Member Regular",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "8e691669-967e-4a5f-a1c5-cf70244321af",
+            "role": "treasurer",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": "00000000-0000-0000-0000-000000000004",
+            "joined_at": null,
+            "contact_note": null,
+            "display_name": "Thá»§ Quá»¹",
+            "phone_number": null
+          }
+        ],
+        [
+          {
+            "id": "012241ad-28ad-484c-ac1f-2f65531e53ed",
+            "role": "member",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": null,
+            "joined_at": "2026-10-15T18:51:24.154035+00:00",
+            "contact_note": "Ghi chÃº cáº­p nháº­t",
+            "display_name": "ChÃº Báº£y (Sá»­a TÃªn)",
+            "phone_number": "0999999999"
+          }
+        ],
+        [
+          {
+            "id": "1549e11e-f5c6-42fe-a460-1cc92aa5b604",
+            "role": "member",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": null,
+            "joined_at": "2026-10-15T18:51:24.393529+00:00",
+            "contact_note": null,
+            "display_name": "ThÃ nh viÃªn do host thÃªm",
+            "phone_number": "0988776655"
+          }
+        ],
+        [
+          {
+            "id": "4140f8e6-3711-47ce-89fd-0e47223cf1dd",
+            "role": "member",
+            "status": "active",
+            "club_id": "a4b83bf4-1a46-4940-9247-339955e75dcc",
+            "user_id": "00000000-0000-0000-0000-000000000007",
+            "joined_at": null,
+            "contact_note": "RiÃªng tÆ° cá»§a 7",
+            "display_name": "Member Khong Quy",
+            "phone_number": "0977112233"
+          }
+        ],
+        []
+      ]
+    },
+    {
+      "name": "bh03_legacy_20261015185119: ACL list_my_clubs()",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: ACL get_club_detail(uuid)",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: ACL list_club_members(uuid,integer,integer)",
+      "passed": true,
+      "actual": "f|t"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: consent required",
+      "passed": true,
+      "actual": "ERROR:  FORBIDDEN: Account linking requires verified acceptance\nCONTEXT:  PL/pgSQL function add_club_member(uuid,text,text,text,uuid,uuid) line 46 at RAISE\n"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: request id required",
+      "passed": true,
+      "actual": "ERROR:  INVALID_INPUT: request_id is required\nCONTEXT:  PL/pgSQL function create_club(text,text,text,uuid) line 13 at RAISE\n"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: changed contact note conflicts",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('add_club_member', p_request_id, v_payload_hash)\"\nPL/pgSQL function add_club_member(uuid,text,text,text,uuid,uuid) line 37 at SQL statement\n"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: changed bank name conflicts",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('set_club_bank_account', p_request_id, v_payload_hash)\"\nPL/pgSQL function set_club_bank_account(uuid,text,text,text,uuid) line 32 at SQL statement\n"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: field boundaries cannot collide",
+      "passed": true,
+      "actual": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('create_club', p_request_id, v_payload_hash)\"\nPL/pgSQL function create_club(text,text,text,uuid) line 33 at SQL statement\n"
+    },
+    {
+      "name": "bh03_legacy_20261015185119: concurrent replay returns one club",
+      "passed": true,
+      "actual": {
+        "ids": [
+          "5d7c360d-8700-4fbc-a6dc-47db39461f6a",
+          "5d7c360d-8700-4fbc-a6dc-47db39461f6a"
+        ],
+        "count": "1"
+      }
+    },
+    {
+      "name": "bh03_legacy_20261015185119: concurrent changed payload conflicts",
+      "passed": true,
+      "actual": {
+        "count": "1",
+        "errors": [
+          "",
+          "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                       FROM public.check_idempotency('create_club', p_request_id, v_payload_hash)\"\nPL/pgSQL function create_club(text,text,text,uuid) line 33 at SQL statement\n"
+        ]
+      }
+    }
+  ],
+  "passed": 22,
+  "failed": 0
+}
