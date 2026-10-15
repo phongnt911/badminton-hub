@@ -19,7 +19,8 @@
 Ghi docs/reviews/<ticket>/review_<sha ngắn>.md. Mỗi phát hiện: file:dòng, P0/P1/P2, mô tả, cách sửa.
 Cuối file: "Đạt" hoặc "Chưa đạt" + danh sách NOT RUN. Không nêu điểm đã đúng. Không sửa code, không apply DB.
 
-## Xác nhận của chủ dự án sau review
-- Sau khi hoàn tất review, commit và push báo cáo lên nhánh được review, báo kết luận Đạt/Chưa đạt, bằng chứng và NOT RUN, rồi hỏi chủ dự án xác nhận kết luận và bước tiếp theo.
-- Không tự merge vào main, chuyển phần A/B/C tiếp theo hoặc triển khai sửa code khi chưa có yêu cầu của chủ dự án.
-- Chỉ cập nhật trạng thái ticket thành Đạt theo kết luận review và xác nhận của chủ dự án; giữ lịch sử Chờ review/Chưa đạt để truy vết. Không diễn giải Đạt một phần là nghiệm thu toàn ticket hoặc cho phép deploy production.
+## Kết luận cuối cùng của reviewer
+- Reviewer là người quyết định cuối cùng Đạt hoặc Chưa đạt trong phạm vi phần/ticket và commit được giao, dựa trên kiểm chứng độc lập; không hỏi chủ dự án xác nhận kết luận.
+- Ghi kết luận, phát hiện, bằng chứng và NOT RUN vào báo cáo; cập nhật trạng thái phần/ticket tương ứng trong docs/09 theo kết luận. Giữ lịch sử để truy vết, không diễn giải Đạt một phần là nghiệm thu toàn ticket hoặc cho phép deploy production.
+- Commit và push báo cáo, bằng chứng và cập nhật trạng thái lên nhánh được review sau khi hoàn tất, rồi thông báo ngắn bằng tiếng Việt; không hỏi lại chủ dự án.
+- Không tự merge main, chuyển phần A/B/C tiếp theo hoặc triển khai sửa code nếu chưa được giao. Thiếu bằng chứng cần thiết thì ghi Chưa đạt và NOT RUN, không chờ xác nhận để chốt báo cáo.
