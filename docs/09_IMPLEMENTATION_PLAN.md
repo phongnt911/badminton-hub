@@ -189,5 +189,5 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 
 - Cách sửa: forward migration `20261016090000_bh05_review_fixes.sql` `CREATE OR REPLACE` 5 hàm (không sửa file migration đã chia sẻ). A1 chặn khi có `charge_revisions.status='active'` mà actor thiếu `has_session_finance_access` ở `add_session_player`, `decide_registration` (nhánh `confirmed`), `cancel_registration` (người đang `confirmed`), `accept_waitlist_invitation`. A2 chặn trong `update_session` khi `p_capacity < count(confirmed)` (dưới cùng khoá `FOR UPDATE`).
 - Test tái hiện (thêm vào runner, FAIL trước sửa và PASS sau sửa): `A1 add/decide/cancel/accept`, `A2 update_session`, `A2 race hạ capacity đấu với join`.
-- Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (**0 issue**); `flutter test` (**104/104 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**78/78 PASS**, `tested_commit=39491617`, worktree dirty do file kết quả chưa commit tại thời điểm chạy).
+- Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (**0 issue**); `flutter test` (**104/104 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**78/78 PASS**, `tested_commit=1c2e43b`, worktree sạch — `docs/reviews/bh05/bh05_test_results_20261015172606.json`).
 - NOT RUN: PostgREST HTTP/JWT thật, apply staging/production, thiết bị thật (như trên).
