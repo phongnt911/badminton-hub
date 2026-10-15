@@ -657,4 +657,183 @@ void main() {
     expect(provider.currentSession, isNull);
     provider.dispose();
   });
+
+  // --- Vòng sửa review 135d7bd: B1 (lời mời lỗi bị nuốt) & B2 (lời mời cũ) -- //
+
+  const waitlistedSession = Session(
+    id: 's1',
+    title: 'Buổi chờ',
+    capacity: 8,
+    lifecycle: 'published',
+    confirmedCount: 8,
+    myRegistration: SessionRegistration(
+      playerId: 'p1',
+      registrationStatus: 'waitlisted',
+    ),
+  );
+
+  const confirmedSession = Session(
+    id: 's1',
+    title: 'Buổi chờ',
+    capacity: 8,
+    lifecycle: 'published',
+    confirmedCount: 8,
+    myRegistration: SessionRegistration(
+      playerId: 'p1',
+      registrationStatus: 'confirmed',
+    ),
+  );
+
+  const invitation = WaitlistInvitation(
+    invitationId: 'i1',
+    playerId: 'p1',
+    sessionId: 's1',
+  );
+
+  test('B1 lời mời: tải lỗi phải lộ error, không bị coi là rỗng', () async {
+    when(
+      () => repo.getSessionDetail('s1'),
+    ).thenAnswer((_) async => waitlistedSession);
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenThrow(Exception('offline'));
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+
+    expect(provider.myInvitation, isNull);
+    expect(provider.invitationErrorMessage, isNotNull);
+    expect(provider.isLoadingInvitation, isFalse);
+    provider.dispose();
+  });
+
+  test('B1 lời mời: bật loading trong khi đang tải', () async {
+    final completer = Completer<WaitlistInvitation?>();
+    when(
+      () => repo.getSessionDetail('s1'),
+    ).thenAnswer((_) async => waitlistedSession);
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenAnswer((_) => completer.future);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    final pending = provider.fetchSessionDetail('s1');
+    await pumpEventQueue();
+    expect(provider.isLoadingInvitation, isTrue);
+
+    completer.complete(null);
+    await pending;
+    expect(provider.isLoadingInvitation, isFalse);
+    expect(provider.myInvitation, isNull);
+    expect(provider.invitationErrorMessage, isNull);
+    provider.dispose();
+  });
+
+  test('B1 lời mời: response null hợp lệ là rỗng, không phải lỗi', () async {
+    when(
+      () => repo.getSessionDetail('s1'),
+    ).thenAnswer((_) async => waitlistedSession);
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenAnswer((_) async => null);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+
+    expect(provider.myInvitation, isNull);
+    expect(provider.invitationErrorMessage, isNull);
+    expect(provider.isLoadingInvitation, isFalse);
+    provider.dispose();
+  });
+
+  test('B1 lời mời: retry sau lỗi phục hồi và nhận lời mời', () async {
+    when(
+      () => repo.getSessionDetail('s1'),
+    ).thenAnswer((_) async => waitlistedSession);
+    var calls = 0;
+    when(() => repo.getMyWaitlistInvitation('s1')).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw Exception('offline');
+      return invitation;
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+    expect(provider.invitationErrorMessage, isNotNull);
+
+    await provider.fetchMyInvitation('s1');
+    expect(provider.invitationErrorMessage, isNull);
+    expect(provider.myInvitation?.invitationId, 'i1');
+    provider.dispose();
+  });
+
+  test('B2 lời mời: làm mới sang confirmed thì xoá lời mời cũ', () async {
+    var calls = 0;
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async {
+      calls++;
+      return calls == 1 ? waitlistedSession : confirmedSession;
+    });
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenAnswer((_) async => invitation);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation?.invitationId, 'i1');
+
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation, isNull);
+    provider.dispose();
+  });
+
+  test('B2 lời mời: làm mới khi không còn đăng ký thì xoá lời mời cũ', () async {
+    var calls = 0;
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async {
+      calls++;
+      return calls == 1 ? waitlistedSession : session;
+    });
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenAnswer((_) async => invitation);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation?.invitationId, 'i1');
+
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation, isNull);
+    provider.dispose();
+  });
+
+  test('B2 lời mời: phản hồi đến trễ không khôi phục state đã xoá', () async {
+    final invitationCompleter = Completer<WaitlistInvitation?>();
+    var calls = 0;
+    when(() => repo.getSessionDetail('s1')).thenAnswer((_) async {
+      calls++;
+      return calls == 1 ? waitlistedSession : confirmedSession;
+    });
+    when(
+      () => repo.getMyWaitlistInvitation('s1'),
+    ).thenAnswer((_) => invitationCompleter.future);
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    final first = provider.fetchSessionDetail('s1');
+    await pumpEventQueue();
+    expect(provider.isLoadingInvitation, isTrue);
+
+    await provider.fetchSessionDetail('s1');
+    expect(provider.myInvitation, isNull);
+
+    invitationCompleter.complete(invitation);
+    await first;
+    expect(provider.myInvitation, isNull);
+    provider.dispose();
+  });
 }

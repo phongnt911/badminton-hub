@@ -216,3 +216,17 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 - **Trạng thái hiện tại: Chưa đạt phần B** tại `135d7bd`, theo [review_135d7bd.md](reviews/bh05/review_135d7bd.md). Còn B1/B2 mức P2 về lỗi tải lời mời và state lời mời cũ.
 - Analyze sạch, 111/111 Flutter và 84/84 DB PASS; hai probe bổ sung tái hiện lỗi. NOT RUN được liệt kê trong báo cáo.
 - Reviewer tự chốt kết luận, không cần chủ dự án xác nhận; trạng thái Chờ review phía trên là lịch sử. Không sửa code, merge main hoặc apply DB remote trong lượt này.
+
+### BH-05B — Vòng sửa review 1 (B1, B2) — 16/10/2026
+
+Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa đạt** với B1 (P2) và B2 (P2). Đã sửa cả hai.
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| B1 — lỗi tải lời mời bị nuốt thành "không có lời mời" | P2 | **Đã sửa (chờ review)** | Test mới tái hiện FAIL trước sửa, PASS sau sửa; `flutter test` **118/118** |
+| B2 — làm mới chi tiết vẫn giữ lời mời cũ | P2 | **Đã sửa (chờ review)** | Cùng bộ test |
+
+- Cách sửa (chỉ trong `lib/providers/session_provider.dart`; không đổi DB/migration/hợp đồng RPC): thêm state riêng `isLoadingInvitation`/`invitationErrorMessage` và `_invitationSerial`; `fetchMyInvitation` tách loading/error, chỉ coi response thành công `null` là rỗng (không nuốt exception), giữ guard auth/session, chống phản hồi đến trễ bằng serial; `fetchSessionDetail` khi chi tiết mới không còn `waitlisted` thì `_resetInvitation()` (xoá state + vô hiệu hoá phản hồi đang bay).
+- Test thêm vào `test/providers/session_provider_test.dart` (FAIL trước sửa, PASS sau sửa): B1 lỗi/loading/null-hợp-lệ/retry; B2 waitlisted→confirmed, waitlisted→không còn đăng ký, phản hồi lời mời đến trễ.
+- Lệnh đã chạy trên nhánh `feat/bh05b-data`: `flutter analyze` (**0 issue**); `flutter test` (**118/118 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — không đổi vì B không chạm DB).
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (unit test vẫn dùng repository giả, chưa gọi RPC qua mạng); apply staging/production.

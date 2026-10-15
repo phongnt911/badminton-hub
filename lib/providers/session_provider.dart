@@ -143,6 +143,8 @@ class SessionProvider extends ChangeNotifier {
     _currentSession = null;
     _currentPlayers = [];
     _myInvitation = null;
+    _isLoadingInvitation = false;
+    _invitationErrorMessage = null;
     _playersErrorMessage = null;
     _isLoadingPlayers = false;
     _detailErrorMessage = null;
@@ -236,10 +238,18 @@ class SessionProvider extends ChangeNotifier {
   bool _isLoadingDetail = false;
   String? _detailErrorMessage;
 
+  // Trạng thái riêng của lời mời danh sách chờ (B1): phân biệt "không có lời mời"
+  // với "tải lời mời lỗi", tương tự playersErrorMessage.
+  bool _isLoadingInvitation = false;
+  String? _invitationErrorMessage;
+  int _invitationSerial = 0;
+
   String? get currentSessionId => _currentSessionId;
   Session? get currentSession => _currentSession;
   List<SessionPlayer> get currentPlayers => _currentPlayers;
   WaitlistInvitation? get myInvitation => _myInvitation;
+  bool get isLoadingInvitation => _isLoadingInvitation;
+  String? get invitationErrorMessage => _invitationErrorMessage;
   bool get isLoadingDetail => _isLoadingDetail;
   String? get detailErrorMessage => _detailErrorMessage;
 
@@ -258,7 +268,7 @@ class SessionProvider extends ChangeNotifier {
       _currentSessionId = sessionId;
       _currentSession = null;
       _currentPlayers = [];
-      _myInvitation = null;
+      _resetInvitation();
       _playersErrorMessage = null;
       _isLoadingPlayers = false;
     }
@@ -280,6 +290,11 @@ class SessionProvider extends ChangeNotifier {
         await fetchSessionPlayers(sessionId);
       } else if (session.myRegistration?.registrationStatus == 'waitlisted') {
         await fetchMyInvitation(sessionId);
+      } else {
+        // B2: detail mới không còn điều kiện hiển thị lời mời → xoá state cũ và
+        // vô hiệu hoá phản hồi lời mời đang bay để không khôi phục lại.
+        _resetInvitation();
+        notifyListeners();
       }
     } catch (e) {
       if (_generation == generation &&
@@ -474,25 +489,52 @@ class SessionProvider extends ChangeNotifier {
 
   // --- BH-05: đăng ký, duyệt, huỷ, điểm danh và lời mời ------------------- //
 
+  /// Xoá state lời mời và vô hiệu hoá mọi phản hồi lời mời đang bay (B2).
+  void _resetInvitation() {
+    _invitationSerial++;
+    _myInvitation = null;
+    _invitationErrorMessage = null;
+    _isLoadingInvitation = false;
+  }
+
   /// Tải lời mời đang chờ của chính người dùng (chỉ khi đang ở danh sách chờ).
+  ///
+  /// B1: tách loading/error riêng và chỉ coi response thành công `null` là rỗng;
+  /// lỗi tải không bị nuốt thành "không có lời mời". B2: dùng `_invitationSerial`
+  /// để phản hồi đến trễ không ghi đè state đã bị xoá.
   Future<void> fetchMyInvitation(String sessionId) async {
     final generation = _generation;
+    final serial = ++_invitationSerial;
+    if (_currentSessionId != sessionId) return;
+
     if (_authUserId == null) {
-      if (_currentSessionId == sessionId) {
-        _myInvitation = null;
-        notifyListeners();
-      }
+      _resetInvitation();
+      notifyListeners();
       return;
     }
+
+    _isLoadingInvitation = true;
+    _invitationErrorMessage = null;
+    notifyListeners();
+
     try {
       final invitation = await _repository.getMyWaitlistInvitation(sessionId);
-      if (_generation == generation && _currentSessionId == sessionId) {
+      if (_generation == generation &&
+          serial == _invitationSerial &&
+          _currentSessionId == sessionId) {
         _myInvitation = invitation;
-        notifyListeners();
       }
-    } catch (_) {
-      if (_generation == generation && _currentSessionId == sessionId) {
-        _myInvitation = null;
+    } catch (e) {
+      if (_generation == generation &&
+          serial == _invitationSerial &&
+          _currentSessionId == sessionId) {
+        _invitationErrorMessage = domainErrorMessage(e);
+      }
+    } finally {
+      if (_generation == generation &&
+          serial == _invitationSerial &&
+          _currentSessionId == sessionId) {
+        _isLoadingInvitation = false;
         notifyListeners();
       }
     }
