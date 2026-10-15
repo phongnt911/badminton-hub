@@ -701,6 +701,55 @@ def run_suite(db):
         assert cap >= 2, f"capacity không được hạ xuống dưới confirmed: {cap}"
     run_test("A2 race: hạ capacity đấu với join — confirmed không vượt capacity", t_a2_race_update_capacity_vs_join)
 
+    # --- Vòng sửa review 7fcbdee: A3 (huỷ buổi thu hồi lời mời pending) -------- #
+
+    def setup_waitlisted_with_invite(title, capacity=1):
+        sid = create_and_publish(1, title, capacity=capacity)
+        first = join(5, sid)
+        w = join(6, sid)
+        assert w['registration_status'] == 'waitlisted', w
+        inv = json.loads(must_user(db, 1, f"SELECT public.invite_waitlisted_player('{sid}'::uuid, '{w['player_id']}'::uuid, NULL, '{newreq()}');", 'invite'))
+        return sid, first, w, inv
+
+    def t_a3_cancel_session_revokes_pending_invitation():
+        sid, first, w, inv = setup_waitlisted_with_invite('CancelRevoke')
+        mine = json.loads(must_user(db, 6, f"SELECT public.get_my_waitlist_invitation('{sid}'::uuid);", 'invitation before cancel'))
+        assert mine['status'] == 'pending', mine
+        must_user(db, 1, f"SELECT public.set_session_lifecycle('{sid}'::uuid, 'cancel', '{newreq()}');", 'cancel session')
+        st = must(db, f"SELECT status, revoked_by, revoked_at IS NOT NULL FROM public.waitlist_invitations WHERE id='{inv['invitation_id']}';", 'inv status after cancel')
+        assert st.split('|')[0] == 'revoked', f"lời mời phải bị thu hồi khi huỷ buổi: {st}"
+        assert st.split('|')[1] == uid(1), f"revoked_by phải là actor huỷ buổi: {st}"
+        assert st.split('|')[2] == 't', f"revoked_at phải được ghi: {st}"
+        after = must_user(db, 6, f"SELECT public.get_my_waitlist_invitation('{sid}'::uuid);", 'invitation after cancel')
+        assert after in ('', 'NULL', 'null'), f"buổi đã huỷ không được trả lời mời cho người chơi: {after}"
+    run_test("A3 huỷ buổi thu hồi lời mời pending; get_my_waitlist_invitation không trả lời mời đã huỷ", t_a3_cancel_session_revokes_pending_invitation)
+
+    def t_a3_race_cancel_session_vs_accept():
+        sid = create_and_publish(1, 'CancelRace', capacity=1)
+        first = join(5, sid)
+        w = join(6, sid)
+        assert w['registration_status'] == 'waitlisted', w
+        must_user(db, 5, f"SELECT public.cancel_registration('{sid}'::uuid, '{first['player_id']}'::uuid, NULL, '{newreq()}');", 'free slot')
+        inv = json.loads(must_user(db, 1, f"SELECT public.invite_waitlisted_player('{sid}'::uuid, '{w['player_id']}'::uuid, NULL, '{newreq()}');", 'invite'))
+        s1 = tx_script(1, f"SELECT public.set_session_lifecycle('{sid}'::uuid, 'cancel', '{newreq()}');\nSELECT pg_sleep(1.2);")
+        s2 = tx_script(6, f"SELECT pg_sleep(0.2);\nSELECT public.accept_waitlist_invitation('{sid}'::uuid, '{inv['invitation_id']}'::uuid, NULL, '{newreq()}');")
+        run_concurrent(db, [s1, s2])
+        lc = must(db, f"SELECT lifecycle FROM public.sessions WHERE id='{sid}';", 'lifecycle')
+        st = must(db, f"SELECT status FROM public.waitlist_invitations WHERE id='{inv['invitation_id']}';", 'inv status')
+        assert not (lc == 'cancelled' and st == 'pending'), f"buổi đã huỷ không được để lời mời pending: lifecycle={lc}, status={st}"
+    run_test("A3 race: huỷ buổi đấu với accept — không để lời mời pending khi buổi đã huỷ", t_a3_race_cancel_session_vs_accept)
+
+    def t_a3_cancel_replay_no_extra_side_effects():
+        sid, first, w, inv = setup_waitlisted_with_invite('CancelReplay')
+        req = newreq()
+        must_user(db, 1, f"SELECT public.set_session_lifecycle('{sid}'::uuid, 'cancel', '{req}');", 'cancel')
+        before = must(db, f"SELECT status, revoked_at FROM public.waitlist_invitations WHERE id='{inv['invitation_id']}';", 'inv before replay')
+        assert before.split('|')[0] == 'revoked', before
+        must_user(db, 1, f"SELECT public.set_session_lifecycle('{sid}'::uuid, 'cancel', '{req}');", 'cancel replay')
+        after = must(db, f"SELECT status, revoked_at FROM public.waitlist_invitations WHERE id='{inv['invitation_id']}';", 'inv after replay')
+        assert before == after, f"replay không được tạo thêm tác dụng phụ: {before} -> {after}"
+    run_test("A3 replay huỷ buổi không tạo thêm tác dụng phụ", t_a3_cancel_replay_no_extra_side_effects)
+
 
 run_suite(CLEAN)
 run_suite(LEGACY)
