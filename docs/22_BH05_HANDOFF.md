@@ -1,9 +1,9 @@
 # BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ (bàn giao, nhánh tích hợp)
 
-Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW** — A, B, C đã được gộp trên nhánh
+Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW (bản tích hợp)** — A, B, C đã được gộp trên nhánh
 `feat/bh05-integration` theo thứ tự A→B→C, đã giải xung đột và chạy lại toàn bộ regression.
-Phần A và B đã được reviewer độc lập kết luận **Đạt**; phần C đang **chờ review** ở vòng sửa 2.
-**Chưa** apply staging/production, **chưa** kiểm PostgREST HTTP/JWT thật.
+Cả ba phần A, B, C đều đã được reviewer độc lập kết luận **Đạt**; bản tích hợp hợp nhất các bản đã Đạt
+đang **chờ review tổng**. **Chưa** apply staging/production, **chưa** kiểm PostgREST HTTP/JWT thật.
 
 Baseline: `d8dfe74` (đã đạt 104 Flutter + 161 DB). Hợp đồng RPC:
 [08_DOMAIN_CONTRACTS.md](08_DOMAIN_CONTRACTS.md) §12. Người triển khai **không** tự ghi "Done";
@@ -29,7 +29,7 @@ Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, m�
 |---|---|---|---|---|
 | A — DB/RPC/RLS | `feat/bh05a-db` | `dae8763` | **Đạt** tại `9f2d455` | [review_9f2d455.md](reviews/bh05/review_9f2d455.md) |
 | B — model/repository/provider | `feat/bh05b-data` | `33277ea` | **Đạt** tại `cf65199` | [review_cf65199.md](reviews/bh05/review_cf65199.md) |
-| C — UI màn chi tiết buổi | `feat/bh05c-ui` | `7707a76` | **Chưa đạt** tại `48b4ad2`; đã sửa C1-R ở vòng 2, **chờ review** | [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) |
+| C — UI màn chi tiết buổi | `feat/bh05c-ui` | `7707a76` | **Đạt** tại `1f1f9ce` (kết luận `678ee95`) | [review_1f1f9ce.md](reviews/bh05/review_1f1f9ce.md) |
 
 Nhánh tích hợp `feat/bh05-integration` (tách từ `main` = `da1285d`):
 
@@ -38,6 +38,7 @@ Nhánh tích hợp `feat/bh05-integration` (tách từ `main` = `da1285d`):
 | `eecf24a` | Merge `feat/bh05a-db` (A). Xung đột: `docs/09`, `run_bh05_tests.py`. |
 | `a0f5d35` | Merge `feat/bh05b-data` (B). Xung đột: `session_provider.dart`, `session_provider_test.dart`. |
 | `b126f17` | Merge `feat/bh05c-ui` (C). Xung đột: `session_detail_screen.dart`, `session_detail_screen_test.dart`. |
+| `678ee95` | Merge kết luận **Đạt** C của reviewer (review `1f1f9ce` + probe + cập nhật `docs/09`). Xung đột: `docs/09`. |
 | `3867c99`…`bae8bcd` | 6 commit bằng chứng (chỉ thêm JSON kết quả runner), giữ `worktree_dirty=false`. |
 
 Mã nguồn tích hợp (lib/test/supabase) **trùng khít** cây C đã review: `git diff feat/bh05c-ui -- lib test supabase` rỗng.
@@ -127,12 +128,12 @@ Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ �
 - Thiết bị thật / web thật, deep link OS-level: chưa chạy.
 - Apply migration lên staging/production, diễn tập backup/restore: chưa chạy (không tự apply production).
 - Cạnh tranh chỉ ở mức đa kết nối **trong cùng PostgreSQL** (deterministic bằng lock + `pg_sleep`), chưa qua HTTP đồng thời thực tế.
-- Chưa nghiệm thu **đồng thời** A/B/C bởi reviewer trên nhánh tích hợp; C còn **chờ review** vòng 2.
+- Chưa nghiệm thu **chính bản tích hợp** bởi reviewer (A/B/C đã Đạt độc lập; bản tích hợp chờ review tổng).
 - Host thu hồi lời mời qua HTTP trong lúc client đang refresh: chưa kiểm.
 
 ## 9. Việc còn lại trước pilot
 
-1. Reviewer độc lập kết luận nhánh `feat/bh05-integration` (và vòng 2 của C).
+1. Reviewer độc lập kết luận nhánh `feat/bh05-integration` (A/B/C đã Đạt riêng; chờ review tổng bản tích hợp).
 2. Chạy full Supabase HTTP/JWT thật cho các RPC BH-05 (map lỗi PostgREST → thông điệp Việt đã có).
 3. Diễn tập apply chuỗi migration + backup/restore trên staging thật.
 4. Kiểm thủ công trên thiết bị/web: link chia sẻ `/sessions/:id`, quay lại sau đăng nhập, luồng lời mời qua nhiều người dùng thật.
