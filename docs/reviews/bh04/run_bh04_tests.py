@@ -248,7 +248,10 @@ def run_suite(db):
 
     def t_publish():
         draft = SHARED['draft_id']
-        res = json.loads(must_user(db, 1, f"SELECT public.set_session_lifecycle('{draft}'::uuid, 'publish', '{newreq()}');", 'publish'))
+        key = newreq()
+        call = f"SELECT public.set_session_lifecycle('{draft}'::uuid, 'publish', '{key}');"
+        res = json.loads(must_user(db, 1, call, 'publish'))
+        assert json.loads(must_user(db, 1, call, 'publish replay')) == res
         assert res['lifecycle'] == 'published', res
         assert res['version'] == 2, res
         r = user_exec(db, 1, f"SELECT public.set_session_lifecycle('{draft}'::uuid, 'publish', '{newreq()}');")
@@ -391,6 +394,15 @@ def run_suite(db):
         r_mem = user_exec(db, 4, f"SELECT public.list_session_players('{draft}'::uuid);")
         assert expect_error(r_mem, 'FORBIDDEN'), f"member không được đọc danh sách: {r_mem.stderr}"
     run_test("list_session_players: chỉ host/quản lý, phân trang, chặn thủ quỹ/member", t_list_session_players_acl_and_pagination)
+
+    def t_cancel_replay():
+        req = newreq()
+        created = json.loads(must_user(db, 1, f"SELECT create_session('{venue}', 'Cancel replay', '{iso(3)}', '{iso(3,2)}',8,2,p_request_id => '{newreq()}');", 'create cancel fixture'))
+        call = f"SELECT set_session_lifecycle('{created['id']}', 'cancel', '{req}');"
+        first = json.loads(must_user(db, 1, call, 'cancel'))
+        second = json.loads(must_user(db, 1, call, 'cancel replay'))
+        assert first == second and second['lifecycle'] == 'cancelled'
+    run_test("cancel retry replays same result", t_cancel_replay)
 
     def t_no_client_counter_write():
         # Bảng sessions không có cột joined_count trên DB clean (không còn bộ đếm do client ghi)

@@ -1,0 +1,7 @@
+{
+  "db": "bh04_clean_20261015161722",
+  "session": "f65fc83d-dd87-45ab-9925-abd9ec5abe04",
+  "first_returncode": 0,
+  "retry_returncode": 3,
+  "retry_error": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                                    FROM public.check_idempotency('set_session_lifecycle', p_request_id, v_payload_hash)\"\nPL/pgSQL function set_session_lifecycle(uuid,text,uuid) line 29 at SQL statement\n"
+}

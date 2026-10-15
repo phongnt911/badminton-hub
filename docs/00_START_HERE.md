@@ -79,3 +79,7 @@ Chủ dự án yêu cầu chuyển sang BH-03 sau remediation 11aaec7. Dùng [15
 ## Điểm tiếp tục mới nhất trước BH-04
 
 Đọc [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Đợt sửa cấu hình/auth/phân trang/UI/ACL đã triển khai; các mục chờ sửa cũ là lịch sử. Chuyển đổi màn buổi chơi demo trong BH-04, giữ cổng pilot và giới hạn local/staging.
+
+## Mới nhất — sau sửa review BH-04
+
+Đọc [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md), giữ 104 Flutter +161 DB regression rồi tiếp tục BH-05. Các lỗi R1–R4 ở review dd5c1e6 là baseline trước sửa.

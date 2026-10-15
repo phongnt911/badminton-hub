@@ -48,23 +48,23 @@ class SessionFormData {
 
   /// Payload ổn định để tính khoá idempotency khi retry.
   List<Object?> get requestPayload => [
-        venueId,
-        title,
-        startsAt.toUtc().toIso8601String(),
-        endsAt.toUtc().toIso8601String(),
-        capacity,
-        courtCount,
-        clubId,
-        description,
-        levelRequirement,
-        visibility,
-        approvalMode,
-        feeMode,
-        memberFeeVnd,
-        guestFeeVnd,
-        registrationDeadline?.toUtc().toIso8601String(),
-        cancellationDeadline?.toUtc().toIso8601String(),
-      ];
+    venueId,
+    title,
+    startsAt.toUtc().toIso8601String(),
+    endsAt.toUtc().toIso8601String(),
+    capacity,
+    courtCount,
+    clubId,
+    description,
+    levelRequirement,
+    visibility,
+    approvalMode,
+    feeMode,
+    memberFeeVnd,
+    guestFeeVnd,
+    registrationDeadline?.toUtc().toIso8601String(),
+    cancellationDeadline?.toUtc().toIso8601String(),
+  ];
 }
 
 /// Quản lý trạng thái buổi chơi: khám phá công khai, danh sách quản lý và chi tiết.
@@ -84,13 +84,17 @@ class SessionProvider extends ChangeNotifier {
   final _pendingRequests = <String, ({String payload, String id})>{};
 
   SessionProvider({SessionRepository? repository, this.auth})
-      : _repository = repository ?? SessionRepository() {
+    : _repository = repository ?? SessionRepository() {
     _authUserId = auth?.currentUser?.id;
     auth?.addListener(_onAuthChanged);
   }
 
   // Một ý định giữ cùng UUID qua lỗi/timeout; payload đổi tạo ý định mới.
-  String _requestKey(String operation, List<Object?> payload, String? supplied) {
+  String _requestKey(
+    String operation,
+    List<Object?> payload,
+    String? supplied,
+  ) {
     if (supplied != null) return supplied;
     final encoded = jsonEncode(payload);
     final pending = _pendingRequests[operation];
@@ -138,6 +142,8 @@ class SessionProvider extends ChangeNotifier {
     _currentSessionId = null;
     _currentSession = null;
     _currentPlayers = [];
+    _playersErrorMessage = null;
+    _isLoadingPlayers = false;
     _detailErrorMessage = null;
     _isLoadingPublic = false;
     _isLoadingMine = false;
@@ -235,6 +241,11 @@ class SessionProvider extends ChangeNotifier {
   String? get detailErrorMessage => _detailErrorMessage;
 
   /// Chỉ host/quản lý buổi mới xem được danh sách đăng ký (F7).
+  bool _isLoadingPlayers = false;
+  String? _playersErrorMessage;
+  bool get isLoadingPlayers => _isLoadingPlayers;
+  String? get playersErrorMessage => _playersErrorMessage;
+
   bool get canManagePlayers => _currentSession?.canManage == true;
 
   Future<void> fetchSessionDetail(String sessionId) async {
@@ -244,6 +255,8 @@ class SessionProvider extends ChangeNotifier {
       _currentSessionId = sessionId;
       _currentSession = null;
       _currentPlayers = [];
+      _playersErrorMessage = null;
+      _isLoadingPlayers = false;
     }
     _isLoadingDetail = true;
     _detailErrorMessage = null;
@@ -277,6 +290,9 @@ class SessionProvider extends ChangeNotifier {
     final generation = _generation;
     final serial = _detailSerial;
     if (_currentSessionId != sessionId) return;
+    _isLoadingPlayers = true;
+    _playersErrorMessage = null;
+    notifyListeners();
     try {
       final players = await _repository.listSessionPlayers(sessionId);
       if (_generation == generation &&
@@ -285,8 +301,19 @@ class SessionProvider extends ChangeNotifier {
         _currentPlayers = players;
         notifyListeners();
       }
-    } catch (_) {
-      // Danh sách người đăng ký là thông tin phụ; giữ nguyên chi tiết nếu lỗi.
+    } catch (e) {
+      if (_generation == generation &&
+          serial == _detailSerial &&
+          _currentSessionId == sessionId) {
+        _playersErrorMessage = domainErrorMessage(e);
+      }
+    } finally {
+      if (_generation == generation &&
+          serial == _detailSerial &&
+          _currentSessionId == sessionId) {
+        _isLoadingPlayers = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -314,6 +341,7 @@ class SessionProvider extends ChangeNotifier {
     try {
       final session = await call(key);
       if (_generation != generation) return null;
+      _pendingRequests.remove(operation);
       if (refreshMine) await fetchMySessions();
       return _generation == generation ? session : null;
     } catch (e) {

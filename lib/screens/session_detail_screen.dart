@@ -43,6 +43,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       returnRoute: AppRoutes.sessionPath(widget.sessionId),
     );
     if (!ok || !mounted) return;
+    await _reload();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Chức năng đăng ký tham gia sẽ có ở BH-05.'),
@@ -110,7 +112,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     if (!mounted) return;
     _showResult(
       result,
-      success: 'Đã nhân bản buổi chơi thành bản nháp mới (không kèm người/tiền).',
+      success:
+          'Đã nhân bản buổi chơi thành bản nháp mới (không kèm người/tiền).',
       error: provider.submitErrorMessage,
     );
   }
@@ -128,18 +131,34 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   void _showResult(Session? result, {required String success, String? error}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result != null ? success : (error ?? 'Thao tác thất bại.')),
-        backgroundColor: result != null ? AppConstants.primaryColor : Colors.red,
+        content: Text(
+          result != null ? success : (error ?? 'Thao tác thất bại.'),
+        ),
+        backgroundColor: result != null
+            ? AppConstants.primaryColor
+            : Colors.red,
       ),
     );
   }
 
-  void _copyShareLink() {
-    final path = AppRoutes.sessionPath(widget.sessionId);
-    Clipboard.setData(ClipboardData(text: path));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Đã sao chép liên kết: $path')),
-    );
+  Future<void> _copyShareLink() async {
+    String path;
+    try {
+      path = AppRoutes.sessionUrl(widget.sessionId);
+      await Clipboard.setData(ClipboardData(text: path));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Chưa cấu hình liên kết chia sẻ APP_BASE_URL.'),
+          ),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Đã sao chép liên kết: $path')));
   }
 
   @override
@@ -150,8 +169,10 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chi tiết buổi chơi',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text(
+          'Chi tiết buổi chơi',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         backgroundColor: AppConstants.primaryColor,
         foregroundColor: Colors.white,
         actions: [
@@ -190,10 +211,13 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               const SizedBox(height: 12),
               if (needsLogin && !auth.isAuthenticated)
                 ElevatedButton(
-                  onPressed: () => requireAuth(
-                    context,
-                    returnRoute: AppRoutes.sessionPath(widget.sessionId),
-                  ),
+                  onPressed: () async {
+                    final ok = await requireAuth(
+                      context,
+                      returnRoute: AppRoutes.sessionPath(widget.sessionId),
+                    );
+                    if (ok && mounted) await _reload();
+                  },
                   child: const Text('Đăng nhập'),
                 ),
               const SizedBox(height: 8),
@@ -216,7 +240,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         children: [
           Card(
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -228,7 +254,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                         child: Text(
                           session.title,
                           style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Chip(label: Text(session.lifecycleLabel)),
@@ -240,15 +268,21 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                     Text(session.description!),
                   ],
                   const SizedBox(height: 8),
-                  Text('📍 ${session.venueName ?? 'Chưa có sân'}'
-                      '${session.venueArea != null ? ' · ${session.venueArea}' : ''}'),
+                  Text(
+                    '📍 ${session.venueName ?? 'Chưa có sân'}'
+                    '${session.venueArea != null ? ' · ${session.venueArea}' : ''}',
+                  ),
                   if (session.venueAddress != null)
-                    Text(session.venueAddress!,
-                        style: TextStyle(color: Colors.grey[700])),
+                    Text(
+                      session.venueAddress!,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
                   Text(
-                      '⏰ ${formatVietnamRange(session.startsAt, session.endsAt)}'),
+                    '⏰ ${formatVietnamRange(session.startsAt, session.endsAt)}',
+                  ),
                   Text(
-                      '👥 ${session.confirmedCount}/${session.capacity} người · ${session.seatsLeft} chỗ trống'),
+                    '👥 ${session.confirmedCount}/${session.capacity} người · ${session.seatsLeft} chỗ trống',
+                  ),
                   Text('💰 ${session.feeLabel}'),
                   if (session.hostDisplayName != null)
                     Text('🙋 Chủ buổi: ${session.hostDisplayName}'),
@@ -265,7 +299,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               child: ListTile(
                 leading: const Icon(Icons.link),
                 title: Text(AppRoutes.sessionPath(session.id)),
-                subtitle: const Text('Link nội bộ (không chứa token/số điện thoại)'),
+                subtitle: const Text(
+                  'Link nội bộ (không chứa token/số điện thoại)',
+                ),
                 trailing: IconButton(
                   tooltip: 'Sao chép link',
                   onPressed: _copyShareLink,
@@ -300,10 +336,26 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
             ),
           if (provider.canManagePlayers) ...[
             const SizedBox(height: 24),
-            const Text('Danh sách đăng ký',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Danh sách đăng ký',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            _PlayersList(players: provider.currentPlayers),
+            if (provider.isLoadingPlayers)
+              const Center(child: CircularProgressIndicator())
+            else if (provider.playersErrorMessage != null)
+              Column(
+                children: [
+                  const Text('Không thể tải danh sách đăng ký.'),
+                  TextButton(
+                    onPressed: () =>
+                        provider.fetchSessionPlayers(widget.sessionId),
+                    child: const Text('Thử lại danh sách'),
+                  ),
+                ],
+              )
+            else
+              _PlayersList(players: provider.currentPlayers),
           ],
         ],
       ),
@@ -385,9 +437,9 @@ class _RegistrationStatus extends StatelessWidget {
       return Card(
         child: ListTile(
           leading: const Icon(Icons.info_outline),
-          title: Text(session.isFull
-              ? 'Buổi đã đủ người'
-              : 'Buổi chưa mở đăng ký'),
+          title: Text(
+            session.isFull ? 'Buổi đã đủ người' : 'Buổi chưa mở đăng ký',
+          ),
         ),
       );
     }
@@ -414,28 +466,33 @@ class _PlayersList extends StatelessWidget {
     if (players.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
-        child: Text('Chưa có ai đăng ký.', style: TextStyle(color: Colors.grey)),
+        child: Text(
+          'Chưa có ai đăng ký.',
+          style: TextStyle(color: Colors.grey),
+        ),
       );
     }
     return Column(
       children: players
-          .map((p) => Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppConstants.primaryColor,
-                    child: Text(
-                      p.displayName.isNotEmpty ? p.displayName[0] : '?',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(p.displayName),
-                  subtitle: Text(
-                    '${p.registrationStatus}'
-                    '${p.phoneNumber != null ? ' · ${p.phoneNumber}' : ''}',
+          .map(
+            (p) => Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppConstants.primaryColor,
+                  child: Text(
+                    p.displayName.isNotEmpty ? p.displayName[0] : '?',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
-              ))
+                title: Text(p.displayName),
+                subtitle: Text(
+                  '${p.registrationStatus}'
+                  '${p.phoneNumber != null ? ' · ${p.phoneNumber}' : ''}',
+                ),
+              ),
+            ),
+          )
           .toList(),
     );
   }

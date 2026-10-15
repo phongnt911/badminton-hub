@@ -142,3 +142,7 @@ RPC đọc (projection whitelist, không lộ contact/bank/snapshot):
 - `list_session_players(p_session_id, p_limit, p_offset)` — chỉ management (finance **không** đọc, F7); phân trang; trả SĐT cho management.
 
 Helper `validate_session_config(...)` dùng chung và bị `REVOKE` khỏi mọi role client. Thời gian lưu UTC (`timestamptz`); UI đổi sang `Asia/Ho_Chi_Minh` (+07) qua `lib/core/time_utils.dart`. Link tài nguyên nội bộ `/sessions/:id` kiểm hợp lệ bằng `lib/core/app_routes.dart` (allowlist scheme/host/path/query, UUID bắt buộc); chi tiết và giới hạn ở [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md).
+
+### BH-04 sau review R1–R4
+
+Lifecycle idempotency hash chỉ từ session_id/action đầu vào; retry cùng key trả kết quả cũ dù DB version đã tăng. Client giữ key khi chưa rõ kết quả, xóa key khi có response thành công và tạo key mới cho ý định tiếp theo. Roster có loading/error/retry riêng. Web route `/sessions/:id` nối vào MaterialApp; URL chia sẻ phải có origin (APP_BASE_URL hoặc web origin), hosting cần fallback index.html. Chi tiết giới hạn trong 21_BH04_REMEDIATION.

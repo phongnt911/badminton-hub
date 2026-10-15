@@ -55,6 +55,8 @@ class AppRoutes {
     final uri = Uri.tryParse(trimmed);
     if (uri == null) return null;
 
+    if (uri.hasAuthority && !uri.hasScheme) return null;
+    if (uri.hasScheme && !uri.hasAuthority) return null;
     if (uri.hasScheme && uri.host.isNotEmpty) {
       if (!allowedSchemes.contains(uri.scheme.toLowerCase())) return null;
       if (!allowedHosts.contains(uri.host.toLowerCase())) return null;
@@ -77,6 +79,18 @@ class AppRoutes {
       default:
         return null;
     }
+  }
+
+  /// Web dùng origin hiện tại; mobile cần APP_BASE_URL của web đã triển khai.
+  static String sessionUrl(String id, {String? baseUrl}) {
+    final configured = baseUrl ?? const String.fromEnvironment('APP_BASE_URL');
+    final base = Uri.parse(configured.isEmpty ? Uri.base.origin : configured);
+    if (!['http', 'https'].contains(base.scheme) ||
+        !base.hasAuthority ||
+        !isUuid(id)) {
+      throw StateError('Cần APP_BASE_URL hợp lệ để chia sẻ');
+    }
+    return base.resolve(sessionPath(id)).toString();
   }
 
   /// Link có phải return route nội bộ hợp lệ không (dùng sau đăng nhập).

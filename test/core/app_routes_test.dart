@@ -5,6 +5,17 @@ void main() {
   const uuid = '11111111-2222-3333-4444-555555555555';
   const upper = '11111111-2222-3333-4444-55555555555A';
 
+  test('share link contains configured origin and round trips', () {
+    final url = AppRoutes.sessionUrl(
+      uuid,
+      baseUrl: 'https://badminton-hub.app',
+    );
+    expect(url, 'https://badminton-hub.app/sessions/$uuid');
+    expect(AppRoutes.parse(url)?.id, uuid);
+    expect(AppRoutes.parse('//evil.example/sessions/$uuid'), isNull);
+    expect(AppRoutes.parse('javascript:/sessions/$uuid'), isNull);
+  });
+
   group('AppRoutes.parse', () {
     test('chấp nhận path nội bộ /sessions/:id', () {
       final route = AppRoutes.parse('/sessions/$uuid');
@@ -25,12 +36,17 @@ void main() {
     });
 
     test('từ chối host lạ', () {
-      expect(AppRoutes.parse('https://evil.example.com/sessions/$uuid'), isNull);
+      expect(
+        AppRoutes.parse('https://evil.example.com/sessions/$uuid'),
+        isNull,
+      );
     });
 
     test('từ chối scheme lạ', () {
-      expect(AppRoutes.parse('javascript://badminton-hub.app/sessions/$uuid'),
-          isNull);
+      expect(
+        AppRoutes.parse('javascript://badminton-hub.app/sessions/$uuid'),
+        isNull,
+      );
     });
 
     test('từ chối path không nằm trong allowlist', () {
@@ -44,14 +60,8 @@ void main() {
     });
 
     test('từ chối query chưa định nghĩa (không nhận token lạ)', () {
-      expect(
-        AppRoutes.parse('/sessions/$uuid?token=abc'),
-        isNull,
-      );
-      expect(
-        AppRoutes.parse('/sessions/$uuid?access_token=abc'),
-        isNull,
-      );
+      expect(AppRoutes.parse('/sessions/$uuid?token=abc'), isNull);
+      expect(AppRoutes.parse('/sessions/$uuid?access_token=abc'), isNull);
     });
 
     test('chấp nhận query đã định nghĩa', () {

@@ -71,3 +71,5 @@ Dùng prompt phiên mới trong [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md)
 ## Trạng thái sau BH-04
 
 AG-04 **đã triển khai local/staging**: [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md) (migration `20261015163000_bh04_sessions.sql`, model/repository/provider typed, projection whitelist, link `/sessions/:id` + return-after-login). Flutter 101/101 PASS, DB 159/159 PASS, analyze sạch; chưa apply production, chưa kiểm PostgREST HTTP/JWT. Bước tiếp theo: **AG-05 (BH-05)** — đọc AG-05 ở trên, không mở rộng sang BH-06+ và không đổi routing đã chốt.
+
+Sau review BH-04: đọc [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md) trước AG-05, giữ regression 104 Flutter +161 DB. R1–R4 đã sửa; không xem báo cáo baseline là lỗi hiện tại.

@@ -157,3 +157,7 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 - X1: `lib/data/supabase_service.dart` (và các cột demo) đã bị xoá; sân chuyển sang `VenueRepository` typed.
 - Bằng chứng: `docs/reviews/bh04/bh04_test_results_20261015160911.json`; runner `docs/reviews/bh04/run_bh04_tests.py`.
 - Ticket tiếp theo: **BH-05** (đăng ký/lời mời), theo AG-05 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md).
+
+## Sửa review BH-04 R1–R4 — 15/10/2026
+
+Đã sửa lifecycle replay bằng forward migration, link routing/absolute URL, request key mới sau thành công, roster loading/error/retry. 104/104 Flutter và 161/161 DB PASS; analyze sạch. Chi tiết/giới hạn tại [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md); chưa apply remote DB hoặc kiểm HTTP/JWT/OS links.

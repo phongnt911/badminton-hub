@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/app_constants.dart';
 import 'core/app_config.dart';
+import 'core/app_routes.dart';
+import 'screens/session_detail_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/venues_screen.dart';
 import 'screens/tools_screen.dart';
@@ -56,6 +58,23 @@ class BadmintonHubApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MainNavigationScreen(),
+      onGenerateRoute: (settings) {
+        final route = AppRoutes.parse(settings.name);
+        if (route?.name == 'session') {
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) => SessionDetailScreen(sessionId: route!.id!),
+          );
+        }
+        if (route?.name == 'club') {
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) =>
+                ClubDetailScreen(clubId: route!.id!, clubName: 'CLB'),
+          );
+        }
+        return null;
+      },
     );
   }
 }

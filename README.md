@@ -88,3 +88,5 @@ Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPL
 Đã sửa C1–C5 bằng [forward migration và app/session retry](docs/17_BH03_REMEDIATION.md). Xác minh Flutter 3.47.7/Dart 3.13.5: 61 tests PASS, analyze sạch; PostgreSQL cô lập 109 checks PASS. Chưa apply Supabase production hoặc kiểm full HTTP/JWT; giữ đúng giới hạn báo cáo trước rollout.
 
 Bàn giao phiên tiếp theo: [19_PRE_BH04_HANDOFF.md](docs/19_PRE_BH04_HANDOFF.md). CLI đọc cần SUPABASE_URL/SUPABASE_ANON_KEY từ environment; script update_db chỉ seed local.
+
+BH-04 review remediation: [21_BH04_REMEDIATION.md](docs/21_BH04_REMEDIATION.md). Chia sẻ link trên mobile cần `--dart-define=APP_BASE_URL=https://<domain-web-da-trien-khai>`; web mặc định dùng origin hiện tại. Hosting cần fallback index.html cho đường dẫn tài nguyên; OS App Links chưa cấu hình.

@@ -76,3 +76,7 @@ Test:
 ## 7. Prompt phiên tiếp theo (BH-05)
 
 Đọc `docs/12_ANTIGRAVITY_PROMPTS.md` AG-05 và `docs/08_DOMAIN_CONTRACTS.md` §3/§7. Triển khai `request_join_session`/`add_session_player`/`decide_registration`/`cancel_registration`/invitation (issue/accept có expiry, đúng player, guest host_recorded consent) bằng RPC transaction + UI, không dùng `currentJoined` từ client, không coi UPDATE 0 hàng là thành công, RPC trả ID/state/version. Giữ regression 101 Flutter + 159 DB; thêm ca BH-05. Không đổi routing đã chốt ở BH-04.
+
+## Cập nhật review R1–R4
+
+Báo cáo trên là snapshot trước remediation. Điểm tiếp tục mới nhất: [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md). Đã nối initial URL vào MaterialApp, URL chia sẻ đầy đủ, sửa lifecycle replay/request key/roster errors. Bằng chứng mới: 104 Flutter +161 DB PASS. OS links, web hosting và HTTP/JWT chưa kiểm chứng; chưa apply production.
