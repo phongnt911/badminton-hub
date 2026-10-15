@@ -119,6 +119,10 @@ Không mở lại BH-01 hoặc làm BH-10 trước BH-02/03 chỉ vì có nghiê
 
 ## Bàn giao BH-03 (15/10/2026)
 
-Chủ dự án yêu cầu IDE tiếp tục BH-03 từ code hiện có sau remediation 11aaec7; xem [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md). Chia BH-03A DB/RPC → BH-03B model/repository/state → BH-03C UI → BH-03D regression/evidence. Đây là yêu cầu đích, chưa đánh dấu implementation done.
+Chủ dự án yêu cầu IDE tiếp tục BH-03 từ code hiện có sau remediation 11aaec7; xem [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md). Chia BH-03A DB/RPC → BH-03B model/repository/state → BH-03C UI → BH-03D regression/evidence.
 
-Nghiệm thu bổ sung: user Auth có trước migration, không owner orphan/role bypass, guest không tự gán account, privacy qua mọi đường đọc, concurrent bank update, session snapshot bất biến, clear private state khi logout/đổi CLB. BH-02 regression vẫn phải chạy cùng chuỗi migration; không apply production hoặc suy hoàn thành từ stub/test chuỗi SQL.
+**Kết quả triển khai thực tế (15/10/2026):**
+- **BH-03A (DB & RPC)**: Tạo migration `supabase/migrations/20261015133247_bh03_clubs_and_members.sql` triển khai 12 RPC nguyên tử, kiểm soát chặt chẽ actor/role, idempotency, audit trail. Viết bộ kiểm thử PostgreSQL `docs/reviews/bh03/run_bh03_tests.py` chạy trên Docker: **24/24 PASS** (bao gồm atomic create_club, offline members, chặn self-escalation, bảo vệ owner, giữ leading zero STK ngân hàng, privacy quỹ và SĐT).
+- **BH-03B (Data & State)**: Xây dựng typed models (`Club`, `ClubMember`, `BankAccount`), `ClubRepository` và `ClubProvider` với quản lý state loading/error/submitting, chống bấm trùng và dọn dẹp state private khi switch CLB / logout. Viết unit tests model và provider: **13/13 PASS**.
+- **BH-03C (UI Layer)**: Nâng cấp `ClubsScreen` & `ClubDetailScreen` 3 tabs (Tổng quan, Thành viên, Tài khoản quỹ). Form tạo CLB chỉ yêu cầu Tên, Mô tả, Quyền riêng tư; chuyển nút demo ghi quỹ sang trạng thái thông báo thuộc BH-06. Viết widget tests: **4/4 PASS**.
+- **BH-03D (Kiểm thử tích hợp & Regression)**: Chạy lại chuỗi 47 ca kiểm thử BH-02 (`run_rls_tests.py` 33 ca + `extended_tests_15ef59b.py` 14 ca): **47/47 PASS**. Toàn bộ Flutter test suite: **56/56 PASS**. `flutter analyze`: **0 issues**. Không apply production.
