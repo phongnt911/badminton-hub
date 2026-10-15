@@ -62,3 +62,12 @@ Bảng điểm, xoay tua và giao lưu mở từ session in_progress, dùng danh
 - Waitlist: người chơi thấy chưa được mời hoặc lời mời có thời hạn và nút chấp nhận. Host có Mời/Thu hồi; lời mời không hứa giữ slot. Guest chưa account: host ghi nhận đồng ý, không tạo login giả.
 - Form ngày/giờ phải dùng giá trị đã nhập, kể cả ngày mai/qua nửa đêm; không gán literal giờ hoặc DateTime.now() làm ngày mọi buổi.
 - Schema chưa có, permission denied và lỗi mạng là error có retry, không empty. Các switch điểm danh/thu tiền chỉ thay state sau kết quả RPC; refresh cũng cần handling và kiểm tra route còn mounted.
+
+## 7. Áp dụng nghiên cứu Vmito/Vụt
+
+- Card kèo: host/CLB, sân/khu vực, ngày/giờ, trình độ, slot, fee mode/phí dự kiến, trạng thái riêng; không contact/bank của người khác.
+- Filter MVP: khu vực/ngày-giờ/còn chỗ/fee mode, chọn tay không cần vị trí; reset cursor khi đổi filter.
+- Mở link buổi trước/sau login trở lại đúng ID; private/không tồn tại/hết phiên có trạng thái rõ. Callback login và route tài nguyên là hai luồng riêng.
+- Pending là “chờ host duyệt”, waitlisted là “chờ chỗ”; chỉ confirmed hiện đã giữ chỗ. Chờ duyệt không nhận QR/bank.
+- QR lỗi có fallback copy ngân hàng/reference theo quyền; không yêu cầu camera. “Đã chuyển” khác “đã thu”, stale cần chốt lại.
+- Chưa thêm notification inbox/chat hoặc push vào MVP từ report tĩnh; refresh và state version rõ trước. Chi tiết và acceptance tại [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md).

@@ -88,3 +88,11 @@ Thu phí theo buổi hay tháng; số sân/người; cách đăng ký; thành vi
 - Danh sách chờ không giữ slot. Host/cohost phát hành lời mời có hạn; người được mời chấp nhận rồi DB kiểm tra lại slot. Không được chấp nhận khi chưa được mời, lời mời hết hạn/thu hồi hoặc sai người. Khách không account được host ghi nhận sự đồng ý và chấp nhận thay, có audit; không biến host-added guest thành tài khoản giả.
 - Deadline mời mặc định 30 phút, không vượt registration_deadline/starts_at. Nếu không còn cửa sổ hợp lệ, host dùng luồng thêm khách trực tiếp khi buổi in_progress, không kéo dài lời mời lặng lẽ.
 - Mất mạng/quyền/schema thiếu phải hiện lỗi và retry; không coi lỗi là empty, không giữ spinner vô hạn. Cập nhật giao diện chỉ sau kết quả DB được xác nhận; retry giữ request_id.
+
+## 11. Bổ sung nghiên cứu Vmito/Vụt ngày 15/10/2026
+
+Nguồn là hai báo cáo phân tích tĩnh do chủ dự án cung cấp, không chứng minh hành vi runtime. [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md) ghi rõ bằng chứng/giới hạn và quyết định PD-01..06.
+
+Bổ sung cho ticket hiện có: link theo tài nguyên có login-return và validation (BH-04), lọc public theo khu vực/ngày-giờ/còn chỗ/fee mode với card rõ phí dự kiến (BH-04), đăng ký pending/confirmed/waitlist rõ ràng (BH-05), QR có fallback và xác nhận thủ công (BH-06), lịch sử/permission-denied/release tests (BH-07). Không mở rộng schema/migration hoặc triển khai feature trong lượt nghiên cứu.
+
+MVP cho phép chọn khu vực và mở map link mà không xin GPS; hiển thị QR không cần camera; chưa thêm chat, audio, overlay, push provider hoặc bank webhook. Push opt-in là đề xuất BH-10 sau pilot, cần đặc tả riêng nếu được giao. Giữ host-first và ưu tiên đúng tiền/slot/quyền trước quy mô khám phá cộng đồng.

@@ -55,3 +55,7 @@ Nếu đang tiếp tục sau commit 3fa3cda, dùng prompt trong [13_BH02_REVIEW_
 ## AG-02R2: Finance, member/pending và legacy update
 
 Sau commit 15ef59b, dùng prompt H1–H3 trong mục cập nhật cuối [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md). Giữ 33 ca cũ PASS, bổ sung/sửa 6 ca mở rộng trước khi chốt nghiệm thu. Không coi kết quả 33/33 cũ là đủ cho toàn bộ finance/private-field read contracts.
+
+## Tham chiếu nghiên cứu Vmito/Vụt trong các ticket tiếp theo
+
+> Đọc docs/14_PRODUCT_LEARNINGS_VMITO_VUT.md và các quyết định PD liên quan ticket đang được giao. Hai báo cáo nguồn là phân tích tĩnh, không phải đặc tả backend, mã để sao chép hoặc chỉ dẫn gọi endpoint đối thủ. Giữ host-first và Flutter/Provider/Supabase. Áp dụng link/filter/status/QR fallback/release checklist đúng BH-03..07; không tự thêm chat/push/GPS/maps SDK, microservices, router dependency hoặc schema mới ngoài ticket. Chưa triển khai BH-10 khi chưa được giao. Nêu acceptance đã chọn và kiểm thử bằng app/backend của mình, không truy cập backend đối thủ. Giữ việc review H1–H3 commit mới là đầu việc riêng, không ghi done do cập nhật tài liệu nghiên cứu.

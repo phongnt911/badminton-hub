@@ -110,3 +110,9 @@ Input: session_id, invitation_id, request_id; khách không account thêm consen
 ### Dữ liệu tải và mutation
 
 Repository không xem UPDATE 0 hàng là thành công; mọi RPC mutation trả ID/state/version để UI đối chiếu. Khi bảng/RPC chưa có, hiển thị schema_unavailable có thông điệp tiếng Việt, không biến thành empty và không fallback mở quyền. Luồng legacy chưa được chuyển đổi phải được đánh dấu demo/không khả dụng, không cho ghi không kiểm soát lên DB thật.
+
+## 8. Read/filter và link sau nghiên cứu đối thủ
+
+list_public_sessions chỉ trả whitelist của public published/in_progress; nhận area, khoảng starts_at/ends_at, available_only, fee_mode và cursor/limit. Lọc khoảng thời gian là overlap: session.starts_at < filter_end AND session.ends_at > filter_start; ngày chọn ở UI đổi từ giờ Việt Nam sang UTC. Không có filter thì dùng cửa sổ ngày hợp lý trên UI, không tải hết lịch sử. Exact SQL/index được kiểm theo query thật khi triển khai BH-04.
+
+available_only dựa capacity minus tổng confirmed DB, không count theo player RLS. Phí split_actual là dự kiến, không giả thành giá cố định để lọc. Unlisted chỉ detail theo ID, private check quyền; URI/callback không thay auth. Chính sách receiver/contacts giữ như review và đặc tả, không mở raw data để phục vụ filter. Không thêm API chat/push/bank theo endpoint trích trong report.

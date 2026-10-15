@@ -169,3 +169,7 @@ Chỉ host/cohost đúng session được mời/thu hồi. Player linked xem l�
 ### Cổng quyền và schema
 
 Chỉ có table grant hoặc RLS enabled chưa chứng minh quyền đúng. Migration/tests phải kiểm tra grants + policy + RPC execution + payload projection; anon không đọc phone/has_paid, không insert flags; authenticated không sửa player khác. Bổ sung migration tạo clubs/club_transactions trước khi client gọi các bảng đó; không chạy SQL legacy để lấp schema thiếu. Tests dùng role app, không lấy postgres admin làm kết quả nghiệm thu quyền.
+
+## 9. Ghi chú nghiên cứu Vmito/Vụt
+
+Báo cáo tĩnh được dùng như tham khảo UX/quality, không phải schema/API để sao chép. Không thay đổi mô hình đích v1.1 trong lượt này. Filter MVP dùng venues.area và trường sessions hiện có qua projection theo quyền, count confirmed do DB tính đúng; member/pending không nhận receiver_snapshot từ bảng gốc. Push/device preferences hoặc tọa độ near-me chưa thuộc schema bắt buộc; chỉ thêm migration riêng sau khi có use case và quyết định triển khai. Chi tiết [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md).

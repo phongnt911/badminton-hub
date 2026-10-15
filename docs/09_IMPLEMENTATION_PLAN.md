@@ -101,3 +101,18 @@ Kết luận hiện hành **BH-02 pending remediation H1–H3**, thay cho kết 
 | 15/10/2026 | BH-02 remediation H1–H3 & kiểm thử mở rộng | ĐÃ ĐẠT NGHIỆM THU (Done) | Đã khắc phục triệt để H1–H3 trong migration `20261015051808_init_schema_v1_1.sql` (SHA256: `91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50`). Thực thi trên Docker PostgreSQL đạt: 33/33 baseline PASS (`rls_test_results_20261015122655.json`) + 14/14 extended/regression PASS (`extended_results_20261015122655.json`), tổng 47/47 DB tests PASS (100%). Flutter: 39/39 tests PASS, analyze 0 issues. Giới hạn: Chưa test PostgREST HTTP/JWT và production. Sẵn sàng chuyển sang BH-03. |
 
 BH-02 đã hoàn thành toàn diện các yêu cầu phân quyền và tương thích schema nền. Có thể chuyển sang ticket tiếp theo BH-03 (CLB / Thành viên / Ngân hàng).
+
+## Bổ sung nghiên cứu Vmito/Vụt (15/10/2026)
+
+Nguồn/giới hạn và acceptance tại [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md). Không đánh dấu feature đã làm hoặc H1–H3 đã đóng từ lượt tài liệu. Commit 11aaec7 mới báo sửa H1–H3 cần review/test riêng.
+
+| Ticket | Bổ sung có phạm vi | Điều kiện |
+|---|---|---|
+| BH-03 | Receiver của own CLB/host, private member contacts | Không lấy keys/account từ report đối thủ |
+| BH-04 | PD-01/02: resource link, return URL validation, manual area/date/availability/fee filter và card | Projection quyền đúng, không yêu cầu GPS, chưa thêm SDK map/router tự động |
+| BH-05 | PD-03: status join request và consent waitlist, role/ID tests | Chỉ confirmed giữ chỗ, pending không đọc bank |
+| BH-06 | PD-04: VietQR fallback/identity/reference và manual confirmation | Current charge revision và finance/player quyền đúng |
+| BH-07 | PD-05/06: state refresh/lịch sử, permission/deep link/backup/provider/version release checklist | Thiết bị thật/web và PASS/FAIL/NOT RUN; không suy pass từ thư viện |
+| BH-10 (đề xuất) | Push opt-in, preferences/device ownership, payload riêng tư | Sau pilot, chưa được giao triển khai/schema; không chặn hoàn thành MVP |
+
+Không mở lại BH-01 hoặc làm BH-10 trước BH-02/03 chỉ vì có nghiên cứu mới. Các tính năng runtime suy ra từ strings phải được xác minh độc lập hoặc coi là giả thuyết sản phẩm của mình.

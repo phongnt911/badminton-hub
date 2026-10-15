@@ -111,3 +111,7 @@ Log mã lỗi, operation/request ID, thời gian; không log JWT, SĐT, tài kho
 [11_ARCHITECTURE_DECISIONS.md](11_ARCHITECTURE_DECISIONS.md) chứa context, phương án, quyết định và chi phí của ADR-01 đến ADR-09. Các nhãn ADR ở phần 8 là tóm tắt, bản chi tiết ở file 11 là nguồn chuẩn.
 
 Giữ module trong một app/một DB. Không thêm backend hay đầy đủ domain/use-case/port/adapter cho mọi CRUD. Transaction DB bảo vệ đăng ký và tiền; thông báo tương lai có thể async nhưng không quyết định nguồn số liệu. Billing freshness dựa trên phiên bản input/revision. Projection/UI phải thể hiện stale và server chặn thao tác thu/complete. Lời mời waitlist có trạng thái lưu tại DB, không chỉ biến state màn hình.
+
+## 10. Áp dụng nghiên cứu ứng dụng tương tự
+
+Theo [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md): giữ Flutter/Provider/Supabase và transaction/RLS hiện tại. Không suy service architecture từ URL strings hoặc tích hợp chat/maps/push chỉ vì report có thư viện. Deep link và return route validation ở app boundary; server tiếp tục kiểm quyền ID. GPS/map SDK không là phụ thuộc MVP; external map link/manual area đủ bước đầu. Release kiểm merged manifest/exported components/backup/token persistence thật theo platform. Không thay schema/migration trong lượt nghiên cứu; notifications/devices chỉ thiết kế khi ticket sau pilot được giao.

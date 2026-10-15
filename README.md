@@ -74,3 +74,7 @@ Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi
 - [Prompt từng bước và tiêu chí báo cáo](docs/12_ANTIGRAVITY_PROMPTS.md).
 
 Bắt đầu AG-00 để ghi baseline và môi trường test, sau đó AG-01 trở đi theo phụ thuộc. Phát hiện P1/P2 được chuyển thành yêu cầu và test; code/DB chưa tự thay đổi khi tài liệu được cập nhật.
+
+## Nghiên cứu ứng dụng tương tự
+
+Đã tiếp nhận báo cáo REA tĩnh của Vmito và Vụt: [bản áp dụng vào Badminton Hub](docs/14_PRODUCT_LEARNINGS_VMITO_VUT.md). Bổ sung yêu cầu link/filter/trạng thái/QR và release privacy cho BH-03..07; không đổi stack hoặc tự triển khai chat/push/GPS. Quan sát thư viện/endpoints không được coi là chức năng runtime đã kiểm chứng.
