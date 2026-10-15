@@ -1,0 +1,127 @@
+{
+  "timestamp": "20261015133938",
+  "total": 24,
+  "passed": 1,
+  "failed": 23,
+  "tests": [
+    {
+      "name": "Tạo CLB và Owner nguyên tử (create_club)",
+      "status": "FAIL",
+      "error": "create_club call: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  42501: UNAUTHENTICATED: Cần đăng nhập để tạo CLB\nCONTEXT:  PL/pgSQL function create_club(text,text,text,uuid) line 14 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897"
+    },
+    {
+      "name": "Idempotency replay không tạo CLB kép",
+      "status": "FAIL",
+      "error": "create_club replay: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  42501: UNAUTHENTICATED: Cần đăng nhập để tạo CLB\nCONTEXT:  PL/pgSQL function create_club(text,text,text,uuid) line 14 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897"
+    },
+    {
+      "name": "Idempotency khác payload bị chặn (IDEMPOTENCY_CONFLICT)",
+      "status": "FAIL",
+      "error": "Must fail with conflict, got WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  42501: UNAUTHENTICATED: Cần đăng nhập để tạo CLB\nCONTEXT:  PL/pgSQL function create_club(text,text,text,uuid) line 14 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897\n"
+    },
+    {
+      "name": "Anon bị chặn tạo CLB (UNAUTHENTICATED)",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner cập nhật thông tin CLB thành công",
+      "status": "FAIL",
+      "error": "update_club call: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.update_club(''::uuid, 'CLB Thần Tốc Đổi Tên', ...\n                                  ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Người ngoài bị chặn sửa CLB (FORBIDDEN)",
+      "status": "FAIL",
+      "error": "Outsider must be forbidden, got: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.update_club(''::uuid, 'Hack Name', 'Hack Desc'...\n                                  ^\nLOCATION:  string_to_uuid, uuid.c:138\n"
+    },
+    {
+      "name": "Thêm thành viên offline không tài khoản với liên hệ riêng tư",
+      "status": "FAIL",
+      "error": "add offline member: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 2:       ''::uuid, \n              ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Từ chối thêm thành viên với user_id không tồn tại",
+      "status": "FAIL",
+      "error": "Must reject nonexistent user_id, got: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.add_club_member(''::uuid, 'Fake User', NULL, N...\n                                      ^\nLOCATION:  string_to_uuid, uuid.c:138\n"
+    },
+    {
+      "name": "Host của CLB thêm thành viên thành công",
+      "status": "FAIL",
+      "error": "seed host member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 2:     VALUES ('', '00000000-0000-0000-0000-000000000005', 'Hos...\n                    ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Thành viên thường bị chặn thêm người (FORBIDDEN)",
+      "status": "FAIL",
+      "error": "seed regular member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 2:     VALUES ('', '00000000-0000-0000-0000-000000000002', 'Mem...\n                    ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Host cập nhật SĐT và ghi chú của thành viên thành công",
+      "status": "FAIL",
+      "error": "get_member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND dis...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cập nhật liên hệ thành viên (FORBIDDEN)",
+      "status": "FAIL",
+      "error": "get_member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND dis...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Chặn cấp vai trò quản lý (host/treasurer) cho người chưa có tài khoản",
+      "status": "FAIL",
+      "error": "get_offline: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND use...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Owner phân quyền thành công cho thành viên đã liên kết tài khoản",
+      "status": "FAIL",
+      "error": "get_member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND use...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Chặn sửa hoặc hạ quyền Owner qua endpoint role thông thường",
+      "status": "FAIL",
+      "error": "get_owner_member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND rol...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Chặn thành viên tự nâng quyền hoặc sửa role người khác",
+      "status": "FAIL",
+      "error": "get_member: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND use...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Owner cấu hình ngân hàng CLB giữ nguyên số 0 ở đầu (TEXT)",
+      "status": "FAIL",
+      "error": "set club bank: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.set_club_bank_account(''::uuid, 'VCB', '007100...\n                                            ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Cập nhật bank vô hiệu hóa tài khoản cũ, giữ đúng 1 active",
+      "status": "FAIL",
+      "error": "set second club bank: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.set_club_bank_account(''::uuid, 'TCB', '190333...\n                                            ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cấu hình tài khoản ngân hàng CLB (FORBIDDEN)",
+      "status": "FAIL",
+      "error": "Treasurer must be forbidden to set club bank, got: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.set_club_bank_account(''::uuid, 'MB', '9999999...\n                                            ^\nLOCATION:  string_to_uuid, uuid.c:138\n"
+    },
+    {
+      "name": "Host tự cấu hình tài khoản cá nhân của chính mình",
+      "status": "FAIL",
+      "error": "set host bank: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  42501: UNAUTHENTICATED: Cần đăng nhập để cấu hình tài khoản cá nhân\nCONTEXT:  PL/pgSQL function set_host_bank_account(text,text,text,uuid) line 11 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897"
+    },
+    {
+      "name": "Số dư quỹ chỉ hiển thị cho Chủ nhiệm và Thủ quỹ, ẩn với thành viên",
+      "status": "FAIL",
+      "error": "seed ledger: ERROR:  42703: column \"transaction_type\" of relation \"club_transactions\" does not exist\nLINE 1: INSERT INTO public.club_transactions(club_id, transaction_ty...\n                                                      ^\nLOCATION:  checkInsertTargets, parse_target.c:1065"
+    },
+    {
+      "name": "SĐT thành viên chỉ hiển thị cho Owner/Host và chính chủ, ẩn với Thủ quỹ và member khác",
+      "status": "FAIL",
+      "error": "get_m7: ERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: ...ELECT id FROM public.club_members WHERE club_id = '' AND use...\n                                                             ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Tài khoản ngân hàng CLB chỉ Chủ nhiệm và Thủ quỹ xem được",
+      "status": "FAIL",
+      "error": "owner get bank: WARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nWARNING:  25P01: SET LOCAL can only be used in transaction blocks\nLOCATION:  CheckTransactionBlock, xact.c:3701\nERROR:  22P02: invalid input syntax for type uuid: \"\"\nLINE 1: SELECT public.get_club_bank_account(''::uuid);\n                                            ^\nLOCATION:  string_to_uuid, uuid.c:138"
+    },
+    {
+      "name": "Danh sách CLB của tôi (list_my_clubs) hiển thị đúng theo vai trò",
+      "status": "FAIL",
+      "error": ""
+    }
+  ]
+}
