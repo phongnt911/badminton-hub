@@ -161,3 +161,18 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 ## Sửa review BH-04 R1–R4 — 15/10/2026
 
 Đã sửa lifecycle replay bằng forward migration, link routing/absolute URL, request key mới sau thành công, roster loading/error/retry. 104/104 Flutter và 161/161 DB PASS; analyze sạch. Chi tiết/giới hạn tại [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md); chưa apply remote DB hoặc kiểm HTTP/JWT/OS links.
+
+## BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ — 15–16/10/2026
+
+Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, mỗi phần một nhánh và **chờ review** (người triển khai không tự ghi Done).
+
+### BH-05A — DB / RPC / RLS / test DB
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05A DB/RPC | **Chờ review** | Nhánh `feat/bh05a-db` (commit `0d03e0e`). Migration `supabase/migrations/20261015170500_bh05_registrations.sql` SHA256 `2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51`; runner `docs/reviews/bh05/run_bh05_tests.py`; kết quả `docs/reviews/bh05/bh05_test_results_20261015170003.json`. |
+
+- Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (0 issue); `flutter test` (**104/104 PASS** — chưa gồm test B/C); `python docs/reviews/bh05/run_bh05_tests.py` (**66/66 PASS**, `tested_commit=0d03e0e8`, worktree sạch).
+- 4 invariant trọng yếu PASS trên cả CLEAN và LEGACY: hai kết nối tranh slot cuối chỉ một `confirmed`; retry cùng `request_id` không ghi trùng (replay cùng key; accept lặp không thêm slot); người ngoài/không quyền không duyệt được và không đọc contact; không có direct write cho `authenticated` trên `session_players`/`waitlist_invitations`.
+- Phần B (model/repository/provider) và C (UI) đã có bản tham chiếu nhưng **chưa tách nhánh/gửi review**; sẽ làm sau khi A đạt.
+- NOT RUN: PostgREST HTTP/JWT thật (chỉ PostgreSQL + Auth stub), apply staging/production, thiết bị thật.
