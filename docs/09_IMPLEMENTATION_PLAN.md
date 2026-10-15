@@ -271,3 +271,9 @@ Review [review_8974d3c.md](reviews/bh05/review_8974d3c.md) kết luận **Chưa 
 - Test thêm: `test/screens/session_detail_screen_test.dart` C1×2, C2×1, C3×2; `test/providers/club_provider_test.dart` roster scope ×3 (tải/lỗi-thử lại/đổi CLB chống rò rỉ + phản hồi trễ). 5 test widget FAIL trước sửa (11 pass/5 fail), sau sửa PASS.
 - Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**131/131 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md mục "Sửa theo review").
 - NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (widget test dùng provider/repository giả); apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.
+
+### BH-05C — Kết luận cuối cùng review 48b4ad2 (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần C** tại `48b4ad2` (code `ef88f05`), theo [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md). Còn C1-R mức P2: nút accept vẫn enabled khi đang refresh lời mời có cache.
+- Kiểm chứng độc lập: analyze sạch, 131/131 Flutter, 84/84 DB; 4 probe UI gồm 3 PASS/1 FAIL tái hiện phần còn lại. NOT RUN trong báo cáo.
+- Đây là kết luận sau vòng sửa 1, thay trạng thái Chờ review của bản sửa; không tự sửa code, merge main hoặc apply remote DB. Reviewer tự chốt, không cần xác nhận.
