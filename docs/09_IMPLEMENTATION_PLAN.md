@@ -191,3 +191,10 @@ Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/rev
 - Test tái hiện (thêm vào runner, FAIL trước sửa và PASS sau sửa): `A1 add/decide/cancel/accept`, `A2 update_session`, `A2 race hạ capacity đấu với join`, `A3 huỷ buổi thu hồi lời mời + get_my_waitlist_invitation trả NULL`, `A3 race huỷ buổi đấu với accept`, `A3 replay huỷ buổi không tác dụng phụ`.
 - Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (**0 issue**); `flutter test` (**104/104 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS**, `tested_commit=dae8763`, worktree sạch — `docs/reviews/bh05/bh05_test_results_20261015173326.json`).
 - NOT RUN: PostgREST HTTP/JWT thật, apply staging/production, thiết bị thật (như trên).
+
+### BH-05A — Xác nhận Đạt sau review độc lập (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt phần A** tại tested commit `9f2d455`, theo [review_9f2d455.md](reviews/bh05/review_9f2d455.md); chủ dự án đã xác nhận yêu cầu cập nhật trạng thái.
+- Bằng chứng độc lập: analyze sạch; 104/104 Flutter, 84/84 DB và 6/6 probe hồi quy đúng kỳ vọng. Báo cáo và bằng chứng đã push tại `b55a793`.
+- Các dòng Chờ review/Chưa đạt phía trên là lịch sử trước remediation, không phải trạng thái hiện tại. Phần B/C chưa được nghiệm thu trong kết luận này.
+- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, staging/production apply và các lịch cạnh tranh bổ sung được liệt kê trong báo cáo. Không tự merge main hoặc deploy; bước tiếp theo chờ chủ dự án giao.
