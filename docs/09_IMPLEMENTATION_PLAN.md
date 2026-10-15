@@ -246,3 +246,57 @@ Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Đạt phần B** tại `cf65199`, theo [review_cf65199.md](reviews/bh05/review_cf65199.md). Reviewer tự chốt theo quy tắc hiện hành, không cần chủ dự án xác nhận.
 - Kiểm chứng độc lập: analyze sạch; 118/118 Flutter, 84/84 DB, 2/2 probe hồi quy PASS. Các trạng thái Chờ review/Chưa đạt trước đây là lịch sử.
 - NOT RUN và giới hạn nằm trong báo cáo; chưa nghiệm thu UI phần C, HTTP/JWT/thiết bị thật hoặc deploy production. Không tự merge main hay chuyển sang triển khai C.
+
+### BH-05C — UI màn chi tiết buổi (đăng ký/duyệt/điểm danh/lời mời chờ) — 16/10/2026
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05C UI | **Chờ review** | Nhánh `feat/bh05c-ui`, tách từ `feat/bh05b-data` (`3bb07ca`). File: `lib/screens/session_detail_screen.dart`, `test/screens/session_detail_screen_test.dart` — nguyên bản viết sẵn ở `814d85b` trên `main`, lấy nguyên trạng không viết lại (`git diff main -- <2 file>` rỗng). |
+
+- Phạm vi: chỉ UI màn chi tiết buổi phía client (nút đăng ký/hủy, trạng thái pending/waitlisted/confirmed, host duyệt/từ chối pending, điểm danh, mời/thu hồi lời mời chờ, banner lời mời của tôi) và test widget tương ứng. Không đổi model/repository/provider/migration.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**123/123 PASS**).
+- Không chạy runner DB: phần C không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
+- NOT RUN: thiết bị thật/browser e2e (test widget dùng provider/repository giả, chưa chạm Supabase thật); PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.
+
+### BH-05C — Kết luận cuối cùng reviewer 8974d3c (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần C**, theo [review_8974d3c.md](reviews/bh05/review_8974d3c.md). Còn C1/C2/C3 mức P2: UI lỗi/tải lời mời, đăng ký waitlist khi đầy và roster trong dialog thành viên CLB.
+- Kiểm thử độc lập: analyze sạch, 123/123 Flutter và 84/84 DB PASS; 3 probe UI bổ sung FAIL tái hiện lỗi. NOT RUN và cách sửa trong báo cáo.
+- Trạng thái Chờ review phía trên là lịch sử. Reviewer tự chốt, không cần xác nhận; không sửa code, merge main hoặc apply DB remote.
+
+### BH-05C — Vòng sửa review 1 (C1, C2, C3) — 16/10/2026
+
+Review [review_8974d3c.md](reviews/bh05/review_8974d3c.md) kết luận **Chưa đạt** với C1/C2/C3 (đều P2). Đã sửa cả ba.
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| C1 — UI bỏ qua loading/error lời mời của provider B | P2 | **Đã sửa (chờ review)** | 2 test widget tái hiện FAIL trước sửa, PASS sau |
+| C2 — buổi đầy chặn luôn đăng ký vào danh sách chờ | P2 | **Đã sửa (chờ review)** | 1 test widget tái hiện FAIL trước sửa, PASS sau |
+| C3 — dialog thành viên dùng roster sai scope, không theo dõi tải | P2 | **Đã sửa (chờ review)** | 2 test widget + 3 test provider roster |
+
+- Cách sửa:
+  - C1: `_PlayerRegistrationCard` nhận `isLoadingInvitation`/`invitationErrorMessage` + callback thử lại; hiển thị "Đang tải lời mời…", lỗi kèm "Thử lại lời mời" gọi `fetchMyInvitation`, và chỉ cho "Chấp nhận lời mời" khi tải thành công (không trình bày dữ liệu cũ khi lỗi).
+  - C2: bỏ chặn theo `session.isFull` khi buổi còn mở đăng ký; vẫn hiện "Đăng ký tham gia" (kèm ghi chú vào danh sách chờ khi đầy) để RPC quyết định chỗ/pending, không dùng count phía client thay quy tắc server.
+  - C3: thêm API roster có scope trên `ClubProvider` (`fetchClubRoster`/`rosterMembers`/`isLoadingRoster`/`rosterErrorMessage`/`clearClubRoster`, có serial chống phản hồi trễ), dialog "Thêm người" tự tải roster theo `clubId` của buổi và `watch` provider (hiện loading/error/empty/thử lại, không dùng `currentMembers` của CLB khác). Không đổi migration/quyền DB.
+- Test thêm: `test/screens/session_detail_screen_test.dart` C1×2, C2×1, C3×2; `test/providers/club_provider_test.dart` roster scope ×3 (tải/lỗi-thử lại/đổi CLB chống rò rỉ + phản hồi trễ). 5 test widget FAIL trước sửa (11 pass/5 fail), sau sửa PASS.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**131/131 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md mục "Sửa theo review").
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật (widget test dùng provider/repository giả); apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.
+
+### BH-05C — Kết luận cuối cùng review 48b4ad2 (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần C** tại `48b4ad2` (code `ef88f05`), theo [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md). Còn C1-R mức P2: nút accept vẫn enabled khi đang refresh lời mời có cache.
+- Kiểm chứng độc lập: analyze sạch, 131/131 Flutter, 84/84 DB; 4 probe UI gồm 3 PASS/1 FAIL tái hiện phần còn lại. NOT RUN trong báo cáo.
+- Đây là kết luận sau vòng sửa 1, thay trạng thái Chờ review của bản sửa; không tự sửa code, merge main hoặc apply remote DB. Reviewer tự chốt, không cần xác nhận.
+
+### BH-05C — Vòng sửa review 2 (C1-R) — 16/10/2026
+
+Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa đạt** với C1-R (P2). Đây là vòng sửa thứ 2 (giới hạn tối đa 2 vòng theo IMPLEMENTER.md).
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| C1-R — đang tải lại lời mời vẫn cho chấp nhận bằng cache cũ | P2 | **Đã sửa (chờ review)** | 1 test widget tái hiện FAIL trước sửa, PASS sau |
+
+- Cách sửa (chỉ trong `lib/screens/session_detail_screen.dart`, không đổi RPC/quyền/DB): `hasInvitation`/`canAccept` loại trạng thái đang tải — điều kiện `isWaitlisted && !isLoadingInvitation && invitationErrorMessage == null && invitation != null`, nên nút "Chấp nhận lời mời" chỉ bật sau khi response thành công hợp lệ; nhánh lỗi+thử lại giữ nguyên.
+- Test thêm: `test/screens/session_detail_screen_test.dart` "C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ" (cache cũ + refresh đang chờ → ẩn nút; response hợp lệ → bật lại; null hợp lệ → không nút, không lỗi; lỗi → hiện lỗi + thử lại). FAIL trước sửa (`Found 1 widget "Chấp nhận lời mời"`, kỳ vọng none), PASS sau sửa.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**132/132 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS** — phần C không chạm DB, chạy lại theo IMPLEMENTER.md).
+- NOT RUN: thiết bị thật/browser e2e; PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`; host thu hồi lời mời qua HTTP trong lúc client refresh.

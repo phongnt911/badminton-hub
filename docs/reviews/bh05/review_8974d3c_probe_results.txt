@@ -1,0 +1,89 @@
+00:00 +0: loading /workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review: invitation RPC failure is visible with retry
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Đã xảy ra lỗi. Vui lòng thử lại sau.": []>
+   Which: means none were found but one was expected
+UI must display invitation failure
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart:97:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart line 97
+The test description was:
+  review: invitation RPC failure is visible with retry
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: review: invitation RPC failure is visible with retry [E]
+  Test failed. See exception logs above.
+  The test description was: review: invitation RPC failure is visible with retry
+  
+00:01 +0 -1: review: full published session still permits waitlist request
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Đăng ký tham gia": []>
+   Which: means none were found but one was expected
+server handles full by waitlisting
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart:108:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart line 108
+The test description was:
+  review: full published session still permits waitlist request
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: review: full published session still permits waitlist request [E]
+  Test failed. See exception logs above.
+  The test description was: review: full published session still permits waitlist request
+  
+00:01 +0 -2: review: add member loads club roster without visiting club screen
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+No matching calls (actually, no calls at all).
+(If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+
+When the exception was thrown, this was the stack:
+#0      fail (package:matcher/src/expect/expect.dart:187:31)
+#1      _VerifyCall._checkWith (package:mocktail/src/mocktail.dart:728:7)
+#2      _makeVerify.<anonymous closure> (package:mocktail/src/mocktail.dart:519:18)
+#3      main.<anonymous closure> (file:///workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart:127:11)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  review: add member loads club roster without visiting club screen
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -3: review: add member loads club roster without visiting club screen [E]
+  Test failed. See exception logs above.
+  The test description was: review: add member loads club roster without visiting club screen
+  
+00:02 +0 -3: (tearDownAll)
+00:02 +0 -3: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart: review: add member loads club roster without visiting club screen
+  /workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart: review: full published session still permits waitlist request
+  /workspace/badminton-hub/test/screens/review_bh05c_probe_test.dart: review: invitation RPC failure is visible with retry
