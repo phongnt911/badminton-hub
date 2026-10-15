@@ -1,0 +1,48 @@
+[
+  {
+    "db": "bh05_clean_20261015171008",
+    "case": "cohost without finance adds confirmed after finalize",
+    "expected": "FORBIDDEN",
+    "returncode": 0,
+    "finance": "f",
+    "actual": "{\"capacity\": 2, \"player_id\": \"25d9da61-56ea-4ff0-ad7b-19ee60a5b98a\", \"fee_exempt\": false, \"seats_left\": 1, \"session_id\": \"99a75518-f726-40b9-b811-b2771f7d1376\", \"agreed_fee_vnd\": null, \"confirmed_count\": 1, \"session_version\": 2, \"participant_type\": \"guest\", \"attendance_status\": \"not_checked_in\", \"registration_status\": \"confirmed\"}",
+    "stderr": ""
+  },
+  {
+    "db": "bh05_clean_20261015171008",
+    "case": "session cancellation revokes invitation",
+    "expected": "revoked",
+    "actual": "pending"
+  },
+  {
+    "db": "bh05_clean_20261015171008",
+    "case": "capacity cannot shrink below confirmed",
+    "expected": "reject; capacity >= confirmed",
+    "returncode": 0,
+    "actual": "1|2",
+    "stderr": ""
+  },
+  {
+    "db": "bh05_legacy_20261015171008",
+    "case": "cohost without finance adds confirmed after finalize",
+    "expected": "FORBIDDEN",
+    "returncode": 0,
+    "finance": "f",
+    "actual": "{\"capacity\": 2, \"player_id\": \"b4c9b2b2-3ee6-4202-8e00-329db8cb2d57\", \"fee_exempt\": false, \"seats_left\": 1, \"session_id\": \"cc42864f-37bd-4e12-9cf6-339697ae5ffd\", \"agreed_fee_vnd\": null, \"confirmed_count\": 1, \"session_version\": 2, \"participant_type\": \"guest\", \"attendance_status\": \"not_checked_in\", \"registration_status\": \"confirmed\"}",
+    "stderr": ""
+  },
+  {
+    "db": "bh05_legacy_20261015171008",
+    "case": "session cancellation revokes invitation",
+    "expected": "revoked",
+    "actual": "pending"
+  },
+  {
+    "db": "bh05_legacy_20261015171008",
+    "case": "capacity cannot shrink below confirmed",
+    "expected": "reject; capacity >= confirmed",
+    "returncode": 0,
+    "actual": "1|2",
+    "stderr": ""
+  }
+]

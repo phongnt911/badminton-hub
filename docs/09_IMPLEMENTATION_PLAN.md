@@ -172,3 +172,39 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 - Chỉ `confirmed` giữ chỗ và được xem/đọc thông tin thanh toán; `pending`/`waitlisted` không giữ slot. Client không ghi bộ đếm/role/số dư/tác nhân audit.
 - Giới hạn: PostgreSQL + Auth stub, **chưa** kiểm PostgREST HTTP/JWT thật, thiết bị thật hay apply production; chưa diễn tập migration/backup trên staging thật.
 - Ticket tiếp theo: **BH-06** (chốt phí / QR / thu tiền) theo AG-06 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md).
+## BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ — 15–16/10/2026
+
+Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, mỗi phần một nhánh và **chờ review** (người triển khai không tự ghi Done).
+
+### BH-05A — DB / RPC / RLS / test DB
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05A DB/RPC | **Chờ review** | Nhánh `feat/bh05a-db` (commit `0d03e0e`). Migration `supabase/migrations/20261015170500_bh05_registrations.sql` SHA256 `2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51`; runner `docs/reviews/bh05/run_bh05_tests.py`; kết quả `docs/reviews/bh05/bh05_test_results_20261015170003.json`. |
+
+- Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (0 issue); `flutter test` (**104/104 PASS** — chưa gồm test B/C); `python docs/reviews/bh05/run_bh05_tests.py` (**66/66 PASS**, `tested_commit=0d03e0e8`, worktree sạch).
+- 4 invariant trọng yếu PASS trên cả CLEAN và LEGACY: hai kết nối tranh slot cuối chỉ một `confirmed`; retry cùng `request_id` không ghi trùng (replay cùng key; accept lặp không thêm slot); người ngoài/không quyền không duyệt được và không đọc contact; không có direct write cho `authenticated` trên `session_players`/`waitlist_invitations`.
+- Phần B (model/repository/provider) và C (UI) đã có bản tham chiếu nhưng **chưa tách nhánh/gửi review**; sẽ làm sau khi A đạt.
+- NOT RUN: PostgREST HTTP/JWT thật (chỉ PostgreSQL + Auth stub), apply staging/production, thiết bị thật.
+
+### BH-05A — Vòng sửa review 1 (16/10/2026), nhánh `feat/bh05a-db`
+
+Review độc lập tại [docs/reviews/bh05/review_7fcbdee.md](reviews/bh05/review_7fcbdee.md) kết luận **Chưa đạt** với A1 (P1), A2 (P1) và A3 (P2). Đã sửa cả **A1 + A2 + A3** (chủ dự án chốt: mặc định sửa hết lỗi trong nhánh A, không chỉ P0/P1).
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| A1 — thiếu gate quyền tài chính khi đổi tập `confirmed` sau khi chốt phí | P1 | **Đã sửa (chờ review)** | Test tái hiện FAIL trước sửa (`bh05_test_results_20261015172330.json`, 12 FAIL), PASS sau sửa; migration mới `supabase/migrations/20261016090000_bh05_review_fixes.sql` |
+| A2 — `update_session` cho hạ `capacity` dưới số `confirmed` | P1 | **Đã sửa (chờ review)** | Cùng file migration (forward, không sửa migration đã chia sẻ) |
+| A3 — huỷ buổi không thu hồi lời mời `pending` | P2 | **Đã sửa (chờ review)** | Test tái hiện FAIL trước sửa (`bh05_test_results_20261015173045.json`, 6 FAIL); migration mới `supabase/migrations/20261016091000_bh05_a3_cancel_revokes_invitations.sql` |
+
+- Cách sửa: forward migration `20261016090000_bh05_review_fixes.sql` `CREATE OR REPLACE` 5 hàm (không sửa file migration đã chia sẻ). A1 chặn khi có `charge_revisions.status='active'` mà actor thiếu `has_session_finance_access` ở `add_session_player`, `decide_registration` (nhánh `confirmed`), `cancel_registration` (người đang `confirmed`), `accept_waitlist_invitation`. A2 chặn trong `update_session` khi `p_capacity < count(confirmed)` (dưới cùng khoá `FOR UPDATE`). A3 `CREATE OR REPLACE` `set_session_lifecycle`: khi `cancel`, thu hồi toàn bộ `waitlist_invitations` đang `pending` của người thuộc buổi (đặt `revoked_by`/`revoked_at`, ghi số lượng vào audit) trong cùng transaction, giữ thứ tự khoá session → invitation như `accept`.
+- Test tái hiện (thêm vào runner, FAIL trước sửa và PASS sau sửa): `A1 add/decide/cancel/accept`, `A2 update_session`, `A2 race hạ capacity đấu với join`, `A3 huỷ buổi thu hồi lời mời + get_my_waitlist_invitation trả NULL`, `A3 race huỷ buổi đấu với accept`, `A3 replay huỷ buổi không tác dụng phụ`.
+- Lệnh đã chạy trên nhánh `feat/bh05a-db`: `flutter analyze` (**0 issue**); `flutter test` (**104/104 PASS**); `python docs/reviews/bh05/run_bh05_tests.py` (**84/84 PASS**, `tested_commit=dae8763`, worktree sạch — `docs/reviews/bh05/bh05_test_results_20261015173326.json`).
+- NOT RUN: PostgREST HTTP/JWT thật, apply staging/production, thiết bị thật (như trên).
+
+### BH-05A — Xác nhận Đạt sau review độc lập (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt phần A** tại tested commit `9f2d455`, theo [review_9f2d455.md](reviews/bh05/review_9f2d455.md); chủ dự án đã xác nhận yêu cầu cập nhật trạng thái.
+- Bằng chứng độc lập: analyze sạch; 104/104 Flutter, 84/84 DB và 6/6 probe hồi quy đúng kỳ vọng. Báo cáo và bằng chứng đã push tại `b55a793`.
+- Các dòng Chờ review/Chưa đạt phía trên là lịch sử trước remediation, không phải trạng thái hiện tại. Phần B/C chưa được nghiệm thu trong kết luận này.
+- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, staging/production apply và các lịch cạnh tranh bổ sung được liệt kê trong báo cáo. Không tự merge main hoặc deploy; bước tiếp theo chờ chủ dự án giao.
