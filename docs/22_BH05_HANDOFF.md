@@ -150,3 +150,7 @@ Ticket kế tiếp: **BH-06** (chốt phí / VietQR / thu tiền) theo AG-06 tro
 - C: C1 (UI bỏ qua loading/error lời mời), C2 (buổi đầy chặn đăng ký danh sách chờ), C3 (dialog thành viên dùng roster sai scope), C1-R (đang tải lại vẫn cho chấp nhận bằng cache cũ) — `lib/screens/session_detail_screen.dart`, `lib/providers/club_provider.dart`.
 
 Lịch sử đầy đủ theo từng vòng: [docs/09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [docs/reviews/bh05/](reviews/bh05/).
+
+## Kết luận review tích hợp mới nhất — c7ed6d5
+
+**Chưa đạt tích hợp** theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md), ngày 16/10/2026. I1 (P1) thiếu đường start buổi để đi tới attendance; I2 (P2) UI không có đăng ký lại sau hủy dù RPC hỗ trợ. Các mục Chờ review phía trên là snapshot trước kết luận này. Đạt riêng A/B/C không thay nghiệm thu tích hợp. Chi tiết kiểm chứng và NOT RUN trong báo cáo; không apply remote DB hoặc merge main.

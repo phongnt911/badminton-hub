@@ -317,3 +317,9 @@ Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa 
 - Giải xung đột: `docs/09` (giữ cả snapshot 15/10 trên `main` và tường thuật A/B/C); `run_bh05_tests.py` (lấy bản A, 42 kịch bản); `session_provider.dart` + test (lấy bản B — diff so với `main` chỉ còn hunk B1/B2); `session_detail_screen.dart` + test (lấy bản C — C1/C2/C3/C1-R); `club_provider.dart` + test auto-merge. Kết quả: `git diff feat/bh05c-ui -- lib test supabase` rỗng ⇒ mã tích hợp = cây C đã review.
 - Bàn giao/điểm tiếp tục: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 - NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, cạnh tranh qua HTTP, và **nghiệm thu độc lập chính bản tích hợp**. A, B, C đều đã Đạt độc lập (A `9f2d455`, B `cf65199`, C `1f1f9ce`); bản tích hợp hợp nhất các bản đã Đạt, **chờ review tổng**. Không tự merge `main` hay deploy.
+
+### BH-05 tích hợp — Kết luận cuối cùng reviewer c7ed6d5 (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt tích hợp A+B+C**, theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md). Còn I1 (P1: thiếu đường start published→in_progress để điểm danh) và I2 (P2: không có hành động đăng ký lại sau hủy).
+- Tự chạy: analyze sạch, 132/132 Flutter, 84/84 DB; 2 widget probe FAIL tái hiện lỗi; 1 kiểm tra repository/provider thật qua HTTP bridge local→SQL PASS xác nhận chuỗi đăng ký/duyệt/hủy/rejoin và ranh giới attendance. Không coi bridge là full Supabase JWT/PostgREST.
+- Đạt riêng A/B/C không thay nghiệm thu xuyên suốt. NOT RUN/giới hạn trong báo cáo. Không sửa code, merge main hoặc apply remote DB; reviewer tự chốt, không cần xác nhận.
