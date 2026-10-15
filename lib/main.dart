@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:badminton_hub/providers/club_provider.dart';
 import 'package:badminton_hub/providers/session_provider.dart';
 import 'package:badminton_hub/providers/auth_provider.dart';
+
 import 'screens/account_screen.dart';
 
 Future<void> main() async {
@@ -26,7 +27,9 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ClubProvider()),
+        ChangeNotifierProvider(
+          create: (context) => ClubProvider(auth: context.read<AuthProvider>()),
+        ),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
       ],
       child: const BadmintonHubApp(),
@@ -85,10 +88,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             icon: Icon(Icons.location_on),
             label: 'Sân Nha Trang',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.group),
-            label: 'CLB & Quỹ',
-          ),
+          NavigationDestination(icon: Icon(Icons.group), label: 'CLB & Quỹ'),
           NavigationDestination(icon: Icon(Icons.build), label: 'Tiện Ích'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Tài Khoản'),
         ],

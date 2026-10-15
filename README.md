@@ -82,3 +82,7 @@ Bắt đầu AG-00 để ghi baseline và môi trường test, sau đó AG-01 tr
 ## Đầu bài BH-03
 
 Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPLEMENTATION_HANDOFF.md](docs/15_BH03_IMPLEMENTATION_HANDOFF.md): RPC nguyên tử, role/privacy, models/repository/provider, UI và acceptance từng phần. Bắt đầu từ trạng thái thực tế của IDE, giữ regression BH-02; không làm lại migration hoặc tính năng đã có.
+
+## BH-03 sau review
+
+Đã sửa C1–C5 bằng [forward migration và app/session retry](docs/17_BH03_REMEDIATION.md). Xác minh Flutter 3.47.7/Dart 3.13.5: 61 tests PASS, analyze sạch; PostgreSQL cô lập 109 checks PASS. Chưa apply Supabase production hoặc kiểm full HTTP/JWT; giữ đúng giới hạn báo cáo trước rollout.

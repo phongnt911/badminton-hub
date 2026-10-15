@@ -1,12 +1,69 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import '../data/club_repository.dart';
 import '../models/club.dart';
+import 'auth_provider.dart';
 
 class ClubProvider extends ChangeNotifier {
   final ClubRepository _repository;
 
-  ClubProvider({ClubRepository? repository})
-      : _repository = repository ?? ClubRepository();
+  final AuthProvider? auth;
+  String? _authUserId;
+  int _generation = 0;
+  int _listSerial = 0;
+  bool _disposed = false;
+  final _pendingRequests = <String, ({String payload, String id})>{};
+
+  ClubProvider({ClubRepository? repository, this.auth})
+    : _repository = repository ?? ClubRepository() {
+    _authUserId = auth?.currentUser?.id;
+    auth?.addListener(_onAuthChanged);
+  }
+
+  void _onAuthChanged() {
+    final userId = auth?.currentUser?.id;
+    if (userId != _authUserId) {
+      _authUserId = userId;
+      clearAll();
+    }
+  }
+
+  // Một ý định giữ cùng UUID qua lỗi/timeout; payload đổi tạo ý định mới.
+  String _requestKey(
+    String operation,
+    List<Object?> payload,
+    String? supplied,
+  ) {
+    if (supplied != null) return supplied;
+    final encoded = jsonEncode(payload);
+    final pending = _pendingRequests[operation];
+    if (pending?.payload == encoded) return pending!.id;
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 15) | 64;
+    bytes[8] = (bytes[8] & 63) | 128;
+    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    final id =
+        '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
+    _pendingRequests[operation] = (payload: encoded, id: id);
+    return id;
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    auth?.removeListener(_onAuthChanged);
+    _generation++;
+    _disposed = true;
+    super.dispose();
+  }
 
   // State danh sách CLB
   List<Club> _clubs = [];
@@ -56,22 +113,31 @@ class ClubProvider extends ChangeNotifier {
 
   /// Tải danh sách CLB của người dùng
   Future<void> fetchClubs() async {
+    final generation = _generation;
+    final serial = ++_listSerial;
     _isLoadingClubs = true;
     _clubsErrorMessage = null;
     notifyListeners();
 
     try {
-      _clubs = await _repository.listMyClubs();
+      final clubs = await _repository.listMyClubs();
+      if (_generation != generation || serial != _listSerial) return;
+      _clubs = clubs;
     } catch (e) {
-      _clubsErrorMessage = 'Không thể tải danh sách CLB: $e';
+      if (_generation == generation && serial == _listSerial) {
+        _clubsErrorMessage = 'Không thể tải danh sách CLB: $e';
+      }
     } finally {
-      _isLoadingClubs = false;
-      notifyListeners();
+      if (_generation == generation && serial == _listSerial) {
+        _isLoadingClubs = false;
+        notifyListeners();
+      }
     }
   }
 
   /// Tải chi tiết CLB, thành viên và thông tin ngân hàng
   Future<void> fetchClubDetails(String clubId) async {
+    final generation = _generation;
     // Nếu chuyển sang CLB khác, dọn dẹp state cũ ngay lập tức để tránh data leakage
     if (_currentClubId != clubId) {
       _currentClubId = clubId;
@@ -87,7 +153,7 @@ class ClubProvider extends ChangeNotifier {
     try {
       final club = await _repository.getClubDetail(clubId);
       // Đảm bảo kết quả này vẫn khớp với clubId hiện tại (tránh race condition khi chuyển nhanh giữa các CLB)
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _currentClub = club;
         _isLoadingDetail = false;
         notifyListeners();
@@ -101,7 +167,7 @@ class ClubProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _detailErrorMessage = 'Không thể tải chi tiết CLB: $e';
         _isLoadingDetail = false;
         notifyListeners();
@@ -111,6 +177,7 @@ class ClubProvider extends ChangeNotifier {
 
   /// Tải danh sách thành viên của CLB
   Future<void> fetchMembers(String clubId) async {
+    final generation = _generation;
     if (_currentClubId != clubId) return;
 
     _isLoadingMembers = true;
@@ -119,15 +186,15 @@ class ClubProvider extends ChangeNotifier {
 
     try {
       final members = await _repository.listClubMembers(clubId);
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _currentMembers = members;
       }
     } catch (e) {
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _membersErrorMessage = 'Không thể tải danh sách thành viên: $e';
       }
     } finally {
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _isLoadingMembers = false;
         notifyListeners();
       }
@@ -136,6 +203,7 @@ class ClubProvider extends ChangeNotifier {
 
   /// Tải tài khoản ngân hàng của CLB
   Future<void> fetchClubBankAccount(String clubId) async {
+    final generation = _generation;
     if (_currentClubId != clubId) return;
 
     _isLoadingBank = true;
@@ -144,15 +212,15 @@ class ClubProvider extends ChangeNotifier {
 
     try {
       final bank = await _repository.getClubBankAccount(clubId);
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _currentBankAccount = bank;
       }
     } catch (e) {
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _bankErrorMessage = 'Không thể tải thông tin ngân hàng: $e';
       }
     } finally {
-      if (_currentClubId == clubId) {
+      if (_generation == generation && _currentClubId == clubId) {
         _isLoadingBank = false;
         notifyListeners();
       }
@@ -167,6 +235,13 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return null;
+    final generation = _generation;
+    final key = _requestKey('createClub', [
+      name,
+      description,
+      visibility,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -176,16 +251,25 @@ class ClubProvider extends ChangeNotifier {
         name: name,
         description: description,
         visibility: visibility,
-        requestId: requestId,
+        requestId: key,
       );
+      if (_generation != generation) return null;
+      succeeded = true;
       await fetchClubs();
-      return newClub;
+      return _generation == generation ? newClub : null;
     } catch (e) {
-      _submitErrorMessage = 'Tạo CLB thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Tạo CLB thất bại: $e';
+      }
       return null;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['createClub']?.id == key) {
+        _pendingRequests.remove('createClub');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -198,6 +282,14 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey('updateClub', [
+      clubId,
+      name,
+      description,
+      visibility,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -208,19 +300,28 @@ class ClubProvider extends ChangeNotifier {
         name: name,
         description: description,
         visibility: visibility,
-        requestId: requestId,
+        requestId: key,
       );
-      if (_currentClubId == clubId) {
+      if (_generation != generation) return false;
+      succeeded = true;
+      if (_generation == generation && _currentClubId == clubId) {
         _currentClub = updated;
       }
       await fetchClubs();
-      return true;
+      return _generation == generation;
     } catch (e) {
-      _submitErrorMessage = 'Cập nhật CLB thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Cập nhật CLB thất bại: $e';
+      }
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['updateClub']?.id == key) {
+        _pendingRequests.remove('updateClub');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -234,6 +335,15 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey('addMember', [
+      clubId,
+      displayName,
+      phoneNumber,
+      contactNote,
+      userId,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -245,16 +355,25 @@ class ClubProvider extends ChangeNotifier {
         phoneNumber: phoneNumber,
         contactNote: contactNote,
         userId: userId,
-        requestId: requestId,
+        requestId: key,
       );
+      if (_generation != generation) return false;
+      succeeded = true;
       await fetchMembers(clubId);
-      return true;
+      return _generation == generation;
     } catch (e) {
-      _submitErrorMessage = 'Thêm thành viên thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Thêm thành viên thất bại: $e';
+      }
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['addMember']?.id == key) {
+        _pendingRequests.remove('addMember');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -268,6 +387,15 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey('updateMemberContact', [
+      clubId,
+      memberId,
+      displayName,
+      phoneNumber,
+      contactNote,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -279,16 +407,25 @@ class ClubProvider extends ChangeNotifier {
         displayName: displayName,
         phoneNumber: phoneNumber,
         contactNote: contactNote,
-        requestId: requestId,
+        requestId: key,
       );
+      if (_generation != generation) return false;
+      succeeded = true;
       await fetchMembers(clubId);
-      return true;
+      return _generation == generation;
     } catch (e) {
-      _submitErrorMessage = 'Cập nhật liên hệ thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Cập nhật liên hệ thất bại: $e';
+      }
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['updateMemberContact']?.id == key) {
+        _pendingRequests.remove('updateMemberContact');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -300,6 +437,13 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey('setMemberRole', [
+      clubId,
+      memberId,
+      role,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -309,16 +453,25 @@ class ClubProvider extends ChangeNotifier {
         clubId: clubId,
         memberId: memberId,
         role: role,
-        requestId: requestId,
+        requestId: key,
       );
+      if (_generation != generation) return false;
+      succeeded = true;
       await fetchMembers(clubId);
-      return true;
+      return _generation == generation;
     } catch (e) {
-      _submitErrorMessage = 'Phân quyền thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Phân quyền thất bại: $e';
+      }
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['setMemberRole']?.id == key) {
+        _pendingRequests.remove('setMemberRole');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -331,6 +484,14 @@ class ClubProvider extends ChangeNotifier {
     String? requestId,
   }) async {
     if (_isSubmitting) return false;
+    final generation = _generation;
+    final key = _requestKey('setClubBankAccount', [
+      clubId,
+      bankCode,
+      accountNumber,
+      accountName,
+    ], requestId);
+    var succeeded = false;
     _isSubmitting = true;
     _submitErrorMessage = null;
     notifyListeners();
@@ -341,18 +502,27 @@ class ClubProvider extends ChangeNotifier {
         bankCode: bankCode,
         accountNumber: accountNumber,
         accountName: accountName,
-        requestId: requestId,
+        requestId: key,
       );
-      if (_currentClubId == clubId) {
+      if (_generation != generation) return false;
+      succeeded = true;
+      if (_generation == generation && _currentClubId == clubId) {
         _currentBankAccount = bank;
       }
-      return true;
+      return _generation == generation;
     } catch (e) {
-      _submitErrorMessage = 'Cấu hình ngân hàng thất bại: $e';
+      if (_generation == generation) {
+        _submitErrorMessage = 'Cấu hình ngân hàng thất bại: $e';
+      }
       return false;
     } finally {
-      _isSubmitting = false;
-      notifyListeners();
+      if (succeeded && _pendingRequests['setClubBankAccount']?.id == key) {
+        _pendingRequests.remove('setClubBankAccount');
+      }
+      if (_generation == generation) {
+        _isSubmitting = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -373,6 +543,9 @@ class ClubProvider extends ChangeNotifier {
 
   /// Xóa toàn bộ dữ liệu (khi người dùng đăng xuất)
   void clearAll() {
+    _generation++;
+    _listSerial++;
+    _pendingRequests.clear();
     _clubs = [];
     _isLoadingClubs = false;
     _clubsErrorMessage = null;

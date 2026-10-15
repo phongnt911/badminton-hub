@@ -23,7 +23,7 @@ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(
 GRANT USAGE ON SCHEMA auth TO anon,authenticated;
 GRANT EXECUTE ON FUNCTION auth.uid() TO anon,authenticated;
 """
-migration=(ROOT.parents[2]/'supabase/migrations/20261015051808_init_schema_v1_1.sql').read_text(encoding='utf-8')
+migration='\n'.join(p.read_text(encoding='utf-8') for p in sorted((ROOT.parents[2]/'supabase/migrations').glob('*.sql')))
 for db in [CLEAN,LEGACY]:
  must('postgres','CREATE DATABASE '+db+';', 'create database')
  must(db,setup,'auth stub')

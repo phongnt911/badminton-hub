@@ -120,3 +120,7 @@ available_only dựa capacity minus tổng confirmed DB, không count theo playe
 ## 9. Làm rõ BH-03
 
 [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md) định nghĩa create/update club, member/contact/role và bank theo scope. create_club không yêu cầu bank/phone; ClubOwner lấy từ actor. Guest member mới user_id NULL; user_id online chỉ qua acceptance đã xác minh, chưa có thì từ chối thay vì tự gán. set_club_member_role chỉ host/treasurer/member, không thay owner. update contact không nhận role/user_id. Bank mutations khóa scope, giữ account inactive/history và session snapshot. Helper nội bộ không được client gọi thẳng. Read DTO trả contact/bank/quỹ theo ma trận, không lấy RLS-filtered zero làm số dư hợp lệ cho người không có quyền.
+
+## 10. BH-03 sau sửa C1–C5
+
+Forward migration bắt buộc request_id cho mọi BH-03 mutation; idempotency check khóa theo actor/operation/request trước side effect và hash canonical toàn bộ payload có scope. Same key khác payload phải conflict, không dùng hash nối chuỗi thiếu field. UI provider giữ key qua retry cùng ý định, không chỉ disable nút; caller bên ngoài phải gửi key. add_club_member chưa có acceptance API thì từ chối user_id không NULL. Auth identity thay đổi xóa private club state và loại response phiên cũ. Chi tiết triển khai/giới hạn ở [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md).

@@ -1,0 +1,28 @@
+{
+  "tested_commit": "88dd247",
+  "db": "bh03_clean_20261015135554",
+  "tests": [
+    {
+      "name": "reject linking user without acceptance",
+      "expected": "FORBIDDEN/consent required",
+      "actual": "00000000-0000-0000-0000-000000000001\n00000000-0000-0000-0000-000000000009",
+      "pass": false
+    },
+    {
+      "name": "request key changed contact note conflicts",
+      "expected": "IDEMPOTENCY_CONFLICT",
+      "actual": "both succeeded",
+      "pass": false
+    },
+    {
+      "name": "same request concurrently creates only one club",
+      "expected": "1",
+      "actual": "2",
+      "responses": [
+        "00000000-0000-0000-0000-000000000009\nf8414da3-7af2-4106-b263-55abc06f6abf",
+        "00000000-0000-0000-0000-000000000009\n8561b373-4e71-4444-a475-5b03aa6cccc4"
+      ],
+      "pass": false
+    }
+  ]
+}

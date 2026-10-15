@@ -81,3 +81,7 @@
 ## 3. Giới hạn & Điểm lưu ý cho các ticket tiếp theo
 1. **Self-service Invitation & Account Linking**: Trong phạm vi BH-03, thành viên mới được thêm dưới dạng offline (`user_id = NULL`). Cơ chế tự mời và liên kết tài khoản thông qua OTP/link xác nhận sẽ được tích hợp ở giai đoạn phù hợp.
 2. **Ghi thu/chi quỹ (Ledger Mutations)**: Số dư quỹ trong BH-03 chỉ đọc (Read-only view). Các thao tác thu/chi và đối soát tự động thuộc phạm vi ticket **BH-06**.
+
+## Cập nhật sau review 88dd247
+
+Báo cáo nghiệm thu cũ phía trên là lịch sử trước review C1–C5. Đã bổ sung forward migration, auth lifecycle/reset và request keys/canonical idempotency; kết quả mới tại [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md): Flutter 61/61, analyze sạch, DB 109/109 checks trên PostgreSQL cô lập. Chưa full Supabase HTTP/JWT/thiết bị thật hoặc apply production; không tự gán account member trước consent.
