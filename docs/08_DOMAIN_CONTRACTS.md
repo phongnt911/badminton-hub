@@ -116,3 +116,7 @@ Repository không xem UPDATE 0 hàng là thành công; mọi RPC mutation trả 
 list_public_sessions chỉ trả whitelist của public published/in_progress; nhận area, khoảng starts_at/ends_at, available_only, fee_mode và cursor/limit. Lọc khoảng thời gian là overlap: session.starts_at < filter_end AND session.ends_at > filter_start; ngày chọn ở UI đổi từ giờ Việt Nam sang UTC. Không có filter thì dùng cửa sổ ngày hợp lý trên UI, không tải hết lịch sử. Exact SQL/index được kiểm theo query thật khi triển khai BH-04.
 
 available_only dựa capacity minus tổng confirmed DB, không count theo player RLS. Phí split_actual là dự kiến, không giả thành giá cố định để lọc. Unlisted chỉ detail theo ID, private check quyền; URI/callback không thay auth. Chính sách receiver/contacts giữ như review và đặc tả, không mở raw data để phục vụ filter. Không thêm API chat/push/bank theo endpoint trích trong report.
+
+## 9. Làm rõ BH-03
+
+[15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md) định nghĩa create/update club, member/contact/role và bank theo scope. create_club không yêu cầu bank/phone; ClubOwner lấy từ actor. Guest member mới user_id NULL; user_id online chỉ qua acceptance đã xác minh, chưa có thì từ chối thay vì tự gán. set_club_member_role chỉ host/treasurer/member, không thay owner. update contact không nhận role/user_id. Bank mutations khóa scope, giữ account inactive/history và session snapshot. Helper nội bộ không được client gọi thẳng. Read DTO trả contact/bank/quỹ theo ma trận, không lấy RLS-filtered zero làm số dư hợp lệ cho người không có quyền.

@@ -78,3 +78,7 @@ Bắt đầu AG-00 để ghi baseline và môi trường test, sau đó AG-01 tr
 ## Nghiên cứu ứng dụng tương tự
 
 Đã tiếp nhận báo cáo REA tĩnh của Vmito và Vụt: [bản áp dụng vào Badminton Hub](docs/14_PRODUCT_LEARNINGS_VMITO_VUT.md). Bổ sung yêu cầu link/filter/trạng thái/QR và release privacy cho BH-03..07; không đổi stack hoặc tự triển khai chat/push/GPS. Quan sát thư viện/endpoints không được coi là chức năng runtime đã kiểm chứng.
+
+## Đầu bài BH-03
+
+Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPLEMENTATION_HANDOFF.md](docs/15_BH03_IMPLEMENTATION_HANDOFF.md): RPC nguyên tử, role/privacy, models/repository/provider, UI và acceptance từng phần. Bắt đầu từ trạng thái thực tế của IDE, giữ regression BH-02; không làm lại migration hoặc tính năng đã có.

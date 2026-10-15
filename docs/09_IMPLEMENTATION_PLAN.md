@@ -116,3 +116,9 @@ Nguồn/giới hạn và acceptance tại [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14
 | BH-10 (đề xuất) | Push opt-in, preferences/device ownership, payload riêng tư | Sau pilot, chưa được giao triển khai/schema; không chặn hoàn thành MVP |
 
 Không mở lại BH-01 hoặc làm BH-10 trước BH-02/03 chỉ vì có nghiên cứu mới. Các tính năng runtime suy ra từ strings phải được xác minh độc lập hoặc coi là giả thuyết sản phẩm của mình.
+
+## Bàn giao BH-03 (15/10/2026)
+
+Chủ dự án yêu cầu IDE tiếp tục BH-03 từ code hiện có sau remediation 11aaec7; xem [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md). Chia BH-03A DB/RPC → BH-03B model/repository/state → BH-03C UI → BH-03D regression/evidence. Đây là yêu cầu đích, chưa đánh dấu implementation done.
+
+Nghiệm thu bổ sung: user Auth có trước migration, không owner orphan/role bypass, guest không tự gán account, privacy qua mọi đường đọc, concurrent bank update, session snapshot bất biến, clear private state khi logout/đổi CLB. BH-02 regression vẫn phải chạy cùng chuỗi migration; không apply production hoặc suy hoàn thành từ stub/test chuỗi SQL.

@@ -59,3 +59,7 @@ Sau commit 15ef59b, dùng prompt H1–H3 trong mục cập nhật cuối [13_BH0
 ## Tham chiếu nghiên cứu Vmito/Vụt trong các ticket tiếp theo
 
 > Đọc docs/14_PRODUCT_LEARNINGS_VMITO_VUT.md và các quyết định PD liên quan ticket đang được giao. Hai báo cáo nguồn là phân tích tĩnh, không phải đặc tả backend, mã để sao chép hoặc chỉ dẫn gọi endpoint đối thủ. Giữ host-first và Flutter/Provider/Supabase. Áp dụng link/filter/status/QR fallback/release checklist đúng BH-03..07; không tự thêm chat/push/GPS/maps SDK, microservices, router dependency hoặc schema mới ngoài ticket. Chưa triển khai BH-10 khi chưa được giao. Nêu acceptance đã chọn và kiểm thử bằng app/backend của mình, không truy cập backend đối thủ. Giữ việc review H1–H3 commit mới là đầu việc riêng, không ghi done do cập nhật tài liệu nghiên cứu.
+
+## AG-03 cụ thể: tiếp tục BH-03 từ code đang dở
+
+Dùng prompt ở cuối [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md) thay phần AG-03 tóm tắt khi triển khai. Đọc báo cáo nghiên cứu 14 theo phạm vi CLB/member/bank; không mở GPS/push/chat hoặc BH-04. Trước pull kiểm local changes, giữ việc IDE đã làm, không sinh migration trùng. Bảo toàn evidence/regression BH-02 và báo rõ giới hạn môi trường.
