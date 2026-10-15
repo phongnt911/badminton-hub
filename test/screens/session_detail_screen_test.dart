@@ -262,4 +262,294 @@ void main() {
     expect(find.text('Thử lại'), findsOneWidget);
     expect(find.text('Đăng nhập'), findsNothing);
   });
+
+  // --- BH-05 -------------------------------------------------------------- //
+
+  Widget buildAuthed(
+    Widget child,
+    AuthProvider auth,
+    SessionProvider session,
+  ) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>.value(value: auth),
+        ChangeNotifierProvider<SessionProvider>.value(value: session),
+      ],
+      child: MaterialApp(home: child),
+    );
+  }
+
+  ({AuthProvider auth, SessionProvider session}) authedProviders() {
+    final user = User(
+      id: 'u1',
+      appMetadata: {},
+      userMetadata: {},
+      aud: 'authenticated',
+      createdAt: '2026-10-15',
+    );
+    when(() => authRepository.currentUser).thenReturn(user);
+    final auth = AuthProvider(repository: authRepository);
+    final session = SessionProvider(repository: sessionRepository, auth: auth);
+    addTearDown(session.dispose);
+    addTearDown(auth.dispose);
+    return (auth: auth, session: session);
+  }
+
+  testWidgets('player chưa đăng ký bấm Đăng ký tham gia gọi requestJoinSession', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => publicSession);
+    when(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer(
+      (_) async => const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'pending',
+        confirmedCount: 2,
+        capacity: 8,
+        seatsLeft: 6,
+      ),
+    );
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đăng ký tham gia'), findsOneWidget);
+    await tester.tap(find.text('Đăng ký tham gia'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).called(1);
+    expect(find.text('Đã gửi yêu cầu tham gia buổi chơi.'), findsOneWidget);
+  });
+
+  testWidgets('player trong danh sách chờ có lời mời thấy nút Chấp nhận lời mời', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    const waitlisted = Session(
+      id: 's1',
+      title: 'Buổi chờ',
+      capacity: 8,
+      lifecycle: 'published',
+      confirmedCount: 8,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'waitlisted',
+      ),
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => waitlisted);
+    when(() => sessionRepository.getMyWaitlistInvitation('s1')).thenAnswer(
+      (_) async => const WaitlistInvitation(
+        invitationId: 'i1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+    when(
+      () => sessionRepository.acceptWaitlistInvitation(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        invitationId: any(named: 'invitationId'),
+        consentNote: any(named: 'consentNote'),
+      ),
+    ).thenAnswer(
+      (_) async => const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'confirmed',
+      ),
+    );
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chấp nhận lời mời'), findsOneWidget);
+    await tester.tap(find.text('Chấp nhận lời mời'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.acceptWaitlistInvitation(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        invitationId: 'i1',
+        consentNote: any(named: 'consentNote'),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('player confirmed tự huỷ đăng ký sau khi xác nhận', (tester) async {
+    final p = authedProviders();
+    const confirmed = Session(
+      id: 's1',
+      title: 'Buổi',
+      capacity: 8,
+      lifecycle: 'published',
+      confirmedCount: 1,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'confirmed',
+      ),
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => confirmed);
+    when(
+      () => sessionRepository.cancelRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        playerId: any(named: 'playerId'),
+        reason: any(named: 'reason'),
+      ),
+    ).thenAnswer(
+      (_) async => const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'cancelled',
+      ),
+    );
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Đã xác nhận'), findsWidgets);
+    await tester.tap(find.text('Huỷ đăng ký'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Bạn chắc chắn muốn huỷ đăng ký buổi này?'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Đồng ý'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.cancelRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        playerId: 'p1',
+        reason: any(named: 'reason'),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('host duyệt pending gọi decide_registration', (tester) async {
+    const publishedManaged = Session(
+      id: 's2',
+      title: 'Buổi của tôi',
+      capacity: 8,
+      lifecycle: 'published',
+      canManage: true,
+      version: 1,
+    );
+    when(() => sessionRepository.getSessionDetail('s2'))
+        .thenAnswer((_) async => publishedManaged);
+    when(
+      () => sessionRepository.listSessionPlayers(
+        's2',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer(
+      (_) async => const [
+        SessionPlayer(id: 'p1', displayName: 'An', registrationStatus: 'pending'),
+      ],
+    );
+    when(
+      () => sessionRepository.decideRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+        playerId: any(named: 'playerId'),
+        decision: any(named: 'decision'),
+        reason: any(named: 'reason'),
+      ),
+    ).thenAnswer(
+      (_) async => const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's2',
+        registrationStatus: 'confirmed',
+      ),
+    );
+
+    await tester.pumpWidget(build(const SessionDetailScreen(sessionId: 's2')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Duyệt'),
+      300.0,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Duyệt'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.decideRegistration(
+        requestId: any(named: 'requestId'),
+        sessionId: 's2',
+        playerId: 'p1',
+        decision: 'confirmed',
+        reason: any(named: 'reason'),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('lỗi mutation đăng ký hiển thị thông điệp và cho phép thử lại', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => publicSession);
+    var attempts = 0;
+    when(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer((invocation) async {
+      attempts++;
+      if (attempts == 1) throw Exception('CAPACITY_FULL: dữ liệu thô');
+      return const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'confirmed',
+      );
+    });
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Đăng ký tham gia'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buổi chơi đã đủ chỗ.'), findsOneWidget);
+
+    // Để snackbar lỗi tự ẩn (xếp hàng) rồi thử lại.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đăng ký tham gia'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Đã gửi yêu cầu tham gia buổi chơi.'),
+      findsOneWidget,
+    );
+  });
 }

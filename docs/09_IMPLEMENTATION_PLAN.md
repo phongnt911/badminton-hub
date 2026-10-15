@@ -236,3 +236,14 @@ Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Đạt phần B** tại `cf65199`, theo [review_cf65199.md](reviews/bh05/review_cf65199.md). Reviewer tự chốt theo quy tắc hiện hành, không cần chủ dự án xác nhận.
 - Kiểm chứng độc lập: analyze sạch; 118/118 Flutter, 84/84 DB, 2/2 probe hồi quy PASS. Các trạng thái Chờ review/Chưa đạt trước đây là lịch sử.
 - NOT RUN và giới hạn nằm trong báo cáo; chưa nghiệm thu UI phần C, HTTP/JWT/thiết bị thật hoặc deploy production. Không tự merge main hay chuyển sang triển khai C.
+
+### BH-05C — UI màn chi tiết buổi (đăng ký/duyệt/điểm danh/lời mời chờ) — 16/10/2026
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-05C UI | **Chờ review** | Nhánh `feat/bh05c-ui`, tách từ `feat/bh05b-data` (`3bb07ca`). File: `lib/screens/session_detail_screen.dart`, `test/screens/session_detail_screen_test.dart` — nguyên bản viết sẵn ở `814d85b` trên `main`, lấy nguyên trạng không viết lại (`git diff main -- <2 file>` rỗng). |
+
+- Phạm vi: chỉ UI màn chi tiết buổi phía client (nút đăng ký/hủy, trạng thái pending/waitlisted/confirmed, host duyệt/từ chối pending, điểm danh, mời/thu hồi lời mời chờ, banner lời mời của tôi) và test widget tương ứng. Không đổi model/repository/provider/migration.
+- Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**123/123 PASS**).
+- Không chạy runner DB: phần C không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
+- NOT RUN: thiết bị thật/browser e2e (test widget dùng provider/repository giả, chưa chạm Supabase thật); PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.
