@@ -247,3 +247,9 @@ Review [review_135d7bd.md](reviews/bh05/review_135d7bd.md) kết luận **Chưa 
 - Lệnh đã chạy trên nhánh `feat/bh05c-ui`: `flutter analyze` (**0 issue**); `flutter test` (**123/123 PASS**).
 - Không chạy runner DB: phần C không đổi DB/migration (theo IMPLEMENTER.md, runner DB chỉ bắt buộc khi đổi DB).
 - NOT RUN: thiết bị thật/browser e2e (test widget dùng provider/repository giả, chưa chạm Supabase thật); PostgREST HTTP/JWT thật; apply staging/production; chưa nghiệm thu đồng thời A/B/C trên `main`.
+
+### BH-05C — Kết luận cuối cùng reviewer 8974d3c (16/10/2026)
+
+- **Trạng thái hiện tại: Chưa đạt phần C**, theo [review_8974d3c.md](reviews/bh05/review_8974d3c.md). Còn C1/C2/C3 mức P2: UI lỗi/tải lời mời, đăng ký waitlist khi đầy và roster trong dialog thành viên CLB.
+- Kiểm thử độc lập: analyze sạch, 123/123 Flutter và 84/84 DB PASS; 3 probe UI bổ sung FAIL tái hiện lỗi. NOT RUN và cách sửa trong báo cáo.
+- Trạng thái Chờ review phía trên là lịch sử. Reviewer tự chốt, không cần xác nhận; không sửa code, merge main hoặc apply DB remote.
