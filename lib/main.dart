@@ -33,7 +33,10 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => ClubProvider(auth: context.read<AuthProvider>()),
         ),
-        ChangeNotifierProvider(create: (_) => SessionProvider()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              SessionProvider(auth: context.read<AuthProvider>()),
+        ),
       ],
       child: const BadmintonHubApp(),
     ),
@@ -85,7 +88,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.sports_tennis),
-            label: 'Kèo Hôm Nay',
+            label: 'Buổi Chơi',
           ),
           NavigationDestination(
             icon: Icon(Icons.location_on),

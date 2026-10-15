@@ -1,0 +1,209 @@
+{
+  "timestamp": "20261015160859",
+  "tested_commit": "c27865d3f5552b1616bcf537f135a4956b145d9d",
+  "worktree_dirty": true,
+  "migration_sha256": {
+    "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "20261015140216_bh03_identity_retry_session_fixes.sql": "33f3c6ff4d8ad2f2ad23d645600012fd9a0f95b5952f2b3f979b4f84d3d06d44",
+    "20261015151445_pre_bh04_hardening.sql": "6c8d4af94f40d284e45438f6aa08644bcca14433a0c5d0f133a1e2853bd055b9",
+    "20261015163000_bh04_sessions.sql": "489f13e230949ac398cf0ffb32c91c4b3bdd91303f3a7b957d228920094479b2"
+  },
+  "total": 48,
+  "passed": 48,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Tạo CLB và Owner nguyên tử (create_club)",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency replay không tạo CLB kép",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency khác payload bị chặn (IDEMPOTENCY_CONFLICT)",
+      "status": "PASS"
+    },
+    {
+      "name": "Anon bị chặn tạo CLB (UNAUTHENTICATED)",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner cập nhật thông tin CLB thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Người ngoài bị chặn sửa CLB (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Thêm thành viên offline không tài khoản với liên hệ riêng tư",
+      "status": "PASS"
+    },
+    {
+      "name": "Từ chối thêm thành viên với user_id không tồn tại",
+      "status": "PASS"
+    },
+    {
+      "name": "Host của CLB thêm thành viên thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Thành viên thường bị chặn thêm người (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Host cập nhật SĐT và ghi chú của thành viên thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cập nhật liên hệ thành viên (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn cấp vai trò quản lý (host/treasurer) cho người chưa có tài khoản",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner phân quyền thành công cho thành viên đã liên kết tài khoản",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn sửa hoặc hạ quyền Owner qua endpoint role thông thường",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn thành viên tự nâng quyền hoặc sửa role người khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner cấu hình ngân hàng CLB giữ nguyên số 0 ở đầu (TEXT)",
+      "status": "PASS"
+    },
+    {
+      "name": "Cập nhật bank vô hiệu hóa tài khoản cũ, giữ đúng 1 active",
+      "status": "PASS"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cấu hình tài khoản ngân hàng CLB (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Host tự cấu hình tài khoản cá nhân của chính mình",
+      "status": "PASS"
+    },
+    {
+      "name": "Số dư quỹ chỉ hiển thị cho Chủ nhiệm và Thủ quỹ, ẩn với thành viên",
+      "status": "PASS"
+    },
+    {
+      "name": "SĐT thành viên chỉ hiển thị cho Owner/Host và chính chủ, ẩn với Thủ quỹ và member khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Tài khoản ngân hàng CLB chỉ Chủ nhiệm và Thủ quỹ xem được",
+      "status": "PASS"
+    },
+    {
+      "name": "Danh sách CLB của tôi (list_my_clubs) hiển thị đúng theo vai trò",
+      "status": "PASS"
+    },
+    {
+      "name": "Tạo CLB và Owner nguyên tử (create_club)",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency replay không tạo CLB kép",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency khác payload bị chặn (IDEMPOTENCY_CONFLICT)",
+      "status": "PASS"
+    },
+    {
+      "name": "Anon bị chặn tạo CLB (UNAUTHENTICATED)",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner cập nhật thông tin CLB thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Người ngoài bị chặn sửa CLB (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Thêm thành viên offline không tài khoản với liên hệ riêng tư",
+      "status": "PASS"
+    },
+    {
+      "name": "Từ chối thêm thành viên với user_id không tồn tại",
+      "status": "PASS"
+    },
+    {
+      "name": "Host của CLB thêm thành viên thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Thành viên thường bị chặn thêm người (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Host cập nhật SĐT và ghi chú của thành viên thành công",
+      "status": "PASS"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cập nhật liên hệ thành viên (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn cấp vai trò quản lý (host/treasurer) cho người chưa có tài khoản",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner phân quyền thành công cho thành viên đã liên kết tài khoản",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn sửa hoặc hạ quyền Owner qua endpoint role thông thường",
+      "status": "PASS"
+    },
+    {
+      "name": "Chặn thành viên tự nâng quyền hoặc sửa role người khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Owner cấu hình ngân hàng CLB giữ nguyên số 0 ở đầu (TEXT)",
+      "status": "PASS"
+    },
+    {
+      "name": "Cập nhật bank vô hiệu hóa tài khoản cũ, giữ đúng 1 active",
+      "status": "PASS"
+    },
+    {
+      "name": "Thủ quỹ bị chặn cấu hình tài khoản ngân hàng CLB (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Host tự cấu hình tài khoản cá nhân của chính mình",
+      "status": "PASS"
+    },
+    {
+      "name": "Số dư quỹ chỉ hiển thị cho Chủ nhiệm và Thủ quỹ, ẩn với thành viên",
+      "status": "PASS"
+    },
+    {
+      "name": "SĐT thành viên chỉ hiển thị cho Owner/Host và chính chủ, ẩn với Thủ quỹ và member khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Tài khoản ngân hàng CLB chỉ Chủ nhiệm và Thủ quỹ xem được",
+      "status": "PASS"
+    },
+    {
+      "name": "Danh sách CLB của tôi (list_my_clubs) hiển thị đúng theo vai trò",
+      "status": "PASS"
+    }
+  ]
+}

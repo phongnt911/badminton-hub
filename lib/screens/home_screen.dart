@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import 'package:provider/provider.dart';
-import '../core/app_constants.dart';
-import '../providers/session_provider.dart';
-import 'session_detail_screen.dart';
 
+import '../core/app_constants.dart';
+import '../core/auth_guard.dart';
+import '../core/time_utils.dart';
+import '../models/session.dart';
+import '../providers/auth_provider.dart';
+import '../providers/session_provider.dart';
+import 'public_sessions_screen.dart';
+import 'session_detail_screen.dart';
+import 'session_form_screen.dart';
+
+/// Tab "Buổi chơi": danh sách buổi host quản lý + lối vào khám phá buổi công khai.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,408 +23,334 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SessionProvider>().fetchSessions();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
   }
 
-  // Hộp thoại tạo kèo mới nhanh trong 15s
-  void _showCreateDialog() {
-    final venueCtrl = TextEditingController(
-      text: 'Sân Cầu Lông Đa Năng Khánh Hòa',
-    );
-    final timeCtrl = TextEditingController(text: '17:30 - 19:30');
-    final slotsCtrl = TextEditingController(text: '6');
-    final costCtrl = TextEditingController(text: '40000');
-    final phoneCtrl = TextEditingController(text: '0905123456');
+  Future<void> _refresh() async {
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+    final sessions = context.read<SessionProvider>();
+    if (auth.isAuthenticated) {
+      await sessions.fetchMySessions();
+    }
+  }
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('🏸 Đăng Kèo Tìm Vãng Lai'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: venueCtrl,
-                decoration: const InputDecoration(labelText: 'Tên sân'),
-              ),
-              TextField(
-                controller: timeCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Khung giờ (VD: 17:30 - 19:30)',
-                ),
-              ),
-              TextField(
-                controller: slotsCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Tổng slot tối đa',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: costCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Phí dự kiến (VNĐ/người)',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: phoneCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'SĐT / Zalo chủ kèo',
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppConstants.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () async {
-              await context.read<SessionProvider>().createSession(
-                venueCtrl.text,
-                '17:30 - 19:30',
-                int.tryParse(slotsCtrl.text) ?? 6,
-                int.tryParse(costCtrl.text) ?? 40000,
-                phoneCtrl.text,
-              );
-              if (!ctx.mounted) return;
-              Navigator.pop(ctx);
-              
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đã đăng kèo thành công!')),
-              );
-            },
-            child: const Text('Đăng Kèo'),
-          ),
-        ],
-      ),
+  Future<void> _createSession() async {
+    final ok = await requireAuth(context);
+    if (!ok || !mounted) return;
+    final created = await Navigator.of(context).push<Session>(
+      MaterialPageRoute(builder: (_) => const SessionFormScreen()),
+    );
+    if (!mounted) return;
+    if (created != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã tạo buổi chơi (bản nháp).')),
+      );
+    }
+  }
+
+  Future<void> _openDiscovery() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const PublicSessionsScreen()),
     );
   }
 
-  // Hộp thoại nhập tên và sđt khi giữ chỗ
-  void _showJoinDialog(String sessionId, int currentJoined, int maxSlots) {
-    final nameCtrl = TextEditingController();
-    final phoneCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('📝 Đăng Ký Tham Gia'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Tên hiển thị'),
-            ),
-            TextField(
-              controller: phoneCtrl,
-              decoration: const InputDecoration(labelText: 'Số điện thoại'),
-              keyboardType: TextInputType.phone,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppConstants.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () async {
-              if (nameCtrl.text.isEmpty || phoneCtrl.text.isEmpty) {
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  const SnackBar(content: Text('Vui lòng nhập đủ thông tin!')),
-                );
-                return;
-              }
-
-              await context.read<SessionProvider>().joinSession(
-                sessionId,
-                nameCtrl.text,
-                phoneCtrl.text,
-                currentJoined,
-                maxSlots,
-              );
-
-              if (!ctx.mounted) return;
-              Navigator.pop(ctx);
-              
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Đăng ký slot thành công!'),
-                ),
-              );
-            },
-            child: const Text('Giữ Chỗ'),
-          ),
-        ],
+  void _openSession(String sessionId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SessionDetailScreen(sessionId: sessionId),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final sessions = context.watch<SessionProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '🏸 Kèo Cầu Lông Nha Trang',
+          '🏸 Buổi Chơi',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppConstants.primaryColor,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'Khám phá buổi công khai',
+            onPressed: _openDiscovery,
+            icon: const Icon(Icons.explore_outlined),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showCreateDialog,
-        backgroundColor: AppConstants.accentColor,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'ĐĂNG KÈO',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+      floatingActionButton: auth.isAuthenticated
+          ? FloatingActionButton.extended(
+              onPressed: _createSession,
+              backgroundColor: AppConstants.accentColor,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text(
+                'TẠO BUỔI',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            )
+          : null,
       body: RefreshIndicator(
-        onRefresh: () async => context.read<SessionProvider>().fetchSessions(),
+        onRefresh: _refresh,
         child: ListView(
           padding: const EdgeInsets.all(12),
           children: [
-            // 1. BANNER TIẾP THỊ LIÊN KẾT (AFFILIATE SHOPEE) KIẾM THU NHẬP THỤ ĐỘNG
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            _DiscoveryTile(onTap: _openDiscovery),
+            const SizedBox(height: 16),
+            if (!auth.isAuthenticated)
+              _GuestNote(onLogin: () => requireAuth(context))
+            else ...[
+              Row(
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.local_fire_department, color: Colors.red),
-                      SizedBox(width: 6),
-                      Text(
-                        'Góc Phụ Kiện Cầu Lông Giá Tốt',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 80,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: AppConstants.affiliateItems.length,
-                      itemBuilder: (ctx, i) {
-                        final item = AppConstants.affiliateItems[i];
-                        return Container(
-                          width: 200,
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                item['title']!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    item['price']!,
-                                    style: const TextStyle(
-                                      color: Colors.orange,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const Text(
-                                    'Xem ngay 👉',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                  const Expanded(
+                    child: Text(
+                      'Buổi tôi quản lý',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
+                  if (sessions.isLoadingMine)
+                    const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                 ],
               ),
-            ),
+              const SizedBox(height: 8),
+              _MySessionsSection(
+                provider: sessions,
+                onRetry: () => sessions.fetchMySessions(),
+                onOpen: _openSession,
+                onCreate: _createSession,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            const SizedBox(height: 16),
+class _DiscoveryTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _DiscoveryTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: const Icon(Icons.search, color: AppConstants.primaryColor),
+        title: const Text(
+          'Khám phá buổi công khai',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: const Text('Lọc theo khu vực, thời gian, còn chỗ và cách thu phí'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _GuestNote extends StatelessWidget {
+  final VoidCallback onLogin;
+  const _GuestNote({required this.onLogin});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const Text(
-              '🔥 Kèo Đang Thiếu Chân Hôm Nay',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Bạn đang xem dưới dạng khách',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-
-            // 2. DANH SÁCH KÈO LẤY TỪ PROVIDER
-            Consumer<SessionProvider>(
-              builder: (context, provider, child) {
-                if (provider.isLoading) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                final sessions = provider.sessions;
-                if (sessions.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'Chưa có kèo nào hôm nay. Hãy bấm "+ ĐĂNG KÈO" đầu tiên!',
-                    ),
-                  );
-                }
-
-                return Column(
-                  children: sessions.map((s) {
-                    final joined = s['joined_count'] ?? 1;
-                    final max = s['max_slots'] ?? 6;
-                    final isFull = joined >= max;
-
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (ctx) => SessionDetailScreen(
-                              sessionId: s['id'],
-                            ),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        elevation: 2,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    s['venue_name'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isFull
-                                        ? Colors.red.shade100
-                                        : Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    isFull
-                                        ? 'ĐÃ ĐỦ NGƯỜI'
-                                        : 'CÒN ${max - joined} CHỖ',
-                                    style: TextStyle(
-                                      color: isFull ? Colors.red : Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '⏰ Giờ chơi: ${s['start_time']} - ${s['end_time']}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '💰 Phí dự kiến: ${NumberFormat('#,###').format(s['estimated_cost'] ?? 40000)} VNĐ/người',
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '📞 Liên hệ: ${s['contact_phone'] ?? 'Chưa có'}',
-                              style: TextStyle(color: Colors.grey[700]),
-                            ),
-                            const Divider(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Đã tham gia: $joined / $max người'),
-                                ElevatedButton(
-                                  onPressed: isFull
-                                      ? null
-                                      : () => _showJoinDialog(s['id'], joined, max),
-
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppConstants.primaryColor,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: const Text('GIỮ CHỖ'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
+            const Text(
+              'Đăng nhập để tạo buổi, quản lý đăng ký và theo dõi khoản thu.',
+              style: TextStyle(color: Colors.grey),
             ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: onLogin,
+              icon: const Icon(Icons.login),
+              label: const Text('Đăng nhập'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppConstants.primaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MySessionsSection extends StatelessWidget {
+  final SessionProvider provider;
+  final VoidCallback onRetry;
+  final void Function(String sessionId) onOpen;
+  final VoidCallback onCreate;
+
+  const _MySessionsSection({
+    required this.provider,
+    required this.onRetry,
+    required this.onOpen,
+    required this.onCreate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (provider.myErrorMessage != null) {
+      return _ErrorBox(
+        message: provider.myErrorMessage!,
+        onRetry: onRetry,
+      );
+    }
+    if (provider.mySessions.isEmpty) {
+      return _EmptyBox(
+        message: 'Bạn chưa có buổi chơi nào.',
+        actionLabel: 'Tạo buổi đầu tiên',
+        onAction: onCreate,
+      );
+    }
+    return Column(
+      children: provider.mySessions
+          .map((s) => SessionCard(session: s, onTap: () => onOpen(s.id)))
+          .toList(),
+    );
+  }
+}
+
+/// Thẻ buổi chơi dùng chung cho danh sách quản lý và khám phá.
+class SessionCard extends StatelessWidget {
+  final Session session;
+  final VoidCallback onTap;
+
+  const SessionCard({super.key, required this.session, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      session.title,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  _StatusChip(session: session),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text('📍 ${session.venueName ?? 'Chưa có sân'}'
+                  '${session.venueArea != null ? ' · ${session.venueArea}' : ''}'),
+              Text('⏰ ${formatVietnamRange(session.startsAt, session.endsAt)}'),
+              Text('👥 ${session.confirmedCount}/${session.capacity} người · ${session.feeLabel}'),
+              if (session.clubName != null)
+                Text('🏟️ ${session.clubName}',
+                    style: TextStyle(color: Colors.grey[700])),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final Session session;
+  const _StatusChip({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLive = session.isPublished || session.isInProgress;
+    final color = session.isCancelled
+        ? Colors.red
+        : (isLive ? Colors.green : Colors.grey);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        session.lifecycleLabel,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
+    );
+  }
+}
+
+class _ErrorBox extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorBox({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.red.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text(message, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 8),
+            OutlinedButton(onPressed: onRetry, child: const Text('Thử lại')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyBox extends StatelessWidget {
+  final String message;
+  final String actionLabel;
+  final VoidCallback onAction;
+  const _EmptyBox({
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text(message, style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 8),
+            OutlinedButton(onPressed: onAction, child: Text(actionLabel)),
           ],
         ),
       ),

@@ -148,3 +148,12 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 ## Đợt sửa trước BH-04 — 15/10/2026
 
 Đã sửa cấu hình môi trường, auth session, phân trang member, UI error/retry/role và ACL RPC đọc bằng forward migration. Flutter 66/66 PASS; DB 117/117 PASS; analyze sạch. Chi tiết, bằng chứng, giới hạn và prompt phiên mới: [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Chưa apply production/kiểm HTTP JWT; X1 chuyển đổi buổi chơi demo thuộc BH-04, chặn pilot.
+
+## BH-04 — Buổi chơi/lịch/chia sẻ — 15/10/2026
+
+| 15/10/2026 | BH-04 buổi chơi | ĐÃ TRIỂN KHAI (local/staging) | Thay đường demo `SupabaseService`/`SessionProvider` bằng model + repository + provider typed và migration forward `20261015163000_bh04_sessions.sql` (create/update/duplicate/publish + projection whitelist + `list_my_sessions`/`list_public_sessions`/`list_session_players`, idempotency + audit + REVOKE PUBLIC/anon). Flutter **101/101 PASS** (66 regression + 35 mới), analyze sạch; DB **159/159 PASS** (BH-02 33+14, BH-03 48+22, BH-04 42). Chưa apply production, chưa kiểm PostgREST HTTP/JWT; deep link OS-level NOT RUN. Chi tiết: [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md). |
+
+- Routing chốt theo code hiện có: **không** thêm router/`app_links`; `lib/core/app_routes.dart` kiểm hợp lệ link nội bộ `/sessions/:id` và dùng `AuthScreen.returnRoute` để quay lại đúng buổi sau đăng nhập.
+- X1: `lib/data/supabase_service.dart` (và các cột demo) đã bị xoá; sân chuyển sang `VenueRepository` typed.
+- Bằng chứng: `docs/reviews/bh04/bh04_test_results_20261015160911.json`; runner `docs/reviews/bh04/run_bh04_tests.py`.
+- Ticket tiếp theo: **BH-05** (đăng ký/lời mời), theo AG-05 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md).

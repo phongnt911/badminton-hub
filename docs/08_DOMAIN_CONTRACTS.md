@@ -124,3 +124,21 @@ available_only dựa capacity minus tổng confirmed DB, không count theo playe
 ## 10. BH-03 sau sửa C1–C5
 
 Forward migration bắt buộc request_id cho mọi BH-03 mutation; idempotency check khóa theo actor/operation/request trước side effect và hash canonical toàn bộ payload có scope. Same key khác payload phải conflict, không dùng hash nối chuỗi thiếu field. UI provider giữ key qua retry cùng ý định, không chỉ disable nút; caller bên ngoài phải gửi key. add_club_member chưa có acceptance API thì từ chối user_id không NULL. Auth identity thay đổi xóa private club state và loại response phiên cũ. Chi tiết triển khai/giới hạn ở [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md).
+
+## 11. BH-04 buổi chơi (đã triển khai — migration `20261015163000_bh04_sessions.sql`)
+
+RPC mutation (đều `SECURITY DEFINER`, `search_path = public, pg_temp`, bắt buộc `p_request_id`, idempotency theo actor/operation/request + hash canonical, có audit, `REVOKE PUBLIC/anon` + `GRANT authenticated`):
+
+- `create_session(p_venue_id, p_title, p_starts_at, p_ends_at, p_capacity, p_court_count, p_club_id?, p_description?, p_level_requirement?, p_visibility, p_approval_mode, p_fee_mode, p_member_fee_vnd?, p_guest_fee_vnd?, p_registration_deadline?, p_cancellation_deadline?, p_request_id)` → JSONB chi tiết. Tạo `lifecycle='draft'`, `version=1`, `host_user_id=actor`. Gắn CLB thì actor phải là owner/host của CLB active; không gắn thì buổi vãng lai. `starts_at` phải ở tương lai; `ends_at > starts_at` (cho phép qua nửa đêm); `fee_mode='fixed'` đòi đủ hai mức phí.
+- `update_session(p_session_id, p_version, ...)` → JSONB. Chỉ management; `FOR UPDATE` + `p_version <> version` ⇒ `VERSION_CONFLICT`; chặn khi `lifecycle ∉ {draft, published}` (`INVALID_STATE`); tăng `version`.
+- `set_session_lifecycle(p_session_id, p_action, p_request_id)` với `p_action ∈ {publish, cancel}`. Publish chỉ từ `draft` và `starts_at > now()`; cancel từ `{draft, published, in_progress}`.
+- `duplicate_session(p_session_id, p_starts_at, p_ends_at, p_request_id)` → JSONB draft mới; chỉ copy cấu hình, **không** copy `session_players`/`session_player_contacts`/charge; actor thành host.
+
+RPC đọc (projection whitelist, không lộ contact/bank/snapshot):
+
+- `get_session_public_detail(p_session_id)` — `anon, authenticated`. Public/unlisted đọc theo link; `visibility='private'` **hoặc** `lifecycle='draft'` yêu cầu đăng nhập + quyền (host/management/finance/member CLB/participant). Trả cờ `can_manage`, `can_view_finance`, `is_host`, `version`, `my_registration`, `confirmed_count`.
+- `list_my_sessions(p_limit, p_offset)` — `authenticated`; buổi host/management/finance; phân trang trước aggregate, `offset>0` trả phần còn lại (không NULL).
+- `list_public_sessions(p_area?, p_from?, p_to?, p_fee_mode?, p_only_available?, p_limit, p_offset)` — `anon, authenticated`; đọc `public_session_summary` (chỉ public + published/in_progress), lọc khu vực/khoảng ngày/còn chỗ/fee_mode (PD-02).
+- `list_session_players(p_session_id, p_limit, p_offset)` — chỉ management (finance **không** đọc, F7); phân trang; trả SĐT cho management.
+
+Helper `validate_session_config(...)` dùng chung và bị `REVOKE` khỏi mọi role client. Thời gian lưu UTC (`timestamptz`); UI đổi sang `Asia/Ho_Chi_Minh` (+07) qua `lib/core/time_utils.dart`. Link tài nguyên nội bộ `/sessions/:id` kiểm hợp lệ bằng `lib/core/app_routes.dart` (allowlist scheme/host/path/query, UUID bắt buộc); chi tiết và giới hạn ở [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md).

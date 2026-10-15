@@ -67,3 +67,7 @@ Dùng prompt ở cuối [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATI
 ## Tiếp tục sau đợt sửa trước BH-04
 
 Dùng prompt phiên mới trong [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Không lặp lại các remediation đã đóng; chuyển đường demo buổi chơi theo BH-04 và giữ regression.
+
+## Trạng thái sau BH-04
+
+AG-04 **đã triển khai local/staging**: [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md) (migration `20261015163000_bh04_sessions.sql`, model/repository/provider typed, projection whitelist, link `/sessions/:id` + return-after-login). Flutter 101/101 PASS, DB 159/159 PASS, analyze sạch; chưa apply production, chưa kiểm PostgREST HTTP/JWT. Bước tiếp theo: **AG-05 (BH-05)** — đọc AG-05 ở trên, không mở rộng sang BH-06+ và không đổi routing đã chốt.
