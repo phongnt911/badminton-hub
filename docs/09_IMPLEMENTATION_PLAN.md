@@ -144,3 +144,7 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 - **Chặn tiếp tục (P0)**, còn mở: (X1) lớp demo `SupabaseService`/`SessionProvider` còn ghi bộ đếm/số dư trực tiếp và dùng cột demo không có trong schema v1.1 — app "nửa migration"; (X2) cấu hình mặc định trỏ production, `AppConfig.environment` không có tác dụng, `scripts/update_db.dart` ghi thẳng project thật.
 - **Còn mở tại HEAD**: phân trang `list_club_members` (đã tái hiện: bỏ qua `limit`, `offset>0` trả NULL); lỗi tải Thành viên/Tài khoản quỹ hiển thị thành empty; `list_my_clubs` thiếu `balance_vnd`; RPC đọc chưa REVOKE PUBLIC/anon; invariant clean/legacy lệch; test cấu trúc thay test hành vi. Ghi chú trung thực: mục "số dư quỹ" ở danh sách CLB (BH-03C) không đúng thực tế.
 - Giới hạn: chưa kiểm PostgREST HTTP/JWT thật, concurrency đa kết nối, thiết bị thật, production.
+
+## Đợt sửa trước BH-04 — 15/10/2026
+
+Đã sửa cấu hình môi trường, auth session, phân trang member, UI error/retry/role và ACL RPC đọc bằng forward migration. Flutter 66/66 PASS; DB 117/117 PASS; analyze sạch. Chi tiết, bằng chứng, giới hạn và prompt phiên mới: [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Chưa apply production/kiểm HTTP JWT; X1 chuyển đổi buổi chơi demo thuộc BH-04, chặn pilot.

@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../data/auth_repository.dart';
 
 /// Provider quản lý trạng thái xác thực trong ứng dụng
@@ -15,7 +17,7 @@ class AuthProvider extends ChangeNotifier {
   String? _successMessage;
 
   AuthProvider({AuthRepository? repository})
-      : _repository = repository ?? AuthRepository() {
+    : _repository = repository ?? AuthRepository() {
     _currentUser = _repository.currentUser;
     _listenToAuthChanges();
   }
@@ -85,9 +87,8 @@ class AuthProvider extends ChangeNotifier {
         password: password,
         displayName: displayName,
       );
-      _currentUser = res.user;
-      _successMessage =
-          'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản (nếu có yêu cầu).';
+      _currentUser = res.session?.user;
+      _successMessage = 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản (nếu có yêu cầu).';
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -109,8 +110,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _repository.sendPasswordResetEmail(email: email);
-      _successMessage =
-          'Đã gửi liên kết khôi phục mật khẩu vào hộp thư của bạn. Vui lòng kiểm tra email.';
+      _successMessage = 'Đã gửi liên kết khôi phục mật khẩu vào hộp thư của bạn. Vui lòng kiểm tra email.';
       return true;
     } catch (e) {
       _errorMessage = e.toString();

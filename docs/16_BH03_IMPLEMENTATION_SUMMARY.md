@@ -85,3 +85,5 @@
 ## Cập nhật sau review 88dd247
 
 Báo cáo nghiệm thu cũ phía trên là lịch sử trước review C1–C5. Đã bổ sung forward migration, auth lifecycle/reset và request keys/canonical idempotency; kết quả mới tại [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md): Flutter 61/61, analyze sạch, DB 109/109 checks trên PostgreSQL cô lập. Chưa full Supabase HTTP/JWT/thiết bị thật hoặc apply production; không tự gán account member trước consent.
+
+Cập nhật trước BH-04: danh sách CLB không hiển thị số dư; số dư chỉ ở màn chi tiết và theo quyền. Xem docs/19_PRE_BH04_HANDOFF.md.

@@ -8,25 +8,34 @@ enum AppEnvironment { dev, staging, prod, test }
 /// Hỗ trợ đọc từ biến môi trường (--dart-define) để không gán cứng
 /// thông tin sản xuất khi chạy kiểm thử hoặc phát triển.
 class AppConfig {
-  static const String _defaultSupabaseUrl =
-      'https://vqelcjxljddxoyplgcvm.supabase.co';
-  static const String _defaultAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxjanhsamRkeG95cGxnY3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODc0NjIsImV4cCI6MjEwNjg2MzQ2Mn0.u_lf-7_EYW9SGuVL5iiOw5hXiuiR-Sq4HE7xw-kdgpg';
-
-  /// Môi trường hiện tại, mặc định là dev nếu không truyền
-  static const AppEnvironment environment = AppEnvironment.dev;
-
-  /// URL kết nối Supabase, có thể ghi đè qua --dart-define=SUPABASE_URL=...
-  static String get supabaseUrl => const String.fromEnvironment(
-    'SUPABASE_URL',
-    defaultValue: _defaultSupabaseUrl,
+  static const String environmentName = String.fromEnvironment('APP_ENV');
+  static AppEnvironment get environment => AppEnvironment.values.firstWhere(
+    (value) => value.name == environmentName,
+    orElse: () => throw StateError('Cần APP_ENV=dev|staging|prod|test'),
   );
 
-  /// Khóa công khai Anon Key, có thể ghi đè qua --dart-define=SUPABASE_ANON_KEY=...
-  static String get supabaseAnonKey => const String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue: _defaultAnonKey,
-  );
+  static String get supabaseUrl => const String.fromEnvironment('SUPABASE_URL');
+  static String get supabaseAnonKey =>
+      const String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  static void validate() {
+    final env = environment;
+    final uri = Uri.tryParse(supabaseUrl);
+    if (uri == null ||
+        !uri.hasAuthority ||
+        !['http', 'https'].contains(uri.scheme) ||
+        supabaseAnonKey.isEmpty) {
+      throw StateError('Cần SUPABASE_URL và SUPABASE_ANON_KEY hợp lệ');
+    }
+    if (env == AppEnvironment.test &&
+        !['localhost', '127.0.0.1', '::1'].contains(uri.host)) {
+      throw StateError('Môi trường test chỉ được kết nối local');
+    }
+    if (uri.host == 'vqelcjxljddxoyplgcvm.supabase.co' &&
+        env != AppEnvironment.prod) {
+      throw StateError('Project production yêu cầu APP_ENV=prod');
+    }
+  }
 
   /// URL điều hướng sau khi xác nhận email hoặc đặt lại mật khẩu.
   /// Trên Web: dùng origin hiện tại (ví dụ: http://localhost:3000 hoặc domain web).

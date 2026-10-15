@@ -317,12 +317,7 @@ class _ClubsScreenState extends State<ClubsScreen> {
                       ),
                     ],
                   ),
-                  if (club.canViewBalance && club.balanceVnd != null) ...[
-                    Text(
-                      'Quỹ: ${NumberFormat('#,###').format(club.balanceVnd)} đ',
-                      style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                  ],
+
                 ],
               ),
             ],
@@ -768,7 +763,9 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> with SingleTickerPr
           : null,
       body: provider.isLoadingMembers
           ? const Center(child: CircularProgressIndicator())
-          : members.isEmpty
+          : provider.membersErrorMessage != null
+              ? _loadError('Không thể tải thành viên.', () => provider.fetchMembers(widget.clubId))
+              : members.isEmpty
               ? const Center(child: Text('Chưa có thành viên nào.'))
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
@@ -875,52 +872,37 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> with SingleTickerPr
     );
   }
 
+  Widget _loadError(String message, VoidCallback retry) => Center(
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Text(message),
+      TextButton(onPressed: retry, child: const Text('Thử lại')),
+    ]),
+  );
+
   void _showRoleDialog(ClubMember member) {
+    final provider = context.read<ClubProvider>();
+    bool submitting = false;
+    String? error;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(builder: (ctx, update) => AlertDialog(
         title: Text('Đổi vai trò cho ${member.displayName}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Quản lý (Host)'),
-              subtitle: const Text('Thêm thành viên, quản lý danh bạ'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await context.read<ClubProvider>().setMemberRole(
-                      clubId: widget.clubId,
-                      memberId: member.id,
-                      role: 'host',
-                    );
-              },
-            ),
-            ListTile(
-              title: const Text('Thủ quỹ (Treasurer)'),
-              subtitle: const Text('Xem quỹ, xem tài khoản nhận tiền'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await context.read<ClubProvider>().setMemberRole(
-                      clubId: widget.clubId,
-                      memberId: member.id,
-                      role: 'treasurer',
-                    );
-              },
-            ),
-            ListTile(
-              title: const Text('Thành viên thường (Member)'),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await context.read<ClubProvider>().setMemberRole(
-                      clubId: widget.clubId,
-                      memberId: member.id,
-                      role: 'member',
-                    );
-              },
-            ),
-          ],
-        ),
-      ),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
+          for (final role in {'host': 'Quản lý', 'treasurer': 'Thủ quỹ', 'member': 'Thành viên'}.entries)
+            ListTile(title: Text(role.value), onTap: submitting ? null : () async {
+              update(() { submitting = true; error = null; });
+              final ok = await provider.setMemberRole(clubId: widget.clubId, memberId: member.id, role: role.key);
+              if (!ctx.mounted) return;
+              if (ok) { Navigator.pop(ctx); } else {
+                update(() { submitting = false; error = 'Không thể đổi vai trò. Vui lòng thử lại.'; });
+              }
+            }),
+          if (submitting) const CircularProgressIndicator(),
+        ]),
+        actions: [TextButton(onPressed: submitting ? null : () => Navigator.pop(ctx), child: const Text('Đóng'))],
+      )),
     );
   }
 
@@ -928,6 +910,13 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> with SingleTickerPr
     final canConfig = club.canConfigureBank;
     final canView = club.canViewBalance;
     final bank = provider.currentBankAccount;
+
+    if (canView || canConfig) {
+      if (provider.isLoadingBank) return const Center(child: CircularProgressIndicator());
+      if (provider.bankErrorMessage != null) {
+        return _loadError('Không thể tải tài khoản nhận tiền.', () => provider.fetchClubBankAccount(widget.clubId));
+      }
+    }
 
     if (!canView && !canConfig) {
       return Center(

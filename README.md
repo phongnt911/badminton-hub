@@ -33,10 +33,10 @@ flutter run -d chrome
 
 ## Cấu hình môi trường & Supabase
 
-Dự án sử dụng `AppConfig` (`lib/core/app_config.dart`) để quản lý cấu hình kết nối. Mặc định kết nối tới môi trường dev, có thể ghi đè linh hoạt qua cờ `--dart-define`:
+Dự án sử dụng `AppConfig` (`lib/core/app_config.dart`) để quản lý cấu hình kết nối. Không có kết nối mặc định. Bắt buộc truyền APP_ENV (dev/staging/prod/test), URL và public anon key qua `--dart-define`; project production chỉ chấp nhận APP_ENV=prod. Test chỉ chấp nhận URL local:
 
 ```bash
-flutter run --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_ANON_KEY=your-anon-key
+flutter run --dart-define=APP_ENV=dev --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### Công cụ dòng lệnh tương tác trực tiếp với Supabase
@@ -86,3 +86,5 @@ Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPL
 ## BH-03 sau review
 
 Đã sửa C1–C5 bằng [forward migration và app/session retry](docs/17_BH03_REMEDIATION.md). Xác minh Flutter 3.47.7/Dart 3.13.5: 61 tests PASS, analyze sạch; PostgreSQL cô lập 109 checks PASS. Chưa apply Supabase production hoặc kiểm full HTTP/JWT; giữ đúng giới hạn báo cáo trước rollout.
+
+Bàn giao phiên tiếp theo: [19_PRE_BH04_HANDOFF.md](docs/19_PRE_BH04_HANDOFF.md). CLI đọc cần SUPABASE_URL/SUPABASE_ANON_KEY từ environment; script update_db chỉ seed local.

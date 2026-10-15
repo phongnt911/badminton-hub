@@ -41,6 +41,24 @@ void main() {
     );
   }
 
+  testWidgets('login callback returns to previous route', (tester) async {
+    final user = MockUser();
+    when(() => mockRepository.signInWithEmail(email: 'user@test.com', password: 'password')).thenAnswer((_) async => AuthResponse(user: user));
+    bool called = false;
+    await tester.pumpWidget(buildTestableWidget(Builder(builder: (context) => Scaffold(body: TextButton(
+      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => AuthScreen(onSuccess: () { called = true; }))),
+      child: const Text('Open login'))))));
+    await tester.tap(find.text('Open login'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('login_email_field')), 'user@test.com');
+    await tester.enterText(find.byKey(const Key('login_password_field')), 'password');
+    await tester.tap(find.byKey(const Key('login_submit_button')));
+    await tester.pumpAndSettle();
+    expect(called, isTrue);
+    expect(find.byType(AuthScreen), findsNothing);
+    expect(find.text('Open login'), findsOneWidget);
+  });
+
   group('AuthScreen Widget Tests', () {
     testWidgets('Hiển thị tab Đăng Nhập mặc định với các trường nhập liệu',
         (tester) async {

@@ -27,6 +27,50 @@ void main() {
     );
   }
 
+  testWidgets('member and bank failures show retry and recover', (tester) async {
+    const club = Club(id: 'c1', ownerUserId: 'u1', name: 'Test', visibility: 'private', myRole: 'owner');
+    when(() => mockRepo.getClubDetail('c1')).thenAnswer((_) async => club);
+    when(() => mockRepo.listClubMembers('c1')).thenThrow(Exception('offline'));
+    when(() => mockRepo.getClubBankAccount('c1')).thenThrow(Exception('offline'));
+    await tester.pumpWidget(createWidgetUnderTest(child: const ClubDetailScreen(clubId: 'c1', clubName: 'Test')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Thành viên'));
+    await tester.pumpAndSettle();
+    expect(find.text('Không thể tải thành viên.'), findsOneWidget);
+    expect(find.text('Chưa có thành viên nào.'), findsNothing);
+    when(() => mockRepo.listClubMembers('c1')).thenAnswer((_) async => []);
+    await tester.tap(find.text('Thử lại').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Chưa có thành viên nào.'), findsOneWidget);
+    await tester.tap(find.text('Tài khoản quỹ'));
+    await tester.pumpAndSettle();
+    expect(find.text('Không thể tải tài khoản nhận tiền.'), findsOneWidget);
+    when(() => mockRepo.getClubBankAccount('c1')).thenAnswer((_) async => null);
+    await tester.tap(find.text('Thử lại').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('Không thể tải tài khoản nhận tiền.'), findsNothing);
+  });
+
+  testWidgets('failed role change keeps dialog open', (tester) async {
+    const club = Club(id: 'c1', ownerUserId: 'u1', name: 'Test', visibility: 'private', myRole: 'owner');
+    when(() => mockRepo.getClubDetail('c1')).thenAnswer((_) async => club);
+    when(() => mockRepo.listClubMembers('c1')).thenAnswer((_) async => [const ClubMember(id: 'm1', clubId: 'c1', userId: 'u2', displayName: 'Online member', role: 'member')]);
+    when(() => mockRepo.getClubBankAccount('c1')).thenAnswer((_) async => null);
+    when(() => mockRepo.setClubMemberRole(clubId: any(named: 'clubId'), memberId: any(named: 'memberId'), role: any(named: 'role'), requestId: any(named: 'requestId'))).thenThrow(Exception('offline'));
+    await tester.pumpWidget(createWidgetUnderTest(child: const ClubDetailScreen(clubId: 'c1', clubName: 'Test')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Thành viên'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đổi vai trò'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Quản lý'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Không thể đổi vai trò. Vui lòng thử lại.'), findsOneWidget);
+  });
+
   group('ClubsScreen Widget Tests', () {
     testWidgets('displays empty state when user has no clubs', (tester) async {
       when(() => mockRepo.listMyClubs()).thenAnswer((_) async => []);
@@ -65,7 +109,7 @@ void main() {
 
       expect(find.text('CLB Chiến Thần (Owner)'), findsOneWidget);
       expect(find.text('Chủ nhiệm'), findsOneWidget);
-      expect(find.text('Quỹ: 5,000,000 đ'), findsOneWidget);
+      expect(find.text('Quỹ: 5,000,000 đ'), findsNothing);
 
       expect(find.text('CLB Vui Vẻ (Member)'), findsOneWidget);
       expect(find.text('Thành viên'), findsOneWidget);

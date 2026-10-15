@@ -37,6 +37,13 @@ def record(name, passed, actual):
 for prefix in ['bh03_clean_', 'bh03_legacy_']:
     db = prefix + stamp
     club = must(db, 'SELECT id FROM clubs ORDER BY created_at LIMIT 1;')
+    # Page through the same authorized roster; no duplicate/lost member, [] past end.
+    roster = json.loads(must(db, actor(f"SELECT list_club_members('{club}',100,0);" )).splitlines()[-1])
+    pages = [json.loads(must(db, actor(f"SELECT list_club_members('{club}',1,{i});")).splitlines()[-1]) for i in range(len(roster)+1)]
+    record(db + ': pagination stable and bounded', len(roster) > 1 and all(len(page)==1 for page in pages[:-1]) and pages[-1] == [] and [p[0]['id'] for p in pages[:-1]] == [p['id'] for p in roster], pages)
+    for signature in ['list_my_clubs()', 'get_club_detail(uuid)', 'list_club_members(uuid,integer,integer)']:
+        actual = must(db, f"SELECT has_function_privilege('anon','public.{signature}','EXECUTE'), has_function_privilege('authenticated','public.{signature}','EXECUTE');")
+        record(db + ': ACL ' + signature, actual == 'f|t', actual)
     for label, call, error in [
         ('consent required', f"SELECT add_club_member('{club}','Unaccepted',NULL,NULL,{q(9)},'{uuid.uuid4()}');", 'FORBIDDEN'),
         ('request id required', "SELECT create_club('Missing key');", 'INVALID_INPUT'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../core/app_constants.dart';
 import '../providers/auth_provider.dart';
 
@@ -57,17 +58,9 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   void _handleSuccess() {
-    if (widget.onSuccess != null) {
-      widget.onSuccess!();
-    } else if (widget.returnRoute != null && widget.returnRoute!.isNotEmpty) {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(true);
-      }
-    } else {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(true);
-      }
-    }
+    final navigator = Navigator.of(context);
+    widget.onSuccess?.call();
+    if (mounted && navigator.canPop()) navigator.pop(true);
   }
 
   Future<void> _submitLogin() async {
@@ -76,7 +69,9 @@ class _AuthScreenState extends State<AuthScreen>
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ email và mật khẩu.')),
+        const SnackBar(
+          content: Text('Vui lòng nhập đầy đủ email và mật khẩu.'),
+        ),
       );
       return;
     }
@@ -112,7 +107,9 @@ class _AuthScreenState extends State<AuthScreen>
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng điền đầy đủ các trường thông tin.')),
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ các trường thông tin.'),
+        ),
       );
       return;
     }
@@ -147,7 +144,7 @@ class _AuthScreenState extends State<AuthScreen>
           duration: const Duration(seconds: 4),
         ),
       );
-      _handleSuccess();
+      if (auth.isAuthenticated) _handleSuccess();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -288,8 +285,9 @@ class _AuthScreenState extends State<AuthScreen>
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(
@@ -380,8 +378,9 @@ class _AuthScreenState extends State<AuthScreen>
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(
@@ -438,8 +437,9 @@ class _AuthScreenState extends State<AuthScreen>
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(

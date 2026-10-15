@@ -1,0 +1,15 @@
+{
+  "baseline": "004e05f6326536baad9c281e8e65bd6d9aea1975",
+  "worktree_dirty": true,
+  "migration_sha256": {
+    "supabase/migrations/20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "supabase/migrations/20261015151445_pre_bh04_hardening.sql": "404edb4a0b6bbbe8aebb5788c34ab5d799072f915bb5274611890ee09ceb59db",
+    "supabase/migrations/20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "supabase/migrations/20261015140216_bh03_identity_retry_session_fixes.sql": "3424bb8a37979e9985722c4bd92db68ba875a4d3221e2874ff113799a3560e3e"
+  },
+  "flutter_passed": 66,
+  "database_passed": 117,
+  "config_matrix_passed": 3,
+  "production_applied": false,
+  "http_jwt_tested": false
+}

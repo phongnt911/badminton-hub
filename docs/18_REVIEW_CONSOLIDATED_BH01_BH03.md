@@ -13,7 +13,7 @@ Ngày 15/10/2026. Tài liệu tổng hợp rà soát ba ticket BH-01 (Auth & c�
   - `docs/reviews/bh03/bh03_test_results_20261015145923.json` — **48/48 PASS** (24 ca × 2 DB clean/legacy).
   - `docs/reviews/bh03/bh03_retry_results_20261015145923.json` — **14/14 PASS**.
   - Tổng DB: **109/109 PASS**.
-- **Chưa kiểm chứng**: PostgREST HTTP/JWT thật, Supabase local/staging, concurrency đa kết nối thật, apply production, thiết bị thật (deep link).
+- **Chưa kiểm chứng**: PostgREST HTTP/JWT thật, Supabase local/staging, concurrency qua HTTP/PostgREST, apply production, thiết bị thật (deep link).
 
 ---
 
@@ -32,27 +32,27 @@ Bên cạnh đó, một số lỗi hợp đồng vẫn còn ở HEAD: phân tran
 
 | ID | Ticket | Mức | Tóm tắt | Tại HEAD `a433349` |
 |---|---|---|---|---|
-| **X1** | BH-02/03 | 🔴 P0 | Lớp demo (`SupabaseService`/`SessionProvider`) xung đột schema và ghi bộ đếm/số dư trực tiếp | **Còn mở** |
-| **X2** | BH-01 | 🔴 P0 | Cấu hình mặc định = production; `environment` chết; script ghi production | **Còn mở** |
+| **X1** | BH-02/03 | 🔴 P1 | Lớp demo (`SupabaseService`/`SessionProvider`) xung đột schema và ghi bộ đếm/số dư trực tiếp | **Còn mở tại baseline a433349** |
+| **X2** | BH-01 | 🔴 P1 | Cấu hình mặc định = production; `environment` chết; script ghi production | **Còn mở tại baseline a433349** |
 | **B3-A** | BH-03 | 🔴 P1 | `add_club_member` nhận `user_id` không consent (vi phạm hợp đồng) | ✅ Đã sửa (C1) |
 | **B3-B** | BH-03 | 🔴 P1 | Logout không xóa state CLB ⇒ rò rỉ giữa các phiên | ✅ Đã sửa (C3) |
-| **B3-C** | BH-03 | 🟡 P1 | Phân trang `list_club_members` hỏng: `limit` bị bỏ qua, `offset>0` trả NULL | **Còn mở** |
+| **B3-C** | BH-03 | 🟡 P1 | Phân trang `list_club_members` hỏng: `limit` bị bỏ qua, `offset>0` trả NULL | **Còn mở tại baseline a433349** |
 | **B3-D** | BH-03 | 🟡 P2 | Hash idempotency thiếu field ⇒ "khác payload" không bị chặn | ✅ Đã sửa (C5) |
 | **B3-E** | BH-03 | 🟡 P2 | UI không truyền `request_id` ⇒ retry có thể tạo bản ghi kép | ✅ Đã sửa (C4) |
-| **B3-F** | BH-03 | 🟡 P2 | Lỗi tải Thành viên/Tài khoản quỹ hiển thị thành empty state | **Còn mở** |
-| **B3-G** | BH-03 | 🟡 P2 | `list_my_clubs` không trả `balance_vnd` nhưng UI render ⇒ nhánh chết + báo cáo sai | **Còn mở** |
+| **B3-F** | BH-03 | 🟡 P2 | Lỗi tải Thành viên/Tài khoản quỹ hiển thị thành empty state | **Còn mở tại baseline a433349** |
+| **B3-G** | BH-03 | 🟡 P2 | `list_my_clubs` không trả `balance_vnd` nhưng UI render ⇒ nhánh chết + báo cáo sai | **Còn mở tại baseline a433349** |
 | **B3-H** | BH-03 | 🟡 P2 | RPC `SECURITY DEFINER` giữ `EXECUTE` cho PUBLIC/anon | ✅ Một phần (mutation đã REVOKE; read RPC còn mặc định) |
 | **B3-I** | BH-03 | 🟡 P2 | Dialog đổi vai trò âm thầm thất bại; `create_club` chưa chống race | ✅ Một phần (race đã sửa — C2; nửa UI còn mở) |
-| **B1-A** | BH-01 | 🟡 P2 | `signUp` coi là đã đăng nhập dù chưa có session (email chưa confirm) | **Còn mở** |
-| **B1-B** | BH-01 | 🟡 P2 | `AuthScreen._handleSuccess` không pop khi có `onSuccess` | **Còn mở** |
-| **B1-C** | BH-01 | 🟡 P2 | `throw String` thay vì Exception; lộ chi tiết lỗi nội bộ | **Còn mở** |
-| **B1-D** | BH-01 | 💭 P3 | Khớp lỗi bằng chuỗi message GoTrue; fallback tiếng Anh | **Còn mở** |
-| **B2-A** | BH-02 | 🟡 P2 | Invariant clean vs legacy lệch (cột mới chỉ nullable trên nhánh upgrade) | **Còn mở** |
-| **B2-B** | BH-02 | 🟡 P2 | Test cấu trúc `sqlContent.contains` thay thế test hành vi; có tên test sai mô tả | **Còn mở** |
-| **B2-C** | BH-02 | 🟡 P2 | `get_session_public_detail` không kiểm `lifecycle` (draft vẫn đọc được theo ID) | **Còn mở** |
-| **B2-D** | BH-02 | 💭 P3 | Chưa xác định migration đã apply ở môi trường nào; chưa có forward migration | **Còn mở** |
+| **B1-A** | BH-01 | 🟡 P2 | `signUp` coi là đã đăng nhập dù chưa có session (email chưa confirm) | **Còn mở tại baseline a433349** |
+| **B1-B** | BH-01 | 🟡 P2 | `AuthScreen._handleSuccess` không pop khi có `onSuccess` | **Còn mở tại baseline a433349** |
+| **B1-C** | BH-01 | 🟡 P2 | `throw String` thay vì Exception; lộ chi tiết lỗi nội bộ | **Còn mở tại baseline a433349** |
+| **B1-D** | BH-01 | 💭 P3 | Khớp lỗi bằng chuỗi message GoTrue; fallback tiếng Anh | **Còn mở tại baseline a433349** |
+| **B2-A** | BH-02 | 🟡 P2 | Invariant clean vs legacy lệch (cột mới chỉ nullable trên nhánh upgrade) | **Còn mở tại baseline a433349** |
+| **B2-B** | BH-02 | 🟡 P2 | Test cấu trúc `sqlContent.contains` thay thế test hành vi; có tên test sai mô tả | **Còn mở tại baseline a433349** |
+| **B2-C** | BH-02 | 🟡 P2 | `get_session_public_detail` không kiểm `lifecycle` (draft vẫn đọc được theo ID) | **Còn mở tại baseline a433349** |
+| **B2-D** | BH-02 | 💭 P3 | Chưa xác định migration đã apply ở môi trường nào; chưa có forward migration | **Còn mở tại baseline a433349** |
 
-Mức: 🔴 chặn nghiệm thu/không nên phát hành · 🟡 nên sửa · 💭 tùy chọn. P0 = chặn mọi thứ tiếp theo. C1–C5 là mã lỗi trong [review_88dd247](reviews/bh03/review_88dd247.md), đã khắc phục theo [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md).
+Mức: 🔴 chặn nghiệm thu/không nên phát hành · 🟡 nên sửa · 💭 tùy chọn. X1/X2 được điều chỉnh thành P1 chặn phát hành; không chặn triển khai BH-04. C1–C5 là mã lỗi trong [review_88dd247](reviews/bh03/review_88dd247.md), đã khắc phục theo [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md).
 
 ---
 
@@ -230,7 +230,7 @@ Mức: 🔴 chặn nghiệm thu/không nên phát hành · 🟡 nên sửa · �
 
 ### 🔴 X2 — Cấu hình production mặc định & công cụ ghi production (còn mở)
 
-Trùng B1-A ở trên; nêu ở đây vì đây là rủi ro vận hành chung cho cả ba ticket (dev/test/CI vô tình trỏ production).
+Trùng X2 tại mục 2.2; nêu ở đây vì đây là rủi ro vận hành chung cho cả ba ticket (dev/test/CI vô tình trỏ production).
 
 ### 🟡 X3 — ACL/least-privilege chưa nhất quán
 
@@ -239,7 +239,7 @@ Helper nội bộ và 8 mutation đã REVOKE/PUBLIC đúng, nhưng RPC đọc c�
 ### 🟡 X4 — Concurrency & idempotency (đã cải thiện, còn khoảng trống)
 
 - `create_club` TOCTOU đã được sửa (C2) và có ca hai request đồng thời; hash đầy đủ (C5); UI dùng `request_id` (C4).
-- Còn lại: các ca "concurrent" dùng trigger test-only trì hoãn tại INSERT — tốt hơn tuần tự, nhưng vẫn **không** thay thế được hai kết nối độc lập thật; và mutation khác ngoài `create_club` (ví dụ hai `set_club_bank_account` song song) chưa có ca đa kết nối.
+- Còn lại: các ca "concurrent" dùng trigger test-only trì hoãn tại INSERT — tốt hơn tuần tự, và thực tế chạy hai tiến trình psql, mỗi tiến trình mở một kết nối độc lập; và mutation khác ngoài `create_club` (ví dụ hai `set_club_bank_account` song song) chưa có ca đa kết nối.
 
 **Suggestion:** thêm ca hai `psql`/connection thật cho bank/role; quy chuẩn "mọi mutation có `request_id` + hash toàn bộ payload + khoá chống race".
 
@@ -261,7 +261,7 @@ Helper nội bộ và 8 mutation đã REVOKE/PUBLIC đúng, nhưng RPC đọc c�
 
 ### 🟡 X7 — Hợp đồng đọc & phân trang
 
-`list_club_members` hỏng phân trang (B3-C); `list_my_clubs` thiếu field mà UI trông đợi (B3-G). Nên quy chuẩn read contract: mọi RPC danh sách trả cấu trúc có `items` + con trỏ phân trang, và client chỉ phụ thuộc field có trong hợp đồng.
+`list_club_members` hỏng phân trang (B3-C); `list_my_clubs` thiếu field mà UI trông đợi (B3-G). Giữ hợp đồng JSON array hiện có, sửa LIMIT/OFFSET và thứ tự ổn định; chưa cần chuyển sang cursor cho pilot.
 
 ---
 
@@ -290,7 +290,7 @@ Hệ thống hiện có **ba lớp truy cập dữ liệu** chồng lấn:
 | **ADR-12** | Hợp đồng lỗi thống nhất `{code, message_vi}`; không lộ chi tiết DB | X6, B1-C | Đổi ở tầng repository/provider |
 | **ADR-13** | Cấu hình môi trường bắt buộc qua `--dart-define`/`.env`; không default production; test bị cô lập | X2 | CI/dev an toàn hơn |
 | **ADR-14** | Idempotency bắt buộc mọi mutation; hash toàn bộ payload; khoá chống race; UI giữ `request_id` khi retry | X4, B3-D/E/I | Đã có mẫu ở `a433349`; chuẩn hoá cho RPC sau |
-| **ADR-15** | Read contract chuẩn: RPC danh sách trả `items` + phân trang con trỏ | X7, B3-C | Sửa `list_club_members`, thống nhất list API |
+| **ADR-15** | Read contract chuẩn: Giữ JSON array + LIMIT/OFFSET ổn định cho pilot | X7, B3-C | Sửa `list_club_members`, thống nhất list API |
 
 ### 6.3 Đường tiến hoá đề xuất
 
@@ -307,7 +307,7 @@ Hệ thống hiện có **ba lớp truy cập dữ liệu** chồng lấn:
 ### Đã xong tại `a433349`
 - ~~B3-A (C1)~~, ~~B3-B (C3)~~, ~~B3-D (C5)~~, ~~B3-E (C4)~~, ~~B3-I race (C2)~~ — có forward migration + regression tests.
 
-### P0 — chặn tiếp tục (làm trước BH-04)
+### P1 — chặn phát hành
 1. **X1**: gate/gỡ lớp `SupabaseService`/`SessionProvider`; ẩn các màn dùng schema demo tới khi thay bằng RPC. *(bắt buộc nếu không muốn ship app "nửa migration")*
 2. **X2**: bỏ default production; bắt buộc cấu hình môi trường; xử lý `scripts/update_db.dart`.
 
@@ -356,7 +356,7 @@ Hệ thống hiện có **ba lớp truy cập dữ liệu** chồng lấn:
 ## 9. Việc chưa kiểm chứng / giới hạn
 
 - Các runner DB dùng **Auth stub tối thiểu** (`auth.uid()` từ GUC), không phải PostgREST/JWT thật; ACL mặc định function trong PostgreSQL local có thể khác Supabase live.
-- Ca concurrency của `a433349` dùng trigger test-only trì hoãn tại INSERT, không phải hai kết nối độc lập thật.
+- Ca concurrency của `a433349` dùng hai tiến trình psql/kết nối độc lập; trigger test-only trì hoãn INSERT để tăng thời gian chồng lấn. Chưa kiểm HTTP/PostgREST.
 - Không test trên thiết bị di động thật (deep link); chưa apply production; chưa rehearsal migration/backup.
 - Tôi **không** sửa code/migration trong lượt này; chỉ đọc, chạy lại test, dọn evidence cũ, và tạo tài liệu này.
 
@@ -381,3 +381,16 @@ list_club_members(club, 2, 1) -> NULL        (đáng lẽ 2 phần tử còn l�
 ```
 
 Tái hiện B3-A (đã đóng bởi C1 — ghi lại để đối chiếu): trước `a433349`, owner uid(1) gắn được uid(3) không consent và RPC thành công; sau `a433349` cùng thao tác bị từ chối.
+
+## 11. Cập nhật sau đợt sửa trước BH-04
+
+Xem [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md) để biết trạng thái mới nhất. Các mục phía trên là snapshot a433349, không phải danh sách lỗi hiện tại.
+
+- X2: bỏ production mặc định, cấu hình APP_ENV/URL/key bắt buộc; seed chỉ local.
+- B1-A/B: đăng ký chưa có session không authenticated/không đóng màn; login có callback quay lại route trước.
+- B3-C: forward migration phân trang trước aggregate, tie-break bằng ID; không đổi định dạng response.
+- B3-F/I UI: loading/error/retry cho member/bank, đổi role chỉ đóng khi thành công và chặn bấm lặp.
+- B3-G: bỏ số dư trên card danh sách; giữ số dư đúng quyền tại chi tiết.
+- B3-H: thu hồi PUBLIC/anon với ba RPC đọc CLB, authenticated vẫn phải qua kiểm quyền bên trong. Đây là gia cố least-privilege, chưa có bằng chứng rò rỉ từ ACL cũ.
+- X1 còn mở, thuộc chuyển đổi màn buổi chơi BH-04; chặn pilot trước khi chuyển đổi xong.
+- Không apply production; Supabase HTTP/JWT và thiết bị thật chưa kiểm chứng.

@@ -8,14 +8,8 @@ import 'dart:io';
 ///   dart run scripts/supabase_client.dart query `<tên_bảng>`
 ///   dart run scripts/supabase_client.dart info
 void main(List<String> args) async {
-  const defaultUrl = 'https://vqelcjxljddxoyplgcvm.supabase.co';
-  const defaultKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxjanhsamRkeG95cGxnY3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODc0NjIsImV4cCI6MjEwNjg2MzQ2Mn0.u_lf-7_EYW9SGuVL5iiOw5hXiuiR-Sq4HE7xw-kdgpg';
-
-  final supabaseUrl =
-      Platform.environment['SUPABASE_URL'] ?? defaultUrl;
-  final supabaseKey =
-      Platform.environment['SUPABASE_ANON_KEY'] ?? defaultKey;
+  final supabaseUrl = Platform.environment['SUPABASE_URL'] ?? '';
+  final supabaseKey = Platform.environment['SUPABASE_ANON_KEY'] ?? '';
 
   if (args.isEmpty || args[0] == 'help') {
     stdout.writeln('=== Badminton Hub — Supabase Direct CLI Tool ===');
@@ -26,14 +20,19 @@ void main(List<String> args) async {
     return;
   }
 
+  if (supabaseUrl.isEmpty || supabaseKey.isEmpty) {
+    stderr.writeln('Cần SUPABASE_URL và SUPABASE_ANON_KEY tường minh.');
+    exitCode = 1;
+    return;
+  }
   final command = args[0];
 
   switch (command) {
     case 'info':
       stdout.writeln('=== Thông Tin Kết Nối Supabase ===');
       stdout.writeln('Supabase URL: $supabaseUrl');
-      stdout.writeln('Project Ref:  vqelcjxljddxoyplgcvm');
-      stdout.writeln('Anon Key:     ${supabaseKey.substring(0, 20)}...');
+      stdout.writeln('Host: ${Uri.parse(supabaseUrl).host}');
+      stdout.writeln('Anon Key:     đã cấu hình');
       stdout.writeln('Auth Health:  $supabaseUrl/auth/v1/health');
       stdout.writeln('REST Root:    $supabaseUrl/rest/v1/');
       break;
@@ -43,13 +42,17 @@ void main(List<String> args) async {
       final client = HttpClient();
       try {
         // 1. Kiểm tra REST endpoint
-        final restUri = Uri.parse('$supabaseUrl/rest/v1/venues?select=id&limit=1');
+        final restUri = Uri.parse(
+          '$supabaseUrl/rest/v1/venues?select=id&limit=1',
+        );
         final restReq = await client.getUrl(restUri);
         restReq.headers.set('apikey', supabaseKey);
         restReq.headers.set('Authorization', 'Bearer $supabaseKey');
         final restRes = await restReq.close();
         await restRes.drain();
-        stdout.writeln('  [REST API] HTTP ${restRes.statusCode} OK (Bảng venues phản hồi tốt)');
+        stdout.writeln(
+          '  [REST API] HTTP ${restRes.statusCode} OK (Bảng venues phản hồi tốt)',
+        );
 
         // 2. Kiểm tra Auth endpoint
         final authUri = Uri.parse('$supabaseUrl/auth/v1/health');
@@ -59,7 +62,9 @@ void main(List<String> args) async {
         final authBody = await authRes.transform(utf8.decoder).join();
         stdout.writeln('  [Auth API] HTTP ${authRes.statusCode} ($authBody)');
 
-        stdout.writeln('=> Kết nối Supabase thành công và hoạt động bình thường!');
+        stdout.writeln(
+          '=> Kết nối Supabase thành công và hoạt động bình thường!',
+        );
       } catch (e) {
         stderr.writeln('Lỗi khi kiểm tra kết nối: $e');
         exitCode = 1;
@@ -70,7 +75,9 @@ void main(List<String> args) async {
 
     case 'query':
       if (args.length < 2) {
-        stderr.writeln('Vui lòng chỉ định tên bảng cần truy vấn: query <tên_bảng>');
+        stderr.writeln(
+          'Vui lòng chỉ định tên bảng cần truy vấn: query <tên_bảng>',
+        );
         exitCode = 1;
         return;
       }
@@ -107,7 +114,9 @@ void main(List<String> args) async {
       break;
 
     default:
-      stderr.writeln('Lệnh không nhận dạng: $command. Chạy với `help` để xem trợ giúp.');
+      stderr.writeln(
+        'Lệnh không nhận dạng: $command. Chạy với `help` để xem trợ giúp.',
+      );
       exitCode = 1;
   }
 }

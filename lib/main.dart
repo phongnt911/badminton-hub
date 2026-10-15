@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/app_constants.dart';
+import 'core/app_config.dart';
 import 'screens/home_screen.dart';
 import 'screens/venues_screen.dart';
 import 'screens/tools_screen.dart';
@@ -16,6 +17,8 @@ import 'screens/account_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  AppConfig.validate();
 
   // Khởi tạo Supabase với thông số cấu hình từ AppConfig / AppConstants
   await Supabase.initialize(

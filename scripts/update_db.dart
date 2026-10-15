@@ -2,13 +2,25 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() async {
-  final url = Uri.parse('https://vqelcjxljddxoyplgcvm.supabase.co/rest/v1/venues');
-  final key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxjanhsamRkeG95cGxnY3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODc0NjIsImV4cCI6MjEwNjg2MzQ2Mn0.u_lf-7_EYW9SGuVL5iiOw5hXiuiR-Sq4HE7xw-kdgpg';
-  
+  final baseUrl = Platform.environment['SUPABASE_URL'] ?? '';
+  final key = Platform.environment['SUPABASE_ANON_KEY'] ?? '';
+  final target = Uri.tryParse(baseUrl);
+  // Script seed cũ chỉ được chạy trên local, không ghi remote.
+  if (target == null ||
+      !['localhost', '127.0.0.1', '::1'].contains(target.host) ||
+      key.isEmpty) {
+    stderr.writeln(
+      'Seed chỉ hỗ trợ local; cần SUPABASE_URL và SUPABASE_ANON_KEY.',
+    );
+    exitCode = 1;
+    return;
+  }
+  final url = target.resolve('/rest/v1/venues');
   final rawData = [
     {
       "name": "Sân Cầu Lông LITA",
-      "address": "442 Lê Hồng Phong, Phường Nha Trang, TP. Nha Trang, Khánh Hòa",
+      "address":
+          "442 Lê Hồng Phong, Phường Nha Trang, TP. Nha Trang, Khánh Hòa",
       "district": "Phường Nha Trang",
       "maps_link": "https://maps.google.com/?cid=2174209630026573077",
       "phone": "0708660670",
@@ -16,9 +28,15 @@ void main() async {
       "price_per_hour": "60.000 - 80.000",
       "opening_time": "05:00",
       "closing_time": "22:00",
-      "amenities": ["Gửi xe", "Wifi miễn phí", "Bán nước giải khát", "Phòng thay đồ/WC", "Cho thuê vợt"],
+      "amenities": [
+        "Gửi xe",
+        "Wifi miễn phí",
+        "Bán nước giải khát",
+        "Phòng thay đồ/WC",
+        "Cho thuê vợt",
+      ],
       "image_url": "",
-      "notes": "Sân thảm tiêu chuẩn, quy mô lớn, trần cao thoáng mát (khu vực Phước Hòa cũ)"
+      "notes": "Sân thảm tiêu chuẩn, quy mô lớn, trần cao thoáng mát (khu vực Phước Hòa cũ)",
     },
     {
       "name": "Sân Cầu Lông Huy Forza",
@@ -32,7 +50,7 @@ void main() async {
       "closing_time": "22:00",
       "amenities": ["Gửi xe", "Wifi", "Quầy nước", "Cho thuê phụ kiện"],
       "image_url": "",
-      "notes": "Nằm ngay trung tâm thành phố, hệ thống chiếu sáng LED chống chói (khu vực Tân Lập cũ)"
+      "notes": "Nằm ngay trung tâm thành phố, hệ thống chiếu sáng LED chống chói (khu vực Tân Lập cũ)",
     },
     {
       "name": "Sân Cầu Lông Liên Đoàn Cầu Lông Khánh Hòa",
@@ -46,11 +64,12 @@ void main() async {
       "closing_time": "22:00",
       "amenities": ["Gửi xe", "Nhà vệ sinh", "Bán nước"],
       "image_url": "",
-      "notes": "Sân đạt chuẩn liên đoàn tỉnh (khu vực Phương Sài cũ)"
+      "notes": "Sân đạt chuẩn liên đoàn tỉnh (khu vực Phương Sài cũ)",
     },
     {
       "name": "Sân Cầu Lông Hưng Phú 5",
-      "address": "63 Khúc Thừa Dụ, Phường Nam Nha Trang, TP. Nha Trang, Khánh Hòa",
+      "address":
+          "63 Khúc Thừa Dụ, Phường Nam Nha Trang, TP. Nha Trang, Khánh Hòa",
       "district": "Phường Nam Nha Trang",
       "maps_link": "https://maps.google.com/?cid=3097649374214055446",
       "phone": "0948082021",
@@ -58,13 +77,19 @@ void main() async {
       "price_per_hour": "80.000 - 120.000",
       "opening_time": "06:00",
       "closing_time": "22:00",
-      "amenities": ["Gửi xe ô tô & xe máy", "Wifi", "Khu giải khát", "Phòng thay đồ/WC sạch sẽ"],
+      "amenities": [
+        "Gửi xe ô tô & xe máy",
+        "Wifi",
+        "Khu giải khát",
+        "Phòng thay đồ/WC sạch sẽ",
+      ],
       "image_url": "",
-      "notes": "Khu đô thị Phước Long mới, cơ sở vật chất hiện đại"
+      "notes": "Khu đô thị Phước Long mới, cơ sở vật chất hiện đại",
     },
     {
       "name": "Sân Cầu Lông Hưng Phú Phong Châu (Chi nhánh 7)",
-      "address": "163 Phong Châu, Phường Nam Nha Trang, TP. Nha Trang, Khánh Hòa",
+      "address":
+          "163 Phong Châu, Phường Nam Nha Trang, TP. Nha Trang, Khánh Hòa",
       "district": "Phường Nam Nha Trang",
       "maps_link": "https://maps.google.com/?cid=1760342682870403157",
       "phone": "0948082021",
@@ -74,7 +99,7 @@ void main() async {
       "closing_time": "22:00",
       "amenities": ["Bãi đỗ xe", "Wifi", "Tủ nước", "Khu nghỉ ngơi"],
       "image_url": "",
-      "notes": "Cụm sân thể thao Hưng Phú khu vực trục đường Phong Châu"
+      "notes": "Cụm sân thể thao Hưng Phú khu vực trục đường Phong Châu",
     },
     {
       "name": "Sân Cầu Lông Vĩnh Thạnh",
@@ -88,11 +113,12 @@ void main() async {
       "closing_time": "20:00",
       "amenities": ["Bãi giữ xe", "Bán nước", "Nhà vệ sinh"],
       "image_url": "",
-      "notes": "Khu vực xã Vĩnh Thạnh cũ nhập vào phường Tây Nha Trang"
+      "notes": "Khu vực xã Vĩnh Thạnh cũ nhập vào phường Tây Nha Trang",
     },
     {
       "name": "Sân Cầu Lông Ngọc Hội",
-      "address": "319 Đ. 23 Tháng 10, Phường Tây Nha Trang, TP. Nha Trang, Khánh Hòa",
+      "address":
+          "319 Đ. 23 Tháng 10, Phường Tây Nha Trang, TP. Nha Trang, Khánh Hòa",
       "district": "Phường Tây Nha Trang",
       "maps_link": "https://maps.google.com/?cid=11595289792109662465",
       "phone": "0986786780",
@@ -102,7 +128,7 @@ void main() async {
       "closing_time": "22:00",
       "amenities": ["Gửi xe", "Wifi", "Quầy nước", "WC"],
       "image_url": "",
-      "notes": "Khu vực Ngọc Hiệp cũ, mặt tiền trục đường 23 Tháng 10"
+      "notes": "Khu vực Ngọc Hiệp cũ, mặt tiền trục đường 23 Tháng 10",
     },
     {
       "name": "Sân Cầu Lông Speedy Sports",
@@ -116,20 +142,26 @@ void main() async {
       "closing_time": "22:00",
       "amenities": ["Gửi xe", "Wifi", "Quầy nước", "Kết hợp sân Pickleball"],
       "image_url": "",
-      "notes": "Tổ hợp thể thao cầu lông & pickleball tại Lư Cấm (khu vực Ngọc Hiệp cũ)"
-    }
+      "notes": "Tổ hợp thể thao cầu lông & pickleball tại Lư Cấm (khu vực Ngọc Hiệp cũ)",
+    },
   ];
 
-  final dbData = rawData.map((e) => {
-    "name": e["name"],
-    "address": e["address"],
-    "area": e["district"],
-    "map_url": e["maps_link"],
-    "phone_number": e["phone"],
-    "court_count": e["number_of_courts"],
-    "price_range": e["price_per_hour"],
-    "image_url": (e["image_url"] as String).isEmpty ? null : e["image_url"],
-  }).toList();
+  final dbData = rawData
+      .map(
+        (e) => {
+          "name": e["name"],
+          "address": e["address"],
+          "area": e["district"],
+          "map_url": e["maps_link"],
+          "phone_number": e["phone"],
+          "court_count": e["number_of_courts"],
+          "price_range": e["price_per_hour"],
+          "image_url": (e["image_url"] as String).isEmpty
+              ? null
+              : e["image_url"],
+        },
+      )
+      .toList();
 
   final httpClient = HttpClient();
   try {
@@ -137,7 +169,7 @@ void main() async {
     request.headers.set('apikey', key);
     request.headers.set('Authorization', 'Bearer $key');
     request.headers.set('Content-Type', 'application/json');
-    
+
     request.add(utf8.encode(jsonEncode(dbData)));
     final response = await request.close();
     final responseBody = await response.transform(utf8.decoder).join();

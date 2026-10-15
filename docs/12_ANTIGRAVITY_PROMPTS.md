@@ -63,3 +63,7 @@ Sau commit 15ef59b, dùng prompt H1–H3 trong mục cập nhật cuối [13_BH0
 ## AG-03 cụ thể: tiếp tục BH-03 từ code đang dở
 
 Dùng prompt ở cuối [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md) thay phần AG-03 tóm tắt khi triển khai. Đọc báo cáo nghiên cứu 14 theo phạm vi CLB/member/bank; không mở GPS/push/chat hoặc BH-04. Trước pull kiểm local changes, giữ việc IDE đã làm, không sinh migration trùng. Bảo toàn evidence/regression BH-02 và báo rõ giới hạn môi trường.
+
+## Tiếp tục sau đợt sửa trước BH-04
+
+Dùng prompt phiên mới trong [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Không lặp lại các remediation đã đóng; chuyển đường demo buổi chơi theo BH-04 và giữ regression.
