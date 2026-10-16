@@ -1,0 +1,66 @@
+[
+  {
+    "db": "bh06_clean_20261016153544",
+    "probe": "R1 outsider reads offline confirmed guest",
+    "expected": "FORBIDDEN",
+    "exit": 3,
+    "stdout": "00000000-0000-0000-0000-000000000010",
+    "stderr": "ERROR:  FORBIDDEN: Chỉ người chơi đã confirmed hoặc finance xem được hướng dẫn thanh toán\nCONTEXT:  PL/pgSQL function get_payment_instructions(uuid,uuid) line 37 at RAISE",
+    "pass": true
+  },
+  {
+    "db": "bh06_clean_20261016153544",
+    "probe": "control outsider reads account-linked guest",
+    "exit": 3,
+    "pass": true
+  },
+  {
+    "db": "bh06_clean_20261016153544",
+    "probe": "control new read after expense",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function get_payment_instructions(uuid,uuid) line 40 at assignment",
+    "pass": true
+  },
+  {
+    "db": "bh06_clean_20261016153544",
+    "probe": "R2 legacy bank read after expense makes billing stale",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stdout": "00000000-0000-0000-0000-000000000001\n{\"status\": \"posted\", \"category\": \"court\", \"amount_vnd\": 1000, \"expense_id\": \"a81dfe70-c69f-4ac4-86f2-65a652814302\", \"session_id\": \"a88da2c6-ebd8-4e9a-abf4-b13d789d6c0b\", \"billing_state\": \"stale\", \"club_ledger_entry\": false}\n00000000-0000-0000-0000-000000000005",
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nSQL statement \"SELECT public.assert_billing_current(p_session_id)\"\nPL/pgSQL function get_session_payment_instructions(uuid) line 38 at PERFORM",
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016153544",
+    "probe": "R1 outsider reads offline confirmed guest",
+    "expected": "FORBIDDEN",
+    "exit": 3,
+    "stdout": "00000000-0000-0000-0000-000000000010",
+    "stderr": "ERROR:  FORBIDDEN: Chỉ người chơi đã confirmed hoặc finance xem được hướng dẫn thanh toán\nCONTEXT:  PL/pgSQL function get_payment_instructions(uuid,uuid) line 37 at RAISE",
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016153544",
+    "probe": "control outsider reads account-linked guest",
+    "exit": 3,
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016153544",
+    "probe": "control new read after expense",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function get_payment_instructions(uuid,uuid) line 40 at assignment",
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016153544",
+    "probe": "R2 legacy bank read after expense makes billing stale",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stdout": "00000000-0000-0000-0000-000000000001\n{\"status\": \"posted\", \"category\": \"court\", \"amount_vnd\": 1000, \"expense_id\": \"fb49254f-bb3b-4e75-b065-cfde6dbc1087\", \"session_id\": \"06189284-70e1-47c7-81d0-7abd2a4a83a6\", \"billing_state\": \"stale\", \"club_ledger_entry\": false}\n00000000-0000-0000-0000-000000000005",
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nSQL statement \"SELECT public.assert_billing_current(p_session_id)\"\nPL/pgSQL function get_session_payment_instructions(uuid) line 38 at PERFORM",
+    "pass": true
+  }
+]

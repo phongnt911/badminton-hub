@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06A (16/10/2026): Chưa đạt** tại `e3c73c1`, R1/R2 P1 về quyền đọc khách offline và đường bank cũ bỏ qua gate stale. Xem [review độc lập](reviews/bh06/review_e3c73c1.md). Chưa chuyển BH-06B/C; các trạng thái Chờ review bên dưới là lịch sử trước kết luận.
+> **Hiện hành BH-06A (16/10/2026): Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md). R1/R2 đã đóng trong phạm vi kiểm chứng; BH-06B/C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
 
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
@@ -407,3 +407,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
   - **R2**: `get_session_payment_instructions` (BH-02) gate `assert_billing_current` — chưa chốt ⇒ `BILLING_NOT_FINALIZED`, stale ⇒ `BILLING_STALE`; giữ quyền tương thích và chỉ trả `session_id`+`receiver_snapshot`. Đồng bộ docs/08 §13 và handoff; không sửa ba migration BH-06A đã chia sẻ.
 - Bằng chứng trên cây `83586ed` (sạch): `flutter analyze` **0 issue**; `flutter test` **137/137 PASS**; `python docs/reviews/bh06/run_bh06_tests.py` **84/84 PASS** (42 ca × CLEAN/LEGACY, `worktree_dirty=false`) → [bh06_test_results_20261016151610.json](reviews/bh06/bh06_test_results_20261016151610.json). Hồi quy BH-02..05 xanh lại: BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90 (log ở scratch, không thêm JSON vào repo).
 - Trạng thái ghi **Chờ review vòng 1**; người triển khai không tự ghi Đạt. NOT RUN như trên.
+
+### BH-06A — kết luận reviewer vòng sửa 1 tại 706bd73 (16/10/2026)
+
+- **Đạt phần A** theo [review_706bd73.md](reviews/bh06/review_706bd73.md), code sửa `83586ed`. Đóng R1/R2 của review `e3c73c1`; kết luận cũ là baseline trước sửa.
+- Reviewer tự chạy analyze sạch, **137/137 Flutter**, DB BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90, BH-06 84 = **335/335 PASS**, thêm **8/8 probe độc lập PASS**, giữ nguyên kỳ vọng từ review trước. Bằng chứng/hash/tested SHA lưu cùng report.
+- Chỉ Đạt A, chưa nghiệm thu B/C hoặc tích hợp toàn BH-06; không tự chuyển phần tiếp theo, merge main hoặc deploy. NOT RUN: HTTP/JWT/PostgREST thật, thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP, UI/data BH-06B/C và pilot. Giữ lịch sử/bằng chứng cũ.

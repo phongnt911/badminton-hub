@@ -1,5 +1,7 @@
 # BH-06A — bàn giao cho review độc lập
 
+> **Hiện hành 16/10/2026: Đạt phần A** tại `706bd73` theo [review độc lập](review_706bd73.md); R1/R2 đã đóng. Các trạng thái Chờ review bên dưới là snapshot tác giả trước kết luận; B/C và tích hợp chưa nghiệm thu, chưa cho phép deploy.
+
 Trạng thái: **Chờ review** (người triển khai không tự ghi Đạt). Ngày 16/10/2026.
 
 - Nhánh: `feat/bh06a-db`, tách từ `main` = `c35dd27` (không làm việc trên `main`).

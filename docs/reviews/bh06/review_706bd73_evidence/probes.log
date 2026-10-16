@@ -1,0 +1,8 @@
+PASS bh06_clean_20261016153544 R1 outsider reads offline confirmed guest
+PASS bh06_clean_20261016153544 control outsider reads account-linked guest
+PASS bh06_clean_20261016153544 control new read after expense
+PASS bh06_clean_20261016153544 R2 legacy bank read after expense makes billing stale
+PASS bh06_legacy_20261016153544 R1 outsider reads offline confirmed guest
+PASS bh06_legacy_20261016153544 control outsider reads account-linked guest
+PASS bh06_legacy_20261016153544 control new read after expense
+PASS bh06_legacy_20261016153544 R2 legacy bank read after expense makes billing stale
