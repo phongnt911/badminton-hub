@@ -168,3 +168,7 @@ Lịch sử đầy đủ theo từng vòng: [docs/09_IMPLEMENTATION_PLAN.md](09_
 **Chưa đạt tích hợp** theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md), ngày 16/10/2026. I1 (P1) thiếu đường start buổi để đi tới attendance; I2 (P2) UI không có đăng ký lại sau hủy dù RPC hỗ trợ. Các mục Chờ review phía trên là snapshot trước kết luận này. Đạt riêng A/B/C không thay nghiệm thu tích hợp. Chi tiết kiểm chứng và NOT RUN trong báo cáo; không apply remote DB hoặc merge main.
 
 > Ghi chú của người triển khai: đã sửa **I1 + I2** trong vòng sửa 1 tại `a41b48a` (RPC `start_session` + nút bắt đầu buổi; nút đăng ký lại), kèm 5 test widget/tích hợp và 3 ca runner mới; `flutter analyze` sạch, `flutter test` **137/137**, DB **251/251**. Trạng thái giữ ở mức **Chờ review** cho tới kết luận của reviewer.
+
+## Kết luận review tích hợp mới nhất — d769531
+
+**Đạt tích hợp BH-05 A+B+C** theo [review_d769531.md](reviews/bh05/review_d769531.md), ngày 16/10/2026. Kết luận thay snapshot Chưa đạt/Chờ review trước đây; giữ chúng làm lịch sử. Reviewer tự chạy analyze sạch, 137 Flutter +90 DB +2 widget probes +1 kiểm tra real repository/provider→SQL PASS. Full HTTP/PostgREST/JWT, thiết bị/browser e2e và staging/production apply vẫn NOT RUN; chưa cho phép deploy production hoặc tự merge main.

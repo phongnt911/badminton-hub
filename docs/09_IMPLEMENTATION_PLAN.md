@@ -340,3 +340,9 @@ Review [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Chưa đạt tích hợp A+B+C**, theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md). Còn I1 (P1: thiếu đường start published→in_progress để điểm danh) và I2 (P2: không có hành động đăng ký lại sau hủy).
 - Tự chạy: analyze sạch, 132/132 Flutter, 84/84 DB; 2 widget probe FAIL tái hiện lỗi; 1 kiểm tra repository/provider thật qua HTTP bridge local→SQL PASS xác nhận chuỗi đăng ký/duyệt/hủy/rejoin và ranh giới attendance. Không coi bridge là full Supabase JWT/PostgREST.
 - Đạt riêng A/B/C không thay nghiệm thu xuyên suốt. NOT RUN/giới hạn trong báo cáo. Không sửa code, merge main hoặc apply remote DB; reviewer tự chốt, không cần xác nhận.
+
+### BH-05 tích hợp — Kết luận cuối cùng reviewer d769531 (16/10/2026)
+
+- **Trạng thái hiện tại: Đạt tích hợp BH-05 A+B+C** tại `d769531` (code sửa I1/I2 `a41b48a`), theo [review_d769531.md](reviews/bh05/review_d769531.md). Reviewer tự chốt, không cần xác nhận.
+- Tự chạy: analyze sạch, 137/137 Flutter, 90/90 DB, 2/2 widget probe và 1/1 bridge repository/provider thật→SQL PASS. Chuỗi join/approve/cancel/rejoin/start/attendance không dùng UPDATE lifecycle trực tiếp.
+- Các trạng thái Chưa đạt/Chờ review trước đây là lịch sử. NOT RUN/giới hạn trong báo cáo: full Supabase HTTP/JWT, thiết bị/browser e2e, staging/production apply; bridge local không thay các cổng này. Không merge main hoặc tự triển khai ticket tiếp theo.
