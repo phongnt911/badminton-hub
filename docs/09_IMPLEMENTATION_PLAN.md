@@ -318,6 +318,23 @@ Review [review_48b4ad2.md](reviews/bh05/review_48b4ad2.md) kết luận **Chưa 
 - Bàn giao/điểm tiếp tục: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 - NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, cạnh tranh qua HTTP, và **nghiệm thu độc lập chính bản tích hợp**. A, B, C đều đã Đạt độc lập (A `9f2d455`, B `cf65199`, C `1f1f9ce`); bản tích hợp hợp nhất các bản đã Đạt, **chờ review tổng**. Không tự merge `main` hay deploy.
 
+### BH-05 — Vòng sửa review tích hợp 1 (I1, I2) — 16/10/2026
+
+Review [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa đạt tích hợp** với I1 (P1) và I2 (P2). Đã sửa **cả hai** (chủ dự án chốt: mặc định sửa hết lỗi trong nhánh).
+
+| Phát hiện | Mức | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| I1 — không có đường hợp lệ published→in_progress nên điểm danh không chạy được từ app | P1 | **Đã sửa (chờ review)** | Test widget tái hiện FAIL trước sửa; runner 8 FAIL do thiếu `public.start_session` (`bh05_test_results_20261016000811.json`) |
+| I2 — sau huỷ không có đường đăng ký lại dù RPC hỗ trợ | P2 | **Đã sửa (chờ review)** | Test widget tái hiện FAIL trước sửa |
+
+- Cách sửa:
+  - I1: migration forward-only mới `supabase/migrations/20261016100000_bh05_start_session.sql` — RPC `start_session(p_session_id, p_request_id)` (SECURITY DEFINER + `search_path`, khoá session `FOR UPDATE`, kiểm `has_session_management_access`, `request_id` bắt buộc, idempotency/hash/replay, audit `START_SESSION`, REVOKE PUBLIC/anon + GRANT authenticated; chỉ cho `published → in_progress`). **Không** mở direct UPDATE trên `sessions` và **không** nới guard `in_progress` của `record_attendance`. Client: `SessionRepository.startSession`, `SessionProvider.startSession` (qua `_runMutation`), nút "Bắt đầu buổi chơi" trong `_ManagementActions` khi `session.isPublished` (chỉ host/cohost thấy vì panel chỉ render khi `canManage`).
+  - I2: `_PlayerRegistrationCard` thêm nút "Đăng ký tham gia" khi trạng thái `cancelled`/`rejected` và `session.isShareable`, gửi ý định mới qua `requestJoinSession` để DB giữ `player_id` và tự kiểm slot/hạn (không xoá đăng ký để hiện nút).
+- Test thêm: widget I1×2 (host thấy nút + gọi `start_session`; người không quản lý không thấy), I2×3 (huỷ → gọi lại RPC; lỗi → thử lại; buổi đã huỷ không có nút); runner thêm 3 ca (`start_session` ACL/state/replay/điểm danh sau start; tích hợp create→publish→join→approve→start→điểm danh; join→approve→cancel→đăng ký lại giữ `player_id`) và thay fixture `UPDATE sessions SET lifecycle` bằng `start_session` thật ở 2 ca điểm danh.
+- Lệnh đã chạy trên nhánh `feat/bh05-integration` (code `a41b48a`): `flutter analyze` (**0 issue**); `flutter test` (**137/137 PASS**); runner BH-05 **90/90 PASS** (`bh05_test_results_20261016001243.json`); chạy lại runner BH-02/03/04 — tổng DB **251/251 PASS**.
+- Không có phát hiện nào bị bỏ (I1, I2 đều sửa). Ngoài phạm vi review: không thêm `end_session`/hoàn tất buổi (review không yêu cầu).
+- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, cạnh tranh qua HTTP. Điều chỉnh phụ do UI đổi: test cũ "host duyệt pending" đổi `scrollUntilVisible` → `ensureVisible` (nút mới làm mục lệch khỏi khung nhìn).
+
 ### BH-05 tích hợp — Kết luận cuối cùng reviewer c7ed6d5 (16/10/2026)
 
 - **Trạng thái hiện tại: Chưa đạt tích hợp A+B+C**, theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md). Còn I1 (P1: thiếu đường start published→in_progress để điểm danh) và I2 (P2: không có hành động đăng ký lại sau hủy).

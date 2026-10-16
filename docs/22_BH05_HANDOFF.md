@@ -1,9 +1,10 @@
 # BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ (bàn giao, nhánh tích hợp)
 
-Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW (bản tích hợp)** — A, B, C đã được gộp trên nhánh
-`feat/bh05-integration` theo thứ tự A→B→C, đã giải xung đột và chạy lại toàn bộ regression.
-Cả ba phần A, B, C đều đã được reviewer độc lập kết luận **Đạt**; bản tích hợp hợp nhất các bản đã Đạt
-đang **chờ review tổng**. **Chưa** apply staging/production, **chưa** kiểm PostgREST HTTP/JWT thật.
+Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW (bản tích hợp, vòng sửa 1)** — A, B, C đã được gộp
+trên nhánh `feat/bh05-integration` theo thứ tự A→B→C và cả ba đã **Đạt** độc lập. Review tích hợp
+[review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa đạt** với I1 (P1)/I2 (P2); đã sửa cả hai
+tại `a41b48a` (thêm RPC `start_session` + đường đăng ký lại) và **chờ review lại**.
+**Chưa** apply staging/production, **chưa** kiểm PostgREST HTTP/JWT thật.
 
 Baseline: `d8dfe74` (đã đạt 104 Flutter + 161 DB). Hợp đồng RPC:
 [08_DOMAIN_CONTRACTS.md](08_DOMAIN_CONTRACTS.md) §12. Người triển khai **không** tự ghi "Done";
@@ -39,6 +40,8 @@ Nhánh tích hợp `feat/bh05-integration` (tách từ `main` = `da1285d`):
 | `a0f5d35` | Merge `feat/bh05b-data` (B). Xung đột: `session_provider.dart`, `session_provider_test.dart`. |
 | `b126f17` | Merge `feat/bh05c-ui` (C). Xung đột: `session_detail_screen.dart`, `session_detail_screen_test.dart`. |
 | `678ee95` | Merge kết luận **Đạt** C của reviewer (review `1f1f9ce` + probe + cập nhật `docs/09`). Xung đột: `docs/09`. |
+| `e288221` | Merge review tích hợp `review_c7ed6d5` (Chưa đạt: I1, I2) của reviewer. |
+| `a41b48a` | Vòng sửa review tích hợp 1 — thêm RPC `start_session` (I1) và đường đăng ký lại (I2). |
 | `3867c99`…`bae8bcd` | 6 commit bằng chứng (chỉ thêm JSON kết quả runner), giữ `worktree_dirty=false`. |
 
 Mã nguồn tích hợp (lib/test/supabase) **trùng khít** cây C đã review: `git diff feat/bh05c-ui -- lib test supabase` rỗng.
@@ -50,10 +53,11 @@ Forward migration (không sửa lịch sử), đo trên cây tích hợp:
 - `supabase/migrations/20261015170500_bh05_registrations.sql` — SHA256 `2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51`.
 - `supabase/migrations/20261016090000_bh05_review_fixes.sql` (sửa A1/A2) — SHA256 `629a0cad48587fe7516f48962d4a5c44fac69c493fb1b1b0f1e42a535ef369a7`.
 - `supabase/migrations/20261016091000_bh05_a3_cancel_revokes_invitations.sql` (sửa A3) — SHA256 `5981843750597ec54864bdf99e26a75d920dfb8c889bda0f6a748b60a09a0442`.
+- `supabase/migrations/20261016100000_bh05_start_session.sql` (vòng sửa tích hợp I1) — SHA256 `72474dd0072c74b2b42dcb9a6e5d12621afa4206c13aadb0f2c30ad228309dfc`: RPC `start_session`.
 
 Nội dung:
 
-- 9 RPC: `request_join_session`, `add_session_player`, `decide_registration`, `cancel_registration`, `record_attendance`, `invite_waitlisted_player`, `revoke_waitlist_invitation`, `accept_waitlist_invitation`, `get_my_waitlist_invitation`.
+- 10 RPC: `request_join_session`, `add_session_player`, `decide_registration`, `cancel_registration`, `record_attendance`, `invite_waitlisted_player`, `revoke_waitlist_invitation`, `accept_waitlist_invitation`, `get_my_waitlist_invitation`, `start_session` (published → in_progress, chỉ quản lý).
 - `list_session_players` `CREATE OR REPLACE` bổ sung `pending_invitation_id`, `pending_invitation_expires_at` (giữ nguyên grant cũ: chỉ management).
 - Helper nội bộ `registration_result(...)`, `bump_billing_input_version(...)` bị `REVOKE` khỏi mọi role client.
 - Mọi mutation: `SECURITY DEFINER`, `search_path = public, pg_temp`, `REVOKE PUBLIC/anon` + `GRANT authenticated`, idempotency theo actor/operation/request + hash canonical ổn định, audit, `FOR UPDATE` khoá và kiểm lại lifecycle/deadline/quyền/state trong cùng transaction.
@@ -65,12 +69,17 @@ Ghi chú hash: bản handoff ngày 15/10 ghi `356f5831…` cho migration gốc; 
 ## 4. Thay đổi Flutter
 
 - `lib/models/session.dart`: `SessionPlayer` thêm `pendingInvitationId`/`pendingInvitationExpiresAt`; model `WaitlistInvitation`, `RegistrationResult`.
-- `lib/data/session_repository.dart`: 9 phương thức gọi RPC typed.
+- `lib/data/session_repository.dart`: 10 phương thức gọi RPC typed.
 - `lib/providers/session_provider.dart`: `myInvitation` + `fetchMyInvitation` với trạng thái riêng `isLoadingInvitation`/`invitationErrorMessage` + serial chống phản hồi trễ; `_runPlayerMutation` (chống nhấn lặp, **giữ** request key khi lỗi/timeout, **xoá key ngay khi server xác nhận rồi mới refresh**, chặn double-submit), 8 action public.
 - `lib/providers/club_provider.dart`: API roster có scope cho dialog thêm người (`fetchClubRoster`/`rosterMembers`/`isLoadingRoster`/`rosterErrorMessage`/`clearClubRoster`, có serial) — không dùng `currentMembers` của CLB khác.
 - `lib/screens/session_detail_screen.dart`: thay stub "BH-05" bằng thẻ trạng thái đăng ký của người chơi, danh sách host có hành động theo trạng thái, hộp thoại thêm người (khách/thành viên CLB, cờ danh sách chờ và miễn phí cần quyền tài chính); loading/empty/error+retry/submitting; tôn trọng loading/error lời mời của provider B.
 
 Không thêm dependency (giữ Flutter + Provider + Supabase).
+
+Vòng sửa review tích hợp (I1/I2):
+
+- I1: `SessionRepository.startSession` → RPC `start_session`; `SessionProvider.startSession` (qua `_runMutation`, giữ request key khi lỗi/xoay key sau thành công); `_ManagementActions` thêm nút "Bắt đầu buổi chơi" khi `session.isPublished` (chỉ host/cohost vì panel chỉ render khi `canManage`), sau khi start thì reload để mở điểm danh.
+- I2: `_PlayerRegistrationCard` thêm nút "Đăng ký tham gia" khi trạng thái `cancelled`/`rejected` và `session.isShareable`, gửi ý định mới qua `requestJoinSession` — DB giữ `player_id` và tự kiểm slot/hạn, không xoá đăng ký để hiện nút.
 
 ## 5. Giải quyết xung đột khi tích hợp
 
@@ -101,26 +110,28 @@ Không có xung đột mã nguồn nào còn sót (không còn dấu `<<<<<<<`/`
 | Không direct write `session_players`/`waitlist_invitations`; `anon` bị chặn; thiếu `request_id` bị chặn | PASS | nhóm ACL/idempotency |
 | UI: trạng thái đăng ký/host action/điểm danh/dialog thêm người, loading/error+retry | PASS | `test/screens/session_detail_screen_test.dart` |
 | UI: đang tải lại lời mời không cho chấp nhận bằng cache cũ (C1-R) | PASS | test widget "C1-R …" |
+| I1: đường hợp lệ published→in_progress để mở điểm danh | PASS | RPC `start_session` + `test widget "I1 …"`; runner ca `start_session …` và `tích hợp create→publish→join→approve→start→điểm danh` |
+| I2: đăng ký lại sau huỷ/từ chối (giữ `player_id`) | PASS | `test widget "I2 …"`; runner ca `tích hợp join→approve→cancel→đăng ký lại` |
 | PostgREST HTTP/JWT thật; thiết bị/browser e2e; apply staging/production | NOT RUN | chỉ PostgreSQL + Auth stub |
 
 ## 7. Kiểm thử và môi trường
 
 - Flutter 3.47.6 (stable), `flutter analyze`: **No issues found**.
-- `flutter test`: **132/132 PASS** (104 nền BH-04 + 28 mới của BH-05 A/B/C).
-- PostgreSQL 17 trong container Docker cô lập `bh02-test-postgres`, Auth stub, dựng lại toàn chuỗi 9 migration trên cả DB clean và legacy:
+- `flutter test`: **137/137 PASS** (104 nền BH-04 + 28 mới của BH-05 A/B/C + 5 mới vòng sửa I1/I2).
+- PostgreSQL 17 trong container Docker cô lập `bh02-test-postgres`, Auth stub, dựng lại toàn chuỗi 10 migration trên cả DB clean và legacy:
 
 | Bộ | Kết quả | Bằng chứng | `tested_commit` | `worktree_dirty` |
 |---|---|---|---|---|
-| BH-02 RLS | 33/33 PASS | `docs/reviews/bh02/rls_test_results_20261015185106.json` | `b126f17` | n/a (không ghi) |
-| BH-02 extended | 14/14 PASS | `docs/reviews/bh02/extended_results_20261015185106.json` | `b126f17` | n/a (không ghi) |
-| BH-03 | 48/48 PASS | `docs/reviews/bh03/bh03_test_results_20261015185119.json` | `153f72a` | false |
-| BH-03 retry | 22/22 PASS | `docs/reviews/bh03/bh03_retry_results_20261015185119.json` | `153f72a` | false |
-| BH-04 | 44/44 PASS | `docs/reviews/bh04/bh04_test_results_20261015185143.json` | `830dfbf` | false |
-| BH-05 | 84/84 PASS (42 kịch bản × CLEAN + LEGACY) | `docs/reviews/bh05/bh05_test_results_20261015185157.json` | `0979bbe` | false |
+| BH-02 RLS | 33/33 PASS | `docs/reviews/bh02/rls_test_results_20261016001344.json` | `d226a0f` | n/a (không ghi) |
+| BH-02 extended | 14/14 PASS | `docs/reviews/bh02/extended_results_20261016001344.json` | `d226a0f` | n/a (không ghi) |
+| BH-03 | 48/48 PASS | `docs/reviews/bh03/bh03_test_results_20261016001354.json` | `c10d586` | false |
+| BH-03 retry | 22/22 PASS | `docs/reviews/bh03/bh03_retry_results_20261016001354.json` | `c10d586` | false |
+| BH-04 | 44/44 PASS | `docs/reviews/bh04/bh04_test_results_20261016001406.json` | `dcea40e` | false |
+| BH-05 | 90/90 PASS (45 kịch bản × CLEAN + LEGACY) | `docs/reviews/bh05/bh05_test_results_20261016001243.json` | `a41b48a` | false |
 
-Tổng DB: **245/245 PASS** (`tested_commit` khác nhau vì mỗi lần chạy commit ngay JSON bằng chứng để giữ cây sạch; các commit này **chỉ thêm** tệp JSON — `git diff b126f17 HEAD` xác nhận không đổi mã nguồn/migration, nên cây nguồn được kiểm thử là `b126f17`). Runner BH-05: `docs/reviews/bh05/run_bh05_tests.py`.
+Tổng DB: **251/251 PASS** (`tested_commit` khác nhau vì mỗi lần chạy commit ngay JSON bằng chứng để giữ cây sạch; các commit này **chỉ thêm** tệp JSON — `git diff a41b48a HEAD` xác nhận không đổi mã nguồn/migration, nên cây nguồn được kiểm thử là `a41b48a`). Runner BH-05: `docs/reviews/bh05/run_bh05_tests.py`. Bằng chứng test tái hiện trước khi sửa: `bh05_test_results_20261016000811.json` (8 FAIL: 4 ca × 2 DB do thiếu `public.start_session`).
 
-Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ → "Chấp nhận lời mời", tự huỷ khi `confirmed`, host duyệt `pending`, lỗi mutation → retry phục hồi; provider: gửi `request_id`, giữ key khi lỗi/xoay key sau thành công, chặn double-submit, tải lời mời (loading/error/null-hợp-lệ/retry), phản hồi đến muộn của phiên cũ không lộ state, đăng xuất xoá lời mời; roster CLB có scope (tải/lỗi-thử lại/đổi CLB chống rò rỉ + phản hồi trễ); C1/C2/C3/C1-R.
+Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ → "Chấp nhận lời mời", tự huỷ khi `confirmed`, host duyệt `pending`, lỗi mutation → retry phục hồi; provider: gửi `request_id`, giữ key khi lỗi/xoay key sau thành công, chặn double-submit, tải lời mời (loading/error/null-hợp-lệ/retry), phản hồi đến muộn của phiên cũ không lộ state, đăng xuất xoá lời mời; roster CLB có scope (tải/lỗi-thử lại/đổi CLB chống rò rỉ + phản hồi trễ); C1/C2/C3/C1-R; I1×2 (start) và I2×3 (đăng ký lại).
 
 ## 8. Không chạy / chưa kiểm chứng (NOT RUN)
 
@@ -128,12 +139,12 @@ Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ �
 - Thiết bị thật / web thật, deep link OS-level: chưa chạy.
 - Apply migration lên staging/production, diễn tập backup/restore: chưa chạy (không tự apply production).
 - Cạnh tranh chỉ ở mức đa kết nối **trong cùng PostgreSQL** (deterministic bằng lock + `pg_sleep`), chưa qua HTTP đồng thời thực tế.
-- Chưa nghiệm thu **chính bản tích hợp** bởi reviewer (A/B/C đã Đạt độc lập; bản tích hợp chờ review tổng).
+- Chưa nghiệm thu **chính bản tích hợp** bởi reviewer: review `c7ed6d5` kết luận Chưa đạt (I1/I2), đã sửa ở `a41b48a` và **chờ review lại**.
 - Host thu hồi lời mời qua HTTP trong lúc client đang refresh: chưa kiểm.
 
 ## 9. Việc còn lại trước pilot
 
-1. Reviewer độc lập kết luận nhánh `feat/bh05-integration` (A/B/C đã Đạt riêng; chờ review tổng bản tích hợp).
+1. Reviewer độc lập kết luận lại nhánh `feat/bh05-integration` sau vòng sửa I1/I2 (`a41b48a`).
 2. Chạy full Supabase HTTP/JWT thật cho các RPC BH-05 (map lỗi PostgREST → thông điệp Việt đã có).
 3. Diễn tập apply chuỗi migration + backup/restore trên staging thật.
 4. Kiểm thủ công trên thiết bị/web: link chia sẻ `/sessions/:id`, quay lại sau đăng nhập, luồng lời mời qua nhiều người dùng thật.
@@ -141,16 +152,19 @@ Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ �
 
 ## 10. Điểm tiếp tục
 
-Ticket kế tiếp: **BH-06** (chốt phí / VietQR / thu tiền) theo AG-06 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md). Giữ regression 132 Flutter + 245 DB. Các mục R2/R6/R7 trong [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) đã có bản triển khai local/staging, **chưa** đóng ở mức production.
+Ticket kế tiếp: **BH-06** (chốt phí / VietQR / thu tiền) theo AG-06 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md). Giữ regression 137 Flutter + 251 DB. Các mục R2/R6/R7 trong [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) đã có bản triển khai local/staging, **chưa** đóng ở mức production.
 
 ## Phụ lục — các vòng sửa review đã gộp
 
 - A: A1 (gate quyền tài chính khi đổi tập `confirmed` sau khi chốt phí), A2 (`update_session` hạ `capacity` dưới số `confirmed`), A3 (huỷ buổi thu hồi lời mời `pending`) — migration `20261016090000`, `20261016091000`.
 - B: B1 (lỗi tải lời mời bị nuốt thành "không có lời mời"), B2 (làm mới chi tiết vẫn giữ lời mời cũ) — `lib/providers/session_provider.dart`.
 - C: C1 (UI bỏ qua loading/error lời mời), C2 (buổi đầy chặn đăng ký danh sách chờ), C3 (dialog thành viên dùng roster sai scope), C1-R (đang tải lại vẫn cho chấp nhận bằng cache cũ) — `lib/screens/session_detail_screen.dart`, `lib/providers/club_provider.dart`.
+- Tích hợp 1: I1 (thiếu đường published→in_progress) — migration `20261016100000` RPC `start_session` + repository/provider/UI; I2 (UI không có đường đăng ký lại sau huỷ) — `lib/screens/session_detail_screen.dart`.
 
 Lịch sử đầy đủ theo từng vòng: [docs/09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [docs/reviews/bh05/](reviews/bh05/).
 
 ## Kết luận review tích hợp mới nhất — c7ed6d5
 
 **Chưa đạt tích hợp** theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md), ngày 16/10/2026. I1 (P1) thiếu đường start buổi để đi tới attendance; I2 (P2) UI không có đăng ký lại sau hủy dù RPC hỗ trợ. Các mục Chờ review phía trên là snapshot trước kết luận này. Đạt riêng A/B/C không thay nghiệm thu tích hợp. Chi tiết kiểm chứng và NOT RUN trong báo cáo; không apply remote DB hoặc merge main.
+
+> Ghi chú của người triển khai: đã sửa **I1 + I2** trong vòng sửa 1 tại `a41b48a` (RPC `start_session` + nút bắt đầu buổi; nút đăng ký lại), kèm 5 test widget/tích hợp và 3 ca runner mới; `flutter analyze` sạch, `flutter test` **137/137**, DB **251/251**. Trạng thái giữ ở mức **Chờ review** cho tới kết luận của reviewer.
