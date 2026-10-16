@@ -172,3 +172,7 @@ Lịch sử đầy đủ theo từng vòng: [docs/09_IMPLEMENTATION_PLAN.md](09_
 ## Kết luận review tích hợp mới nhất — d769531
 
 **Đạt tích hợp BH-05 A+B+C** theo [review_d769531.md](reviews/bh05/review_d769531.md), ngày 16/10/2026. Kết luận thay snapshot Chưa đạt/Chờ review trước đây; giữ chúng làm lịch sử. Reviewer tự chạy analyze sạch, 137 Flutter +90 DB +2 widget probes +1 kiểm tra real repository/provider→SQL PASS. Full HTTP/PostgREST/JWT, thiết bị/browser e2e và staging/production apply vẫn NOT RUN; chưa cho phép deploy production hoặc tự merge main.
+
+## Kiểm thử main sau merge — 3a34883
+
+Ngày 16/10/2026: reviewer chạy lại trên checkout main sạch tại `3a34883`, analyze sạch, **137/137 Flutter +251/251 DB PASS**, tất cả exit 0. [Báo cáo và bằng chứng](reviews/bh05/review_main_3a34883.md). Full HTTP/JWT, thiết bị/browser e2e và staging/production apply vẫn NOT RUN; chưa cho phép deploy production chỉ từ kết quả này.

@@ -346,3 +346,8 @@ Review [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa 
 - **Trạng thái hiện tại: Đạt tích hợp BH-05 A+B+C** tại `d769531` (code sửa I1/I2 `a41b48a`), theo [review_d769531.md](reviews/bh05/review_d769531.md). Reviewer tự chốt, không cần xác nhận.
 - Tự chạy: analyze sạch, 137/137 Flutter, 90/90 DB, 2/2 widget probe và 1/1 bridge repository/provider thật→SQL PASS. Chuỗi join/approve/cancel/rejoin/start/attendance không dùng UPDATE lifecycle trực tiếp.
 - Các trạng thái Chưa đạt/Chờ review trước đây là lịch sử. NOT RUN/giới hạn trong báo cáo: full Supabase HTTP/JWT, thiết bị/browser e2e, staging/production apply; bridge local không thay các cổng này. Không merge main hoặc tự triển khai ticket tiếp theo.
+
+### BH-05 — Kiểm thử lại main sau merge (16/10/2026)
+
+- Tested HEAD `3a34883`, checkout sạch trước/sau chạy; **Đạt kiểm thử hồi quy**: analyze sạch, 137/137 Flutter, 251/251 DB (BH02 33+14, BH03 48+22, BH04 44, BH05 90), tất cả exit 0.
+- [Báo cáo và bằng chứng](reviews/bh05/review_main_3a34883.md). PostgreSQL cô lập/Auth stub; HTTP/JWT thật, thiết bị/browser e2e và staging/production apply vẫn NOT RUN. Không sửa code hoặc apply remote DB.

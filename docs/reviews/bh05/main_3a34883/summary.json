@@ -1,0 +1,44 @@
+[
+  {
+    "runner": "bh02/run_rls_tests.py",
+    "exit": 0,
+    "summary": [
+      "TOTAL 33 PASS 33 FAIL 0"
+    ]
+  },
+  {
+    "runner": "bh02/extended_tests_15ef59b.py",
+    "exit": 0,
+    "summary": [
+      "EXTENDED TOTAL 14 PASS 14 FAIL 0"
+    ]
+  },
+  {
+    "runner": "bh03/run_bh03_tests.py",
+    "exit": 0,
+    "summary": [
+      "KẾT QUẢ KIỂM THỬ BH-03: TỔNG 48 | PASS 48 | FAIL 0"
+    ]
+  },
+  {
+    "runner": "bh03/run_bh03_retry_tests.py",
+    "exit": 0,
+    "summary": [
+      "TOTAL 22 PASS 22 FAIL 0"
+    ]
+  },
+  {
+    "runner": "bh04/run_bh04_tests.py",
+    "exit": 0,
+    "summary": [
+      "KẾT QUẢ KIỂM THỬ BH-04: TỔNG 44 | PASS 44 | FAIL 0"
+    ]
+  },
+  {
+    "runner": "bh05/run_bh05_tests.py",
+    "exit": 0,
+    "summary": [
+      "KẾT QUẢ KIỂM THỬ BH-05: TỔNG 90 | PASS 90 | FAIL 0"
+    ]
+  }
+]
