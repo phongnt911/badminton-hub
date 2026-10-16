@@ -1,0 +1,38 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh06b_d00a121_probe_test.dart
+00:00 +0: B1: BILLING_STALE must invalidate cached payable QR
+00:00 +0 -1: B1: BILLING_STALE must invalidate cached payable QR [E]
+  Expected: null
+    Actual: <Instance of 'PaymentInstructions'>
+  Server has rejected current revision; cached object is still current/canPay=true
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/review_bh06b_d00a121_probe_test.dart 36:5      main.<fn>
+  
+00:00 +0 -1: B2: short final page must end ledger pagination
+00:00 +0 -2: B2: short final page must end ledger pagination [E]
+  Expected: false
+    Actual: <true>
+  latest page has 1 < limit 2; accumulated 3 is not evidence of more pages
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/review_bh06b_d00a121_probe_test.dart 53:5      main.<fn>
+  
+00:00 +0 -2: B2: exhausted ledger must not issue another load-more RPC
+00:00 +0 -3: B2: exhausted ledger must not issue another load-more RPC [E]
+  Expected: <1>
+    Actual: <2>
+  loadMore must respect exhaustion
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/review_bh06b_d00a121_probe_test.dart 69:5      main.<fn>
+  
+00:00 +0 -3: control: logout still clears bank instructions
+00:00 +1 -3: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/review_bh06b_d00a121_probe_test.dart: B1: BILLING_STALE must invalidate cached payable QR
+  /workspace/badminton-hub/test/review_bh06b_d00a121_probe_test.dart: B2: exhausted ledger must not issue another load-more RPC
+  /workspace/badminton-hub/test/review_bh06b_d00a121_probe_test.dart: B2: short final page must end ledger pagination

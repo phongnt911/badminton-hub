@@ -1,5 +1,7 @@
 # Backlog triển khai và nghiệm thu
 
+> **Hiện hành BH-06B (16/10/2026): Chưa đạt** tại `d00a121`, còn B1/B2 P2 về cache QR sau BILLING_STALE và hết trang ledger. Xem [review B](reviews/bh06/review_d00a121.md). A vẫn Đạt; chưa chuyển C/tích hợp, chưa cho phép deploy.
+
 > **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
 
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
@@ -425,3 +427,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Lệnh đã chạy trên nhánh: `flutter analyze` (**0 issue**); `flutter test` (**163/163 PASS** = 137 nền + 26 test mới của B). Không đổi DB/migration nên runner DB của BH-06 **không chạy lại** ở lượt này; baseline DB 335/335 của A giữ nguyên.
 - Test hành vi (không chỉ kiểm tên method): retry/replay cùng UUID, xoay key sau commit, chặn double-submit, stale/idempotency map tiếng Việt, auth/session isolation và bỏ phản hồi trễ, phân trang ledger bằng offset, và lỗi đọc/làm mới không hạ số dư về 0.
 - Trạng thái ghi **Chờ review**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, backup/restore, UI phần C.
+
+### BH-06B — kết luận reviewer d00a121 (16/10/2026)
+
+- **Chưa đạt phần B** theo [review_d00a121.md](reviews/bh06/review_d00a121.md): B1 P2 giữ cache paymentInstructions current/canPay sau BILLING_STALE; B2 P2 phân trang không kết thúc và load-more vẫn gọi khi đã hết dữ liệu. Cần sửa, gửi lại SHA; không chuyển C/tích hợp.
+- Reviewer tự chạy analyze sạch, **163/163 Flutter**, **84/84 DB BH-06**, probe provider **3 FAIL / 1 control PASS**. Không gộp probe FAIL vào số test tác giả PASS. Code/migration của A không đổi; 335 DB PASS trong review A là bằng chứng trước, không phải chạy lại toàn bộ trong lượt B.
+- NOT RUN: HTTP/PostgREST/JWT thật, repository↔RPC thật, UI C/thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và bank/VietQR thực tế. Chỉ thêm report/bằng chứng/trạng thái, không sửa code triển khai hoặc merge main.

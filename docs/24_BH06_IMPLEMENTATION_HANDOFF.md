@@ -1,6 +1,6 @@
 # BH-06 — giao việc triển khai phí, VietQR, thu tiền và quỹ
 
-Ngày 16/10/2026 (Việt Nam). Chủ dự án đã giao: merge bộ docs sau BH-05 vào main, để **phiên mới của AI triển khai** kéo main và làm BH-06 từng phần; Codex phiên này **giao việc và review độc lập**, không viết code triển khai. Trạng thái 16/10/2026: BH-06A **Đạt** tại `706bd73` ([review_706bd73](reviews/bh06/review_706bd73.md)); BH-06B (model/repository/provider) **Chờ review** trên `feat/bh06b-data` tách từ bản A đã Đạt `48d45d2` ([bàn giao](reviews/bh06/bh06b_handoff.md)); BH-06C và tích hợp chưa làm. BH-06B/C chỉ bắt đầu sau cổng review phần trước. Không coi việc publish đầu bài là hoàn thành BH-06 hoặc cho phép deploy.
+Ngày 16/10/2026 (Việt Nam). Chủ dự án đã giao: merge bộ docs sau BH-05 vào main, để **phiên mới của AI triển khai** kéo main và làm BH-06 từng phần; Codex phiên này **giao việc và review độc lập**, không viết code triển khai. Trạng thái 16/10/2026: BH-06A **Đạt** tại `706bd73` ([review_706bd73](reviews/bh06/review_706bd73.md)); BH-06B (model/repository/provider) **Chưa đạt** tại `d00a121` ([review B](reviews/bh06/review_d00a121.md), B1/B2 P2) trên `feat/bh06b-data` tách từ bản A đã Đạt `48d45d2` ([bàn giao](reviews/bh06/bh06b_handoff.md)); BH-06C và tích hợp chưa làm. BH-06B/C chỉ bắt đầu sau cổng review phần trước. Không coi việc publish đầu bài là hoàn thành BH-06 hoặc cho phép deploy.
 
 ## 1. Baseline và nguồn yêu cầu
 
