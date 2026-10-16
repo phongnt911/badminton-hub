@@ -1,5 +1,7 @@
 # Backlog triển khai và nghiệm thu
 
+> **Hiện hành BH-06A (16/10/2026): Chưa đạt** tại `e3c73c1`, R1/R2 P1 về quyền đọc khách offline và đường bank cũ bỏ qua gate stale. Xem [review độc lập](reviews/bh06/review_e3c73c1.md). Chưa chuyển BH-06B/C; các trạng thái Chờ review bên dưới là lịch sử trước kết luận.
+
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
 (Snapshot 14/10/2026, giữ làm lịch sử.) **Hiện hành:** BH-01 đến BH-05 đã triển khai ở mức local/staging; BH-05 đạt review tích hợp (`d769531`) và hồi quy main (`3a34883`); BH-06 trở đi chưa làm; chưa apply production.
@@ -390,3 +392,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Nhóm ca trọng yếu (đều PASS trên CLEAN + LEGACY): quyền/ACL (anon bị chặn; authenticated không ghi trực tiếp bảng tài chính; helper nội bộ bị REVOKE; outsider/cohost không finance bị `FORBIDDEN`; player không tự confirm/gửi hộ; chỉ owner/treasurer đọc sổ quỹ; projection public không lộ ngân hàng); chia tiền (split 450.000/7 chia dư theo id, exemption 0, no_show không tính, `NO_BILLABLE_PLAYERS` rollback, total 0 vẫn revision current charges 0, fixed khác tổng expense); revision/stale (chi phí/điểm danh/roster sau chốt làm stale và chặn QR/submit/cash/complete, refinalize supersede nguyên tử, `VERSION_CONFLICT`/`BILLING_STALE`, `BILLING_NOT_FINALIZED`); tiền đã thu (không giảm due dưới paid kể cả người bị loại khỏi billable, không ghi ledger thu lặp); thanh toán/idempotency (replay cùng key + conflict khác payload, tổng confirmed ≤ due, `PAYMENT_EXCEEDS_OUTSTANDING` cho cash, đảo một lần, reject/reverse khi stale); ledger/quỹ (club vs độc lập, entry tự sinh không đảo qua hàm manual, số dư từ SUM); complete (chỉ in_progress + revision current, chỉ management); đồng thời thật 2 kết nối (2 confirm và 2 cash tranh outstanding không thu dư); rollback input sai không tạo expense/ledger và không tăng `billing_input_version`.
 - Không giữ "xanh" bằng cách bỏ test cũ: không sửa test BH-02..05; chuỗi migration thêm 3 file forward-only, runner BH-06 mới là bổ sung.
 - NOT RUN trong lượt này: kiểm PostgREST HTTP/JWT thật (chỉ PostgreSQL cô lập + Auth stub), apply staging/production, thiết bị/browser e2e, backup/restore, concurrency qua HTTP, UI VietQR/sổ quỹ (phần B/C chưa làm); chưa chạy lại runner BH-02..05 trên nhánh này (chưa giao cổng review, sẽ bổ sung khi cần). Người triển khai **không** tự ghi Đạt và không merge `main`/deploy; chờ review độc lập của Codex.
+
+### BH-06A — kết luận reviewer e3c73c1 (16/10/2026)
+
+- **Chưa đạt phần A** theo [review_e3c73c1.md](reviews/bh06/review_e3c73c1.md): R1 (P1) outsider đọc bank/công nợ khách user_id NULL do kiểm quyền nhận NULL; R2 (P1) endpoint bank cũ chưa có gate revision current. Chờ sửa và review vòng 1, không chuyển B/C.
+- Reviewer tự chạy analyze sạch, 137/137 Flutter; DB BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90, BH-06 80 = **331/331 PASS**. Probe độc lập 4 control PASS / **4 FAIL** tái hiện R1/R2 trên clean/legacy; không gộp probe FAIL vào số runner PASS.
+- NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và BH-06B/C. Chỉ PostgreSQL tắt mạng/Auth stub/fixture giả. Không sửa code, merge main hoặc deploy; giữ snapshot tác giả phía trên để truy vết.
