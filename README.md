@@ -2,6 +2,20 @@
 
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
+## Trạng thái hiện tại
+
+BH-01 đến BH-05 đã triển khai ở mức local/staging; **chưa apply production**, chưa kiểm PostgREST HTTP/JWT thật, thiết bị thật hoặc deep link mức hệ điều hành. BH-05 đã **đạt review tích hợp** tại `d769531` ([review_d769531.md](docs/reviews/bh05/review_d769531.md)) và **đạt hồi quy trên `main`** tại `3a34883` ([review_main_3a34883.md](docs/reviews/bh05/review_main_3a34883.md)); các kết quả này không cho phép deploy production.
+
+| Ticket | Phạm vi | Kiểm thử DB (PostgreSQL cô lập + Auth stub) | Trạng thái |
+|---|---|---|---|
+| BH-01 | Auth và cấu hình | (Flutter test) | Đã triển khai |
+| BH-02 | Schema nền, RLS | 33 + 14 PASS | Đã triển khai |
+| BH-03 | CLB, thành viên, ngân hàng | 48 + 22 PASS | Đã triển khai |
+| BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
+| BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
+
+Tổng trên `main` tại `3a34883` (reviewer tự chạy): 137 Flutter test, 251 DB test, `flutter analyze` sạch. Ticket kế tiếp: BH-06 (phí, VietQR, thu tiền). Lịch sử và giới hạn từng ticket nằm ở docs/09 và các file bàn giao trong `docs/`.
+
 ## Tài liệu để triển khai
 
 Bắt đầu tại **[docs/00_START_HERE.md](docs/00_START_HERE.md)**. Bộ đặc tả v1.1 ngày 14/10/2026 gồm:
@@ -15,7 +29,7 @@ Bắt đầu tại **[docs/00_START_HERE.md](docs/00_START_HERE.md)**. Bộ đ�
 - [Luồng màn hình](docs/10_SCREEN_FLOWS.md).
 - [Rà soát code và tham khảo Vmito](docs/07_HOST_FIRST_REVIEW.md).
 
-Code hiện tại là demo, chưa hoàn thành yêu cầu v1.1. Đợt cập nhật tài liệu chưa đổi ứng dụng hoặc database live. SQL 05/06 là legacy; không chạy để tạo schema mới hoặc vào production.
+SQL 05/06 là legacy; không chạy để tạo schema mới hoặc vào production. Các migration trong `supabase/migrations/` mới chỉ được kiểm thử trên PostgreSQL cô lập.
 
 ## Chạy dự án hiện có
 
@@ -60,13 +74,11 @@ flutter analyze
 flutter test
 ```
 
-- **BH-01 (Auth & Cấu hình)**: Đã hoàn thành. Toàn bộ 28 bài unit & widget tests kiểm thử `AuthRepository`, `AuthProvider`, `AuthGuard`, `AuthScreen`, `AccountScreen` và Public Read đều vượt qua (100% pass), không gọi tới Supabase production trong test.
-- **BH-02 (Schema nền & RLS)**: Đã hoàn tất sửa toàn diện H1–H3 trong file migration `20261015051808_init_schema_v1_1.sql`. Kiểm thử tự động trên container Docker PostgreSQL cô lập: **47/47 tests PASS (100%)** (33 baseline + 14 extended/regression), 11/11 schema unit tests pass, toàn bộ 39/39 flutter tests pass, `flutter analyze` 0 issues. Đã đạt nghiệm thu cổng BH-02.
-- **`flutter analyze`**: 0 lỗi, 0 cảnh báo.
+Test DB chạy bằng các runner Python trong `docs/reviews/bh0X/` (cần Docker); kết quả và giới hạn từng ticket xem bảng "Trạng thái hiện tại" và các file bàn giao. Kết quả "đạt" chỉ có giá trị khi kèm bằng chứng và phần NOT RUN được ghi rõ.
 
 ## Dùng với Antigravity
 
-Mở đúng checkout repo, đọc `AGENTS.md` và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (tiếp theo là BH-03 theo docs/09_IMPLEMENTATION_PLAN.md). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
+Mở đúng checkout repo, đọc `AGENTS.md` (gồm quy trình hai AI: người triển khai và người review độc lập) và `docs/00_START_HERE.md`, rồi yêu cầu từng ticket (tiếp theo là BH-06 theo docs/09_IMPLEMENTATION_PLAN.md). Nếu làm trên máy cá nhân khác, dùng GitHub Desktop Pull hoặc `git pull --ff-only` trên nhánh main trước khi yêu cầu code; file trong cloud workspace không tự xuất hiện ở checkout máy cá nhân.
 
 ## Đầu bài Antigravity v1.1
 
@@ -90,3 +102,5 @@ Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPL
 Bàn giao phiên tiếp theo: [19_PRE_BH04_HANDOFF.md](docs/19_PRE_BH04_HANDOFF.md). CLI đọc cần SUPABASE_URL/SUPABASE_ANON_KEY từ environment; script update_db chỉ seed local.
 
 BH-04 review remediation: [21_BH04_REMEDIATION.md](docs/21_BH04_REMEDIATION.md). Chia sẻ link trên mobile cần `--dart-define=APP_BASE_URL=https://<domain-web-da-trien-khai>`; web mặc định dùng origin hiện tại. Hosting cần fallback index.html cho đường dẫn tài nguyên; OS App Links chưa cấu hình.
+
+BH-05: xem [22_BH05_HANDOFF.md](docs/22_BH05_HANDOFF.md) (đăng ký/duyệt/huỷ/điểm danh/lời mời danh sách chờ/bắt đầu buổi; đạt review tích hợp tại `d769531` và hồi quy main tại `3a34883`, xem [review_d769531.md](docs/reviews/bh05/review_d769531.md)).

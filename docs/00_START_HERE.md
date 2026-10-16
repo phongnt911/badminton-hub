@@ -1,6 +1,14 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: đặc tả đích để triển khai.
+Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; chưa apply production.
+
+## Trạng thái hiện tại (cập nhật 16/10/2026)
+
+- BH-01 đến BH-05 đã triển khai ở mức local/staging theo [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md). **BH-05 đạt review tích hợp A+B+C** tại `d769531` theo [review_d769531.md](reviews/bh05/review_d769531.md): không có phát hiện P0/P1/P2 trong phạm vi kiểm chứng.
+- **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
+- Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
+- Ticket kế tiếp: **BH-06** (chốt phí, VietQR, thu tiền). Giữ regression 137 Flutter + 251 DB.
+- Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu
 
@@ -17,21 +25,24 @@ Xây công cụ cho host quản lý CLB và buổi cầu lông tại Nha Trang. 
 7. [Luồng màn hình](10_SCREEN_FLOWS.md).
 8. [Quyết định ADR](11_ARCHITECTURE_DECISIONS.md).
 9. [Prompt và cổng nghiệm thu cho Antigravity](12_ANTIGRAVITY_PROMPTS.md).
+10. [Bàn giao mới nhất (BH-05)](22_BH05_HANDOFF.md).
 
-[07_HOST_FIRST_REVIEW.md](07_HOST_FIRST_REVIEW.md) là bằng chứng rà soát và tham khảo Vmito, không thay thế các đặc tả trên. `05_DB_V2_UPDATE.sql` và `06_SEED_VENUES.sql` là tài liệu SQL cũ; không chạy làm schema mới. Bộ tài liệu này chưa chứa migration production đã kiểm thử.
+[07_HOST_FIRST_REVIEW.md](07_HOST_FIRST_REVIEW.md) là bằng chứng rà soát và tham khảo Vmito, không thay thế các đặc tả trên. `05_DB_V2_UPDATE.sql` và `06_SEED_VENUES.sql` là tài liệu SQL cũ; không chạy làm schema mới. Các migration trong `supabase/migrations/` mới chỉ được kiểm thử trên PostgreSQL cô lập, chưa apply production.
 
 ## Hiện trạng và đích
 
-| Hiện trạng code | Đích triển khai |
-|---|---|
-| Flutter + Supabase + Provider, các màn hình mẫu | Giữ stack, triển khai dần |
-| Không có luồng đăng nhập/phân quyền host | Auth và RLS trước pilot |
-| CLB, session và người chơi chưa liên kết đủ | Schema tại 03_DATABASE |
-| Bộ đếm/số dư cập nhật từ client | DB xử lý nguyên tử, client chỉ gửi ý định |
-| QR chi tiết buổi là icon, tiện ích lưu tạm | QR thật, dữ liệu gắn ID buổi/người |
-| Test tĩnh, chưa chứng minh luồng app | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
+Cột "Hiện trạng" dưới đây dựa trên báo cáo trong docs/09, docs/22, review_d769531 và review_main_3a34883; dòng nào chưa đối chiếu với code thì ghi rõ.
 
-Không được diễn giải tài liệu đích là chức năng đã tồn tại. Chưa kiểm tra Supabase live hoặc chạy app trong đợt lập tài liệu. Lần này chỉ cập nhật tài liệu, chưa triển khai chức năng hoặc thay đổi DB remote.
+| Hiện trạng | Đích triển khai |
+|---|---|
+| Flutter + Supabase + Provider; lớp demo `SupabaseService` đã bị thay bằng model/repository/provider typed từ BH-04 | Giữ stack, triển khai dần |
+| Đã có đăng nhập (BH-01), schema v1.1 + RLS (BH-02) và phân quyền CLB (BH-03) ở mức local/staging; chưa kiểm HTTP/JWT thật | Auth và RLS kiểm chứng trên Supabase thật trước pilot |
+| CLB, buổi, đăng ký đã liên kết qua schema v1.1 và RPC (BH-03 đến BH-05) ở mức local/staging | Schema tại 03_DATABASE |
+| Mutation đăng ký/duyệt/huỷ/điểm danh đi qua RPC nguyên tử, client không ghi bộ đếm theo thiết kế BH-05. Phần quỹ/số dư thuộc BH-06, chưa làm | DB xử lý nguyên tử, client chỉ gửi ý định |
+| QR thật gắn ID buổi/người thuộc BH-06; chưa triển khai theo backlog (chưa đối chiếu trực tiếp với code) | QR thật, dữ liệu gắn ID buổi/người |
+| 137 Flutter + 251 DB test (reviewer tự chạy lại toàn bộ trên main `3a34883`), trên PostgreSQL cô lập; chưa HTTP/JWT thật, chưa thiết bị thật | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
+
+Không được diễn giải tài liệu đích là chức năng đã tồn tại; đối chiếu bảng trên và nhật ký ở docs/09. Đợt cập nhật tài liệu không thay đổi code hoặc DB remote.
 
 ## Quyết định mặc định cho MVP
 
@@ -46,44 +57,10 @@ Không được diễn giải tài liệu đích là chức năng đã tồn t�
 
 ## Prompt bắt đầu gợi ý
 
-> Đọc AGENTS.md và docs/00_START_HERE.md, rồi toàn bộ tài liệu chuẩn theo thứ tự. Triển khai BH-01 trong docs/09_IMPLEMENTATION_PLAN.md. Kiểm tra code/schema hiện có, nêu file cần sửa, làm riêng phạm vi BH-01 và chạy các kiểm thử trong tiêu chí nghiệm thu. Không chạy SQL cũ hoặc tự deploy Supabase production. Báo rõ thay đổi, kết quả kiểm thử và việc cần cấu hình ngoài code.
+> Đọc AGENTS.md (gồm mục "Quy trình hai AI") và docs/00_START_HERE.md, rồi các tài liệu chuẩn theo thứ tự. Làm đúng vai trò và ticket được giao trong docs/09_IMPLEMENTATION_PLAN.md (ticket kế tiếp: BH-06). Kiểm tra code/schema hiện có, nêu file cần sửa, chỉ làm phạm vi được giao và chạy các kiểm thử trong tiêu chí nghiệm thu, giữ regression các ticket trước. Không chạy SQL cũ hoặc tự deploy Supabase production. Không tự ghi "Done": ghi "Chờ review" kèm bằng chứng. Báo rõ thay đổi, kết quả kiểm thử, phần NOT RUN và việc cần cấu hình ngoài code.
 
 Khi đổi yêu cầu: cập nhật PRD → model/schema → hợp đồng DB → màn hình/backlog trong cùng thay đổi. Không tự suy ra chủ CLB hoặc gộp người từ tên/SĐT.
-
-## Cập nhật sau review v1.1
-
-Ngày 14/10/2026 đã đọc metadata DB thật qua connector: public chỉ thấy venues/sessions/session_players; SELECT/INSERT policy hai bảng nghiệp vụ mở cho PUBLIC, không có UPDATE policy; code CLB/quỹ gọi bảng chưa có. Chi tiết và hành động ở [backlog xử lý review](09_IMPLEMENTATION_PLAN.md#xử-lý-phát-hiện-review-p1p2). Đây là snapshot đọc, không phải xác nhận app hoạt động hoặc quyền đã được sửa.
-
-Bắt đầu bằng prompt AG-00 để ghi nhận baseline local/staging và kế hoạch. Sau đó triển khai từng ticket, không mở UPDATE policy cho tất cả như cách chữa bộ đếm. v1.1 bổ sung bảo vệ bản chốt phí lỗi thời, lời mời waitlist và ADR. Việc cập nhật tài liệu không đồng nghĩa R1–R7 đã được sửa trong code/DB.
-
-## Ưu tiên sau review BH-02 ngày 15/10/2026
-
-Đọc [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md) và thực hiện prompt sửa F1–F7 trước khi sang BH-03. Đây là cập nhật mới hơn nhật ký soạn migration: 33 ca RLS cô lập có 18 PASS / 15 FAIL; chưa đạt nghiệm thu. Không chạy lại AG-00/BH-01 từ đầu nếu đã có bằng chứng triển khai.
-
-## Ưu tiên mới sau commit 15ef59b
-
-Review độc lập ngày 15/10/2026 xác nhận 33 ca cũ PASS nhưng 6 ca bổ sung FAIL. Tiếp tục **H1–H3** ở cuối [13_BH02_REVIEW_HANDOFF.md](13_BH02_REVIEW_HANDOFF.md), chưa chuyển BH-03. Hướng dẫn này mới hơn mục nghiệm thu 33/33 trong lịch sử; không chạy lại AG-00/BH-01.
 
 ## Tham khảo sản phẩm: Vmito và Vụt
 
 [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md) là bản áp dụng hai báo cáo REA do chủ dự án cung cấp. Đọc phần PD tương ứng khi thực hiện BH-03..07; giữ các giới hạn static/runtime, không thêm dependency/schema theo danh sách thư viện đối thủ. Đây là tài liệu bổ sung yêu cầu, không thay lịch sử kiểm thử hoặc xác nhận sửa BH-02.
-
-## Tiếp tục BH-03
-
-Chủ dự án yêu cầu chuyển sang BH-03 sau remediation 11aaec7. Dùng [15_BH03_IMPLEMENTATION_HANDOFF.md](15_BH03_IMPLEMENTATION_HANDOFF.md) làm đầu bài cụ thể cho CLB/member/bank, giữ regression BH-02; không chạy lại AG-00/BH-01. Những mục chờ H1–H3 phía trên là lịch sử trước remediation; việc chấp nhận bước tiếp theo không thay cho báo cáo môi trường/giới hạn test thực tế.
-
-## Cập nhật BH-03 sau review C1–C5
-
-Đọc [17_BH03_REMEDIATION.md](17_BH03_REMEDIATION.md): đã có forward migration và regression cho consent, concurrent idempotency, request keys và logout/session isolation. Giữ lịch sử review 88dd247 như baseline; không lặp lại các lỗi đã sửa. Production chưa apply, full Supabase integration vẫn cần kiểm chứng theo giới hạn trong báo cáo.
-
-## Điểm tiếp tục mới nhất trước BH-04
-
-Đọc [19_PRE_BH04_HANDOFF.md](19_PRE_BH04_HANDOFF.md). Đợt sửa cấu hình/auth/phân trang/UI/ACL đã triển khai; các mục chờ sửa cũ là lịch sử. Chuyển đổi màn buổi chơi demo trong BH-04, giữ cổng pilot và giới hạn local/staging.
-
-## Mới nhất — sau sửa review BH-04
-
-Đọc [21_BH04_REMEDIATION.md](21_BH04_REMEDIATION.md), giữ 104 Flutter +161 DB regression rồi tiếp tục BH-05. Các lỗi R1–R4 ở review dd5c1e6 là baseline trước sửa.
-
-## Mới nhất — sau BH-05
-
-Đọc [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md): đã triển khai đăng ký/duyệt/huỷ/điểm danh/lời mời danh sách chờ (migration `20261015170500_bh05_registrations.sql`) với **116 Flutter + 227 DB PASS**, analyze sạch. Giới hạn còn lại: chưa kiểm PostgREST HTTP/JWT thật, thiết bị thật và chưa apply production. Giữ regression trước khi sang BH-06.
