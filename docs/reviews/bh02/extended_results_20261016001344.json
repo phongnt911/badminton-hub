@@ -1,0 +1,92 @@
+{
+  "tested_commit": "d226a0f6a20f00dc7b29c95b5351c6099db4827d",
+  "baseline": "33/33 PASS",
+  "tests": [
+    {
+      "name": "treasurer sees outstanding roster",
+      "expected": "2",
+      "actual": "2",
+      "pass_": true
+    },
+    {
+      "name": "treasurer sees confirmed payment",
+      "expected": "1",
+      "actual": "1",
+      "pass_": true
+    },
+    {
+      "name": "member without registration cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "0",
+      "pass_": true
+    },
+    {
+      "name": "pending guest cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "0",
+      "pass_": true
+    },
+    {
+      "name": "legacy time follows starts_at update",
+      "expected": "18:00:00",
+      "actual": "18:00:00",
+      "pass_": true
+    },
+    {
+      "name": "legacy venue name comes from venue rather than session title",
+      "expected": "Test venue",
+      "actual": "Test venue",
+      "pass_": true
+    },
+    {
+      "name": "session finance sees outstanding roster",
+      "expected": "2",
+      "actual": "2",
+      "pass_": true
+    },
+    {
+      "name": "session finance sees confirmed payment",
+      "expected": "1",
+      "actual": "1",
+      "pass_": true
+    },
+    {
+      "name": "waitlisted player cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "0",
+      "pass_": true
+    },
+    {
+      "name": "cancelled player cannot read receiver snapshot",
+      "expected": "0",
+      "actual": "0",
+      "pass_": true
+    },
+    {
+      "name": "confirmed player gets payment instructions via RPC",
+      "expected": "true",
+      "actual": "true",
+      "pass_": true
+    },
+    {
+      "name": "pending player blocked from payment instructions RPC",
+      "expected": "42501",
+      "actual": "ERROR:  42501: FORBIDDEN: Chỉ người chơi đã được xác nhận (confirmed) mới có thể xem thông tin thanh toán\nCONTEXT:  PL/pgSQL function get_session_payment_instructions(uuid) line 34 at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3897",
+      "pass_": true
+    },
+    {
+      "name": "legacy venue name updates when venue_id changes",
+      "expected": "Test venue",
+      "actual": "Test venue",
+      "pass_": true
+    },
+    {
+      "name": "legacy end_time follows ends_at update",
+      "expected": "20:00:00",
+      "actual": "20:00:00",
+      "pass_": true
+    }
+  ],
+  "passed": 14,
+  "failed": 0
+}
