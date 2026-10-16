@@ -1,5 +1,7 @@
 # Luồng màn hình và nội dung UI
 
+> **Hiện hành 16/10/2026:** Đây là luồng đích; BH-01..05 đã có triển khai theo bằng chứng, các luồng phí/QR/pilot vẫn thuộc BH-06..07. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Đặc tả v1.1, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
 
 ## 1. Điều hướng

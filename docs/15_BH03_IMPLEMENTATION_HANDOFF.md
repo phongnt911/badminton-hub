@@ -1,5 +1,7 @@
 # BH-03 — CLB, thành viên và tài khoản nhận tiền
 
+> **Hiện hành 16/10/2026:** Đầu bài BH-03 bên dưới giữ làm lịch sử; BH-03 đã triển khai và regression DB 48+22 PASS. Không triển khai lại từ baseline cũ. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày 15/10/2026. Đây là đầu bài triển khai, chưa phải chức năng đã có. Baseline chuẩn bị: f61f840 (schema remediation 11aaec7). IDE tiếp tục từ HEAD và thay đổi local thực tế, không reset hoặc làm lại BH-01/BH-02. Tài liệu này làm rõ BH-03; nếu hợp đồng khác chưa thống nhất thì báo đúng điểm xung đột trước khi sửa phần liên quan.
 
 ## 1. Mục tiêu và phạm vi

@@ -1,5 +1,7 @@
 # Phiếu việc: cập nhật tài liệu sau BH-05 (chỉ tài liệu)
 
+> **Xác nhận hiện hành 16/10/2026:** chủ dự án xác nhận dùng ba bản nháp ngay trong `doc-update-pack/`, giữ gói do chủ dự án tự tạo/commit, duyệt toàn bộ B1–B9 và cho áp dụng các đề xuất C1-01..04/C2-01. A/B và báo cáo C đã có tại `df8a7d0`; lượt tiếp theo áp dụng C vào docs/08, docs/22 và đồng bộ trạng thái toàn bộ docs. B1–B9 bên dưới đều đã tick `[x]`, không có mục bị bỏ qua. [Trạng thái xử lý hiện hành](../docs/23_DOC_AUDIT_FOLLOWUP.md). Các bước chuẩn bị/blob bên dưới là baseline của lượt đầu, không yêu cầu reset nhánh hiện tại, chạy lại main hay ghi đè tài liệu đã cập nhật.
+
 Vai trò: **người cập nhật tài liệu**. Chỉ sửa file Markdown. Không sửa `lib/`, `test/`, `supabase/`, `scripts/`, runner Python, JSON/log bằng chứng và các review hiện có trong `docs/reviews/`. Không merge `main`, không apply DB, không tự ghi "Done" hay "production-ready".
 
 ## 0. Chuẩn bị (dừng và báo nếu bước nào lệch)
@@ -30,9 +32,9 @@ Vai trò: **người cập nhật tài liệu**. Chỉ sửa file Markdown. Khô
 
 | # | Việc | Nguồn |
 |---|---|---|
-| A1 | Cập nhật `README.md` | `doc-update-pack/drafts/README.md` |
-| A2 | Cập nhật `docs/00_START_HERE.md` | `doc-update-pack/drafts/docs/00_START_HERE.md` |
-| A3 | Tạo mới `docs/STATUS_HISTORY.md` | `doc-update-pack/drafts/docs/STATUS_HISTORY.md` |
+| A1 | Cập nhật `README.md` | `doc-update-pack/README.md` |
+| A2 | Cập nhật `docs/00_START_HERE.md` | `doc-update-pack/00_START_HERE.md` |
+| A3 | Tạo mới `docs/STATUS_HISTORY.md` | `doc-update-pack/STATUS_HISTORY.md` |
 
 Cách làm: so bản nháp với file hiện có bằng `git diff --no-index`, chỉ áp dụng phần khác biệt đã mô tả dưới đây, đối chiếu từng con số với mục 1.
 
@@ -42,7 +44,7 @@ Cách làm: so bản nháp với file hiện có bằng `git diff --no-index`, c
 - Nếu bản nháp xung đột với sự thật trong repo thì **sự thật thắng**; ghi chú lại trong báo cáo cuối.
 - Kiểm tra mọi link tương đối trong 3 file đều trỏ tới file có thật (viết script nhỏ, không commit).
 
-## Phần B: ĐỀ XUẤT, CHỈ làm mục được chủ dự án tick `[x]`
+## Phần B: ĐÃ ĐƯỢC CHỦ DỰ ÁN DUYỆT TOÀN BỘ B1–B9
 
 Mục để `[ ]` thì **không làm**. Không tự tick.
 
@@ -61,7 +63,7 @@ Mục để `[ ]` thì **không làm**. Không tự tick.
 - [x] **B8** `docs/09`: (a) bảng BH-04 thiếu dòng tiêu đề (`| Ngày | Ticket | Trạng thái | Bằng chứng |` + dòng ngăn cách), thêm vào; (b) thiếu dòng trống trước heading thứ hai "BH-05 — … 15–16/10/2026", thêm dòng trống. Chỉ sửa định dạng.
 - [x] **B9** `docs/09`: ngay sau mục "Thứ tự và phụ thuộc", thêm mục "## Trạng thái hiện hành" gồm bảng BH-01 đến BH-05 giống `drafts/README.md`, kèm một dòng "BH-06 đến BH-09: chưa triển khai". Không sửa nhật ký phía dưới.
 
-## Phần C: BÁO CÁO, KHÔNG SỬA tài liệu nào
+## Phần C: yêu cầu báo cáo ban đầu (đã có xác nhận cho áp dụng đề xuất)
 
 Viết **một file mới** `docs/reviews/bh05/doc_audit_after_bh05.md` (không sửa review nào có sẵn), gồm:
 

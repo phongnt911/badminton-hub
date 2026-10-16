@@ -22,6 +22,8 @@ BH-01 → BH-02 → BH-03 → BH-04 → BH-05 → BH-06 → BH-07. BH-08/BH-09 s
 
 ## Trạng thái hiện hành
 
+Chủ dự án đã xác nhận toàn bộ B1–B9 và các đề xuất C1/C2; cập nhật chỉ tài liệu đã áp dụng. Xem [xác nhận và điểm tiếp tục BH-06](23_DOC_AUDIT_FOLLOWUP.md).
+
 Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([review](reviews/bh05/review_d769531.md)); hồi quy main `3a34883` đạt 137 Flutter + 251 DB ([review và bằng chứng](reviews/bh05/review_main_3a34883.md)). Chỉ kiểm thử PostgreSQL cô lập + Auth stub; chưa apply staging/production hoặc kiểm PostgREST HTTP/JWT thật, thiết bị/browser e2e, backup/restore và concurrency qua HTTP. Giữ nhật ký phía dưới làm lịch sử.
 
 | Ticket | Phạm vi | Kiểm thử DB (PostgreSQL cô lập + Auth stub) | Trạng thái |

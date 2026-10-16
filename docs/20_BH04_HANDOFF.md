@@ -1,5 +1,7 @@
 # BH-04 — Buổi chơi, lịch và chia sẻ link (bàn giao)
 
+> **Hiện hành 16/10/2026:** Báo cáo BH-04 bên dưới là snapshot trước remediation; xem docs/21 cho sửa review. Chỉ dẫn tiếp theo BH-05 bên dưới đã được thay bằng BH-06. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Trạng thái: **ĐÃ TRIỂN KHAI LOCAL/STAGING** (chưa apply production, chưa kiểm PostgREST HTTP/JWT thật).
 Tiếp theo: BH-05 (đăng ký và lời mời). Chi tiết hợp đồng RPC: [08_DOMAIN_CONTRACTS.md](08_DOMAIN_CONTRACTS.md) §11.
 

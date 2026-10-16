@@ -1,5 +1,7 @@
 # Quy tắc cho Antigravity và các AI tham gia dự án
 
+> **Hiện hành 16/10/2026:** Áp dụng trạng thái và phạm vi đã được chủ dự án xác nhận; không chạy lại các ticket cũ chỉ vì đọc snapshot lịch sử. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 ## 1. Nguồn yêu cầu
 
 Bắt đầu tại `docs/00_START_HERE.md`, đọc PRD, kiến trúc, database, domain contracts, backlog và screen flows. Các file 01/02/03/08/09/10 là đặc tả đích chuẩn. 07 là rà soát lịch sử. SQL 05/06 là legacy, không chạy để dựng schema mới. Nếu yêu cầu mới của chủ dự án khác tài liệu, ưu tiên yêu cầu mới và cập nhật các tài liệu liên quan.
@@ -33,3 +35,7 @@ Commit thay đổi liên quan, không gộp sửa ngoài phạm vi. Trước pus
 Đọc ADR và prompt pack 11/12. Không chữa bộ đếm bằng public UPDATE policy; không chạy truy vấn bằng postgres rồi kết luận role app đúng. So sánh schema live với migrations, không giả định clubs/quỹ đã có. billing_state stale phải được bảo vệ bằng RPC, không chỉ UI. Không tạo lớp domain/use-case/adapter cho CRUD nếu chưa có trách nhiệm thực.
 
 Prompt pack giao việc từng phạm vi; thiếu local/staging thì tiếp tục chuẩn bị code/test và báo phần chưa chạy, không tự dùng production để test. Khi task là tài liệu, không áp dụng migration. Trạng thái review gồm "đã đặc tả cách sửa" và "đã triển khai/kiểm thử", không gộp làm done.
+
+## 6. Ghi nhận xác nhận của chủ dự án
+
+Khi chủ dự án xác nhận đề xuất, ghi lại mục được duyệt, phạm vi và trạng thái áp dụng trong tài liệu liên quan ngay trong cùng thay đổi; đồng bộ entrypoint, backlog và handoff để phiên sau tiếp tục đúng ticket. Giữ review/JSON/log theo thời điểm đã kiểm chứng; dùng bản ghi theo dõi mới để kết nối quyết định hiện hành với snapshot cũ. Chỉ đánh dấu đã áp dụng khi thay đổi cụ thể có trong diff; không dùng sự đồng ý làm bằng chứng test đã chạy hoặc production đã triển khai.

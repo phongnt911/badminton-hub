@@ -2,6 +2,8 @@
 
 **Trạng thái hiện hành (16/10/2026): Đạt tích hợp A+B+C tại `d769531` ([review_d769531.md](reviews/bh05/review_d769531.md)); hồi quy main tại `3a34883` đạt 137 Flutter + 251 DB ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)). Chưa cho phép deploy production. Đoạn trạng thái ngay dưới đây là snapshot trước review, giữ làm lịch sử.**
 
+Cập nhật tài liệu đã được chủ dự án xác nhận: B1–B9 đã áp dụng; C1-01..04 cập nhật hợp đồng §12 và C2-01 cập nhật hash LF/CRLF ở §3. Xem [trạng thái xử lý audit và điểm tiếp tục](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW (bản tích hợp, vòng sửa 1)** — A, B, C đã được gộp
 trên nhánh `feat/bh05-integration` theo thứ tự A→B→C và cả ba đã **Đạt** độc lập. Review tích hợp
 [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa đạt** với I1 (P1)/I2 (P2); đã sửa cả hai
@@ -52,10 +54,10 @@ Mã nguồn tích hợp (lib/test/supabase) **trùng khít** cây C đã review:
 
 Forward migration (không sửa lịch sử), đo trên cây tích hợp:
 
-- `supabase/migrations/20261015170500_bh05_registrations.sql` — SHA256 `2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51`.
-- `supabase/migrations/20261016090000_bh05_review_fixes.sql` (sửa A1/A2) — SHA256 `629a0cad48587fe7516f48962d4a5c44fac69c493fb1b1b0f1e42a535ef369a7`.
-- `supabase/migrations/20261016091000_bh05_a3_cancel_revokes_invitations.sql` (sửa A3) — SHA256 `5981843750597ec54864bdf99e26a75d920dfb8c889bda0f6a748b60a09a0442`.
-- `supabase/migrations/20261016100000_bh05_start_session.sql` (vòng sửa tích hợp I1) — SHA256 `72474dd0072c74b2b42dcb9a6e5d12621afa4206c13aadb0f2c30ad228309dfc`: RPC `start_session`.
+- `supabase/migrations/20261015170500_bh05_registrations.sql` — SHA256 blob Git LF `356f5831649eb4d09efa624402679cce67211056ce44e09cf6088715970ac588`.
+- `supabase/migrations/20261016090000_bh05_review_fixes.sql` (sửa A1/A2) — SHA256 blob Git LF `f0e2573c0f95e1108511f78acece37f90eaa0cb7c63093389e25a8878bc5e30e`.
+- `supabase/migrations/20261016091000_bh05_a3_cancel_revokes_invitations.sql` (sửa A3) — SHA256 blob Git LF `8895c9550a2611915b218ab92b5742a37acaca6f3ed8e88c951efc7a7b0fba72`.
+- `supabase/migrations/20261016100000_bh05_start_session.sql` (vòng sửa tích hợp I1) — SHA256 blob Git LF `72474dd0072c74b2b42dcb9a6e5d12621afa4206c13aadb0f2c30ad228309dfc`: RPC `start_session`.
 
 Nội dung:
 
@@ -66,7 +68,17 @@ Nội dung:
 
 Chi tiết hợp đồng từng RPC: [08_DOMAIN_CONTRACTS.md §12](08_DOMAIN_CONTRACTS.md).
 
-Ghi chú hash: bản handoff ngày 15/10 ghi `356f5831…` cho migration gốc; đó là hash của bản chuẩn hoá LF. Tệp trong repo dùng CRLF nên hash byte thực là `2c63e2cb…` (cùng nội dung).
+Ghi chú hash hiện hành 16/10/2026 (C2-01 đã được chủ dự án duyệt): các giá trị trên là SHA256 byte **blob Git LF**, cũng khớp checkout LF và JSON hồi quy main tại `3a34883`. Hash phụ thuộc kiểu xuống dòng; không thay migration để khớp hash của checkout khác.
+
+Giữ hash CRLF của snapshot handoff cũ để đối chiếu lịch sử:
+
+| Migration | SHA256 biểu diễn CRLF lịch sử |
+|---|---|
+| `20261015170500_bh05_registrations.sql` | `2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51` |
+| `20261016090000_bh05_review_fixes.sql` | `629a0cad48587fe7516f48962d4a5c44fac69c493fb1b1b0f1e42a535ef369a7` |
+| `20261016091000_bh05_a3_cancel_revokes_invitations.sql` | `5981843750597ec54864bdf99e26a75d920dfb8c889bda0f6a748b60a09a0442` |
+
+Chuyển LF→CRLF trong bộ nhớ tái tạo đúng ba hash lịch sử; nội dung SQL không đổi do phép đổi EOL này. Migration start_session ở snapshot handoff dùng LF, nên hash cũ đã khớp. Phát biểu cũ “Tệp trong repo dùng CRLF” chỉ phản ánh checkout của lượt handoff, không áp dụng cho mọi checkout hoặc blob Git. Bảng kết quả §7 giữ nguyên các nguồn/commit kiểm thử lịch sử; log hồi quy main dùng Flutter 3.47.7/Dart 3.13.5, không thay môi trường tác giả 3.47.6 bằng môi trường reviewer.
 
 ## 4. Thay đổi Flutter
 

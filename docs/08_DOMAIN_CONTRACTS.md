@@ -1,6 +1,8 @@
 # Hợp đồng thao tác nghiệp vụ
 
-Phiên bản 1.1 · thiết kế RPC/API để triển khai. Tên bên dưới là tên chuẩn đề xuất, chưa phải functions đã tồn tại. SQL implementation/test thuộc BH-02/BH-04/BH-05/BH-06.
+> **Hiện hành 16/10/2026:** Các đề xuất C1-01..04 đã được chủ dự án duyệt và cập nhật ở §12; phần finance BH-06 vẫn là hợp đồng đích. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
+Phiên bản 1.1 · yêu cầu đích và hợp đồng RPC đã triển khai. BH-03/04/05 đã có migration và kiểm thử PostgreSQL cô lập; §10–12 ghi chi tiết hiện thực. Các thao tác ngoài phạm vi này, nhất là finance BH-06, vẫn là yêu cầu để triển khai; không suy ra mọi tên ở §1–9 đã tồn tại trên DB live.
 
 ## 1. Quy ước chung
 
@@ -151,7 +153,27 @@ Lifecycle idempotency hash chỉ từ session_id/action đầu vào; retry cùng
 
 Migration nối tiếp chuỗi v1.1 (không sửa lịch sử migration cũ). Mọi RPC mutation: `SECURITY DEFINER`, `search_path = public, pg_temp`, bắt buộc `p_request_id`, idempotency theo actor/operation/request + hash canonical chỉ từ input ổn định, có audit, `REVOKE PUBLIC/anon` + `GRANT authenticated`. Ghi bộ đếm/số dư/tác nhân audit chỉ ở phía DB. Chỉ `confirmed` giữ chỗ; `pending`/`waitlisted` không giữ slot và không đọc thông tin ngân hàng/QR.
 
-RPC mutation (đều trả JSONB `{player_id, session_id, registration_status, attendance_status, participant_type, fee_exempt, agreed_fee_vnd, confirmed_count, capacity, seats_left, session_version}`; các RPC lời mời trả thêm `invitation_id`, `invitation_status`):
+Cập nhật hiện hành 16/10/2026 theo các đề xuất C1-01..04 đã được chủ dự án duyệt. Bốn migration áp dụng theo thứ tự:
+
+1. [`20261015170500_bh05_registrations.sql`](../supabase/migrations/20261015170500_bh05_registrations.sql): đăng ký, điểm danh, lời mời và helper/projection.
+2. [`20261016090000_bh05_review_fixes.sql`](../supabase/migrations/20261016090000_bh05_review_fixes.sql): thay định nghĩa add/decide/cancel/accept để gate finance; bảo vệ capacity trong update_session.
+3. [`20261016091000_bh05_a3_cancel_revokes_invitations.sql`](../supabase/migrations/20261016091000_bh05_a3_cancel_revokes_invitations.sql): huỷ buổi thu hồi lời mời pending trong cùng transaction.
+4. [`20261016100000_bh05_start_session.sql`](../supabase/migrations/20261016100000_bh05_start_session.sql): bổ sung start_session. Không sửa các migration trước.
+
+Có 10 RPC BH-05: 9 mutation và 1 đọc, ngoài RPC `list_session_players` được mở rộng. Kết quả trả trực tiếp JSONB, không phải mọi RPC dùng cùng một object:
+
+| RPC | Kết quả thành công |
+|---|---|
+| request_join_session, add_session_player, decide_registration, cancel_registration, record_attendance | `{player_id, session_id, registration_status, attendance_status, participant_type, fee_exempt, agreed_fee_vnd, confirmed_count, capacity, seats_left, session_version}` (kết quả đăng ký R) |
+| invite_waitlisted_player | `{invitation_id, session_id, player_id, status, invited_at, expires_at}`, status=pending; không có các trường R hoặc invitation_status |
+| revoke_waitlist_invitation | `{invitation_id, session_id, player_id, status, expires_at}`, status=revoked; không có invited_at, các trường R hoặc invitation_status |
+| accept_waitlist_invitation | R cộng `{invitation_id, invitation_status}`, invitation_status=accepted |
+| get_my_waitlist_invitation | Object lời mời như invite hoặc SQL NULL nếu không có lời mời pending chưa hết hạn của chính actor |
+| start_session | Projection `get_session_public_detail(p_session_id)` (§11), gồm id/lifecycle/version/can_manage/my_registration; không phải R |
+
+Các mutation bên dưới bắt buộc `p_request_id UUID` khác NULL dù mặc định SQL là NULL; thiếu trả `INVALID_INPUT` (22023). Các tham số có `?` là nullable/default NULL; add có mặc định `p_fee_exempt=FALSE`, `p_allow_waitlist=FALSE`. Tên/thứ tự/kiểu SQL, ACL và mã lỗi của cả 10 RPC đã được đối chiếu trong [báo cáo C1](reviews/bh05/doc_audit_after_bh05.md); báo cáo là snapshot trước cập nhật, kết quả áp dụng nằm ở [23_DOC_AUDIT_FOLLOWUP.md](23_DOC_AUDIT_FOLLOWUP.md).
+
+RPC mutation:
 
 - `request_join_session(p_session_id, p_contact?, p_request_id)` — người chơi tự đăng ký buổi đã công bố. `approval_mode='host_approval'` ⇒ `pending`; `approval_mode='auto_confirm'` ⇒ `confirmed` nếu còn chỗ, ngược lại `waitlisted`. Một đăng ký mỗi người/buổi. Khoá session (`FOR UPDATE`) rồi kiểm lại lifecycle/deadline/state trong một transaction.
 - `add_session_player(p_session_id, p_member_id?, p_guest_name?, p_contact?, p_fee_exempt, p_allow_waitlist, p_request_id)` — host/cohost thêm thành viên CLB (chọn đúng `member_id`, **không** tự khớp tên/SĐT) hoặc khách chưa có tài khoản (`participant_type='guest'`, `user_id NULL`). Khách luôn `host_recorded`; hết chỗ mà không `p_allow_waitlist` ⇒ `CAPACITY_FULL`, có ⇒ `waitlisted`. `p_fee_exempt` cần quyền tài chính.
@@ -159,8 +181,13 @@ RPC mutation (đều trả JSONB `{player_id, session_id, registration_status, a
 - `cancel_registration(p_session_id, p_player_id, p_reason?, p_request_id)` — người chơi tự huỷ theo `cancellation_deadline`; host/quản lý huỷ theo quyền; `confirmed`/`pending`/`waitlisted` → `cancelled`, giải phóng slot khi trước đây là `confirmed`.
 - `record_attendance(p_session_id, p_player_id, p_attendance, p_request_id)` — chỉ `confirmed` và `lifecycle='in_progress'`; `p_attendance ∈ {present, no_show}`.
 - `invite_waitlisted_player(p_session_id, p_player_id, p_expires_at?, p_request_id)` — host/cohost; người chơi đang `waitlisted`, buổi `published`, trước deadline. `expires_at` mặc định `min(now()+30 phút, registration_deadline, starts_at)` và phải ở tương lai; hết hạn lời mời cũ trước khi tạo mới. Lời mời **không** giữ slot, gắn cặp (session, player).
-- `revoke_waitlist_invitation(p_session_id, p_invitation_id, p_reason?, p_request_id)` — đúng quyền, chỉ lời mời `pending`; lời mời đã accepted phải đi qua `cancel_registration`.
+- `revoke_waitlist_invitation(p_session_id, p_invitation_id, p_reason?, p_request_id)` — đúng quyền; lời mời `pending` được đổi thành `revoked` và ghi audit. Lời mời đã `revoked` trả thành công không đổi trạng thái/ghi audit lần nữa, kể cả với request ID mới. Lời mời `accepted` hoặc `expired` trả `INVALID_STATE`; đã accepted muốn huỷ chỗ phải đi qua `cancel_registration`.
 - `accept_waitlist_invitation(p_session_id, p_invitation_id, p_consent_note?, p_request_id)` — self: `auth.uid()` khớp `user_id` của player; `host_recorded`: host/cohost đúng buổi + khách chưa liên kết account + `p_consent_note` không rỗng. Trong một transaction khoá session → player → invitation, kiểm lại người nhận/state/hết hạn/deadline/slot; đơn dùng một lần, retry trả kết quả trước đó và **không** thêm slot.
+- `start_session(p_session_id UUID, p_request_id UUID DEFAULT NULL)` — chỉ management, chỉ chuyển `published → in_progress`. Khoá session FOR UPDATE, xác thực actor/quyền và request ID; cùng key/payload trả projection đã lưu trước kiểm lifecycle, không tăng version hoặc audit lại. Thành công tăng version, ghi audit START_SESSION rồi trả `get_session_public_detail`. Không mở direct UPDATE sessions, không nới guard điểm danh. Lỗi trực tiếp: `UNAUTHENTICATED`/`FORBIDDEN` (42501), `INVALID_INPUT`/`INVALID_STATE` (22023), `NOT_FOUND` (P0002); helper idempotency có thể trả `IDEMPOTENCY_CONFLICT` (23505).
+
+### Gate tài chính sau khi chốt phí
+
+Khi có `charge_revisions.status='active'`, actor còn phải có `has_session_finance_access` để add người thành `confirmed`, decide thành `confirmed`, cancel người đang `confirmed`, hoặc accept lời mời để nhận chỗ. Thiếu quyền trả `FORBIDDEN` (42501). Đây là gate bổ sung cho quyền management/self, không thay quyền gốc; `p_fee_exempt` vẫn cần finance. Giữ các kiểm tra điểm danh/đã thu tiền của cancel và regression A1. Xem [ADR-08](11_ARCHITECTURE_DECISIONS.md#adr-08-bản-chốt-phải-khớp-phiên-bản-dữ-liệu-tính-phí); mô tả gate hiện có không đồng nghĩa toàn bộ finance BH-06 đã triển khai.
 
 RPC đọc:
 

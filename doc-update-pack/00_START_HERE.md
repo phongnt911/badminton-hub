@@ -1,5 +1,7 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
+> **Bản nháp lưu tham chiếu:** đã áp dụng trong phần A; không dùng trạng thái hoặc link tương đối của bản nháp làm entrypoint. Tài liệu hiện hành ở [docs/00](../docs/00_START_HERE.md), [xác nhận sau audit](../docs/23_DOC_AUDIT_FOLLOWUP.md). Gói này do chủ dự án tạo và cho phép giữ trong Git.
+
 Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; chưa apply production.
 
 ## Trạng thái hiện tại (cập nhật 16/10/2026)

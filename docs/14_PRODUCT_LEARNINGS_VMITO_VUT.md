@@ -1,5 +1,7 @@
 # Áp dụng nghiên cứu Vmito và Vụt vào Badminton Hub
 
+> **Hiện hành 16/10/2026:** Đây là nguồn yêu cầu nghiên cứu tĩnh; nhận định chưa review BH-02 bên dưới là snapshot ngày 15/10, không phải trạng thái hiện hành. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày 15/10/2026. Đây là bổ sung yêu cầu sản phẩm, UX và chất lượng phát hành, không phải code đã triển khai hoặc migration mới. Đọc cùng PRD, architecture, database và backlog. Baseline repo khi tích hợp: 11aaec7; commit này mới báo sửa H1–H3, lượt nghiên cứu này chưa review/test lại để xác nhận đóng BH-02.
 
 ## 1. Nguồn và mức tin cậy

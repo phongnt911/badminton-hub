@@ -1,5 +1,7 @@
 # Lịch sử cập nhật trạng thái
 
+> **Bản nháp lưu tham chiếu:** đã áp dụng trong phần A; không dùng trạng thái hoặc link tương đối của bản nháp làm entrypoint. Tài liệu hiện hành ở [docs/00](../docs/00_START_HERE.md), [xác nhận sau audit](../docs/23_DOC_AUDIT_FOLLOWUP.md). Gói này do chủ dự án tạo và cho phép giữ trong Git.
+
 Các mục dưới đây, trừ mục cuối (thêm mới ngày 16/10/2026), được chuyển nguyên văn từ cuối `docs/00_START_HERE.md` (đợt rà soát sau BH-05). Đây là nhật ký theo thời gian: nhiều chỉ dẫn trong đó đã hết hiệu lực. Trạng thái hiện hành nằm ở mục "Trạng thái hiện tại" của [00_START_HERE.md](00_START_HERE.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 
 ## Cập nhật sau review v1.1

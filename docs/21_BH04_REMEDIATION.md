@@ -1,5 +1,7 @@
 # BH-04 — sửa review R1–R4
 
+> **Hiện hành 16/10/2026:** Báo cáo dưới giữ kết quả của lượt sửa BH-04; regression mới hơn là 44 DB PASS, BH-05 cũng đã đạt tích hợp. Không dùng chỉ dẫn BH-05 cũ làm ticket kế tiếp. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày 15/10/2026 (Việt Nam). Baseline `dd5c1e6`; [review gốc](reviews/bh04/review_dd5c1e6.md) là lịch sử trước bản sửa.
 
 ## Đã sửa

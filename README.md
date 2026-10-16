@@ -4,6 +4,8 @@
 
 ## Trạng thái hiện tại
 
+Chủ dự án đã xác nhận toàn bộ B1–B9 và các đề xuất C1/C2; cập nhật chỉ tài liệu đã áp dụng. Xem [xác nhận và điểm tiếp tục BH-06](docs/23_DOC_AUDIT_FOLLOWUP.md).
+
 BH-01 đến BH-05 đã triển khai ở mức local/staging; **chưa apply production**, chưa kiểm PostgREST HTTP/JWT thật, thiết bị thật hoặc deep link mức hệ điều hành. BH-05 đã **đạt review tích hợp** tại `d769531` ([review_d769531.md](docs/reviews/bh05/review_d769531.md)) và **đạt hồi quy trên `main`** tại `3a34883` ([review_main_3a34883.md](docs/reviews/bh05/review_main_3a34883.md)); các kết quả này không cho phép deploy production.
 
 | Ticket | Phạm vi | Kiểm thử DB (PostgreSQL cô lập + Auth stub) | Trạng thái |
@@ -92,6 +94,8 @@ Bắt đầu AG-00 để ghi baseline và môi trường test, sau đó AG-01 tr
 Đã tiếp nhận báo cáo REA tĩnh của Vmito và Vụt: [bản áp dụng vào Badminton Hub](docs/14_PRODUCT_LEARNINGS_VMITO_VUT.md). Bổ sung yêu cầu link/filter/trạng thái/QR và release privacy cho BH-03..07; không đổi stack hoặc tự triển khai chat/push/GPS. Quan sát thư viện/endpoints không được coi là chức năng runtime đã kiểm chứng.
 
 ## Đầu bài BH-03
+
+Hiện hành 16/10/2026: mục này và các bàn giao BH-03/BH-04 bên dưới là lịch sử. Tiếp tục BH-06 theo trạng thái đầu file, không triển khai lại từ các prompt cũ.
 
 Tiếp tục CLB, thành viên và tài khoản nhận tiền theo [15_BH03_IMPLEMENTATION_HANDOFF.md](docs/15_BH03_IMPLEMENTATION_HANDOFF.md): RPC nguyên tử, role/privacy, models/repository/provider, UI và acceptance từng phần. Bắt đầu từ trạng thái thực tế của IDE, giữ regression BH-02; không làm lại migration hoặc tính năng đã có.
 

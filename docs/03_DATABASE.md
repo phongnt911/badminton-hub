@@ -1,5 +1,7 @@
 # Cơ sở dữ liệu — mô hình đích v1.1
 
+> **Hiện hành 16/10/2026:** Đây là mô hình đích; migration BH-02..05 đã có và đã kiểm PostgreSQL cô lập, chưa xác nhận schema live. Tài chính BH-06 chưa triển khai đầy đủ. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 14/10/2026 · PostgreSQL/Supabase. Đây là thiết kế để viết migration BH-02, chưa phải mô tả schema live. SQL cũ 05/06 không đủ để tạo hệ thống này.
 
 ## 1. Quy ước

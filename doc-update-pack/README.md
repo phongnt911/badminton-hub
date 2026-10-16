@@ -1,5 +1,7 @@
 # Badminton Hub
 
+> **Bản nháp lưu tham chiếu:** đã áp dụng trong phần A; không dùng trạng thái hoặc link tương đối của bản nháp làm entrypoint. Tài liệu hiện hành ở [docs/00](../docs/00_START_HERE.md), [xác nhận sau audit](../docs/23_DOC_AUDIT_FOLLOWUP.md). Gói này do chủ dự án tạo và cho phép giữ trong Git.
+
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
 ## Trạng thái hiện tại

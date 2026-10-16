@@ -1,10 +1,12 @@
 # Prompt triển khai cho Antigravity
 
-v1.1 · 14/10/2026. Dùng lần lượt, mỗi lượt giao một prompt. Chưa có ticket implementation nào được đánh dấu done. Người dùng sẽ yêu cầu code riêng; tài liệu này không tự giao quyền deploy production.
+> **Hiện hành 16/10/2026:** Điểm tiếp tục hiện hành là AG-06/BH-06; AG-00..05 và các prompt remediation bên dưới giữ để tham khảo lịch sử, không giao triển khai lại. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
+v1.1 · 14/10/2026. Dùng từng prompt theo trạng thái hiện hành, mỗi lượt giao một phạm vi. BH-01..05 đã có triển khai và bằng chứng; BH-05 đạt review tích hợp, ticket kế tiếp là AG-06/BH-06. Người dùng sẽ yêu cầu code riêng; tài liệu này không tự giao quyền deploy production.
 
 ## Prompt chung dùng cho mọi lượt
 
-> Đọc AGENTS.md, docs/00_START_HERE.md và tài liệu chuẩn/ADR liên quan. Đối chiếu code, migration và môi trường thật; phân biệt schema đích với hiện trạng đã xác minh. Chỉ triển khai phạm vi được giao, giữ Flutter + Provider + Supabase. Không thêm backend/framework/lớp trừu tượng hoặc dependency nếu chưa có nhu cầu và thống nhất. Slot/tiền/quyền do DB/RPC bảo vệ, không mở public UPDATE để chữa bộ đếm. Không chạy SQL legacy. Dùng local/staging cho tests; không tự apply migration/deploy production. Trước sửa nêu file, phụ thuộc, nghiệm thu; sau sửa báo file/lệnh/kết quả/giới hạn. Nếu thiếu backend, chuẩn bị phần không phụ thuộc rồi báo tests bị chặn, không tự nối test production. Chỉ ghi done khi đạt nghiệm thu.
+> Đọc AGENTS.md, docs/00_START_HERE.md và tài liệu chuẩn/ADR liên quan. Đối chiếu code, migration và môi trường thật; phân biệt schema đích với hiện trạng đã xác minh. Chỉ triển khai phạm vi được giao, giữ Flutter + Provider + Supabase. Không thêm backend/framework/lớp trừu tượng hoặc dependency nếu chưa có nhu cầu và thống nhất. Slot/tiền/quyền do DB/RPC bảo vệ, không mở public UPDATE để chữa bộ đếm. Không chạy SQL legacy. Dùng local/staging cho tests; không tự apply migration/deploy production. Trước sửa nêu file, phụ thuộc, nghiệm thu; sau sửa báo file/lệnh/kết quả/giới hạn. Nếu thiếu backend, chuẩn bị phần không phụ thuộc rồi báo tests bị chặn, không tự nối test production. Người triển khai ghi Chờ review kèm bằng chứng, chỉ reviewer kết luận Đạt/Chưa đạt theo AGENTS.md.
 
 ## AG-00: Baseline và kế hoạch (chưa code chức năng)
 

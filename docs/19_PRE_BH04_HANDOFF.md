@@ -1,5 +1,7 @@
 # Bàn giao sau đợt sửa trước BH-04
 
+> **Hiện hành 16/10/2026:** Điểm bàn giao BH-04 bên dưới là lịch sử; BH-04 đã triển khai/sửa review, regression 44 DB PASS. Không tiếp tục lại từ pre-BH04. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày 15/10/2026. Tiếp nối baseline `004e05f`; không bắt đầu lại BH-01/BH-02.
 
 ## Đã sửa

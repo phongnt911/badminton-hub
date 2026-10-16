@@ -1,5 +1,7 @@
 # BH-02: bàn giao sau review và kiểm thử RLS
 
+> **Hiện hành 16/10/2026:** Nội dung dưới là snapshot BH-02 trước remediation; H1–H3 đã có sửa và regression 33+14 PASS. Không dùng dòng CHƯA ĐẠT cũ để chặn tiếp tục BH-06. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+
 Ngày 15/10/2026. Baseline: commit `3fa3cdae72ef08895d3ad62f3a31e95dc5b7fa35`. Trạng thái **CHƯA ĐẠT NGHIỆM THU**, không tự chuyển BH-03. Có file migration và tests cấu trúc, nhưng DB tests cô lập cho kết quả 18 PASS / 15 FAIL trên 33 ca.
 
 ## Đọc trước khi tiếp tục
