@@ -16,6 +16,15 @@ Trạng thái: **Chờ review** (người triển khai không tự ghi Đạt). 
 
 Forward-only; không sửa migration đã chia sẻ. Hợp đồng chữ ký/ACL/mã lỗi đầy đủ ở [docs/08 §13](../../08_DOMAIN_CONTRACTS.md).
 
+## Sửa theo review vòng 1 (16/10/2026)
+
+[Review `e3c73c1`](review_e3c73c1.md) kết luận **Chưa đạt** với 2 phát hiện P1. Đã sửa cả hai trong nhánh này (chi tiết: [bh06a_review_round1.md](bh06a_review_round1.md)):
+
+- Commit `59baa25`: thêm 2 ca tái hiện vào `run_bh06_tests.py` (FAIL trước khi sửa) — R1 outsider/cohost đọc công nợ khách offline `user_id=NULL`; R2 RPC bank cũ (BH-02) chưa gate not_finalized/stale.
+- Commit `83586ed`: migration forward [`20261016140000_bh06a_review_round1.sql`](../../../supabase/migrations/20261016140000_bh06a_review_round1.sql) — (R1) `get_payment_instructions` kiểm quyền null-safe; (R2) `get_session_payment_instructions` gate `assert_billing_current`. Không sửa ba migration BH-06A đã chia sẻ.
+- Bằng chứng trên cây sạch `83586ed`: analyze 0 issue; `flutter test` 137/137; runner BH-06 **84/84 PASS** (42 × CLEAN/LEGACY, `worktree_dirty=false`) → [`bh06_test_results_20261016151610.json`](bh06_test_results_20261016151610.json). Hồi quy BH-02..05 xanh lại (33+14, 48+22, 44, 90).
+- Trạng thái: **Chờ review vòng 1**.
+
 ## Bằng chứng (cây `947f8ae`)
 
 - `flutter analyze`: 0 issue.
