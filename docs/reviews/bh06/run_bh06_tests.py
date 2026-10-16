@@ -368,6 +368,55 @@ def run_suite(db):
         assert as_finance2['player_id'] == p['player_id'], as_finance2
     run_test("Quyền: get_payment_instructions đúng người/finance, chặn pending", t_payment_instructions_scope)
 
+    def t_payinfo_guest_null_forbidden():
+        # R1 (review vòng 1): khách offline user_id=NULL confirmed phải không lộ công nợ/ngân hàng
+        sid = create_and_publish(1, 'GuestScope', capacity=6, club_link=SHARED['club'])
+        g = add_player(1, sid, 'Khách Offline')['player_id']  # user_id NULL, confirmed
+        p = join(5, sid)['player_id']
+        start(sid)
+        attend(sid, g)
+        attend(sid, p)
+        post_expense(sid, 100000)
+        finalize(sid)
+        assert billing_state(sid) == 'current'
+        # outsider không vai trò đọc công nợ khách offline -> FORBIDDEN (trước sửa bị NULL cho qua)
+        r = user_exec(db, 10, f"SELECT public.get_payment_instructions('{sid}'::uuid, '{g}'::uuid);")
+        assert expect_error(r, 'FORBIDDEN'), f"outsider đọc công nợ khách offline phải bị chặn: {r.stderr}"
+        # cohost không finance đọc khách offline -> FORBIDDEN (management không phải finance)
+        must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES ('{sid}', {q(2)}, 'cohost', 'active');", 'cohost')
+        r = user_exec(db, 2, f"SELECT public.get_payment_instructions('{sid}'::uuid, '{g}'::uuid);")
+        assert expect_error(r, 'FORBIDDEN'), f"cohost không finance đọc khách offline phải bị chặn: {r.stderr}"
+        # negative control: outsider đọc khách đã liên kết user vẫn FORBIDDEN
+        r = user_exec(db, 10, f"SELECT public.get_payment_instructions('{sid}'::uuid, '{p}'::uuid);")
+        assert expect_error(r, 'FORBIDDEN'), f"outsider đọc người khác phải bị chặn: {r.stderr}"
+        # finance vẫn đọc được khách offline đúng scope
+        ok = json.loads(must_user(db, 1, f"SELECT public.get_payment_instructions('{sid}'::uuid, '{g}'::uuid);", 'finance guest'))
+        assert ok['player_id'] == g and ok['billing_state'] == 'current' and ok['outstanding_vnd'] == 50000, ok
+    run_test("Quyền: outsider/cohost không đọc công nợ khách offline user_id NULL (R1)", t_payinfo_guest_null_forbidden)
+
+    def t_payinfo_gate_legacy_and_new():
+        # R2 (review vòng 1): RPC bank cũ (BH-02) và RPC mới đều phải gate current
+        sid = create_and_publish(1, 'LegacyGate', capacity=4)
+        p = join(5, sid)['player_id']
+        start(sid)
+        attend(sid, p)
+        # chưa chốt: cả đường cũ và mới -> BILLING_NOT_FINALIZED
+        r = user_exec(db, 5, f"SELECT public.get_session_payment_instructions('{sid}'::uuid);")
+        assert expect_error(r, 'BILLING_NOT_FINALIZED'), f"RPC cũ chưa chốt phải bị chặn: {r.stderr}"
+        r = user_exec(db, 5, f"SELECT public.get_payment_instructions('{sid}'::uuid);")
+        assert expect_error(r, 'BILLING_NOT_FINALIZED'), f"RPC mới chưa chốt phải bị chặn: {r.stderr}"
+        finalize(sid)
+        legacy = json.loads(must_user(db, 5, f"SELECT public.get_session_payment_instructions('{sid}'::uuid);", 'legacy current'))
+        assert 'receiver_snapshot' in legacy and legacy['session_id'] == sid, legacy
+        post_expense(sid, 10000)  # stale
+        assert billing_state(sid) == 'stale'
+        # stale: cả đường cũ và mới -> BILLING_STALE
+        r = user_exec(db, 5, f"SELECT public.get_session_payment_instructions('{sid}'::uuid);")
+        assert expect_error(r, 'BILLING_STALE'), f"RPC cũ stale phải bị chặn: {r.stderr}"
+        r = user_exec(db, 5, f"SELECT public.get_payment_instructions('{sid}'::uuid);")
+        assert expect_error(r, 'BILLING_STALE'), f"RPC mới stale phải bị chặn: {r.stderr}"
+    run_test("Gate: RPC bank cũ và mới đều chặn not_finalized/stale (R2)", t_payinfo_gate_legacy_and_new)
+
     def t_public_detail_no_bank():
         sid = create_and_publish(1, 'NoBankLeak', vis='public')
         raw = anon_exec(db, f"SELECT public.get_session_public_detail('{sid}'::uuid);").stdout
