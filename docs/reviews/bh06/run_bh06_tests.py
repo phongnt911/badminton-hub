@@ -277,6 +277,29 @@ def run_suite(db):
             assert expect_error(r, 'permission denied'), f"anon phải bị chặn ACL: {r.stderr}"
     run_test("ACL: anon không gọi được RPC tài chính/quỹ", t_anon_acl)
 
+    def t_direct_write_and_helper_acl():
+        sid = create_and_publish(1, 'DirectAcl', capacity=4)
+        p = join(5, sid)['player_id']
+        # authenticated không ghi trực tiếp được bảng tài chính (RLS bật + không có grant ghi)
+        r = user_exec(db, 1, f"INSERT INTO public.session_expenses(session_id, category, title, amount_vnd, status, created_by) VALUES ('{sid}'::uuid, 'court', 'x', 1000, 'posted', {q(1)});")
+        assert expect_error(r, 'permission denied'), f"không được ghi trực tiếp session_expenses: {r.stderr}"
+        r = user_exec(db, 1, "UPDATE public.payments SET amount_vnd = 0;")
+        assert expect_error(r, 'permission denied'), f"không được sửa trực tiếp payments: {r.stderr}"
+        r = user_exec(db, 1, f"INSERT INTO public.club_transactions(club_id, direction, amount_vnd, title, source_type, created_by) VALUES ('{SHARED['club']}'::uuid, 'income', 1000, 'x', 'manual', {q(1)});")
+        assert expect_error(r, 'permission denied'), f"không được ghi trực tiếp club_transactions: {r.stderr}"
+        r = user_exec(db, 1, f"INSERT INTO public.charge_revisions(session_id, revision_no, source_version, status, allocation_total_vnd, fee_mode, finalized_by) VALUES ('{sid}'::uuid, 1, 1, 'active', 0, 'split_actual', {q(1)});")
+        assert expect_error(r, 'permission denied'), f"không được ghi trực tiếp charge_revisions: {r.stderr}"
+        # helper nội bộ bị REVOKE khỏi authenticated
+        for helper in [
+            f"SELECT public.active_charge_revision_id('{sid}'::uuid);",
+            f"SELECT public.session_billing_state('{sid}'::uuid);",
+            f"SELECT public.assert_billing_current('{sid}'::uuid);",
+            f"SELECT public.player_charge_snapshot('{p}'::uuid);",
+        ]:
+            r = user_exec(db, 1, helper)
+            assert expect_error(r, 'permission denied'), f"helper phải bị chặn: {helper} -> {r.stderr}"
+    run_test("ACL: chặn ghi trực tiếp bảng tài chính và helper nội bộ", t_direct_write_and_helper_acl)
+
     def t_outsider_post_expense():
         sid = create_and_publish(1, 'OutsiderExp')
         r = user_exec(db, 10, f"SELECT public.post_session_expense('{sid}'::uuid, 'court', 'x', 1000, '{newreq()}');")
