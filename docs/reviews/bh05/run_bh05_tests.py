@@ -424,7 +424,7 @@ def run_suite(db):
         sid = create_and_publish(1, 'Present', capacity=8)
         must(db, f"INSERT INTO public.session_staff(session_id, user_id, role, status) VALUES ('{sid}', {q(2)}, 'cohost', 'active');", 'cohost')
         j = join(6, sid)
-        must(db, f"UPDATE public.sessions SET lifecycle='in_progress' WHERE id='{sid}';", 'in_progress')
+        must_user(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{newreq()}');", 'start')
         must_user(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{newreq()}');", 'present')
         r = user_exec(db, 2, f"SELECT public.cancel_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'test', '{newreq()}');")
         assert expect_error(r, 'FORBIDDEN'), f"hủy người present cần finance: {r.stderr}"
@@ -435,7 +435,7 @@ def run_suite(db):
         j = join(6, sid)
         r = user_exec(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{newreq()}');")
         assert expect_error(r, 'INVALID_STATE'), f"published không điểm danh được: {r.stderr}"
-        must(db, f"UPDATE public.sessions SET lifecycle='in_progress' WHERE id='{sid}';", 'in_progress')
+        must_user(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{newreq()}');", 'start')
         req = newreq()
         a = json.loads(must_user(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{req}');", 'present'))
         assert a['attendance_status'] == 'present', a
@@ -444,6 +444,54 @@ def run_suite(db):
         checked = must(db, f"SELECT checked_in_by = {q(1)} FROM public.session_players WHERE id='{j['player_id']}';", 'checked_by')
         assert checked == 't'
     run_test("record_attendance: chỉ in_progress, chỉ confirmed, replay cùng kết quả", t_attendance_lifecycle_and_replay)
+
+    def t_start_session_rules():
+        sid = create_and_publish(1, 'StartLed', capacity=8)
+        j = join(6, sid)
+        r = user_exec(db, 10, f"SELECT public.start_session('{sid}'::uuid, '{newreq()}');")
+        assert expect_error(r, 'FORBIDDEN'), f"người ngoài không quản lý phải bị chặn: {r.stderr}"
+        req = newreq()
+        res = json.loads(must_user(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{req}');", 'start'))
+        assert res['lifecycle'] == 'in_progress', res
+        v_before = must(db, f"SELECT version FROM public.sessions WHERE id='{sid}';", 'version')
+        replay = json.loads(must_user(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{req}');", 'start replay'))
+        assert replay == res, 'replay start phải trả cùng kết quả'
+        assert must(db, f"SELECT version FROM public.sessions WHERE id='{sid}';", 'version after') == v_before, 'replay không được tăng version'
+        r2 = user_exec(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{newreq()}');")
+        assert expect_error(r2, 'INVALID_STATE'), f"đã in_progress thì không start lại: {r2.stderr}"
+        a = json.loads(must_user(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{newreq()}');", 'present'))
+        assert a['attendance_status'] == 'present', a
+    run_test("start_session: chỉ quản lý, published→in_progress, replay không lặp, điểm danh sau start", t_start_session_rules)
+
+    def t_integration_create_publish_join_approve_start_attendance():
+        v = SHARED['venue']
+        sid = json.loads(must_user(db, 1,
+            f"SELECT public.create_session(p_venue_id=>'{v}'::uuid, p_title=>'E2E', p_starts_at=>'{iso(1)}', "
+            f"p_ends_at=>'{iso(1,2)}', p_capacity=>8, p_court_count=>2, p_approval_mode=>'host_approval', "
+            f"p_request_id=>'{newreq()}');", 'e2e create'))['id']
+        assert must(db, f"SELECT lifecycle FROM public.sessions WHERE id='{sid}';", 'draft') == 'draft'
+        must_user(db, 1, f"SELECT public.set_session_lifecycle('{sid}'::uuid, 'publish', '{newreq()}');", 'e2e publish')
+        j = join(6, sid)
+        assert j['registration_status'] == 'pending', j
+        r = user_exec(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{newreq()}');")
+        assert expect_error(r, 'INVALID_STATE'), f"chưa bắt đầu thì không điểm danh được: {r.stderr}"
+        must_user(db, 1, f"SELECT public.decide_registration('{sid}'::uuid, '{j['player_id']}'::uuid, 'confirmed', NULL, '{newreq()}');", 'e2e decide')
+        started = json.loads(must_user(db, 1, f"SELECT public.start_session('{sid}'::uuid, '{newreq()}');", 'e2e start'))
+        assert started['lifecycle'] == 'in_progress', started
+        attended = json.loads(must_user(db, 1, f"SELECT public.record_attendance('{sid}'::uuid, '{j['player_id']}'::uuid, 'present', '{newreq()}');", 'e2e present'))
+        assert attended['attendance_status'] == 'present' and attended['registration_status'] == 'confirmed', attended
+    run_test("tích hợp create→publish→join→approve→start→điểm danh (đường hợp lệ từ app)", t_integration_create_publish_join_approve_start_attendance)
+
+    def t_integration_rejoin_after_cancel_same_id():
+        sid = create_and_publish(1, 'RejoinE2E', capacity=4, approval='host_approval')
+        first = join(6, sid)
+        must_user(db, 1, f"SELECT public.decide_registration('{sid}'::uuid, '{first['player_id']}'::uuid, 'confirmed', NULL, '{newreq()}');", 'rejoin decide')
+        cancel = json.loads(must_user(db, 6, f"SELECT public.cancel_registration('{sid}'::uuid, '{first['player_id']}'::uuid, NULL, '{newreq()}');", 'rejoin cancel'))
+        assert cancel['registration_status'] == 'cancelled', cancel
+        again = join(6, sid)
+        assert again['player_id'] == first['player_id'], 'đăng ký lại sau huỷ phải dùng lại ID'
+        assert again['registration_status'] == 'pending', again
+    run_test("tích hợp join→approve→cancel→đăng ký lại giữ nguyên player_id", t_integration_rejoin_after_cancel_same_id)
 
     def t_invitation_issue_replay_and_non_waitlisted():
         sid = SHARED['wl_session']

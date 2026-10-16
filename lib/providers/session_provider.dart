@@ -464,6 +464,17 @@ class SessionProvider extends ChangeNotifier {
     );
   }
 
+  /// Bắt đầu buổi đã công bố (published → in_progress) để điểm danh.
+  Future<Session?> startSession(String sessionId, {String? requestId}) {
+    return _runMutation(
+      operation: 'start_session',
+      payload: [sessionId],
+      requestId: requestId,
+      call: (key) =>
+          _repository.startSession(requestId: key, sessionId: sessionId),
+    );
+  }
+
   Future<Session?> duplicateSession(
     String sessionId, {
     required DateTime startsAt,

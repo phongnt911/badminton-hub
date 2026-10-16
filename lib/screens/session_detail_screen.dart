@@ -188,6 +188,19 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     if (result != null) await _reload();
   }
 
+  /// I1: bắt đầu buổi đã công bố để mở điểm danh (published → in_progress).
+  Future<void> _start() async {
+    final provider = context.read<SessionProvider>();
+    final result = await provider.startSession(widget.sessionId);
+    if (!mounted) return;
+    _showResult(
+      result,
+      success: 'Đã bắt đầu buổi chơi.',
+      error: provider.submitErrorMessage,
+    );
+    if (result != null) await _reload();
+  }
+
   Future<void> _cancel() async {
     final confirmed = await _confirm(
       'Huỷ buổi chơi',
@@ -506,6 +519,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               submitting: submitted,
               onEdit: _edit,
               onPublish: _publish,
+              onStart: _start,
               onCancel: _cancel,
               onDuplicate: _duplicate,
             )
@@ -588,6 +602,7 @@ class _ManagementActions extends StatelessWidget {
   final bool submitting;
   final VoidCallback onEdit;
   final VoidCallback onPublish;
+  final VoidCallback onStart;
   final VoidCallback onCancel;
   final VoidCallback onDuplicate;
 
@@ -596,6 +611,7 @@ class _ManagementActions extends StatelessWidget {
     required this.submitting,
     required this.onEdit,
     required this.onPublish,
+    required this.onStart,
     required this.onCancel,
     required this.onDuplicate,
   });
@@ -611,6 +627,13 @@ class _ManagementActions extends StatelessWidget {
             onPressed: submitting ? null : onPublish,
             icon: const Icon(Icons.publish),
             label: const Text('Công bố'),
+          ),
+        // I1: buổi đã công bố cần đường hợp lệ để mở điểm danh.
+        if (session.isPublished)
+          FilledButton.icon(
+            onPressed: submitting ? null : onStart,
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('Bắt đầu buổi chơi'),
           ),
         if (session.canManage && (session.isDraft || session.isPublished))
           OutlinedButton.icon(
@@ -702,6 +725,12 @@ class _PlayerRegistrationCard extends StatelessWidget {
     final active = reg.registrationStatus == 'pending' ||
         reg.registrationStatus == 'confirmed' ||
         reg.registrationStatus == 'waitlisted';
+    // I2: server cho đăng ký lại sau cancelled/rejected (dùng lại player_id); UI
+    // phải có đường gửi ý định mới để DB tự kiểm slot/hạn, không xoá đăng ký cũ.
+    final canRejoin = !active &&
+        session.isShareable &&
+        (reg.registrationStatus == 'cancelled' ||
+            reg.registrationStatus == 'rejected');
     final isWaitlisted = reg.registrationStatus == 'waitlisted';
     // C1/C1-R: chỉ coi là "có lời mời" khi tải xong thành công, không lỗi và
     // không đang tải lại — không dùng cache cũ chưa được xác minh lại.
@@ -774,6 +803,12 @@ class _PlayerRegistrationCard extends StatelessWidget {
                     onPressed: submitting ? null : onAccept,
                     icon: const Icon(Icons.check),
                     label: const Text('Chấp nhận lời mời'),
+                  ),
+                if (canRejoin)
+                  FilledButton.icon(
+                    onPressed: submitting ? null : onJoin,
+                    icon: const Icon(Icons.how_to_reg),
+                    label: const Text('Đăng ký tham gia'),
                   ),
                 if (active)
                   OutlinedButton.icon(

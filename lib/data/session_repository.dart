@@ -179,6 +179,18 @@ class SessionRepository {
     return _toSession(response);
   }
 
+  /// Bắt đầu buổi đã công bố để điểm danh (published → in_progress).
+  Future<Session> startSession({
+    required String requestId,
+    required String sessionId,
+  }) async {
+    final response = await _client.rpc('start_session', params: {
+      'p_session_id': sessionId,
+      'p_request_id': requestId,
+    });
+    return _toSession(response);
+  }
+
   /// Nhân bản cấu hình buổi chơi (không sao chép người/tiền).
   Future<Session> duplicateSession({
     required String requestId,

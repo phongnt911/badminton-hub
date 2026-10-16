@@ -496,11 +496,8 @@ void main() {
     await tester.pumpWidget(build(const SessionDetailScreen(sessionId: 's2')));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(
-      find.text('Duyệt'),
-      300.0,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.ensureVisible(find.text('Duyệt'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Duyệt'));
     await tester.pumpAndSettle();
 
@@ -885,5 +882,210 @@ void main() {
     expect(find.text('Đã xảy ra lỗi. Vui lòng thử lại sau.'), findsOneWidget);
     expect(find.text('Thử lại lời mời'), findsOneWidget);
     expect(find.text('Chấp nhận lời mời'), findsNothing);
+  });
+
+  // --- BH-05 tích hợp: I1 (đường bắt đầu buổi) và I2 (đăng ký lại) --------- //
+
+  testWidgets('I1 host có nút Bắt đầu buổi chơi và gọi start_session', (
+    tester,
+  ) async {
+    const publishedManaged = Session(
+      id: 's4',
+      title: 'Buổi đã công bố',
+      capacity: 8,
+      lifecycle: 'published',
+      canManage: true,
+      version: 2,
+    );
+    const inProgress = Session(
+      id: 's4',
+      title: 'Buổi đã công bố',
+      capacity: 8,
+      lifecycle: 'in_progress',
+      canManage: true,
+      version: 3,
+    );
+    when(() => sessionRepository.getSessionDetail('s4'))
+        .thenAnswer((_) async => publishedManaged);
+    when(
+      () => sessionRepository.listSessionPlayers(
+        's4',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async => const []);
+    when(
+      () => sessionRepository.listMySessions(
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async => [publishedManaged]);
+    when(
+      () => sessionRepository.startSession(
+        requestId: any(named: 'requestId'),
+        sessionId: any(named: 'sessionId'),
+      ),
+    ).thenAnswer((_) async => inProgress);
+
+    await tester.pumpWidget(build(const SessionDetailScreen(sessionId: 's4')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bắt đầu buổi chơi'), findsOneWidget);
+    await tester.tap(find.text('Bắt đầu buổi chơi'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.startSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's4',
+      ),
+    ).called(1);
+    expect(find.text('Đã bắt đầu buổi chơi.'), findsOneWidget);
+  });
+
+  testWidgets('I1 người không quản lý không thấy nút Bắt đầu buổi chơi', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => publicSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bắt đầu buổi chơi'), findsNothing);
+  });
+
+  testWidgets('I2 người đã huỷ đăng ký bấm Đăng ký tham gia gọi lại RPC', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    const cancelled = Session(
+      id: 's1',
+      title: 'Buổi',
+      capacity: 8,
+      lifecycle: 'published',
+      visibility: 'public',
+      confirmedCount: 1,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'cancelled',
+      ),
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => cancelled);
+    when(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer(
+      (_) async => const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'pending',
+      ),
+    );
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đăng ký tham gia'), findsOneWidget);
+    await tester.tap(find.text('Đăng ký tham gia'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).called(1);
+    expect(find.text('Đã gửi yêu cầu tham gia buổi chơi.'), findsOneWidget);
+  });
+
+  testWidgets('I2 đăng ký lại lỗi hiển thị và thử lại được', (tester) async {
+    final p = authedProviders();
+    const cancelled = Session(
+      id: 's1',
+      title: 'Buổi',
+      capacity: 8,
+      lifecycle: 'published',
+      visibility: 'public',
+      confirmedCount: 1,
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'cancelled',
+      ),
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => cancelled);
+    var attempts = 0;
+    when(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).thenAnswer((_) async {
+      attempts++;
+      if (attempts == 1) throw Exception('offline');
+      return const RegistrationResult(
+        playerId: 'p1',
+        sessionId: 's1',
+        registrationStatus: 'pending',
+      );
+    });
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Đăng ký tham gia'));
+    await tester.pumpAndSettle();
+    expect(find.text('Đã xảy ra lỗi. Vui lòng thử lại sau.'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đăng ký tham gia'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    verify(
+      () => sessionRepository.requestJoinSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        contact: any(named: 'contact'),
+      ),
+    ).called(2);
+  });
+
+  testWidgets('I2 buổi đã huỷ thì không có nút đăng ký lại', (tester) async {
+    final p = authedProviders();
+    const cancelledSession = Session(
+      id: 's1',
+      title: 'Buổi đã huỷ',
+      capacity: 8,
+      lifecycle: 'cancelled',
+      visibility: 'public',
+      myRegistration: SessionRegistration(
+        playerId: 'p1',
+        registrationStatus: 'cancelled',
+      ),
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => cancelledSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đăng ký tham gia'), findsNothing);
   });
 }
