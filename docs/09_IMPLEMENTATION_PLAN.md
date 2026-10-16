@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06A (16/10/2026): Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md). R1/R2 đã đóng trong phạm vi kiểm chứng; BH-06B/C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
+> **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
 
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
@@ -413,3 +413,15 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Đạt phần A** theo [review_706bd73.md](reviews/bh06/review_706bd73.md), code sửa `83586ed`. Đóng R1/R2 của review `e3c73c1`; kết luận cũ là baseline trước sửa.
 - Reviewer tự chạy analyze sạch, **137/137 Flutter**, DB BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90, BH-06 84 = **335/335 PASS**, thêm **8/8 probe độc lập PASS**, giữ nguyên kỳ vọng từ review trước. Bằng chứng/hash/tested SHA lưu cùng report.
 - Chỉ Đạt A, chưa nghiệm thu B/C hoặc tích hợp toàn BH-06; không tự chuyển phần tiếp theo, merge main hoặc deploy. NOT RUN: HTTP/JWT/PostgREST thật, thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP, UI/data BH-06B/C và pilot. Giữ lịch sử/bằng chứng cũ.
+
+### BH-06B — model/repository/provider tài chính — 16/10/2026
+
+| Ngày | Phần | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 16/10/2026 | BH-06B data/provider | **Chờ review** | Nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`. Thêm `lib/models/finance.dart`, `lib/data/finance_repository.dart`, `lib/providers/finance_provider.dart`; test `test/models/finance_test.dart`, `test/providers/finance_provider_test.dart`. Ghi chú [bh06b_handoff.md](reviews/bh06/bh06b_handoff.md). |
+
+- Phạm vi phần B theo [đầu bài](24_BH06_IMPLEMENTATION_HANDOFF.md) §3.B: repository typed cho fee/revision/expense/payment/ledger; provider loading/error/empty/submitting; giữ `request_id` qua lỗi/timeout, xoay key sau commit thành công **trước** refresh; làm mới lỗi không coi mutation thất bại; dọn state riêng tư khi logout/đổi actor/đổi session/club và bỏ phản hồi trễ; phân trang reads đúng contract; lỗi đọc không hạ số dư/công nợ về 0. **Không** làm C (UI VietQR/sổ quỹ) hay sửa migration/RPC của A.
+- Dùng đúng chữ ký đã review ở A ([docs/08 §13](08_DOMAIN_CONTRACTS.md#13-bh-06a-tài-chính-phía-db-đã-triển-khai-ở-local--chờ-review)): `get_payment_instructions`, `get_session_finance`, `get_club_ledger`, `post/reverse_session_expense`, `finalize_session_charges`, `complete_session`, `submit/confirm/reject/reverse_payment`, `record_cash_payment`, `post/reverse_manual_club_transaction`; không gọi function chưa có. Không nối `main.dart`/UI (để phần C).
+- Lệnh đã chạy trên nhánh: `flutter analyze` (**0 issue**); `flutter test` (**163/163 PASS** = 137 nền + 26 test mới của B). Không đổi DB/migration nên runner DB của BH-06 **không chạy lại** ở lượt này; baseline DB 335/335 của A giữ nguyên.
+- Test hành vi (không chỉ kiểm tên method): retry/replay cùng UUID, xoay key sau commit, chặn double-submit, stale/idempotency map tiếng Việt, auth/session isolation và bỏ phản hồi trễ, phân trang ledger bằng offset, và lỗi đọc/làm mới không hạ số dư về 0.
+- Trạng thái ghi **Chờ review**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, backup/restore, UI phần C.
