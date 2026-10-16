@@ -1,6 +1,6 @@
 # Hợp đồng thao tác nghiệp vụ
 
-> **Hiện hành 16/10/2026:** Các đề xuất C1-01..04 đã được chủ dự án duyệt và cập nhật ở §12; phần finance BH-06 vẫn là hợp đồng đích. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 16/10/2026:** Các đề xuất C1-01..04 đã được chủ dự án duyệt và cập nhật ở §12; hợp đồng đích finance §4–7 nay đã có phần A (DB/RPC/RLS/runner) của BH-06 triển khai ở local, **chờ review** tại §13. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. BH-06B/C chưa làm. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
 
 Phiên bản 1.1 · yêu cầu đích và hợp đồng RPC đã triển khai. BH-03/04/05 đã có migration và kiểm thử PostgreSQL cô lập; §10–12 ghi chi tiết hiện thực. Các thao tác ngoài phạm vi này, nhất là finance BH-06, vẫn là yêu cầu để triển khai; không suy ra mọi tên ở §1–9 đã tồn tại trên DB live.
 
@@ -195,3 +195,47 @@ RPC đọc:
 - `list_session_players(...)` được `CREATE OR REPLACE` thêm `pending_invitation_id`, `pending_invitation_expires_at`; giữ nguyên grant cũ (chỉ management).
 
 Helper nội bộ `registration_result(...)` và `bump_billing_input_version(...)` bị `REVOKE` khỏi mọi role client. `accept_waitlist_invitation` cho khách cần đồng ý không rỗng; mọi chuyển trạng thái đều kiểm lại lifecycle/deadline/quyền/state ở DB. Bằng chứng/giới hạn: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
+
+## 13. BH-06A tài chính phía DB (đã triển khai ở local — **chờ review**)
+
+Trạng thái: **chờ review**, chưa phải Đạt. Đây là phần A của BH-06 (DB/RPC/RLS/projection/runner + hợp đồng chính xác) theo [24_BH06_IMPLEMENTATION_HANDOFF.md](24_BH06_IMPLEMENTATION_HANDOFF.md); phần B (model/repository/provider) và C (UI VietQR/sổ quỹ) chưa làm. Không suy ra BH-06 hay BH-07 hoàn thành, không cho phép deploy.
+
+`billing_state` **không phải cột**: suy diễn từ `charge_revisions.status='active'` so `source_version` với `sessions.billing_input_version` (`not_finalized` khi chưa có revision active, `stale` khi lệch, `current` khi khớp). Mọi nguồn đổi input tính phí đều tăng `billing_input_version` trong transaction: chi phí (post/reverse tại §13 này), roster confirmed và điểm danh (đã tăng ở BH-05). `update_session` chỉ chạy ở `draft/published` (trước khi có revision) nên không làm revision đã chốt trở nên stale.
+
+Ba migration nối tiếp chuỗi v1.1 (forward-only, không sửa migration cũ):
+
+1. [`20261016110000_bh06_expenses_finalize.sql`](../supabase/migrations/20261016110000_bh06_expenses_finalize.sql): helper trạng thái chốt phí, `post_session_expense`, `reverse_session_expense`, `finalize_session_charges`, `complete_session`.
+2. [`20261016120000_bh06_payments_ledger.sql`](../supabase/migrations/20261016120000_bh06_payments_ledger.sql): `submit_payment`, `confirm_payment`, `reject_payment`, `reverse_payment`, `record_cash_payment`, `post_manual_club_transaction`, `reverse_club_transaction`.
+3. [`20261016130000_bh06_reads.sql`](../supabase/migrations/20261016130000_bh06_reads.sql): `get_payment_instructions`, `get_session_finance`, `get_club_ledger`.
+
+Helper nội bộ, bị `REVOKE` khỏi PUBLIC/anon/authenticated: `active_charge_revision_id(UUID)`, `session_billing_state(UUID)`, `assert_billing_current(UUID)`, `player_charge_snapshot(UUID)`. `assert_billing_current` gate dùng chung: chưa có revision active ⇒ `BILLING_NOT_FINALIZED`; lệch phiên bản ⇒ `BILLING_STALE` (đều 22023).
+
+Mọi RPC mutation: `SECURITY DEFINER`, `search_path = public, pg_temp`, bắt buộc `p_request_id` (NULL ⇒ `INVALID_INPUT` 22023), idempotency theo actor/operation/request + hash canonical chỉ từ input ổn định, audit cùng transaction, `REVOKE ALL ... FROM PUBLIC, anon` + `GRANT EXECUTE ... TO authenticated`. Actor lấy từ `auth.uid()`, không nhận từ payload. Không nhận `source_payment_id`/`source_expense_id`/số dư từ client. Khóa theo thứ tự session → player → payment/expense; đường quỹ manual chỉ khóa club.
+
+| RPC mutation | Chữ ký | ACL |
+|---|---|---|
+| post_session_expense | `(UUID, TEXT, TEXT, BIGINT, UUID?)` | authenticated + finance |
+| reverse_session_expense | `(UUID, UUID, TEXT, UUID?)` | authenticated + finance |
+| finalize_session_charges | `(UUID, BIGINT, BIGINT, TEXT?, UUID?)` | authenticated + finance |
+| complete_session | `(UUID, BIGINT, UUID?)` | authenticated + management |
+| submit_payment | `(UUID, BIGINT, TEXT, TEXT?, UUID?)` | authenticated (self) |
+| confirm_payment | `(UUID, UUID?)` | authenticated + finance |
+| reject_payment | `(UUID, TEXT, UUID?)` | authenticated + finance |
+| reverse_payment | `(UUID, TEXT, UUID?)` | authenticated + finance |
+| record_cash_payment | `(UUID, BIGINT, TEXT?, UUID?)` | authenticated + finance |
+| post_manual_club_transaction | `(UUID, TEXT, BIGINT, TEXT, UUID?)` | authenticated + owner/treasurer |
+| reverse_club_transaction | `(UUID, TEXT, UUID?)` | authenticated + owner/treasurer |
+
+RPC đọc (`authenticated`): `get_payment_instructions(UUID, UUID?)`, `get_session_finance(UUID, INT, INT)`, `get_club_ledger(UUID, INT, INT)`.
+
+Hành vi chính và mã lỗi:
+
+- **Chi phí**: `post_session_expense` chỉ finance; lifecycle `completed/cancelled` ⇒ `INVALID_STATE`; category ∈ `{court, shuttle, other}`; amount nguyên dương VNĐ ≤ 1 tỷ. Buổi có `club_id` sinh đúng một `club_transactions` (`source_type='session_expense'`) cùng transaction; buổi độc lập không sinh ledger. `reverse_session_expense` cần lý do, giữ nguyên bản ghi (`status='reversed'`), tạo đúng một entry đảo (`source_type='reversal'`, unique theo `reversal_of`); đảo lần hai ⇒ `INVALID_STATE`. Cả hai tăng `billing_input_version` (revision đang active trở thành `stale`).
+- **Chốt phí**: `finalize_session_charges(session, expected_version, expected_billing_input_version, reason?, request_id)`. Sai `expected_version` ⇒ `VERSION_CONFLICT`; sai `expected_billing_input_version` ⇒ `BILLING_STALE`; lifecycle không thuộc `{in_progress, completed}` ⇒ `INVALID_STATE`. `reason` bắt buộc khi `revision_no > 1`. Tính server-side: `fixed` ⇒ tổng `agreed_fee_vnd` của present không `fee_exempt` (exemption 0); `split_actual` ⇒ tổng posted expenses chia cho present không `fee_exempt`, phần dư chia theo thứ tự `session_players.id` tăng dần; tổng > 0 mà không có người chịu phí ⇒ `NO_BILLABLE_PLAYERS`; tổng 0 vẫn tạo revision `current` với charges 0 cho người present (cho phép buổi miễn phí). Supersede revision cũ và ghi revision/charges/audit nguyên tử; `Σ charges = allocation_total_vnd`. Trước khi ghi, đối chiếu **mọi** người có confirmed payment (kể cả người đã bị loại khỏi tập billable): nếu `due mới < đã thu` ⇒ `INVALID_STATE` (yêu cầu đảo/hoàn trước). Refinalize không tạo payment/ledger lặp.
+- **Thanh toán**: `submit_payment` chỉ người chơi tự gửi cho đăng ký `confirmed` của mình, `method='bank_transfer'`, `0 < amount ≤ outstanding` (`PAYMENT_EXCEEDS_OUTSTANDING` nếu vượt); `submitted` **chưa** tính là đã trả và chưa ghi ledger. `confirm_payment` chỉ finance; payment đã `confirmed` trả kết quả hiện tại, không kiểm stale và không ghi ledger lần hai; xác nhận mới cần `billing_state=current` và `Σ confirmed + amount ≤ active due`. `record_cash_payment` tạo + xác nhận `cash` trong cùng RPC; ledger income nếu CLB. `reject_payment`/`reverse_payment` cần lý do; **được phép khi stale** (phục vụ reconciliation); reverse giữ payment (`status='reversed'`) và tạo đúng một entry đảo. Đảo sổ không tự chuyển tiền qua ngân hàng.
+- **Quỹ CLB**: `post_manual_club_transaction` chỉ owner/treasurer, chỉ nhận direction/amount/title; `reverse_club_transaction` chỉ đảo entry `source_type='manual'` (entry tự sinh đảo qua thao tác nguồn), một lần duy nhất. Số dư luôn tính bằng SUM trong DB.
+- **Complete gate**: `complete_session` (management) chỉ `in_progress`, kiểm `expected_version` rồi gọi `assert_billing_current` — không cho hoàn thành khi chưa chốt phí hoặc stale (buổi miễn phí vẫn phải có revision `current` charges 0), không yêu cầu thu đủ tiền. Trong A **chỉ** có gate + đổi lifecycle; UI/nghiệm thu/pilot và phần hoàn chỉnh rộng hơn thuộc BH-07, chưa làm.
+
+Đường đọc/QR: `get_payment_instructions(p_session_id, p_player_id?)` — `p_player_id` NULL nghĩa là chính actor; chỉ khi `billing_state=current` (nếu không ⇒ `BILLING_NOT_FINALIZED`/`BILLING_STALE`); trả `amount_due_vnd`, `total_paid_vnd`, `outstanding_vnd`, `source_version`, `active_revision_id`, `reference` và `receiver_snapshot`. Chữ ký thực tế thêm `p_session_id` (đề xuất §5 chỉ ghi `player_id`); RPC cũ `get_session_payment_instructions(p_session_id)` của BH-02 được **giữ nguyên** làm đường đọc bank snapshot, không trả số tiền/mã tham chiếu nên không thể dùng để thu sai khi stale. `get_session_finance(session, limit?, offset?)` chỉ finance, gồm revision active + tổng hợp + danh sách phân trang. `get_club_ledger(club, limit?, offset?)` chỉ owner/treasurer; `limit` kẹp 1..100.
+
+Bằng chứng/giới hạn local: runner DB [`reviews/bh06/run_bh06_tests.py`](reviews/bh06/run_bh06_tests.py) chạy 39 ca trên CLEAN + LEGACY. Chưa kiểm HTTP/JWT PostgREST thật, chưa apply staging/production, chưa UI phần B/C, chưa đối chiếu VietQR ngoài đời.
