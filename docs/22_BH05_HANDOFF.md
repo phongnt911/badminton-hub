@@ -1,5 +1,7 @@
 # BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ (bàn giao, nhánh tích hợp)
 
+**Trạng thái hiện hành (16/10/2026): Đạt tích hợp A+B+C tại `d769531` ([review_d769531.md](reviews/bh05/review_d769531.md)); hồi quy main tại `3a34883` đạt 137 Flutter + 251 DB ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)). Chưa cho phép deploy production. Đoạn trạng thái ngay dưới đây là snapshot trước review, giữ làm lịch sử.**
+
 Ngày: 16/10/2026 (Việt Nam). Trạng thái: **CHỜ REVIEW (bản tích hợp, vòng sửa 1)** — A, B, C đã được gộp
 trên nhánh `feat/bh05-integration` theo thứ tự A→B→C và cả ba đã **Đạt** độc lập. Review tích hợp
 [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa đạt** với I1 (P1)/I2 (P2); đã sửa cả hai
@@ -24,7 +26,7 @@ Nguyên tắc xuyên suốt: chỉ `confirmed` giữ chỗ và được xem thô
 
 ## 2. Nhánh, commit và quy trình hai AI
 
-Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, mỗi phần một nhánh và **chờ review**; người triển khai không tự ghi "Done".
+Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, mỗi phần một nhánh, qua review độc lập (A/B/C đều Đạt, xem bảng dưới); người triển khai không tự ghi "Done".
 
 | Phần | Nhánh | Commit code | Kết luận review gần nhất | Bằng chứng |
 |---|---|---|---|---|
@@ -139,12 +141,12 @@ Widget/provider test Flutter mới: đăng ký thành công, lời mời chờ �
 - Thiết bị thật / web thật, deep link OS-level: chưa chạy.
 - Apply migration lên staging/production, diễn tập backup/restore: chưa chạy (không tự apply production).
 - Cạnh tranh chỉ ở mức đa kết nối **trong cùng PostgreSQL** (deterministic bằng lock + `pg_sleep`), chưa qua HTTP đồng thời thực tế.
-- Chưa nghiệm thu **chính bản tích hợp** bởi reviewer: review `c7ed6d5` kết luận Chưa đạt (I1/I2), đã sửa ở `a41b48a` và **chờ review lại**.
+- Nghiệm thu bản tích hợp: **Đạt** tại `d769531` ([review_d769531.md](reviews/bh05/review_d769531.md)); snapshot Chưa đạt/chờ review lại trước đó là lịch sử (review_c7ed6d5).
 - Host thu hồi lời mời qua HTTP trong lúc client đang refresh: chưa kiểm.
 
 ## 9. Việc còn lại trước pilot
 
-1. Reviewer độc lập kết luận lại nhánh `feat/bh05-integration` sau vòng sửa I1/I2 (`a41b48a`).
+1. (Đã xong 16/10/2026) Reviewer độc lập kết luận lại nhánh tích hợp: **Đạt** tại `d769531`.
 2. Chạy full Supabase HTTP/JWT thật cho các RPC BH-05 (map lỗi PostgREST → thông điệp Việt đã có).
 3. Diễn tập apply chuỗi migration + backup/restore trên staging thật.
 4. Kiểm thủ công trên thiết bị/web: link chia sẻ `/sessions/:id`, quay lại sau đăng nhập, luồng lời mời qua nhiều người dùng thật.
@@ -163,7 +165,7 @@ Ticket kế tiếp: **BH-06** (chốt phí / VietQR / thu tiền) theo AG-06 tro
 
 Lịch sử đầy đủ theo từng vòng: [docs/09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [docs/reviews/bh05/](reviews/bh05/).
 
-## Kết luận review tích hợp mới nhất — c7ed6d5
+## Kết luận review tích hợp — c7ed6d5 (đã được thay thế bởi d769531)
 
 **Chưa đạt tích hợp** theo [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md), ngày 16/10/2026. I1 (P1) thiếu đường start buổi để đi tới attendance; I2 (P2) UI không có đăng ký lại sau hủy dù RPC hỗ trợ. Các mục Chờ review phía trên là snapshot trước kết luận này. Đạt riêng A/B/C không thay nghiệm thu tích hợp. Chi tiết kiểm chứng và NOT RUN trong báo cáo; không apply remote DB hoặc merge main.
 

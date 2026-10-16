@@ -2,6 +2,8 @@
 
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
+(Snapshot 14/10/2026, giữ làm lịch sử.) **Hiện hành:** BH-01 đến BH-05 đã triển khai ở mức local/staging; BH-05 đạt review tích hợp (`d769531`) và hồi quy main (`3a34883`); BH-06 trở đi chưa làm; chưa apply production.
+
 ## Thứ tự và phụ thuộc
 
 BH-01 → BH-02 → BH-03 → BH-04 → BH-05 → BH-06 → BH-07. BH-08/BH-09 sau pilot. BH-02 dựng nền schema/RLS và các kiểm tra quyền; RPC chi tiết hoàn thiện theo từng ticket, không gọi function chưa tồn tại từ UI.
@@ -17,6 +19,20 @@ BH-01 → BH-02 → BH-03 → BH-04 → BH-05 → BH-06 → BH-07. BH-08/BH-09 s
 | BH-07 | Buổi hoàn chỉnh và pilot | start/complete/lịch sử, công nợ còn sau complete; sao chép tổng kết; test end-to-end trên mobile/web, mất mạng, mở lại app; tài liệu vận hành/migration/backup có kết quả rehearsal |
 | BH-08 | Xoay tua và trận | Từ present, gợi ý → bắt đầu → kết thúc; nhiều sân không trùng người; số trận tăng sau finish; lưu server, override host; test thuật toán thực |
 | BH-09 | Kèo giao lưu | Gắn match và participant IDs, vật phẩm/số lượng tự nguyện, kết quả versioned/hoàn tác; không trộn quỹ; tách bảng điểm phong trào và quy tắc giải chính thức |
+
+## Trạng thái hiện hành
+
+Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([review](reviews/bh05/review_d769531.md)); hồi quy main `3a34883` đạt 137 Flutter + 251 DB ([review và bằng chứng](reviews/bh05/review_main_3a34883.md)). Chỉ kiểm thử PostgreSQL cô lập + Auth stub; chưa apply staging/production hoặc kiểm PostgREST HTTP/JWT thật, thiết bị/browser e2e, backup/restore và concurrency qua HTTP. Giữ nhật ký phía dưới làm lịch sử.
+
+| Ticket | Phạm vi | Kiểm thử DB (PostgreSQL cô lập + Auth stub) | Trạng thái |
+|---|---|---|---|
+| BH-01 | Auth và cấu hình | (Flutter test) | Đã triển khai |
+| BH-02 | Schema nền, RLS | 33 + 14 PASS | Đã triển khai |
+| BH-03 | CLB, thành viên, ngân hàng | 48 + 22 PASS | Đã triển khai |
+| BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
+| BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
+
+BH-06 đến BH-09: chưa triển khai.
 
 ## Checklist mỗi ticket
 
@@ -58,12 +74,12 @@ Snapshot 14/10/2026, code c8e5428 trước cập nhật tài liệu: public DB c
 | Review | Ưu tiên | Ticket / cổng nghiệm thu | Trạng thái |
 |---|---|---|---|
 | R1 public contact/direct inserts | P1 | BH-02: anon không đọc contacts/flags, không insert nghiệp vụ; A không đọc/sửa B; grants+RLS+RPC+projection tests | Migration v1.1 & schema tests hoàn thành; chờ apply staging/live khi có môi trường |
-| R2 insert player rồi update count bị policy chặn/không atomic | P1 | BH-05: RPC một transaction, 2 request slot cuối, retry/rollback, count khớp; không mở public UPDATE | Đã đặc tả, chưa sửa code/DB |
-| R3 code gọi clubs/quỹ chưa có | P1 | BH-02/03: migration staging tạo đủ nền; schema error khác empty; CRUD club+owner có test | Đã đặc tả, chưa sửa code/DB |
+| R2 insert player rồi update count bị policy chặn/không atomic | P1 | BH-05: RPC một transaction, 2 request slot cuối, retry/rollback, count khớp; không mở public UPDATE | Đã đặc tả, chưa sửa code/DB. Hiện hành 16/10: đã triển khai local/staging ở BH-05 (RPC nguyên tử), chưa đóng ở production |
+| R3 code gọi clubs/quỹ chưa có | P1 | BH-02/03: migration staging tạo đủ nền; schema error khác empty; CRUD club+owner có test | Đã đặc tả, chưa sửa code/DB. Hiện hành 16/10: đã triển khai local/staging ở BH-02/03, chưa đóng ở production |
 | R4 charges lỗi thời | P1 | BH-06: billing version/source version và gate server QR/thu mới/complete; free cũng revision current; paid/history giữ nguyên | Đã sửa khoảng trống đặc tả, chưa triển khai |
-| R5 form bỏ qua giờ nhập/ngày tương lai | P2 | BH-04: ngày mai/giờ thực/qua nửa đêm/validation | Đã đặc tả, chưa sửa code |
-| R6 lỗi loading/update/QR mẫu | P2 | BH-04/05/06: lỗi/retry/route mounted, mutation trả ID/state, role đúng, QR thật | Đã đặc tả, chưa sửa code |
-| R7 lời mời waitlist thiếu contract | P2 | BH-05: issue/revoke/accept, đúng người/expiry/capacity/consent guest, test retry | Đã bổ sung schema/contract, chưa triển khai |
+| R5 form bỏ qua giờ nhập/ngày tương lai | P2 | BH-04: ngày mai/giờ thực/qua nửa đêm/validation | Đã đặc tả, chưa sửa code. Hiện hành 16/10: đã có kiểm thử ngày tương lai/validation ở BH-04; handoff §4 ghi qua nửa đêm, chưa xác minh trực tiếp form giữ giờ nhập qua UI e2e; chưa đóng ở production |
+| R6 lỗi loading/update/QR mẫu | P2 | BH-04/05/06: lỗi/retry/route mounted, mutation trả ID/state, role đúng, QR thật | Đã đặc tả, chưa sửa code. Hiện hành 16/10: đã triển khai loading/error/retry và mutation RPC/ID/state ở BH-04/05 (docs/20 §4, docs/21 và test provider/widget); QR thật thuộc BH-06, chưa làm; chưa đóng ở production |
+| R7 lời mời waitlist thiếu contract | P2 | BH-05: issue/revoke/accept, đúng người/expiry/capacity/consent guest, test retry | Đã bổ sung schema/contract, chưa triển khai. Hiện hành 16/10: đã triển khai local/staging ở BH-05 (issue/revoke/accept), chưa đóng ở production |
 
 ### Ca mới bắt buộc
 
@@ -151,6 +167,8 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 
 ## BH-04 — Buổi chơi/lịch/chia sẻ — 15/10/2026
 
+| Ngày | Ticket | Trạng thái | Bằng chứng |
+|---|---|---|---|
 | 15/10/2026 | BH-04 buổi chơi | ĐÃ TRIỂN KHAI (local/staging) | Thay đường demo `SupabaseService`/`SessionProvider` bằng model + repository + provider typed và migration forward `20261015163000_bh04_sessions.sql` (create/update/duplicate/publish + projection whitelist + `list_my_sessions`/`list_public_sessions`/`list_session_players`, idempotency + audit + REVOKE PUBLIC/anon). Flutter **101/101 PASS** (66 regression + 35 mới), analyze sạch; DB **159/159 PASS** (BH-02 33+14, BH-03 48+22, BH-04 42). Chưa apply production, chưa kiểm PostgREST HTTP/JWT; deep link OS-level NOT RUN. Chi tiết: [20_BH04_HANDOFF.md](20_BH04_HANDOFF.md). |
 
 - Routing chốt theo code hiện có: **không** thêm router/`app_links`; `lib/core/app_routes.dart` kiểm hợp lệ link nội bộ `/sessions/:id` và dùng `AuthScreen.returnRoute` để quay lại đúng buổi sau đăng nhập.
@@ -172,6 +190,7 @@ Rà soát độc lập ba ticket dưới ba góc nhìn (code reviewer, backend a
 - Chỉ `confirmed` giữ chỗ và được xem/đọc thông tin thanh toán; `pending`/`waitlisted` không giữ slot. Client không ghi bộ đếm/role/số dư/tác nhân audit.
 - Giới hạn: PostgreSQL + Auth stub, **chưa** kiểm PostgREST HTTP/JWT thật, thiết bị thật hay apply production; chưa diễn tập migration/backup trên staging thật.
 - Ticket tiếp theo: **BH-06** (chốt phí / QR / thu tiền) theo AG-06 trong [12_ANTIGRAVITY_PROMPTS.md](12_ANTIGRAVITY_PROMPTS.md).
+
 ## BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ — 15–16/10/2026
 
 Theo quy trình hai AI trong `AGENTS.md`, BH-05 được tách phần A/B/C, mỗi phần một nhánh và **chờ review** (người triển khai không tự ghi Done).
