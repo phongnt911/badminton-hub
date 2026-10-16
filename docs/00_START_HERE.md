@@ -66,3 +66,7 @@ Khi đổi yêu cầu: cập nhật PRD → model/schema → hợp đồng DB �
 ## Tham khảo sản phẩm: Vmito và Vụt
 
 [14_PRODUCT_LEARNINGS_VMITO_VUT.md](14_PRODUCT_LEARNINGS_VMITO_VUT.md) là bản áp dụng hai báo cáo REA do chủ dự án cung cấp. Đọc phần PD tương ứng khi thực hiện BH-03..07; giữ các giới hạn static/runtime, không thêm dependency/schema theo danh sách thư viện đối thủ. Đây là tài liệu bổ sung yêu cầu, không thay lịch sử kiểm thử hoặc xác nhận sửa BH-02.
+
+## Giao việc BH-06 — 16/10/2026
+
+Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái: đã giao phần A, chưa triển khai/chưa review.

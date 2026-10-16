@@ -372,3 +372,7 @@ Review [review_c7ed6d5.md](reviews/bh05/review_c7ed6d5.md) kết luận **Chưa 
 
 - Tested HEAD `3a34883`, checkout sạch trước/sau chạy; **Đạt kiểm thử hồi quy**: analyze sạch, 137/137 Flutter, 251/251 DB (BH02 33+14, BH03 48+22, BH04 44, BH05 90), tất cả exit 0.
 - [Báo cáo và bằng chứng](reviews/bh05/review_main_3a34883.md). PostgreSQL cô lập/Auth stub; HTTP/JWT thật, thiết bị/browser e2e và staging/production apply vẫn NOT RUN. Không sửa code hoặc apply remote DB.
+
+## BH-06 — giao phần A cho phiên triển khai mới (16/10/2026)
+
+Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác kéo main ở phiên mới rồi triển khai BH-06; Codex giao việc/review độc lập. [Đầu bài và cổng review](24_BH06_IMPLEMENTATION_HANDOFF.md): A DB/RPC → B data/provider → C UI → tích hợp; mỗi phần một nhánh/commit, Đạt phần trước mới giao phần sau. **Đã giao BH-06A, chưa triển khai/chưa review**, chưa tạo nhánh code trong lượt giao việc. Bảng “BH-06 chưa triển khai” vẫn đúng; việc giao đầu bài không thay bằng chứng test.

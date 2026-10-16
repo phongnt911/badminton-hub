@@ -108,3 +108,7 @@ Bàn giao phiên tiếp theo: [19_PRE_BH04_HANDOFF.md](docs/19_PRE_BH04_HANDOFF.
 BH-04 review remediation: [21_BH04_REMEDIATION.md](docs/21_BH04_REMEDIATION.md). Chia sẻ link trên mobile cần `--dart-define=APP_BASE_URL=https://<domain-web-da-trien-khai>`; web mặc định dùng origin hiện tại. Hosting cần fallback index.html cho đường dẫn tài nguyên; OS App Links chưa cấu hình.
 
 BH-05: xem [22_BH05_HANDOFF.md](docs/22_BH05_HANDOFF.md) (đăng ký/duyệt/huỷ/điểm danh/lời mời danh sách chờ/bắt đầu buổi; đạt review tích hợp tại `d769531` và hồi quy main tại `3a34883`, xem [review_d769531.md](docs/reviews/bh05/review_d769531.md)).
+
+## Giao việc BH-06 — 16/10/2026
+
+Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](docs/24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái: đã giao phần A, chưa triển khai/chưa review.
