@@ -3,7 +3,7 @@
 Trạng thái: **Chờ review** (người triển khai không tự ghi Đạt). Ngày 16/10/2026.
 
 - Nhánh: `feat/bh06a-db`, tách từ `main` = `c35dd27` (không làm việc trên `main`).
-- Commit mã: `c929b67` (helper + chi phí + chốt phí + complete gate), `d7deaae` (thanh toán + quỹ CLB), `fe8cf99` (đường đọc/QR), `9336bb0` (runner DB).
+- Commit mã: `c929b67` (helper + chi phí + chốt phí + complete gate), `d7deaae` (thanh toán + quỹ CLB), `fe8cf99` (đường đọc/QR), `9336bb0` + `947f8ae` (runner DB, bổ sung ca ACL ghi trực tiếp/helper và gỡ bằng chứng cũ).
 - Phạm vi: chỉ phần A theo [24_BH06_IMPLEMENTATION_HANDOFF.md](../../24_BH06_IMPLEMENTATION_HANDOFF.md). Không làm B (model/repository/provider) hay C (UI VietQR/sổ quỹ); không merge `main`; không deploy.
 
 ## Migration
@@ -16,11 +16,11 @@ Trạng thái: **Chờ review** (người triển khai không tự ghi Đạt). 
 
 Forward-only; không sửa migration đã chia sẻ. Hợp đồng chữ ký/ACL/mã lỗi đầy đủ ở [docs/08 §13](../../08_DOMAIN_CONTRACTS.md).
 
-## Bằng chứng (cây `9336bb0`)
+## Bằng chứng (cây `947f8ae`)
 
 - `flutter analyze`: 0 issue.
 - `flutter test`: 137/137 PASS (A không chạm Dart nên không đổi).
-- `python docs/reviews/bh06/run_bh06_tests.py`: **78/78 PASS** (39 kịch bản × CLEAN/LEGACY), `tested_commit=9336bb0533dab3b191d8b72547023aadd5852210`, `worktree_dirty=false`. JSON: [`bh06_test_results_20261016041151.json`](bh06_test_results_20261016041151.json).
+- `python docs/reviews/bh06/run_bh06_tests.py`: **80/80 PASS** (40 kịch bản × CLEAN/LEGACY), `tested_commit=947f8aeb211f002c3f4525a87aebfcd2ca5e6a55`, `worktree_dirty=false`. JSON: [`bh06_test_results_20261016042103.json`](bh06_test_results_20261016042103.json).
 
 ## Quyết định cần reviewer xác nhận
 
