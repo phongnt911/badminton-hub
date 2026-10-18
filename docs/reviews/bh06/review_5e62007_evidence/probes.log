@@ -1,0 +1,7 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh06b_round1_probe_test.dart
+00:00 +0: B1: BILLING_STALE must invalidate cached payable QR
+00:00 +1: B2: short final page must end ledger pagination
+00:00 +2: B2: exhausted ledger must not issue another load-more RPC
+00:00 +3: control: logout still clears bank instructions
+00:00 +4: B2-R1: skipped direct loadMore must not invalidate in-flight refresh
+00:00 +5: All tests passed!

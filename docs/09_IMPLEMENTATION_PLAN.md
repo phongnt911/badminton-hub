@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06B (18/10/2026): Chờ review (sửa vòng 2)** tại code `58d03ca`; đã sửa B2-R1 P2 của [review vòng sửa 1](reviews/bh06/review_3894cb7.md) bằng test tái hiện trước. Commit vòng 2: `83b6d49` (test tái hiện FAIL) → `58d03ca` (fix guard trước khi tăng serial). A vẫn Đạt; chưa chuyển C/tích hợp hoặc deploy.
+> **Hiện hành BH-06B (18/10/2026): Đạt phần B** tại `5e62007`, theo [review vòng sửa 2](reviews/bh06/review_5e62007.md). B1/B2/B2-R1 đã đóng trong phạm vi kiểm chứng. A vẫn Đạt; C và tích hợp chưa nghiệm thu. Các trạng thái Chưa đạt/Chờ review bên dưới là lịch sử; chưa cho phép deploy production.
 
 > **Hiện hành BH-06B (18/10/2026): Chưa đạt sau vòng sửa 1** tại `3894cb7`. B1 và các ca B2 ban đầu đã qua probe; còn B2-R1 P2: guard hết trang làm mất phản hồi refresh và giữ loading. Xem [review vòng sửa 1](reviews/bh06/review_3894cb7.md). A vẫn Đạt; chưa chuyển C/tích hợp hoặc deploy.
 
@@ -459,3 +459,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Commit tách test-first: `83b6d49` (thêm `B2-R1: loadMore bị bỏ qua không được huỷ refresh đang bay` — FAIL trước sửa), `58d03ca` (fix). Rebase trên commit review `584ebf1`; nội dung lib/test không đổi.
 - Bằng chứng trên cây `58d03ca` (sạch): `flutter analyze` **0 issue**; `flutter test` **167/167 PASS** (= 166 vòng 1 + 1 test tái hiện B2-R1). Phát lại **nguyên văn probe vòng 1 của reviewer** (B1 + 2 ca B2 + control + race B2-R1): **5/5 PASS** (trước đó 4 PASS / 1 FAIL). Không đổi DB nên runner DB BH-06 **không chạy lại**.
 - Trạng thái ghi **Chờ review vòng 2**; người triển khai không tự ghi Đạt. Ghi chú: [bh06b_review_round2.md](reviews/bh06/bh06b_review_round2.md).
+
+### BH-06B — kết luận reviewer vòng sửa 2 tại 5e62007 (18/10/2026)
+
+- **Đạt phần B** theo [review_5e62007.md](reviews/bh06/review_5e62007.md), code sửa B2-R1 `58d03ca`. Không còn phát hiện P0/P1/P2 cần mở trong phạm vi kiểm chứng; đóng B1/B2/B2-R1 của các review trước, giữ lịch sử và bằng chứng cũ.
+- Reviewer tự chạy analyze sạch, **167/167 Flutter**, **84/84 DB BH-06**, **5/5 probe độc lập PASS** (giữ nguyên mã/kỳ vọng probe vòng 1). Không sửa code triển khai, migration hoặc test tác giả. 335 DB PASS của review A là bằng chứng lượt A, không phải kết quả chạy toàn bộ lại trong lượt B này.
+- Chỉ Đạt B, không suy nghiệm thu C hoặc tích hợp toàn BH-06; không tự chuyển phần tiếp, merge main hoặc deploy. NOT RUN: repository↔PostgREST HTTP/JWT/Supabase Auth thật, UI C/thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và bank/VietQR thực tế.

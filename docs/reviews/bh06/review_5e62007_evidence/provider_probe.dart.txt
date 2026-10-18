@@ -1,0 +1,105 @@
+import 'dart:async';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'providers/finance_provider_test.dart' show FakeAuth, MockFinanceRepository;
+
+void main() {
+  late MockFinanceRepository repo;
+  late FakeAuth auth;
+  late FinanceProvider provider;
+  setUp(() {
+    repo = MockFinanceRepository();
+    auth = FakeAuth()..changeUser('synthetic-actor');
+    provider = FinanceProvider(repository: repo, auth: auth);
+  });
+  tearDown(() => provider.dispose());
+
+  test('B1: BILLING_STALE must invalidate cached payable QR', () async {
+    var attempts = 0;
+    when(() => repo.getPaymentInstructions('s1', playerId: null))
+        .thenAnswer((_) async {
+      if (++attempts > 1) {
+        throw const PostgrestException(message: 'BILLING_STALE: review fixture', code: '22023');
+      }
+      return const PaymentInstructions(sessionId: 's1', playerId: 'p1',
+        billingState: 'current', outstandingVnd: 100000, canPay: true,
+        hasReceiver: true, reference: 'SYNTHETIC',
+        receiverSnapshot: {'account_number': '00001234'});
+    });
+    await provider.fetchPaymentInstructions('s1');
+    expect(provider.paymentInstructions?.canPay, isTrue);
+    await provider.fetchPaymentInstructions('s1');
+    expect(provider.instructionsErrorMessage, isNotNull);
+    expect(provider.isLoadingInstructions, isFalse);
+    expect(provider.paymentInstructions, isNull,
+      reason: 'Server has rejected current revision; cached object is still current/canPay=true');
+  });
+
+  test('B2: short final page must end ledger pagination', () async {
+    when(() => repo.getClubLedger('c1', limit: 2, offset: any(named: 'offset')))
+        .thenAnswer((invocation) async {
+      final offset = invocation.namedArguments[#offset] as int;
+      return ClubLedger(clubId: 'c1', limit: 2, offset: offset,
+        entries: offset == 0
+          ? const [ClubLedgerEntry(transactionId: 't1'), ClubLedgerEntry(transactionId: 't2')]
+          : const [ClubLedgerEntry(transactionId: 't3')]);
+    });
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isTrue);
+    await provider.loadMoreLedger();
+    expect(provider.ledger?.entries, hasLength(3));
+    expect(provider.hasMoreLedger, isFalse,
+      reason: 'latest page has 1 < limit 2; accumulated 3 is not evidence of more pages');
+  });
+
+  test('B2: exhausted ledger must not issue another load-more RPC', () async {
+    var calls = 0;
+    when(() => repo.getClubLedger('c1', limit: 2, offset: any(named: 'offset')))
+        .thenAnswer((invocation) async {
+      calls++;
+      return ClubLedger(clubId: 'c1', limit: 2,
+        offset: invocation.namedArguments[#offset] as int,
+        entries: calls == 1 ? const [ClubLedgerEntry(transactionId: 't1')] : const []);
+    });
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isFalse);
+    await provider.loadMoreLedger();
+    expect(calls, 1, reason: 'loadMore must respect exhaustion');
+  });
+
+  test('control: logout still clears bank instructions', () async {
+    when(() => repo.getPaymentInstructions('s1', playerId: null))
+      .thenAnswer((_) async => const PaymentInstructions(sessionId: 's1', playerId: 'p1'));
+    await provider.fetchPaymentInstructions('s1');
+    expect(provider.paymentInstructions, isNotNull);
+    auth.changeUser(null);
+    expect(provider.paymentInstructions, isNull);
+  });
+
+  test('B2-R1: skipped direct loadMore must not invalidate in-flight refresh', () async {
+    var calls = 0;
+    final refreshing = Completer<ClubLedger>();
+    when(() => repo.getClubLedger('c1', limit: 2, offset: any(named: 'offset')))
+        .thenAnswer((_) async {
+      calls++;
+      if (calls > 1) return refreshing.future;
+      return const ClubLedger(clubId: 'c1', limit: 2, balanceVnd: 100,
+        entries: [ClubLedgerEntry(transactionId: 't1')]);
+    });
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isFalse);
+    final pending = provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.isLoadingLedger, isTrue);
+    await provider.fetchClubLedger('c1', limit: 2, loadMore: true);
+    expect(calls, 2, reason: 'skipped pagination must not issue an RPC');
+    refreshing.complete(const ClubLedger(clubId: 'c1', limit: 2, balanceVnd: 200,
+      entries: [ClubLedgerEntry(transactionId: 't1'), ClubLedgerEntry(transactionId: 't2')]));
+    await pending;
+    expect(provider.isLoadingLedger, isFalse,
+      reason: 'skipped request must not advance serial and leave refresh loading forever');
+    expect(provider.ledger?.balanceVnd, 200);
+  });
+}

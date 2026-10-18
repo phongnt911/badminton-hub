@@ -1,5 +1,7 @@
 # BH-06B — bàn giao người triển khai (model/repository/provider tài chính)
 
+> **Hiện hành 18/10/2026: Đạt phần B** tại `5e62007` theo [review vòng sửa 2](review_5e62007.md). B1/B2/B2-R1 đã đóng; các kết luận cũ bên dưới là snapshot lịch sử. C và tích hợp chưa nghiệm thu, chưa cho phép deploy production.
+
 > **Hiện hành 18/10/2026: Chờ review (sửa vòng 2)** tại `58d03ca`, đã sửa B2-R1 P2 của [review 3894cb7](review_3894cb7.md) theo test-first (`83b6d49` → `58d03ca`). Probe vòng 1 của reviewer **5/5 PASS**; A vẫn Đạt, chưa chuyển C. Ghi chú sửa: [bh06b_review_round2.md](bh06b_review_round2.md).
 
 > **Hiện hành 18/10/2026: Chưa đạt B sau vòng sửa 1** tại `3894cb7`, theo [review mới](review_3894cb7.md). Probe cũ 4/4 PASS, còn B2-R1 P2 ở guard hết trang/serial khi refresh đồng thời. Các trạng thái trước bên dưới giữ làm lịch sử; chưa chuyển C/tích hợp.
