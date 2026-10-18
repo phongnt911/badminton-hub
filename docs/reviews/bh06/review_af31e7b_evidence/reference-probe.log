@@ -1,0 +1,12 @@
+{
+  "same_reference": true,
+  "outstanding_after_reject": 100000,
+  "second_submit_exit": 3,
+  "error": "ERROR:  INVALID_INPUT: Mã tham chiếu đã tồn tại\nCONTEXT:  PL/pgSQL function submit_payment(uuid,bigint,text,text,uuid) line 72 at RAISE",
+  "expected": "new payment intent after rejection succeeds"
+}
+Traceback (most recent call last):
+  File "/workspace/scratch/bh06-review-af31e7b/reference_probe.py", line 19, in <module>
+    assert r.returncode==0, 'New intent after rejection is blocked by reused QR reference'
+           ^^^^^^^^^^^^^^^
+AssertionError: New intent after rejection is blocked by reused QR reference

@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06C (18/10/2026): Chờ review** trên nhánh `feat/bh06c-ui`, tách từ bản B đã Đạt `f28fd0f` (tested `5e62007`). Nối `FinanceProvider` vào `main.dart`, thêm màn tài chính buổi (trạng thái phí current/stale/not_finalized kèm nguồn/version, chi phí, khoản phải thu, thanh toán, QR VietQR dựng từ receiver snapshot + outstanding + reference, có copy/fallback), lối vào theo quyền trong chi tiết buổi, và màn sổ quỹ CLB theo vai trò; thêm widget test loading/error/retry/empty/submitting/permission-denied. Người triển khai **không tự ghi Đạt**; B vẫn Đạt; C và tích hợp chưa nghiệm thu, chưa cho phép deploy.
+> **Hiện hành BH-06C (18/10/2026): Chưa đạt** tại `af31e7b` (cây code/test `b123db9`), theo [review độc lập](reviews/bh06/review_af31e7b.md). C1/C2 P1: sai ID đăng ký khi gửi thanh toán; reference cố định chặn gửi lại sau từ chối. C3 P2: tính khoản nợ từ trang payment thiếu lịch sử. Analyze sạch, 181 Flutter +84 DB PASS nhưng 2 probe widget và 1 probe RPC FAIL. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy.
+
+> **(Lịch sử bàn giao) BH-06C (18/10/2026): Chờ review** trên nhánh `feat/bh06c-ui`, tách từ bản B đã Đạt `f28fd0f` (tested `5e62007`). Nối `FinanceProvider` vào `main.dart`, thêm màn tài chính buổi (trạng thái phí current/stale/not_finalized kèm nguồn/version, chi phí, khoản phải thu, thanh toán, QR VietQR dựng từ receiver snapshot + outstanding + reference, có copy/fallback), lối vào theo quyền trong chi tiết buổi, và màn sổ quỹ CLB theo vai trò; thêm widget test loading/error/retry/empty/submitting/permission-denied. Người triển khai **không tự ghi Đạt**; B vẫn Đạt; C và tích hợp chưa nghiệm thu, chưa cho phép deploy.
 
 > **(Lịch sử) Hiện hành BH-06B (18/10/2026): Đạt phần B** tại `5e62007`, theo [review vòng sửa 2](reviews/bh06/review_5e62007.md). B1/B2/B2-R1 đã đóng trong phạm vi kiểm chứng. A vẫn Đạt; C và tích hợp chưa nghiệm thu. Các trạng thái Chưa đạt/Chờ review bên dưới là lịch sử; chưa cho phép deploy production.
 
@@ -482,3 +484,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Lệnh đã chạy trên cây `b123db9` (sạch): `flutter analyze` **0 issue**; `flutter test` **181/181 PASS** (= 167 nền + 14 test mới: 6 màn tài chính buổi, 6 màn sổ quỹ, 2 lối vào theo quyền). Không đổi DB/migration nên runner DB BH-06 **không chạy lại** ở lượt này.
 - NOT RUN: HTTP/JWT/PostgREST/Supabase Auth thật, thiết bị/browser e2e, apply staging/production, `Image.network` tới `img.vietqr.io` thật (test chỉ chạy nhánh fallback trong môi trường test), bank/VietQR và webhook thực tế.
 - Trạng thái ghi **Chờ review**; người triển khai không tự ghi Đạt. Bằng chứng xanh phía trên là của bản tác giả, reviewer cần tự chạy lại.
+
+### BH-06C — kết luận reviewer tại af31e7b (18/10/2026)
+
+- **Chưa đạt C** theo [review_af31e7b](reviews/bh06/review_af31e7b.md). C1/C2 P1 và C3 P2 còn mở; giữ lịch sử bàn giao Chờ review phía trên.
+- Reviewer tự chạy analyze 0 issue, **181/181 Flutter**, **84/84 DB BH-06**; probe độc lập **2 widget FAIL +1 RPC FAIL** tái hiện lỗi. [Hash/summary](reviews/bh06/review_af31e7b_evidence/summary.json). Không sửa code/migration/test tác giả; cây lib/test/supabase tại af31e7b trùng b123db9.
+- Chưa tích hợp/merge/deploy; A/B giữ kết luận trước. Người triển khai viết test tái hiện rồi sửa P1 theo quy trình tối đa hai vòng; P2 vẫn mở và theo giới hạn AGENTS. NOT RUN: HTTP/JWT thật, thiết bị/browser, bank/VietQR thực, staging/production, backup/restore, concurrency HTTP và pilot/tích hợp. Chi tiết giới hạn fixture trong báo cáo.
