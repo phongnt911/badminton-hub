@@ -1,6 +1,6 @@
 # BH-06B — bàn giao người triển khai (model/repository/provider tài chính)
 
-> **Hiện hành 16/10/2026: Chưa đạt B** tại `d00a121` theo [review độc lập](review_d00a121.md), còn B1/B2 P2. Chờ review bên dưới là snapshot tác giả trước kết luận; A vẫn Đạt, chưa chuyển C.
+> **Hiện hành 16/10/2026: Chờ review (sửa vòng 1)** tại `3894cb7`, đã sửa B1/B2 P2 của [review d00a121](review_d00a121.md) theo test-first (`3338566` → `3894cb7`). Kết luận Chưa đạt tại `d00a121` và các mục "Chờ review" bên dưới là snapshot trước kết luận; A vẫn Đạt, chưa chuyển C. Ghi chú sửa: [bh06b_review_round1.md](bh06b_review_round1.md).
 
 Ngày 16/10/2026 (Việt Nam). Vai trò: người triển khai (DeepSeek) theo `docs/ai/IMPLEMENTER.md`. Phần A BH-06 đã **Đạt** tại `706bd73` ([review_706bd73.md](review_706bd73.md)); nhánh B tách từ bản A đã Đạt `48d45d2`. Trạng thái phần B: **Chờ review** — người triển khai không tự ghi Đạt.
 
@@ -62,3 +62,14 @@ HTTP/PostgREST/JWT thật, thiết bị/browser e2e, apply staging/production, b
 - Kiểm `lib/providers/finance_provider.dart`: thứ tự xoá key trước refresh; refresh lỗi không làm mutation thất bại; isolation theo generation/serial; lỗi đọc không hạ số dư về 0.
 - Test tái hiện: `test/providers/finance_provider_test.dart` (retry/replay, double-submit, stale, idempotency, isolation, phân trang, refresh lỗi).
 - Không suy Đạt B từ Đạt A; phần C và tích hợp cần review riêng.
+
+## 7. Sửa theo review vòng 1 (B1/B2) — 16/10/2026
+
+Review [review_d00a121.md](review_d00a121.md) kết luận **Chưa đạt** với B1/B2 (P2). Chủ dự án giao sửa theo mục "Sửa theo review"; đã sửa cả hai bằng test-first (không sửa ngoài phạm vi review).
+
+| Phát hiện | Test tái hiện (FAIL trước sửa) | Cách sửa |
+|---|---|---|
+| B1 — cache `paymentInstructions` vẫn `current/canPay` sau `BILLING_STALE` | `B1: BILLING_STALE vô hiệu cache hướng dẫn thanh toán đang current` | `fetchPaymentInstructions` vô hiệu cache (`_instructions = null`) khi làm mới lỗi cùng phạm vi, giữ thông điệp lỗi |
+| B2 — phân trang ledger tính theo tổng tích luỹ, không kết thúc; `loadMore` gọi khi đã hết | `B2: trang cuối ngắn phải kết thúc phân trang ledger`; `B2: sổ quỹ đã hết thì loadMore không phát RPC` | Thêm `_ledgerHasMore` suy từ trang vừa nhận; chặn nối khi đã hết; lỗi mạng không đánh dấu hết; reset khi đổi CLB |
+
+Commit: `3338566` (test tái hiện, 3 FAIL) → `3894cb7` (fix, 166/166 PASS). Test `loadMoreLedger` cũ được chỉnh vì nó mã hoá hành vi sai (trang đầu ngắn vẫn nối). Phát lại probe độc lập của reviewer: **4/4 PASS** (trước 3 FAIL). Trạng thái: **Chờ review vòng 1**.

@@ -1,8 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06B (16/10/2026): Chưa đạt** tại `d00a121`, còn B1/B2 P2 về cache QR sau BILLING_STALE và hết trang ledger. Xem [review B](reviews/bh06/review_d00a121.md). A vẫn Đạt; chưa chuyển C/tích hợp, chưa cho phép deploy.
+> **Hiện hành BH-06B (16/10/2026): Chờ review (sửa vòng 1)** tại `3894cb7`; đã sửa B1/B2 P2 của [review d00a121](reviews/bh06/review_d00a121.md) bằng test tái hiện trước. Code/test vòng sửa: `3338566` (test tái hiện FAIL) → `3894cb7` (fix). A vẫn Đạt; C/tích hợp chưa làm; chưa cho phép deploy.
 
-> **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
+> **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review vòng 1** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
 
 Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
@@ -433,3 +433,12 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Chưa đạt phần B** theo [review_d00a121.md](reviews/bh06/review_d00a121.md): B1 P2 giữ cache paymentInstructions current/canPay sau BILLING_STALE; B2 P2 phân trang không kết thúc và load-more vẫn gọi khi đã hết dữ liệu. Cần sửa, gửi lại SHA; không chuyển C/tích hợp.
 - Reviewer tự chạy analyze sạch, **163/163 Flutter**, **84/84 DB BH-06**, probe provider **3 FAIL / 1 control PASS**. Không gộp probe FAIL vào số test tác giả PASS. Code/migration của A không đổi; 335 DB PASS trong review A là bằng chứng trước, không phải chạy lại toàn bộ trong lượt B.
 - NOT RUN: HTTP/PostgREST/JWT thật, repository↔RPC thật, UI C/thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và bank/VietQR thực tế. Chỉ thêm report/bằng chứng/trạng thái, không sửa code triển khai hoặc merge main.
+
+### BH-06B — sửa theo review vòng 1 (16/10/2026)
+
+- Người triển khai sửa **cả B1 và B2** (đều P2, chủ dự án giao rõ theo mục "Sửa theo review") trong nhánh `feat/bh06b-data`; không sửa ngoài phạm vi review, không đổi migration/RPC của A, không merge `main`.
+- Commit tách test-first: `3338566` (thêm 3 test tái hiện — phải FAIL trước khi sửa), `3894cb7` (fix provider + chỉnh test `loadMoreLedger` cũ vốn mã hoá hành vi sai). Ghi chú: [bh06b_review_round1.md](reviews/bh06/bh06b_review_round1.md).
+  - **B1**: `fetchPaymentInstructions` khi làm mới lỗi trong cùng phạm vi sẽ **vô hiệu cache** `paymentInstructions` (đặt `null`) và giữ thông điệp lỗi — server từ chối revision (`BILLING_STALE`/`BILLING_NOT_FINALIZED`) hoặc mất quyền thì không còn object `current/canPay` có thể thanh toán. Không hạ số phải thu về 0 và không biến lỗi thành "đã trả".
+  - **B2**: thêm `_ledgerHasMore` suy từ **trang vừa nhận** (`entries.length >= limit` ⇒ còn trang; trang ngắn ⇒ hết); `hasMoreLedger = _ledger != null && _ledgerHasMore`; `loadMoreLedger()` và nhánh nối của `fetchClubLedger` **không phát RPC khi đã hết**; lỗi mạng **không** đánh dấu hết trang; reset khi đổi CLB/refresh.
+- Bằng chứng trên cây `3894cb7` (sạch): `flutter analyze` **0 issue**; `flutter test` **166/166 PASS** (= 163 trước + 3 test tái hiện B1/B2). Phát lại probe độc lập của reviewer (B1 + 2 tình huống B2 + control) trên bản sửa: **4/4 PASS** (trước đó 3 FAIL). Không đổi DB nên runner DB BH-06 **không chạy lại**.
+- Trạng thái ghi **Chờ review vòng 1**; người triển khai không tự ghi Đạt.
