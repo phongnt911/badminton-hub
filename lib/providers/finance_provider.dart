@@ -275,12 +275,14 @@ class FinanceProvider extends ChangeNotifier {
     bool loadMore = false,
   }) async {
     final generation = _generation;
-    final serial = ++_ledgerSerial;
     final previous = _ledger;
     final switching = _ledgerClubId != clubId;
     final appending = loadMore && !switching && previous != null;
     // Đã biết hết trang (trang cuối ngắn hơn limit) thì không phát RPC nối thêm.
+    // Guard phải chạy TRƯỚC khi tăng serial/thay state: yêu cầu bị bỏ qua không
+    // được huỷ phản hồi của refresh đang bay (B2-R1).
     if (appending && !_ledgerHasMore) return;
+    final serial = ++_ledgerSerial;
     if (switching) {
       _ledgerClubId = clubId;
       _ledger = null;
