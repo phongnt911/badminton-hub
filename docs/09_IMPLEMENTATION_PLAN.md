@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06B (18/10/2026): Đạt phần B** tại `5e62007`, theo [review vòng sửa 2](reviews/bh06/review_5e62007.md). B1/B2/B2-R1 đã đóng trong phạm vi kiểm chứng. A vẫn Đạt; C và tích hợp chưa nghiệm thu. Các trạng thái Chưa đạt/Chờ review bên dưới là lịch sử; chưa cho phép deploy production.
+> **Hiện hành BH-06C (18/10/2026): Chờ review** trên nhánh `feat/bh06c-ui`, tách từ bản B đã Đạt `f28fd0f` (tested `5e62007`). Nối `FinanceProvider` vào `main.dart`, thêm màn tài chính buổi (trạng thái phí current/stale/not_finalized kèm nguồn/version, chi phí, khoản phải thu, thanh toán, QR VietQR dựng từ receiver snapshot + outstanding + reference, có copy/fallback), lối vào theo quyền trong chi tiết buổi, và màn sổ quỹ CLB theo vai trò; thêm widget test loading/error/retry/empty/submitting/permission-denied. Người triển khai **không tự ghi Đạt**; B vẫn Đạt; C và tích hợp chưa nghiệm thu, chưa cho phép deploy.
+
+> **(Lịch sử) Hiện hành BH-06B (18/10/2026): Đạt phần B** tại `5e62007`, theo [review vòng sửa 2](reviews/bh06/review_5e62007.md). B1/B2/B2-R1 đã đóng trong phạm vi kiểm chứng. A vẫn Đạt; C và tích hợp chưa nghiệm thu. Các trạng thái Chưa đạt/Chờ review bên dưới là lịch sử; chưa cho phép deploy production.
 
 > **Hiện hành BH-06B (18/10/2026): Chưa đạt sau vòng sửa 1** tại `3894cb7`. B1 và các ca B2 ban đầu đã qua probe; còn B2-R1 P2: guard hết trang làm mất phản hồi refresh và giữ loading. Xem [review vòng sửa 1](reviews/bh06/review_3894cb7.md). A vẫn Đạt; chưa chuyển C/tích hợp hoặc deploy.
 
@@ -465,3 +467,18 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Đạt phần B** theo [review_5e62007.md](reviews/bh06/review_5e62007.md), code sửa B2-R1 `58d03ca`. Không còn phát hiện P0/P1/P2 cần mở trong phạm vi kiểm chứng; đóng B1/B2/B2-R1 của các review trước, giữ lịch sử và bằng chứng cũ.
 - Reviewer tự chạy analyze sạch, **167/167 Flutter**, **84/84 DB BH-06**, **5/5 probe độc lập PASS** (giữ nguyên mã/kỳ vọng probe vòng 1). Không sửa code triển khai, migration hoặc test tác giả. 335 DB PASS của review A là bằng chứng lượt A, không phải kết quả chạy toàn bộ lại trong lượt B này.
 - Chỉ Đạt B, không suy nghiệm thu C hoặc tích hợp toàn BH-06; không tự chuyển phần tiếp, merge main hoặc deploy. NOT RUN: repository↔PostgREST HTTP/JWT/Supabase Auth thật, UI C/thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và bank/VietQR thực tế.
+
+### BH-06C — UI tài chính buổi và sổ quỹ CLB (18/10/2026)
+
+| Ngày | Hạng mục | Trạng thái | Nhánh / commit / bằng chứng |
+|---|---|---|---|
+| 18/10/2026 | BH-06C UI phí/thu tiền/quỹ | **Chờ review** | Nhánh `feat/bh06c-ui`, tách từ bản B đã Đạt `f28fd0f` (tested `5e62007`). Commit: `777f9df` (nối provider + màn tài chính buổi), `39aef81` (màn sổ quỹ CLB), `b123db9` (widget test + cập nhật test lối vào). Ghi chú: [bh06c_handoff.md](reviews/bh06/bh06c_handoff.md). |
+
+- Phạm vi: chỉ phần C (UI). Không sửa migration/RPC/helper của A, không viết lại model/repository/provider của B (chỉ dùng API đã Đạt), không merge `main`, không deploy.
+- File thêm: `lib/core/money.dart` (định dạng/đọc VNĐ), `lib/screens/session_finance_screen.dart`, `lib/screens/club_fund_screen.dart`. File sửa: `lib/main.dart` (đăng ký `FinanceProvider`), `lib/screens/session_detail_screen.dart` (lối vào theo quyền), `lib/screens/clubs_screen.dart` (nút THU/CHI QUỸ mở sổ quỹ).
+- Bản chất dữ liệu: banner trạng thái hiển thị `billing_state` (current/stale/not_finalized) kèm `billing_input_version` và revision active (nguồn/version/thời điểm chốt); lịch sử chi phí/thanh toán giữ nguyên (đã hoàn tác/từ chối vẫn hiện); khi stale chỉ chặn **thu mới** (chốt phí vẫn cho chốt lại, xác nhận/ghi tiền mặt bị khoá, từ chối/hoàn tác vẫn mở). Không tự tính số dư ở client; số dư/outstanding lấy từ RPC.
+- QR: dùng `VietQRHelper` hiện có, dựng từ receiver snapshot + `outstanding > 0` + `reference`; hiển thị bank/số TK/chủ TK/số tiền/nội dung kèm nút sao chép và `errorBuilder` fallback khi ảnh không tải. Ghi rõ QR **không** xác nhận đã thu; không webhook/ngân hàng, không tự chuyển tiền. Nút gửi ghi payment `submitted` chờ ban quản lý xác nhận.
+- Quyền: chỉ `Session.canViewFinance` thấy thao tác tài chính; người chơi chỉ thấy phần phí của mình (không có nút chốt phí/chi phí/xác nhận). Màn sổ quỹ chỉ mở khi `Club.canViewBalance` (chủ nhiệm/thủ quỹ); vai trò khác bị chặn và **không** gọi RPC.
+- Lệnh đã chạy trên cây `b123db9` (sạch): `flutter analyze` **0 issue**; `flutter test` **181/181 PASS** (= 167 nền + 14 test mới: 6 màn tài chính buổi, 6 màn sổ quỹ, 2 lối vào theo quyền). Không đổi DB/migration nên runner DB BH-06 **không chạy lại** ở lượt này.
+- NOT RUN: HTTP/JWT/PostgREST/Supabase Auth thật, thiết bị/browser e2e, apply staging/production, `Image.network` tới `img.vietqr.io` thật (test chỉ chạy nhánh fallback trong môi trường test), bank/VietQR và webhook thực tế.
+- Trạng thái ghi **Chờ review**; người triển khai không tự ghi Đạt. Bằng chứng xanh phía trên là của bản tác giả, reviewer cần tự chạy lại.
