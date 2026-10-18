@@ -179,7 +179,7 @@ void main() {
     provider.dispose();
   });
 
-  test('loadMoreLedger nối trang bằng offset đã có, không nhân đôi', () async {
+  test('loadMoreLedger nối trang đầy bằng offset đã có, không nhân đôi', () async {
     final offsets = <int>[];
     when(
       () => repo.getClubLedger(
@@ -189,32 +189,46 @@ void main() {
       ),
     ).thenAnswer((invocation) async {
       final offset = invocation.namedArguments[#offset] as int;
+      final limit = invocation.namedArguments[#limit] as int;
       offsets.add(offset);
-      if (offset == 0) return ledger;
-      return const ClubLedger(
+      return ClubLedger(
         clubId: 'c1',
-        balanceVnd: 1400000,
-        limit: 20,
-        offset: 1,
-        entries: [
-          ClubLedgerEntry(
-            transactionId: 't2',
-            direction: 'expense',
-            amountVnd: 150000,
-          ),
-        ],
+        balanceVnd: offset == 0 ? 1550000 : 1400000,
+        limit: limit,
+        offset: offset,
+        entries: offset == 0
+            ? const [
+                ClubLedgerEntry(
+                  transactionId: 't1',
+                  direction: 'income',
+                  amountVnd: 200000,
+                ),
+                ClubLedgerEntry(
+                  transactionId: 't2',
+                  direction: 'income',
+                  amountVnd: 300000,
+                ),
+              ]
+            : const [
+                ClubLedgerEntry(
+                  transactionId: 't3',
+                  direction: 'expense',
+                  amountVnd: 150000,
+                ),
+              ],
       );
     });
 
     final provider = buildProvider();
-    await provider.fetchClubLedger('c1');
-    expect(provider.ledger?.entries, hasLength(1));
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.ledger?.entries, hasLength(2));
+    expect(provider.hasMoreLedger, isTrue);
 
     await provider.loadMoreLedger();
 
-    expect(offsets, [0, 1]);
-    expect(provider.ledger?.entries, hasLength(2));
-    expect(provider.ledger?.entries.last.transactionId, 't2');
+    expect(offsets, [0, 2]);
+    expect(provider.ledger?.entries, hasLength(3));
+    expect(provider.ledger?.entries.last.transactionId, 't3');
     expect(provider.isLoadingMoreLedger, isFalse);
     provider.dispose();
   });
@@ -690,6 +704,109 @@ void main() {
       provider.instructionsErrorMessage,
       'Buổi chơi chưa chốt phí.',
     );
+    provider.dispose();
+  });
+
+  // --- Sửa theo review vòng 1 (B1/B2) ------------------------------------- //
+
+  test('B1: BILLING_STALE vô hiệu cache hướng dẫn thanh toán đang current',
+      () async {
+    var attempts = 0;
+    when(
+      () => repo.getPaymentInstructions(
+        's1',
+        playerId: any(named: 'playerId'),
+      ),
+    ).thenAnswer((_) async {
+      attempts++;
+      if (attempts > 1) {
+        throw Exception('PostgrestException(BILLING_STALE: raw)');
+      }
+      return instructions;
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchPaymentInstructions('s1');
+    expect(provider.paymentInstructions?.canPay, isTrue);
+
+    await provider.fetchPaymentInstructions('s1');
+
+    expect(provider.instructionsErrorMessage, isNotNull);
+    expect(provider.isLoadingInstructions, isFalse);
+    expect(
+      provider.paymentInstructions,
+      isNull,
+      reason: 'server từ chối revision current thì không giữ chỉ dẫn có thể trả',
+    );
+    provider.dispose();
+  });
+
+  test('B2: trang cuối ngắn phải kết thúc phân trang ledger', () async {
+    when(
+      () => repo.getClubLedger(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) async {
+      final offset = invocation.namedArguments[#offset] as int;
+      final limit = invocation.namedArguments[#limit] as int;
+      return ClubLedger(
+        clubId: 'c1',
+        limit: limit,
+        offset: offset,
+        entries: offset == 0
+            ? const [
+                ClubLedgerEntry(transactionId: 't1'),
+                ClubLedgerEntry(transactionId: 't2'),
+              ]
+            : const [ClubLedgerEntry(transactionId: 't3')],
+      );
+    });
+
+    final provider = buildProvider();
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isTrue);
+
+    await provider.loadMoreLedger();
+
+    expect(provider.ledger?.entries, hasLength(3));
+    expect(
+      provider.hasMoreLedger,
+      isFalse,
+      reason: 'trang vừa nhận chỉ 1 < limit 2 nên đã hết trang',
+    );
+    provider.dispose();
+  });
+
+  test('B2: sổ quỹ đã hết thì loadMore không phát RPC', () async {
+    var calls = 0;
+    when(
+      () => repo.getClubLedger(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) async {
+      calls++;
+      return ClubLedger(
+        clubId: 'c1',
+        limit: invocation.namedArguments[#limit] as int,
+        offset: invocation.namedArguments[#offset] as int,
+        entries: calls == 1
+            ? const [ClubLedgerEntry(transactionId: 't1')]
+            : const [],
+      );
+    });
+
+    final provider = buildProvider();
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isFalse);
+
+    await provider.loadMoreLedger();
+
+    expect(calls, 1, reason: 'hết dữ liệu thì loadMore không gọi thêm RPC');
     provider.dispose();
   });
 }
