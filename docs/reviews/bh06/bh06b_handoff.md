@@ -1,5 +1,7 @@
 # BH-06B — bàn giao người triển khai (model/repository/provider tài chính)
 
+> **Hiện hành 18/10/2026: Chờ review (sửa vòng 2)** tại `58d03ca`, đã sửa B2-R1 P2 của [review 3894cb7](review_3894cb7.md) theo test-first (`83b6d49` → `58d03ca`). Probe vòng 1 của reviewer **5/5 PASS**; A vẫn Đạt, chưa chuyển C. Ghi chú sửa: [bh06b_review_round2.md](bh06b_review_round2.md).
+
 > **Hiện hành 18/10/2026: Chưa đạt B sau vòng sửa 1** tại `3894cb7`, theo [review mới](review_3894cb7.md). Probe cũ 4/4 PASS, còn B2-R1 P2 ở guard hết trang/serial khi refresh đồng thời. Các trạng thái trước bên dưới giữ làm lịch sử; chưa chuyển C/tích hợp.
 
 > **Hiện hành 16/10/2026: Chờ review (sửa vòng 1)** tại `3894cb7`, đã sửa B1/B2 P2 của [review d00a121](review_d00a121.md) theo test-first (`3338566` → `3894cb7`). Kết luận Chưa đạt tại `d00a121` và các mục "Chờ review" bên dưới là snapshot trước kết luận; A vẫn Đạt, chưa chuyển C. Ghi chú sửa: [bh06b_review_round1.md](bh06b_review_round1.md).
@@ -75,3 +77,13 @@ Review [review_d00a121.md](review_d00a121.md) kết luận **Chưa đạt** vớ
 | B2 — phân trang ledger tính theo tổng tích luỹ, không kết thúc; `loadMore` gọi khi đã hết | `B2: trang cuối ngắn phải kết thúc phân trang ledger`; `B2: sổ quỹ đã hết thì loadMore không phát RPC` | Thêm `_ledgerHasMore` suy từ trang vừa nhận; chặn nối khi đã hết; lỗi mạng không đánh dấu hết; reset khi đổi CLB |
 
 Commit: `3338566` (test tái hiện, 3 FAIL) → `3894cb7` (fix, 166/166 PASS). Test `loadMoreLedger` cũ được chỉnh vì nó mã hoá hành vi sai (trang đầu ngắn vẫn nối). Phát lại probe độc lập của reviewer: **4/4 PASS** (trước 3 FAIL). Trạng thái: **Chờ review vòng 1**.
+
+## 8. Sửa theo review vòng 2 (B2-R1) — 18/10/2026
+
+Review [review_3894cb7.md](review_3894cb7.md) kết luận **Chưa đạt phần B** chỉ còn **B2-R1 (P2)**: guard hết trang làm mất phản hồi refresh và giữ `isLoadingLedger=true`. Sửa vòng 2 (vòng cuối theo quy trình) bằng test-first.
+
+| Phát hiện | Test tái hiện (FAIL trước sửa) | Cách sửa |
+|---|---|---|
+| B2-R1 — `fetchClubLedger(loadMore:true)` bị bỏ qua vì đã hết trang vẫn tăng `_ledgerSerial` trước guard, huỷ refresh đang bay và kẹt loading | `B2-R1: loadMore bị bỏ qua không được huỷ refresh đang bay` | Tính `previous/switching/appending` và **guard trước** `++_ledgerSerial`; yêu cầu bị bỏ qua không tăng serial/đổi state/phát RPC |
+
+Commit: `83b6d49` (test tái hiện, 1 FAIL) → `58d03ca` (fix, 167/167 PASS). Rebase trên commit review `584ebf1`; nội dung lib/test không đổi. Phát lại **nguyên văn probe vòng 1 của reviewer** (5 ca gồm race B2-R1): **5/5 PASS** (trước 4 PASS / 1 FAIL). Trạng thái: **Chờ review vòng 2**.

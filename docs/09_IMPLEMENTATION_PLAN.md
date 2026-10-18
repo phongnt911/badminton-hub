@@ -1,5 +1,7 @@
 # Backlog triển khai và nghiệm thu
 
+> **Hiện hành BH-06B (18/10/2026): Chờ review (sửa vòng 2)** tại code `58d03ca`; đã sửa B2-R1 P2 của [review vòng sửa 1](reviews/bh06/review_3894cb7.md) bằng test tái hiện trước. Commit vòng 2: `83b6d49` (test tái hiện FAIL) → `58d03ca` (fix guard trước khi tăng serial). A vẫn Đạt; chưa chuyển C/tích hợp hoặc deploy.
+
 > **Hiện hành BH-06B (18/10/2026): Chưa đạt sau vòng sửa 1** tại `3894cb7`. B1 và các ca B2 ban đầu đã qua probe; còn B2-R1 P2: guard hết trang làm mất phản hồi refresh và giữ loading. Xem [review vòng sửa 1](reviews/bh06/review_3894cb7.md). A vẫn Đạt; chưa chuyển C/tích hợp hoặc deploy.
 
 > **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review vòng 1** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
@@ -448,3 +450,12 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Chưa đạt phần B** theo [review_3894cb7.md](reviews/bh06/review_3894cb7.md): B1 và các tình huống B2 cũ không còn tái hiện; còn **B2-R1 P2** tại guard hết trang mới. `fetchClubLedger(loadMore:true)` bị bỏ qua vẫn tăng serial, làm refresh đang bay mất phản hồi/finally và loading bị giữ true. API wrapper có guard riêng; lỗi được xác nhận ở API fetch trực tiếp, không suy diễn UI C đã tồn tại.
 - Reviewer checkout đúng `3894cb7`, tự chạy analyze sạch, **166/166 Flutter**, **84/84 DB BH-06**, probe cũ nguyên kỳ vọng **4/4 PASS**; probe mở rộng **4 PASS / 1 FAIL**. Không sửa code/migration/test tác giả. Commit docs `4b0ecbb` mới hơn không đổi source/test/migration so với tested SHA.
 - Cần test tái hiện và sửa B2-R1 rồi review vòng 2 (còn một vòng theo quy trình); chưa chuyển C/tích hợp, merge main hoặc deploy. NOT RUN: HTTP/JWT/PostgREST thật, repository↔RPC thật, UI/thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP và bank/VietQR thực tế. A giữ kết luận review A; lịch sử review trước giữ nguyên.
+
+### BH-06B — sửa theo review vòng 2 (18/10/2026)
+
+- Người triển khai sửa **B2-R1 (P2)** trong `feat/bh06b-data`; không sửa ngoài phạm vi, không đổi migration/RPC của A, không merge `main`. Đây là **vòng sửa thứ 2** (vòng cuối theo quy trình tối đa 2 vòng của `docs/ai/IMPLEMENTER.md`).
+- Nguyên nhân: `fetchClubLedger` tăng `_ledgerSerial` **trước** guard `appending && !_ledgerHasMore` nên một load-more bị bỏ qua vẫn vô hiệu serial của refresh đang bay → refresh mất cập nhật dữ liệu/finally, `isLoadingLedger` kẹt `true`.
+- Cách sửa (tối thiểu): tính `previous/switching/appending` và **guard trước** `++_ledgerSerial`; yêu cầu bị bỏ qua không tăng serial, không đổi state, không phát RPC; refresh đang bay giữ nguyên phản hồi. Không viết lại phần B, không sửa migration.
+- Commit tách test-first: `83b6d49` (thêm `B2-R1: loadMore bị bỏ qua không được huỷ refresh đang bay` — FAIL trước sửa), `58d03ca` (fix). Rebase trên commit review `584ebf1`; nội dung lib/test không đổi.
+- Bằng chứng trên cây `58d03ca` (sạch): `flutter analyze` **0 issue**; `flutter test` **167/167 PASS** (= 166 vòng 1 + 1 test tái hiện B2-R1). Phát lại **nguyên văn probe vòng 1 của reviewer** (B1 + 2 ca B2 + control + race B2-R1): **5/5 PASS** (trước đó 4 PASS / 1 FAIL). Không đổi DB nên runner DB BH-06 **không chạy lại**.
+- Trạng thái ghi **Chờ review vòng 2**; người triển khai không tự ghi Đạt. Ghi chú: [bh06b_review_round2.md](reviews/bh06/bh06b_review_round2.md).
