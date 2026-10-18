@@ -1,5 +1,7 @@
 # BH-06B — bàn giao người triển khai (model/repository/provider tài chính)
 
+> **Hiện hành 18/10/2026: Chưa đạt B sau vòng sửa 1** tại `3894cb7`, theo [review mới](review_3894cb7.md). Probe cũ 4/4 PASS, còn B2-R1 P2 ở guard hết trang/serial khi refresh đồng thời. Các trạng thái trước bên dưới giữ làm lịch sử; chưa chuyển C/tích hợp.
+
 > **Hiện hành 16/10/2026: Chờ review (sửa vòng 1)** tại `3894cb7`, đã sửa B1/B2 P2 của [review d00a121](review_d00a121.md) theo test-first (`3338566` → `3894cb7`). Kết luận Chưa đạt tại `d00a121` và các mục "Chờ review" bên dưới là snapshot trước kết luận; A vẫn Đạt, chưa chuyển C. Ghi chú sửa: [bh06b_review_round1.md](bh06b_review_round1.md).
 
 Ngày 16/10/2026 (Việt Nam). Vai trò: người triển khai (DeepSeek) theo `docs/ai/IMPLEMENTER.md`. Phần A BH-06 đã **Đạt** tại `706bd73` ([review_706bd73.md](review_706bd73.md)); nhánh B tách từ bản A đã Đạt `48d45d2`. Trạng thái phần B: **Chờ review** — người triển khai không tự ghi Đạt.
