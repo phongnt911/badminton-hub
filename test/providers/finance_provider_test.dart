@@ -809,4 +809,62 @@ void main() {
     expect(calls, 1, reason: 'hết dữ liệu thì loadMore không gọi thêm RPC');
     provider.dispose();
   });
+
+  test('B2-R1: loadMore bị bỏ qua không được huỷ refresh đang bay', () async {
+    var calls = 0;
+    final refreshing = Completer<ClubLedger>();
+    when(
+      () => repo.getClubLedger(
+        'c1',
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async {
+      calls++;
+      if (calls > 1) return refreshing.future;
+      return const ClubLedger(
+        clubId: 'c1',
+        limit: 2,
+        balanceVnd: 100,
+        entries: [ClubLedgerEntry(transactionId: 't1')],
+      );
+    });
+
+    final provider = buildProvider();
+    await provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.hasMoreLedger, isFalse);
+
+    // Refresh cùng CLB đang bay (response bị trì hoãn).
+    final pending = provider.fetchClubLedger('c1', limit: 2);
+    expect(provider.isLoadingLedger, isTrue);
+
+    // Gọi load-more trực tiếp khi đã hết trang: phải bị bỏ qua, không RPC.
+    await provider.fetchClubLedger('c1', limit: 2, loadMore: true);
+    expect(calls, 2, reason: 'bỏ qua phân trang đã hết thì không phát RPC');
+
+    refreshing.complete(
+      const ClubLedger(
+        clubId: 'c1',
+        limit: 2,
+        balanceVnd: 200,
+        entries: [
+          ClubLedgerEntry(transactionId: 't1'),
+          ClubLedgerEntry(transactionId: 't2'),
+        ],
+      ),
+    );
+    await pending;
+
+    expect(
+      provider.isLoadingLedger,
+      isFalse,
+      reason: 'yêu cầu bị bỏ qua không được tăng serial bỏ rơi finally refresh',
+    );
+    expect(
+      provider.ledger?.balanceVnd,
+      200,
+      reason: 'refresh hợp lệ vẫn phải cập nhật số dư mới',
+    );
+    provider.dispose();
+  });
 }
