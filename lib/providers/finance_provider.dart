@@ -157,6 +157,9 @@ class FinanceProvider extends ChangeNotifier {
           serial == _instructionsSerial &&
           _instructionsSessionId == sessionId &&
           _instructionsPlayerId == playerId) {
+        // Server vừa từ chối (stale/chưa chốt/mất quyền): không giữ chỉ dẫn
+        // thanh toán có thể trả của revision cũ, chỉ giữ thông điệp lỗi (B1).
+        _instructions = null;
         _instructionsErrorMessage = domainErrorMessage(e);
       }
     } finally {
@@ -241,6 +244,7 @@ class FinanceProvider extends ChangeNotifier {
   ClubLedger? _ledger;
   bool _isLoadingLedger = false;
   bool _isLoadingMoreLedger = false;
+  bool _ledgerHasMore = false;
   String? _ledgerErrorMessage;
   int _ledgerSerial = 0;
 
@@ -249,7 +253,9 @@ class FinanceProvider extends ChangeNotifier {
   bool get isLoadingLedger => _isLoadingLedger;
   bool get isLoadingMoreLedger => _isLoadingMoreLedger;
   String? get ledgerErrorMessage => _ledgerErrorMessage;
-  bool get hasMoreLedger => (_ledger?.entries.length ?? 0) >= (_ledger?.limit ?? 20);
+
+  /// Còn trang để nối hay không, suy từ **trang vừa nhận** (trang đầy ⇒ còn).
+  bool get hasMoreLedger => _ledger != null && _ledgerHasMore;
 
   void _resetLedger() {
     _ledgerSerial++;
@@ -257,11 +263,12 @@ class FinanceProvider extends ChangeNotifier {
     _ledger = null;
     _isLoadingLedger = false;
     _isLoadingMoreLedger = false;
+    _ledgerHasMore = false;
     _ledgerErrorMessage = null;
   }
 
   /// Tải sổ quỹ CLB. `loadMore` nối trang kế theo `offset` đã có; đổi CLB sẽ
-  /// tải lại từ đầu. Lỗi giữ nguyên số dư cũ, không hạ về 0.
+  /// tải lại từ đầu. Lỗi giữ nguyên số dư cũ và **không** đánh dấu hết trang.
   Future<void> fetchClubLedger(
     String clubId, {
     int limit = 20,
@@ -272,9 +279,12 @@ class FinanceProvider extends ChangeNotifier {
     final previous = _ledger;
     final switching = _ledgerClubId != clubId;
     final appending = loadMore && !switching && previous != null;
+    // Đã biết hết trang (trang cuối ngắn hơn limit) thì không phát RPC nối thêm.
+    if (appending && !_ledgerHasMore) return;
     if (switching) {
       _ledgerClubId = clubId;
       _ledger = null;
+      _ledgerHasMore = false;
     }
     final offset = appending ? previous.entries.length : 0;
     if (appending) {
@@ -294,6 +304,8 @@ class FinanceProvider extends ChangeNotifier {
       if (_generation == generation &&
           serial == _ledgerSerial &&
           _ledgerClubId == clubId) {
+        // Chỉ trang vừa nhận quyết định còn trang: đầy ⇒ còn, ngắn ⇒ hết (B2).
+        _ledgerHasMore = page.entries.length >= page.limit;
         _ledger = appending
             ? ClubLedger(
                 clubId: page.clubId,
@@ -308,6 +320,7 @@ class FinanceProvider extends ChangeNotifier {
       if (_generation == generation &&
           serial == _ledgerSerial &&
           _ledgerClubId == clubId) {
+        // Giữ nguyên _ledgerHasMore khi lỗi: không kết thúc phân trang do lỗi.
         _ledgerErrorMessage = domainErrorMessage(e);
       }
     } finally {
@@ -321,11 +334,14 @@ class FinanceProvider extends ChangeNotifier {
     }
   }
 
-  /// Nối thêm một trang sổ quỹ của CLB đang mở (nếu có).
+  /// Nối thêm một trang sổ quỹ của CLB đang mở, chỉ khi còn trang.
   Future<void> loadMoreLedger() async {
     final clubId = _ledgerClubId;
-    if (clubId == null || _isLoadingLedger || _isLoadingMoreLedger) return;
-    await fetchClubLedger(clubId, limit: _ledger?.limit ?? 20, loadMore: true);
+    final current = _ledger;
+    if (clubId == null || current == null) return;
+    if (_isLoadingLedger || _isLoadingMoreLedger) return;
+    if (!_ledgerHasMore) return;
+    await fetchClubLedger(clubId, limit: current.limit, loadMore: true);
   }
 
   // --- Thao tác (mutation) ------------------------------------------------- //
