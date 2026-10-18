@@ -1088,4 +1088,45 @@ void main() {
 
     expect(find.text('Đăng ký tham gia'), findsNothing);
   });
+
+  // --- BH-06C ------------------------------------------------------------ //
+
+  testWidgets('quyền finance thấy mục Tài chính & thu tiền', (tester) async {
+    final p = authedProviders();
+    const financeSession = Session(
+      id: 's1',
+      title: 'Buổi có phí',
+      capacity: 8,
+      lifecycle: 'in_progress',
+      canManage: true,
+      canViewFinance: true,
+      version: 2,
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => financeSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tài chính & thu tiền'), findsOneWidget);
+    expect(find.text('Phần phí của tôi'), findsNothing);
+  });
+
+  testWidgets('người chơi không có quyền finance chỉ thấy Phần phí của tôi', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => publicSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Phần phí của tôi'), findsOneWidget);
+    expect(find.text('Tài chính & thu tiền'), findsNothing);
+  });
 }
