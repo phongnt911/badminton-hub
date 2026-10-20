@@ -78,4 +78,4 @@ Reviewer kiểm độc lập 4512c3a trên feat/bh07a-db và kết luận **Đ�
 
 ## Hiện hành — BH-07B Chờ review (20/10/2026)
 
-Người triển khai bàn giao B trên `feat/bh07b-data`, base `fd38838`, tested code `1c3acab`, theo [bàn giao](reviews/bh07/bh07b_handoff.md). Tự chạy analyze sạch, **209/209 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**; reviewer chưa chạy lại B. Chỉ model/repository/provider, không sửa migration/RPC A, không UI C/pilot D. **Chờ review BH-07B**; chưa Đạt, chưa chuyển C/D, chưa merge main/deploy/apply staging/production.
+Người triển khai bàn giao B trên `feat/bh07b-data`, base `fd38838`, tested code `89e1d8f`, theo [bàn giao](reviews/bh07/bh07b_handoff.md). Tự chạy analyze sạch, **211/211 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**; reviewer chưa chạy lại B. Chỉ model/repository/provider, không sửa migration/RPC A, không UI C/pilot D. **Chờ review BH-07B**; chưa Đạt, chưa chuyển C/D, chưa merge main/deploy/apply staging/production.

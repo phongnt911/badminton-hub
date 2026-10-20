@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md). BH-07B **Chờ review tại tested code `1c3acab`** theo [bàn giao](reviews/bh07/bh07b_handoff.md); C/D, toàn BH-07 và pilot chưa nghiệm thu.
+Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md). BH-07B **Chờ review tại tested code `89e1d8f`** theo [bàn giao](reviews/bh07/bh07b_handoff.md); C/D, toàn BH-07 và pilot chưa nghiệm thu.
 
 ## 1. Nền bắt buộc
 
@@ -20,7 +20,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 | C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
 | D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
 
-**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã bàn giao Chờ review tại `1c3acab`**; chỉ bắt đầu C/D khi được giao. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã bàn giao Chờ review tại `89e1d8f`**; chỉ bắt đầu C/D khi được giao. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
 
 ## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
 
@@ -57,8 +57,8 @@ Viết tài liệu vận hành và chạy rehearsal trên môi trường cô l�
 
 ## 7. Bàn giao BH-07B — Chờ review (20/10/2026)
 
-- Nhánh `feat/bh07b-data`, base `fd38838d85fed31603eae99ed363cf202650aeee`, tested code `1c3acab2eb10f6914b466129a46ac9447e6c21c5`. **Chờ review BH-07B**, không tự ghi Đạt.
+- Nhánh `feat/bh07b-data`, base `fd38838d85fed31603eae99ed363cf202650aeee`, tested code `89e1d8f5d2b8658a36b32ef80f3c77b82d798f80`. **Chờ review BH-07B**, không tự ghi Đạt.
 - Thêm model/repository/provider cho `get_session_summary` và `list_my_session_history`: giữ tiền NULL khi management-only, không đổi NULL thành 0, không suy outstanding từ `due - paid`; lịch sử có pagination/filter/refresh, clear khi logout/đổi actor/CLB và bỏ response trễ; tổng kết clear khi logout/đổi actor/buổi, refresh sau mutation tiền đang mở.
 - Giữ nguyên migration/RPC A và `completeSession`/version/`request_id` hiện có. Test stale/version xác nhận không báo thành công, retry giữ UUID.
-- Kết quả mới: analyze sạch, **209/209 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**. [Bàn giao, lệnh/exit/bằng chứng/NOT RUN](reviews/bh07/bh07b_handoff.md), [summary JSON](reviews/bh07/bh07b_evidence/summary.json).
+- Kết quả mới: analyze sạch, **211/211 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**. [Bàn giao, lệnh/exit/bằng chứng/NOT RUN](reviews/bh07/bh07b_handoff.md), [summary JSON](reviews/bh07/bh07b_evidence/summary.json).
 - Không chuyển C/D, không merge main, không deploy. HTTP/PostgREST/JWT/Auth thật, UI C, thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN.

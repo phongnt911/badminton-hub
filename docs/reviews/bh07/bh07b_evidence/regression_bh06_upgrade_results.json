@@ -1,5 +1,5 @@
 {
-  "db": "bh06_upgrade_20261020115342",
+  "db": "bh06_upgrade_20261020120921",
   "baseline_last": "20261016140000_bh06a_review_round1.sql",
   "upgrade_migrations": [
     "20261020100000_bh06_integration_receiver.sql",
@@ -24,9 +24,9 @@
   "details": {
     "a": {
       "can_pay": true,
-      "player_id": "8b82e727-21bd-4fa9-a083-f90dd9a2cc55",
-      "reference": "BH-FB1F6FD69E",
-      "session_id": "398366ed-1257-41e2-b88e-873ce4a0d1bf",
+      "player_id": "dee1354d-5e60-4370-92bc-81551534572a",
+      "reference": "BH-2DA1CBE4D7",
+      "session_id": "a36194e0-5def-4757-a673-21df56121935",
       "display_name": "Guest A",
       "has_receiver": true,
       "billing_state": "current",
@@ -39,13 +39,13 @@
         "account_name": "CLB UPGRADE",
         "account_number": "9999888877"
       },
-      "active_revision_id": "c4ee07d1-9dc1-4e05-8ab2-83d1590129a7"
+      "active_revision_id": "6772a6be-898f-4058-8986-be11349c6fe3"
     },
     "b": {
       "can_pay": true,
-      "player_id": "8d0624ff-1fe8-415e-b166-6e8bb14dfac2",
-      "reference": "BH-54C9AA292A",
-      "session_id": "0f744e88-bd4b-4cc2-868d-05b2733dc5ec",
+      "player_id": "f4f6c311-2af2-46bc-9908-ad407a08b860",
+      "reference": "BH-87399C497E",
+      "session_id": "2b19160f-e569-4458-ac13-388bcb025e08",
       "display_name": "Guest B",
       "has_receiver": false,
       "billing_state": "current",
@@ -54,7 +54,7 @@
       "total_paid_vnd": 0,
       "outstanding_vnd": 100000,
       "receiver_snapshot": null,
-      "active_revision_id": "49758ef0-2080-4452-b90d-93f1afbda562"
+      "active_revision_id": "c0742f55-a6e5-41fa-89c5-5878dac1c482"
     },
     "c": {
       "snapshot": {

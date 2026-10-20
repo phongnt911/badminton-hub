@@ -4,7 +4,7 @@
   "date": "2026-10-20",
   "branch": "feat/bh07b-data",
   "base_sha": "fd38838d85fed31603eae99ed363cf202650aeee",
-  "tested_code_sha": "1c3acab2eb10f6914b466129a46ac9447e6c21c5",
+  "tested_code_sha": "89e1d8f5d2b8658a36b32ef80f3c77b82d798f80",
   "worktree_dirty_at_db_run": false,
   "environment": {
     "platform": "Windows",
@@ -17,29 +17,73 @@
   "flutter": {
     "analyze_exit": 0,
     "test_exit": 0,
-    "test_total": 209,
-    "test_passed": 209,
+    "test_total": 211,
+    "test_passed": 211,
     "test_failed": 0,
-    "new_tests": 19
+    "new_tests": 21
   },
   "db": {
-    "bh07": {"total": 23, "passed": 23, "failed": 0},
-    "regression_bh02": {"total": 33, "passed": 33, "failed": 0},
-    "regression_bh02_extended": {"total": 14, "passed": 14, "failed": 0},
-    "regression_bh03": {"total": 48, "passed": 48, "failed": 0},
-    "regression_bh03_retry": {"total": 22, "passed": 22, "failed": 0},
-    "regression_bh04": {"total": 44, "passed": 44, "failed": 0},
-    "regression_bh05": {"total": 90, "passed": 90, "failed": 0},
-    "regression_bh06": {"total": 84, "passed": 84, "failed": 0},
-    "regression_total_bh02_06": {"total": 335, "passed": 335, "failed": 0},
-    "integration_bh06": {"total": 7, "passed": 7, "failed": 0},
-    "upgrade_bh06": {"total": 3, "passed": 3, "failed": 0}
+    "bh07": {
+      "total": 23,
+      "passed": 23,
+      "failed": 0
+    },
+    "regression_bh02": {
+      "total": 33,
+      "passed": 33,
+      "failed": 0
+    },
+    "regression_bh02_extended": {
+      "total": 14,
+      "passed": 14,
+      "failed": 0
+    },
+    "regression_bh03": {
+      "total": 48,
+      "passed": 48,
+      "failed": 0
+    },
+    "regression_bh03_retry": {
+      "total": 22,
+      "passed": 22,
+      "failed": 0
+    },
+    "regression_bh04": {
+      "total": 44,
+      "passed": 44,
+      "failed": 0
+    },
+    "regression_bh05": {
+      "total": 90,
+      "passed": 90,
+      "failed": 0
+    },
+    "regression_bh06": {
+      "total": 84,
+      "passed": 84,
+      "failed": 0
+    },
+    "regression_total_bh02_06": {
+      "total": 335,
+      "passed": 335,
+      "failed": 0
+    },
+    "integration_bh06": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "upgrade_bh06": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    }
   },
   "files": [
     "flutter_analyze.log",
     "flutter_test.log",
     "bh07_final_run.log",
-    "bh07_test_results_20261020115007.json",
+    "bh07_test_results_20261020120545.json",
     "regression_bh02.log",
     "regression_bh02_results.json",
     "regression_bh02_extended.log",

@@ -4,7 +4,7 @@
 
 - Nhánh: `feat/bh07b-data`
 - Base: `fd38838d85fed31603eae99ed363cf202650aeee` (commit công bố review BH-07A trên `origin/feat/bh07a-db`, sau `4512c3a`)
-- Tested code SHA: `1c3acab2eb10f6914b466129a46ac9447e6c21c5`
+- Tested code SHA: `89e1d8f5d2b8658a36b32ef80f3c77b82d798f80`
 - Worktree tại lúc chạy DB runner: sạch (`worktree_dirty=false`), trước khi ghi bằng chứng tài liệu
 - Phạm vi: chỉ B — model/repository/provider. Không sửa migration/RPC của A, không làm UI C, không pilot D, không merge main, không apply staging/production.
 
@@ -26,9 +26,9 @@
 
 ## 2. Kiểm thử mới
 
-Đã thêm 19 test Flutter (190 → 209):
+Đã thêm 21 test Flutter (190 → 211):
 
-- Parse DTO `SessionSummary`/`SessionHistoryPage`, tiền NULL/0, billing state, session version.
+- Repository gọi đúng tên RPC/parameter `p_*`, kẹp limit/offset và giữ tiền NULL; parse DTO `SessionSummary`/`SessionHistoryPage`, tiền NULL/0, billing state, session version.
 - Lịch sử: pagination/offset, filter, empty/error/retry, refresh, đổi CLB, logout/đổi actor và response đến sai thứ tự.
 - Tổng kết: load/error/retry, management-only giữ NULL, đổi buổi, logout/đổi actor, refresh sau mutation tiền đúng scope.
 - Complete stale/version không thành công, retry giữ `request_id`, xoay key sau thành công.
@@ -40,7 +40,7 @@ Môi trường: Windows, Flutter 3.47.7 / Dart 3.13.5, PostgreSQL 17 trong Docke
 | Lệnh | Exit | Kết quả |
 |---|---:|---|
 | `flutter analyze --no-pub` | 0 | No issues found |
-| `flutter test --no-pub` | 0 | **209/209 PASS** |
+| `flutter test --no-pub` | 0 | **211/211 PASS** |
 | `python docs\reviews\bh07\run_bh07_tests.py` | 0 | **23/23 PASS** (21 CLEAN + 2 upgrade) |
 | `python docs\reviews\bh02\run_rls_tests.py` | 0 | **33/33 PASS** |
 | `python docs\reviews\bh02\extended_tests_15ef59b.py` | 0 | **14/14 PASS** |
@@ -52,14 +52,14 @@ Môi trường: Windows, Flutter 3.47.7 / Dart 3.13.5, PostgreSQL 17 trong Docke
 | `python docs\reviews\bh06\integration_evidence\run_integration_tests.py` | 0 | **7/7 PASS** |
 | `python docs\reviews\bh06\integration_evidence\run_upgrade_tests.py` | 0 | **3/3 PASS** |
 
-Tổng hồi quy DB BH-02..06 lần chạy này: **335/335** (33+14+48+22+44+90+84), cộng **7/7 tích hợp** và **3/3 nâng cấp BH-06**. BH-07 **23/23**. Đây là kết quả mới tại tested code `1c3acab`, không dùng kết quả lịch sử 190/335 của A thay cho lần chạy này.
+Tổng hồi quy DB BH-02..06 lần chạy này: **335/335** (33+14+48+22+44+90+84), cộng **7/7 tích hợp** và **3/3 nâng cấp BH-06**. BH-07 **23/23**. Đây là kết quả mới tại tested code `89e1d8f`, không dùng kết quả lịch sử 190/335 của A thay cho lần chạy này.
 
 ## 4. Bằng chứng
 
 Thư mục [bh07b_evidence](bh07b_evidence/):
 
-- `flutter_analyze.log`, `flutter_test.log` (209/209).
-- `bh07_final_run.log`, `bh07_test_results_20261020115007.json` (23/23, `base_sha=1c3acab`, `worktree_dirty=false`).
+- `flutter_analyze.log`, `flutter_test.log` (211/211).
+- `bh07_final_run.log`, `bh07_test_results_20261020120545.json` (23/23, `base_sha=89e1d8f`, `worktree_dirty=false`).
 - `regression_bh02.log`, `regression_bh02_extended.log`, `regression_bh03.log`, `regression_bh03_retry.log`, `regression_bh04.log`, `regression_bh05.log`, `regression_bh06.log`.
 - `regression_bh06_integration.log`, `regression_bh06_upgrade.log`.
 - JSON kết quả regression tương ứng và `regression-exits.json`.
