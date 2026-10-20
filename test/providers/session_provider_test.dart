@@ -957,6 +957,64 @@ void main() {
     provider.dispose();
   });
 
+  test(
+    'history: trang chồng lấn dedupe theo ID, offset theo dòng thô [0,2,4]',
+    () async {
+      const d = Session(id: 'd', title: 'Mới nhất', lifecycle: 'completed');
+      const c = Session(id: 'c', title: 'Buổi C', lifecycle: 'completed');
+      const b = Session(id: 'b', title: 'Buổi B', lifecycle: 'completed');
+      const a = Session(id: 'a', title: 'Cũ nhất', lifecycle: 'completed');
+      final offsets = <int>[];
+      when(
+        () => repo.listMySessionHistory(
+          filter: any(named: 'filter'),
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        ),
+      ).thenAnswer((invocation) async {
+        final offset = invocation.namedArguments[#offset] as int;
+        offsets.add(offset);
+        return switch (offset) {
+          0 => const SessionHistoryPage(
+            sessions: [d, c],
+            limit: 2,
+            offset: 0,
+          ),
+          2 => const SessionHistoryPage(
+            sessions: [c, b],
+            limit: 2,
+            offset: 2,
+          ),
+          _ => const SessionHistoryPage(
+            sessions: [a],
+            limit: 2,
+            offset: 4,
+          ),
+        };
+      });
+
+      final provider = buildProvider();
+      auth.changeUser('user-a');
+      await provider.fetchSessionHistory(limit: 2);
+      await provider.loadMoreHistory();
+      await provider.loadMoreHistory();
+
+      expect(
+        offsets,
+        [0, 2, 4],
+        reason: 'offset kế tiếp theo số dòng thô, không theo số ID sau dedupe',
+      );
+      expect(
+        provider.historyItems.map((session) => session.id).toList(),
+        ['d', 'c', 'b', 'a'],
+        reason: 'mỗi session ID chỉ xuất hiện một lần khi trang chồng lấn',
+      );
+      expect(provider.hasMoreHistory, isFalse);
+      expect(provider.isLoadingMoreHistory, isFalse);
+      provider.dispose();
+    },
+  );
+
   test('history: đổi CLB xoá trang cũ và bỏ phản hồi đến trễ', () async {
     final slowC2 = Completer<SessionHistoryPage>();
     when(

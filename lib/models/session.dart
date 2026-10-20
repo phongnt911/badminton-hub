@@ -495,14 +495,19 @@ class SessionHistoryPage {
   final int limit;
   final int offset;
 
+  /// Giữ `hasMore` của trang thô sau khi provider dedupe ID; nếu null thì suy
+  /// từ số session như cũ.
+  final bool? hasMoreOverride;
+
   const SessionHistoryPage({
     this.sessions = const [],
     this.limit = 20,
     this.offset = 0,
+    this.hasMoreOverride,
   });
 
   bool get isEmpty => sessions.isEmpty;
-  bool get hasMore => sessions.length >= limit;
+  bool get hasMore => hasMoreOverride ?? sessions.length >= limit;
 
   /// Parse response JSONB array của `list_my_session_history`.
   factory SessionHistoryPage.fromResponse(

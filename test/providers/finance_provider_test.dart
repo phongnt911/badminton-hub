@@ -896,36 +896,54 @@ void main() {
 
   // --- BH-07B: tổng kết + complete --------------------------------------- //
 
-  test('summary: load, lỗi giữ aggregate cũ, retry phục hồi', () async {
-    stubSummary('s1', sessionSummary);
-    final provider = buildProvider();
-    auth.changeUser('user-a');
+  test(
+    'summary: transport giữ aggregate, FORBIDDEN xoá quyền cũ và retry phục hồi',
+    () async {
+      stubSummary('s1', sessionSummary);
+      final provider = buildProvider();
+      auth.changeUser('user-a');
 
-    await provider.fetchSessionSummary('s1');
-    expect(provider.sessionSummary?.outstandingTotalVnd, 20000);
-    expect(provider.sessionSummary?.sessionVersion, 7);
-    expect(provider.isLoadingSummary, isFalse);
-    expect(provider.summaryErrorMessage, isNull);
+      await provider.fetchSessionSummary('s1');
+      expect(provider.sessionSummary?.outstandingTotalVnd, 20000);
+      expect(provider.sessionSummary?.sessionVersion, 7);
+      expect(provider.isLoadingSummary, isFalse);
+      expect(provider.summaryErrorMessage, isNull);
 
-    when(() => repo.getSessionSummary('s1'))
-        .thenThrow(Exception('PostgrestException(FORBIDDEN: raw)'));
-    await provider.fetchSessionSummary('s1');
-    expect(
-      provider.sessionSummary?.outstandingTotalVnd,
-      20000,
-      reason: 'lỗi đọc cùng buổi không được hạ tiền về 0/xoá aggregate',
-    );
-    expect(
-      provider.summaryErrorMessage,
-      'Bạn không có quyền thực hiện thao tác này.',
-    );
+      when(
+        () => repo.getSessionSummary('s1'),
+      ).thenThrow(Exception('network disconnected'));
+      await provider.fetchSessionSummary('s1');
+      expect(
+        provider.sessionSummary?.outstandingTotalVnd,
+        20000,
+        reason: 'lỗi transport tạm thời được giữ cache kèm lỗi, không hạ 0',
+      );
+      expect(provider.summaryErrorMessage, isNotNull);
 
-    stubSummary('s1', sessionSummary);
-    await provider.fetchSessionSummary('s1');
-    expect(provider.summaryErrorMessage, isNull);
-    expect(provider.hasSummary, isTrue);
-    provider.dispose();
-  });
+      when(() => repo.getSessionSummary('s1'))
+          .thenThrow(Exception('PostgrestException(FORBIDDEN: raw)'));
+      await provider.fetchSessionSummary('s1');
+      expect(
+        provider.sessionSummary,
+        isNull,
+        reason: 'server từ chối quyền thì không được giữ aggregate riêng tư',
+      );
+      expect(provider.hasSummary, isFalse);
+      expect(provider.summarySessionId, 's1', reason: 'giữ scope để retry');
+      expect(
+        provider.summaryErrorMessage,
+        'Bạn không có quyền thực hiện thao tác này.',
+      );
+      expect(provider.isLoadingSummary, isFalse);
+
+      stubSummary('s1', sessionSummary);
+      await provider.fetchSessionSummary('s1');
+      expect(provider.summaryErrorMessage, isNull);
+      expect(provider.hasSummary, isTrue);
+      expect(provider.sessionSummary?.outstandingTotalVnd, 20000);
+      provider.dispose();
+    },
+  );
 
   test('summary: management-only giữ tiền NULL, không biến thành 0', () async {
     stubSummary(

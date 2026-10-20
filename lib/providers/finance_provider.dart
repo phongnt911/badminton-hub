@@ -261,8 +261,10 @@ class FinanceProvider extends ChangeNotifier {
     _summaryErrorMessage = null;
   }
 
-  /// Tải tổng kết server-side. Đổi buổi xoá dữ liệu cũ; lỗi cùng buổi giữ
-  /// nguyên aggregate đã có (không hạ tiền về 0 hoặc tự tính lại).
+  /// Tải tổng kết server-side. Đổi buổi xoá dữ liệu cũ; lỗi transport cùng
+  /// buổi giữ nguyên aggregate đã có (không hạ tiền về 0 hoặc tự tính lại).
+  /// Server trả FORBIDDEN thì vô hiệu aggregate/quyền finance cũ nhưng giữ
+  /// scope để retry, vì cache trước đó không còn chứng minh quyền hiện tại.
   Future<void> fetchSessionSummary(String sessionId) async {
     if (_authUserId == null) {
       _resetSummary();
@@ -291,6 +293,9 @@ class FinanceProvider extends ChangeNotifier {
       if (_generation == generation &&
           serial == _summarySerial &&
           _summarySessionId == sessionId) {
+        if (domainErrorCode(e) == 'FORBIDDEN') {
+          _sessionSummary = null;
+        }
         _summaryErrorMessage = domainErrorMessage(e);
       }
     } finally {

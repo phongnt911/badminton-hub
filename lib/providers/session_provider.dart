@@ -238,6 +238,7 @@ class SessionProvider extends ChangeNotifier {
   bool _isLoadingHistory = false;
   bool _isLoadingMoreHistory = false;
   bool _historyHasMore = false;
+  int _historyRawOffset = 0;
   String? _historyErrorMessage;
   int _historySerial = 0;
 
@@ -258,6 +259,7 @@ class SessionProvider extends ChangeNotifier {
     _isLoadingHistory = false;
     _isLoadingMoreHistory = false;
     _historyHasMore = false;
+    _historyRawOffset = 0;
     _historyErrorMessage = null;
   }
 
@@ -304,8 +306,9 @@ class SessionProvider extends ChangeNotifier {
     if (switching) {
       _history = null;
       _historyHasMore = false;
+      _historyRawOffset = 0;
     }
-    final offset = appending ? previous.sessions.length : 0;
+    final offset = appending ? _historyRawOffset : 0;
     if (appending) {
       _isLoadingMoreHistory = true;
     } else {
@@ -326,14 +329,19 @@ class SessionProvider extends ChangeNotifier {
           requestedFilter != _historyFilter) {
         return;
       }
+      final merged = appending
+          ? _uniqueSessions([...previous.sessions, ...page.sessions])
+          : _uniqueSessions(page.sessions);
       _historyHasMore = page.hasMore;
-      _history = appending
-          ? SessionHistoryPage(
-              sessions: [...previous.sessions, ...page.sessions],
-              limit: safeLimit,
-              offset: 0,
-            )
-          : page;
+      // Số dòng thô server đã tiêu thụ, không phải số ID sau dedupe; nếu lấy
+      // số ID duy nhất làm offset kế tiếp thì trang bị chồng lấn sẽ bị bỏ sót.
+      _historyRawOffset = offset + page.sessions.length;
+      _history = SessionHistoryPage(
+        sessions: merged,
+        limit: safeLimit,
+        offset: 0,
+        hasMoreOverride: page.hasMore,
+      );
     } catch (e) {
       if (_generation == generation &&
           serial == _historySerial &&
@@ -349,6 +357,15 @@ class SessionProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  List<Session> _uniqueSessions(Iterable<Session> sessions) {
+    final seen = <String>{};
+    final unique = <Session>[];
+    for (final session in sessions) {
+      if (seen.add(session.id)) unique.add(session);
+    }
+    return unique;
   }
 
   /// Nối trang lịch sử kế tiếp của filter hiện tại.

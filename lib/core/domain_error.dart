@@ -24,13 +24,17 @@ const Map<String, String> kDomainErrorMessages = {
 const String kUnknownErrorMessage =
     'Đã xảy ra lỗi. Vui lòng thử lại sau.';
 
-/// Trả về thông điệp tiếng Việt cho một lỗi bất kỳ, ưu tiên mã lỗi domain.
-String domainErrorMessage(Object error) {
+/// Mã lỗi domain đã biết trong lỗi gốc, hoặc `null` nếu là lỗi transport.
+String? domainErrorCode(Object error) {
   final text = error.toString();
   final match = RegExp(r'\b([A-Z][A-Z_]{3,})\b').firstMatch(text);
   final code = match?.group(1);
-  if (code != null && kDomainErrorMessages.containsKey(code)) {
-    return kDomainErrorMessages[code]!;
-  }
+  return code != null && kDomainErrorMessages.containsKey(code) ? code : null;
+}
+
+/// Trả về thông điệp tiếng Việt cho một lỗi bất kỳ, ưu tiên mã lỗi domain.
+String domainErrorMessage(Object error) {
+  final code = domainErrorCode(error);
+  if (code != null) return kDomainErrorMessages[code]!;
   return kUnknownErrorMessage;
 }
