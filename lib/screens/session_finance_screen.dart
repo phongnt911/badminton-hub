@@ -38,6 +38,13 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     'other': 'Khác',
   };
 
+  /// RPC `post_session_expense` chỉ nhận `court`, `shuttle`, `other`
+  /// (`20261016110000_bh06_expenses_finalize.sql`). "Nước" là lựa chọn tiện cho
+  /// host nhưng phải ghi vào `other` để không bị INVALID_INPUT; nội dung chi phí
+  /// vẫn giữ nguyên.
+  static String _expenseRpcCategory(String category) =>
+      category == 'water' ? 'other' : category;
+
   /// Đang đọc outstanding của một người từ RPC trước khi mở hộp thoại thu tiền.
   bool _loadingOutstanding = false;
 
@@ -226,7 +233,7 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     await _run(
       () => context.read<FinanceProvider>().postExpense(
             sessionId: finance.sessionId,
-            category: category,
+            category: _expenseRpcCategory(category),
             title: titleController.text.trim(),
             amountVnd: parseVnd(amountController.text) ?? 0,
           ),
