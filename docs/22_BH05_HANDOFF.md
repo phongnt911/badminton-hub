@@ -1,6 +1,6 @@
 # BH-05 — Đăng ký / duyệt / huỷ / danh sách chờ (bàn giao, nhánh tích hợp)
 
-> **Hiện hành 20/10/2026:** BH-05 giữ kết luận theo tested SHA bên dưới; BH-06 đã Đạt tích hợp local tại 318bc52 và merge main e7f7627. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md); điểm tiếp tục [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa apply staging/production hoặc nghiệm thu HTTP/JWT/thiết bị/ngân hàng thật. Nội dung bàn giao BH-05 phía dưới giữ làm lịch sử.
+> **Hiện hành 20/10/2026:** BH-05 giữ kết luận theo tested SHA bên dưới; BH-06 đã Đạt tích hợp local tại 318bc52 và merge main e7f7627. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md); điểm tiếp tục [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), **Đạt A local tại 4512c3a** theo [review](reviews/bh07/review_4512c3a.md), B/C/D chưa nghiệm thu. Chưa apply staging/production hoặc nghiệm thu HTTP/JWT/thiết bị/ngân hàng thật. Nội dung bàn giao BH-05 phía dưới giữ làm lịch sử.
 
 **Kết luận BH-05 tại thời điểm 16/10/2026: Đạt tích hợp A+B+C tại `d769531` ([review_d769531.md](reviews/bh05/review_d769531.md)); hồi quy main tại `3a34883` đạt 137 Flutter + 251 DB ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)). Chưa cho phép deploy production. Đoạn trạng thái ngay dưới đây là snapshot trước review, giữ làm lịch sử.**
 

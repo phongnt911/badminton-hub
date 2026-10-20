@@ -23,6 +23,6 @@ Vai trò làm việc: xem docs/ai/IMPLEMENTER.md (người triển khai) và doc
 
 ## Trạng thái và xác nhận hiện hành
 
-Ngày 20/10/2026: BH-06 Đạt tích hợp local tại `318bc52`, đã merge vào main tại `e7f7627`; docs/ai có trên main tại `eaeb209`. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47` theo `docs/25_BH07_IMPLEMENTATION_HANDOFF.md`; BH-07 chưa nghiệm thu. Kết quả mới: analyze sạch, 190 Flutter, 335 DB hồi quy, 23 DB BH-07, 7 tích hợp +3 nâng cấp PASS; chưa chạy lại 2 probe reviewer. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP. Giữ review/bằng chứng cũ theo tested SHA, không coi merge code là deploy.
+Ngày 20/10/2026: BH-06 Đạt tích hợp local tại 318bc52, đã merge main e7f7627; docs/ai có trên main eaeb209. **BH-07A Đạt phần A local tại 4512c3a** theo `docs/reviews/bh07/review_4512c3a.md`. Reviewer tự chạy analyze sạch, 190 Flutter +335 DB hồi quy +23 BH-07, 7 tích hợp +3 nâng cấp BH-06 và 9 kiểm tra RPC độc lập PASS. B/C/D và pilot chưa nghiệm thu; không tự chuyển phần, merge main hoặc deploy. HTTP/JWT/Auth, thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn chưa nghiệm thu. Giữ bằng chứng cũ theo tested SHA.
 
 Sau khi chủ dự án xác nhận thay đổi, ghi quyết định/phạm vi vào tài liệu và bảng trạng thái liên quan trong cùng lượt, đối chiếu bằng chứng, rồi commit/push theo ủy quyền. Không để mục đã được duyệt tiếp tục mang trạng thái chờ quyết định; không biến duyệt tài liệu thành nghiệm thu code hoặc deploy.

@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | Chưa chạy | Đầu bài A đã chuẩn bị; chưa triển khai/nghiệm thu |
+| BH-07 | 23 PASS (A); B/C/D chưa chạy | **Đạt phần A local tại 4512c3a**, chưa nghiệm thu toàn BH-07 |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-Tiếp tục [BH-07A](docs/25_BH07_IMPLEMENTATION_HANDOFF.md) theo quy trình hai AI; chỉ làm từng phần sau cổng review. Chưa nghiệm thu HTTP/PostgREST/JWT/Auth thật, mobile/web/deep link e2e, ngân hàng/VietQR thật, staging/production, backup/restore hoặc concurrency HTTP. **Chưa deploy; merge code không phải apply DB.** Nhật ký nằm ở [STATUS_HISTORY](docs/STATUS_HISTORY.md).
+[BH-07A đã Đạt local](docs/reviews/bh07/review_4512c3a.md); B/C/D và pilot chưa nghiệm thu. Giữ [cổng hai AI](docs/25_BH07_IMPLEMENTATION_HANDOFF.md), không tự chuyển phần. Chưa nghiệm thu HTTP/PostgREST/JWT/Auth thật, mobile/web/deep link e2e, ngân hàng/VietQR thật, staging/production, backup/restore hoặc concurrency HTTP. **Chưa deploy; merge code không phải apply DB.** Nhật ký nằm ở [STATUS_HISTORY](docs/STATUS_HISTORY.md).
 
 ## Tài liệu để triển khai
 
@@ -112,6 +112,6 @@ BH-04 review remediation: [21_BH04_REMEDIATION.md](docs/21_BH04_REMEDIATION.md).
 
 BH-05: xem [22_BH05_HANDOFF.md](docs/22_BH05_HANDOFF.md) (đăng ký/duyệt/huỷ/điểm danh/lời mời danh sách chờ/bắt đầu buổi; đạt review tích hợp tại `d769531` và hồi quy main tại `3a34883`, xem [review_d769531.md](docs/reviews/bh05/review_d769531.md)).
 
-## Giao việc BH-06 — 16/10/2026
+## Giao việc BH-06 — 16/10/2026 (lịch sử)
 
 Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](docs/24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái: đã giao phần A, chưa triển khai/chưa review.

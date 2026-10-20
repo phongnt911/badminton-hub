@@ -1,6 +1,6 @@
 # Hợp đồng thao tác nghiệp vụ
 
-> **Hiện hành 20/10/2026:** Finance DB/RPC, data/provider và UI BH-06 đã Đạt; contract thực tế finance tại §13, không coi toàn bộ đề xuất đích là API live. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
+> **Hiện hành 20/10/2026:** Finance DB/RPC, data/provider và UI BH-06 đã Đạt; contract thực tế finance tại §13, không coi toàn bộ đề xuất đích là API live. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md); B/C/D và pilot chưa nghiệm thu, không tự chuyển phần tiếp theo. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Phiên bản 1.1 · phân biệt yêu cầu đích §1–9 với contract thực tế BH-03..06 tại §10–13. Finance BH-06 đã Đạt tích hợp local; schema live và mọi endpoint đề xuất chưa được xác nhận chỉ từ tài liệu này.
 
@@ -202,7 +202,7 @@ Helper nội bộ `registration_result(...)` và `bump_billing_input_version(...
 
 ## 13. BH-06 tài chính phía DB — contract đã Đạt tích hợp local
 
-Trạng thái 20/10/2026: **Đạt tích hợp local BH-06 tại 318bc52**, A/B/C đã có và merge main `e7f7627`. [Review](reviews/bh06/review_318bc52.md); [bàn giao](24_BH06_IMPLEMENTATION_HANDOFF.md). BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47` ([bàn giao](reviews/bh07/bh07a_handoff.md)); BH-07 chưa nghiệm thu, không cho phép deploy production.
+Trạng thái 20/10/2026: **Đạt tích hợp local BH-06 tại 318bc52**, A/B/C đã có và merge main `e7f7627`. [Review](reviews/bh06/review_318bc52.md); [bàn giao](24_BH06_IMPLEMENTATION_HANDOFF.md). BH-07A **Đạt phần A local tại `4512c3a`** ([review](reviews/bh07/review_4512c3a.md), [audit/contract](reviews/bh07/bh07a_audit.md)); B/C/D và BH-07 chưa nghiệm thu, không cho phép deploy production.
 
 `billing_state` **không phải cột**: suy diễn từ `charge_revisions.status='active'` so `source_version` với `sessions.billing_input_version` (`not_finalized` khi chưa có revision active, `stale` khi lệch, `current` khi khớp). Mọi nguồn đổi input tính phí đều tăng `billing_input_version` trong transaction: chi phí (post/reverse tại §13 này), roster confirmed và điểm danh (đã tăng ở BH-05). `update_session` chỉ chạy ở `draft/published` (trước khi có revision) nên không làm revision đã chốt trở nên stale.
 

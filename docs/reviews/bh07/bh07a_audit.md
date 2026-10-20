@@ -1,5 +1,7 @@
 # BH-07A — audit DB/RPC/projection (20/10/2026)
 
+> **Reviewer 20/10/2026: Đạt phần A local tại `4512c3a`**, theo [review/bằng chứng](review_4512c3a.md). Chỉ DB/RPC/projection; B/C/D và pilot chưa nghiệm thu. Các trạng thái Chờ review và kết quả phía tác giả dưới đây giữ làm lịch sử. Không tự chuyển phần, merge main hoặc deploy.
+
 Trạng thái: **Chờ review BH-07A**. Người triển khai không tự ghi Đạt/Done.
 
 - Nhánh: `feat/bh07a-db`

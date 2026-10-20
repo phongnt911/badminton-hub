@@ -1,0 +1,32 @@
+Khởi tạo DB BH-07: bh07_clean_20261020110908 và bh07_upgrade_20261020110908...
+CLEAN migrations: 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql, 20261020180000_bh07_reads.sql
+UPGRADE baseline: 20261020100000_bh06_integration_receiver.sql, 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql
+Suite DB bh07_clean_20261020110908: venue=09d86bc5-3706-407d-95cc-0d2ecceebbb0, club1=d2101fe6-f9e3-4255-8783-0a77bcede0fb, club2=9958ce44-ef26-4770-8a0d-13f967eee7d0
+PASS: Complete: chưa chốt phí bị BILLING_NOT_FINALIZED, không đổi lifecycle/version/audit
+PASS: Complete: revision stale bị BILLING_STALE, không đổi lifecycle/version/audit
+PASS: Complete: version cũ trả VERSION_CONFLICT, không đổi dữ liệu
+PASS: Complete ACL: participant/finance-only/outsider/cross-club/anon bị chặn; cohost được phép
+PASS: Complete: owner CLB quản lý được buổi của host khác trong CLB
+PASS: Complete: buổi miễn phí vẫn cần revision current charges 0 và complete được
+PASS: Complete + công nợ: còn nợ vẫn complete; finance/summary/payment giữ đúng công nợ
+PASS: Complete: replay cùng request trả cùng kết quả, không lặp audit; payload khác conflict
+PASS: Complete: buổi đã completed với request mới bị INVALID_STATE, không lặp audit
+PASS: History/detail: buổi completed vẫn đọc được đúng quyền; player/outsider không thấy trong list_my
+PASS: History: list_my_session_history phân trang desc, empty, finance staff, participant/outsider và filter ngày/CLB
+PASS: Summary: aggregate server-side sau complete, privacy, cohost không tiền, finance/treasurer thấy tiền, ACL
+PASS: Summary: present/no_show/confirmed và tổng tiền đúng sau complete
+PASS: Summary: not_finalized/stale có nhãn đúng, không giả current; anonymous bị chặn
+PASS: Sau complete: submit/confirm hoạt động, replay không lặp ledger, công nợ giảm đúng
+PASS: Sau complete: cash tạo+confirm, retry cùng request không lặp ledger, không thu dư
+PASS: Sau complete: reject giữ payment không ledger; reverse một lần, giữ lịch sử/ledger đảo
+PASS: Sau complete: refinalize có lý do tạo revision mới current, giữ payment/công nợ
+PASS: Sau complete: refinalize không được giảm due dưới paid; post expense thường bị chặn
+PASS: Đồng thời: 2 complete cùng version khác request chỉ một thành công, audit một lần
+PASS: ACL: anon không gọi complete/summary/history/finance; helper nội bộ vẫn bị chặn
+PASS: Upgrade: dữ liệu completed trước BH-07 không bị đổi lifecycle/version/payment/ledger/audit
+PASS: Upgrade: summary/history đọc được buổi completed cũ sau migration BH-07
+
+==========================================
+KẾT QUẢ KIỂM THỬ BH-07: TỔNG 23 | PASS 23 | FAIL 0
+==========================================
+Results file: /workspace/badminton-hub/docs/reviews/bh07/bh07_test_results_20261020110908.json

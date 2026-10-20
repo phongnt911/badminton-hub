@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành 20/10/2026:** BH-06 Đạt tích hợp local tại `318bc52`, **đã merge main tại `e7f7627`** cùng docs/ai. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47`; BH-07 chưa nghiệm thu. Chưa apply staging/production/deploy; các cổng HTTP/JWT/Auth, thiết bị/ngân hàng thật, backup/restore và concurrency HTTP vẫn chưa nghiệm thu.
+> **Hiện hành BH-07A (20/10/2026): Đạt phần A tại `4512c3a`** trên `feat/bh07a-db`, theo [review độc lập](reviews/bh07/review_4512c3a.md). Không có phát hiện mở trong phạm vi kiểm chứng A. Reviewer tự chạy analyze sạch, **190 Flutter +335 DB hồi quy +23 BH-07 PASS**, **7 tích hợp +3 nâng cấp BH-06**, **9 kiểm tra RPC độc lập PASS**. Chỉ DB/RPC/projection local; B/C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần tiếp theo, merge main hoặc deploy.
+
+> **(Lịch sử bàn giao) 20/10/2026:** BH-06 Đạt tích hợp local tại `318bc52`, **đã merge main tại `e7f7627`** cùng docs/ai. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47`; BH-07 chưa nghiệm thu. Chưa apply staging/production/deploy; các cổng HTTP/JWT/Auth, thiết bị/ngân hàng thật, backup/restore và concurrency HTTP vẫn chưa nghiệm thu.
 
 > **(Lịch sử nghiệm thu trước merge) Tích hợp BH-06 (20/10/2026): Đạt tích hợp tại `318bc52`** sau vòng sửa 1, theo [review độc lập](reviews/bh06/review_318bc52.md). Đóng I1/I2; không còn phát hiện mở từ các review BH-06 trong phạm vi kiểm chứng. Reviewer tự chạy analyze sạch, **190 Flutter +335 DB PASS**, **7/7 tích hợp DB**, **3/3 nâng cấp DB**, **2/2 probe reviewer PASS**. Chỉ kết luận trong phạm vi local/PostgreSQL cô lập; HTTP/JWT/Auth thật, thiết bị/ngân hàng thật và các cổng production vẫn NOT RUN. Không tự merge/BH-07/deploy. Các kết luận trước bên dưới là lịch sử.
 
@@ -58,9 +60,9 @@ Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([revie
 | BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
 | BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
 | BH-06 | Phí/QR/thu tiền/quỹ | 84 PASS; tích hợp 7, nâng cấp 3 | **Đạt tích hợp local, đã merge main e7f7627** |
-| BH-07 | Complete/history/summary/pilot | 23 PASS (21 CLEAN + 2 upgrade); chưa chạy B/C/D | **BH-07A Chờ review tại tested code c339a47; BH-07 chưa nghiệm thu** |
+| BH-07 | Complete/history/summary/pilot | 23 PASS (21 CLEAN + 2 upgrade); chưa chạy B/C/D | **BH-07A Đạt local tại 4512c3a; B/C/D và toàn BH-07 chưa nghiệm thu** |
 
-BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A đã có code/runner, **Chờ review** tại tested code `c339a47`; B/C/D và BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
+BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A **Đạt local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md); B/C/D và BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
 
 ## Checklist mỗi ticket
 
@@ -578,3 +580,9 @@ Chủ dự án giao merge main, đồng bộ tiến độ và gửi prompt mới
 - Runner `docs/reviews/bh07/run_bh07_tests.py`: **23/23 PASS** (21 CLEAN + 2 upgrade). Test-first trước migration: 9 PASS/13 FAIL, giữ tại `docs/reviews/bh07/evidence/bh07_prefix.log`.
 - Kết quả mới: analyze sạch, **190/190 Flutter**, **335/335 DB hồi quy BH-02..06**, **7/7 tích hợp**, **3/3 nâng cấp**; không chạy lại 2 probe lịch sử reviewer. Chi tiết [audit](reviews/bh07/bh07a_audit.md) và [bàn giao](reviews/bh07/bh07a_handoff.md).
 - NOT RUN: HTTP/PostgREST/JWT/Supabase Auth thật, repository/UI thật, thiết bị/browser, ngân hàng/VietQR thật, staging/production, backup/restore và concurrency HTTP. Không chuyển B/C/D, không merge main, không deploy.
+
+### BH-07A — kết luận reviewer tại 4512c3a (20/10/2026)
+
+- **Đạt phần A local** theo [review_4512c3a](reviews/bh07/review_4512c3a.md), code/runner/migration c339a47. Không có phát hiện cần mở trong phạm vi DB/RPC/projection. Giữ trạng thái Chờ review và bằng chứng tác giả phía trên làm lịch sử.
+- Reviewer tự chạy analyze sạch, **190/190 Flutter**, **335/335 DB BH-02..06**, **23/23 BH-07** (21 CLEAN +2 upgrade), **7/7 tích hợp +3/3 nâng cấp BH-06**, **9/9 kiểm tra RPC độc lập PASS**. [Hash/summary](reviews/bh07/review_4512c3a_evidence/summary.json). Không sửa lib/test/migration tác giả; HEAD trùng cây code c339a47.
+- Chỉ Đạt A, chưa nghiệm thu B/C/D hoặc pilot; không tự chuyển phần, merge main hoặc deploy. NOT RUN: BH-07 repository/provider/UI mới, HTTP/JWT/Auth thật, thiết bị/browser/deep link/offline/reopen, ngân hàng/VietQR thật, staging/production, backup/restore rehearsal và concurrency HTTP.

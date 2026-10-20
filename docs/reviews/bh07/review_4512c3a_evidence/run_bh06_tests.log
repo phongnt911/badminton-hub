@@ -1,0 +1,91 @@
+Khởi tạo cơ sở dữ liệu kiểm thử BH-06: bh06_clean_20261020110908 và bh06_legacy_20261020110908...
+Chuỗi migrations đã áp dụng thành công trên cả CLEAN và LEGACY.
+PASS: ACL: anon không gọi được RPC tài chính/quỹ
+PASS: ACL: chặn ghi trực tiếp bảng tài chính và helper nội bộ
+PASS: Quyền: outsider không ghi được chi phí (FORBIDDEN)
+PASS: Quyền: cohost không finance bị chặn, treasurer/staff finance được ghi chi phí
+PASS: Quyền: player không tự xác nhận thanh toán
+PASS: Quyền: player không gửi thanh toán thay người khác
+PASS: Quyền: chỉ owner/treasurer đọc sổ quỹ CLB
+PASS: Quyền: get_payment_instructions đúng người/finance, chặn pending
+PASS: Quyền: outsider/cohost không đọc công nợ khách offline user_id NULL (R1)
+PASS: Gate: RPC bank cũ và mới đều chặn not_finalized/stale (R2)
+PASS: Privacy: projection public không lộ ngân hàng
+PASS: Quyền: get_session_finance chỉ finance
+PASS: Chia tiền: split 450.000/7 tổng chính xác, chia dư ổn định
+PASS: Chia tiền: exemption 0, no_show không tính, phần còn lại chia đều
+PASS: Chia tiền: có chi phí nhưng không người chịu phí -> NO_BILLABLE_PLAYERS, rollback
+PASS: Chia tiền: total 0 vẫn có revision current, charges 0
+PASS: Chia tiền: fixed khác tổng expense (thu theo agreed fee)
+PASS: Stale: chi phí sau chốt làm stale, chặn QR/submit/cash/complete
+PASS: Revision: refinalize supersede nguyên tử, revision_no 2, current trở lại
+PASS: Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE
+PASS: Revision: chốt lại lần 2 thiếu lý do -> INVALID_INPUT
+PASS: Stale: đổi điểm danh sau chốt làm stale
+PASS: Stale: đổi roster confirmed sau chốt làm stale
+PASS: Gate: chưa chốt phí -> BILLING_NOT_FINALIZED cho submit/cash/complete
+PASS: Tiền đã thu: refinalize không giảm due dưới paid (kể cả người bị loại khỏi billable)
+PASS: Tiền đã thu: refinalize giữ payment, không ghi ledger thu lặp
+PASS: Idempotency: submit replay cùng key, khác payload -> IDEMPOTENCY_CONFLICT
+PASS: Thanh toán: tổng confirmed không vượt active due
+PASS: Đồng thời: 2 confirm tranh outstanding không thu dư
+PASS: Đồng thời: 2 ghi tiền mặt tranh outstanding không thu dư
+PASS: Thanh toán: cash không thu dư outstanding
+PASS: Thanh toán: cash tạo+confirm nguyên tử và đúng một entry quỹ
+PASS: Thanh toán: đảo một lần, giữ payment, entry đảo duy nhất
+PASS: Replay/history: reject vẫn được khi stale, không ghi ledger
+PASS: Replay/history: confirm đã confirmed trả kết quả hiện tại, không ghi ledger lặp dù stale
+PASS: Ledger: chi phí buổi CLB sinh một entry, buổi độc lập không
+PASS: Ledger: đảo chi phí một lần, giữ nguồn và entry đảo duy nhất
+PASS: Ledger: quỹ manual chỉ owner/treasurer, đảo một lần, không đảo entry tự sinh
+PASS: Ledger: số dư trả từ SUM DB khớp ledger
+PASS: Complete: chỉ in_progress và cần revision current (buổi miễn phí charges 0)
+PASS: Complete: chỉ host/quản lý
+PASS: Rollback: input sai không tạo expense/ledger và không tăng billing_input_version
+PASS: ACL: anon không gọi được RPC tài chính/quỹ
+PASS: ACL: chặn ghi trực tiếp bảng tài chính và helper nội bộ
+PASS: Quyền: outsider không ghi được chi phí (FORBIDDEN)
+PASS: Quyền: cohost không finance bị chặn, treasurer/staff finance được ghi chi phí
+PASS: Quyền: player không tự xác nhận thanh toán
+PASS: Quyền: player không gửi thanh toán thay người khác
+PASS: Quyền: chỉ owner/treasurer đọc sổ quỹ CLB
+PASS: Quyền: get_payment_instructions đúng người/finance, chặn pending
+PASS: Quyền: outsider/cohost không đọc công nợ khách offline user_id NULL (R1)
+PASS: Gate: RPC bank cũ và mới đều chặn not_finalized/stale (R2)
+PASS: Privacy: projection public không lộ ngân hàng
+PASS: Quyền: get_session_finance chỉ finance
+PASS: Chia tiền: split 450.000/7 tổng chính xác, chia dư ổn định
+PASS: Chia tiền: exemption 0, no_show không tính, phần còn lại chia đều
+PASS: Chia tiền: có chi phí nhưng không người chịu phí -> NO_BILLABLE_PLAYERS, rollback
+PASS: Chia tiền: total 0 vẫn có revision current, charges 0
+PASS: Chia tiền: fixed khác tổng expense (thu theo agreed fee)
+PASS: Stale: chi phí sau chốt làm stale, chặn QR/submit/cash/complete
+PASS: Revision: refinalize supersede nguyên tử, revision_no 2, current trở lại
+PASS: Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE
+PASS: Revision: chốt lại lần 2 thiếu lý do -> INVALID_INPUT
+PASS: Stale: đổi điểm danh sau chốt làm stale
+PASS: Stale: đổi roster confirmed sau chốt làm stale
+PASS: Gate: chưa chốt phí -> BILLING_NOT_FINALIZED cho submit/cash/complete
+PASS: Tiền đã thu: refinalize không giảm due dưới paid (kể cả người bị loại khỏi billable)
+PASS: Tiền đã thu: refinalize giữ payment, không ghi ledger thu lặp
+PASS: Idempotency: submit replay cùng key, khác payload -> IDEMPOTENCY_CONFLICT
+PASS: Thanh toán: tổng confirmed không vượt active due
+PASS: Đồng thời: 2 confirm tranh outstanding không thu dư
+PASS: Đồng thời: 2 ghi tiền mặt tranh outstanding không thu dư
+PASS: Thanh toán: cash không thu dư outstanding
+PASS: Thanh toán: cash tạo+confirm nguyên tử và đúng một entry quỹ
+PASS: Thanh toán: đảo một lần, giữ payment, entry đảo duy nhất
+PASS: Replay/history: reject vẫn được khi stale, không ghi ledger
+PASS: Replay/history: confirm đã confirmed trả kết quả hiện tại, không ghi ledger lặp dù stale
+PASS: Ledger: chi phí buổi CLB sinh một entry, buổi độc lập không
+PASS: Ledger: đảo chi phí một lần, giữ nguồn và entry đảo duy nhất
+PASS: Ledger: quỹ manual chỉ owner/treasurer, đảo một lần, không đảo entry tự sinh
+PASS: Ledger: số dư trả từ SUM DB khớp ledger
+PASS: Complete: chỉ in_progress và cần revision current (buổi miễn phí charges 0)
+PASS: Complete: chỉ host/quản lý
+PASS: Rollback: input sai không tạo expense/ledger và không tăng billing_input_version
+
+==========================================
+KẾT QUẢ KIỂM THỬ BH-06: TỔNG 84 | PASS 84 | FAIL 0
+==========================================
+Results file: /workspace/badminton-hub/docs/reviews/bh06/bh06_test_results_20261020110908.json

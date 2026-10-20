@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47`; BH-07 chưa nghiệm thu.
+Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md); B/C/D, toàn BH-07 và pilot chưa nghiệm thu.
 
 ## 1. Nền bắt buộc
 
@@ -20,7 +20,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 | C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
 | D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
 
-**Lượt được giao ngay chỉ là A trên `feat/bh07a-db` từ main mới nhất.** Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. Chỉ bắt đầu B/C/D khi được giao. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
 
 ## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
 

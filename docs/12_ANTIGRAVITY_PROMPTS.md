@@ -1,6 +1,6 @@
 # Prompt triển khai cho Antigravity
 
-> **Hiện hành 20/10/2026:** Điểm tiếp tục là AG-07/BH-07A theo đầu bài mới; AG-00..06 và remediation cũ là lịch sử, không giao triển khai lại. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
+> **Hiện hành 20/10/2026:** Điểm tiếp tục là AG-07/BH-07A theo đầu bài mới; AG-00..06 và remediation cũ là lịch sử, không giao triển khai lại. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md); B/C/D và pilot chưa nghiệm thu, không tự chuyển phần tiếp theo. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 v1.1 · soạn ban đầu 14/10/2026, trạng thái hiện hành 20/10/2026: BH-01..06 đã có triển khai local và BH-06 đã merge main. Dùng từng prompt theo nhiệm vụ hiện hành; tiếp theo chỉ BH-07A từ main mới nhất theo docs/25. Tài liệu không tự cấp quyền deploy production.
 
@@ -37,6 +37,8 @@ v1.1 · soạn ban đầu 14/10/2026, trạng thái hiện hành 20/10/2026: BH-
 > Triển khai expenses/revisions/charges/payments/ledger theo ADR-02/04/08. Mọi input tính phí đổi tăng billing_input_version nguyên tử; finalize ghi source_version. DB chặn get_payment_instructions/submit/confirm mới/cash/complete nếu chưa chốt hoặc stale, không đợi BH-07 mới bảo vệ complete contract. QR là ảnh thanh toán thật theo bank snapshot/outstanding; không tự xác nhận tiền từ QR. Test chia dư tổng đúng, không billable người, free charges 0, stale sau chi phí/attendance/roster/miễn phí đổi, tiền đã thu được giữ, new due không thấp hơn paid; cạnh tranh/retry/đảo không thu dư/ghi quỹ kép. Read history/reversal và replay committed có quyền vẫn hoạt động khi stale. Không tích hợp ngân hàng/webhook.
 
 ## AG-07: BH-07 Một buổi hoàn chỉnh và pilot
+
+**BH-07A đã Đạt local tại 4512c3a.** Prompt A dưới đây là lịch sử đầu bài; không triển khai lại hoặc tự bắt đầu B/C/D. Thực hiện phần tiếp theo chỉ khi được giao.
 
 > Đọc [đầu bài BH-07](25_BH07_IMPLEMENTATION_HANDOFF.md), tạo feat/bh07a-db từ main mới nhất chứa merge e7f7627 và docs/ai. Lượt này chỉ A: audit phần có/thiếu, tái sử dụng start_session/complete_session và gate current, bổ sung DB/RPC/projection/kiểm thử cho complete/history/summary/debt khi cần. Không bắt buộc thu đủ mới complete; không mất công nợ sau complete. Chạy test phù hợp, ghi Chờ review BH-07A, commit/push và dừng. Chỉ làm B/C/D sau cổng reviewer tương ứng. Pilot cần bằng chứng HTTP/JWT/Auth, mobile/web/offline/reopen và rehearsal vận hành thực tế; thiếu thì NOT RUN, không lấy mock làm e2e. Không tự merge main, apply staging/production hoặc deploy.
 

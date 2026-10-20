@@ -1,0 +1,39 @@
+{
+  "timestamp_utc": "2026-10-20T11:10:25.445111+00:00",
+  "database": "bh06_integration_20261020110934",
+  "container": "bh02-review-bh06",
+  "tested_commit": "4512c3a19e7c22f2adc4a9f3269cbabe8acd9d09",
+  "total": 7,
+  "passed": 7,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "receiver: host bank duoc chot khi publish",
+      "status": "PASS"
+    },
+    {
+      "name": "receiver: buoi CLB uu tien tai khoan CLB",
+      "status": "PASS"
+    },
+    {
+      "name": "receiver: cau hinh bank sau publish mo duoc huong dan",
+      "status": "PASS"
+    },
+    {
+      "name": "receiver: draft khong chot snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "version: refresh DTO sau start + chan version cu, chot version moi",
+      "status": "PASS"
+    },
+    {
+      "name": "luong day du: chi phi/diem danh/chot phi/thanh toan/stale/tra them/hoan tac/quy",
+      "status": "PASS"
+    },
+    {
+      "name": "contract DTO: get_session_finance/get_club_ledger/get_payment_instructions",
+      "status": "PASS"
+    }
+  ]
+}

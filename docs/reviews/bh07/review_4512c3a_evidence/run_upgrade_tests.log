@@ -1,0 +1,6 @@
+BASELINE: 20261016120000_bh06_payments_ledger.sql, 20261016130000_bh06_reads.sql, 20261016140000_bh06a_review_round1.sql
+UPGRADE : 20261020100000_bh06_integration_receiver.sql, 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql, 20261020180000_bh07_reads.sql
+PASS: A. buổi đã chốt phí + bank active được backfill sau upgrade
+PASS: B. buổi không có bank giữ NULL sau upgrade
+PASS: C. snapshot cũ bất biến sau upgrade
+SUMMARY: /workspace/badminton-hub/docs/reviews/bh06/integration_evidence/upgrade_results_20261020111004.json

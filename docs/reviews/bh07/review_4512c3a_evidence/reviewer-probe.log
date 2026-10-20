@@ -1,0 +1,56 @@
+{
+  "db": "bh07_review_20261020111112_1c691e",
+  "checks": [
+    {
+      "name": "summary aggregates all 60 confirmed payments beyond first page",
+      "passed": true,
+      "details": {
+        "page_paid": 50000,
+        "summary_paid": 60000,
+        "outstanding": 40000
+      }
+    },
+    {
+      "name": "summary contains no contact/bank/receiver/raw player or payment data",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "management-only gets counts and NULL financial fields",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "finance staff sees only its authorized completed history and totals",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "revoked finance loses summary and history access",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "actor 5 participant/cross-club/outsider gets no summary or history",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "actor 8 participant/cross-club/outsider gets no summary or history",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "actor 10 participant/cross-club/outsider gets no summary or history",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "reversal after complete updates canonical totals without losing history",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "passed": 9,
+  "failed": 0
+}
