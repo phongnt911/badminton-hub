@@ -1,0 +1,65 @@
+{
+  "db": "bh06_upgrade_20261020051411",
+  "baseline_last": "20261016140000_bh06a_review_round1.sql",
+  "upgrade_migrations": [
+    "20261020100000_bh06_integration_receiver.sql"
+  ],
+  "results": [
+    {
+      "name": "A. buổi đã chốt phí + bank active được backfill sau upgrade",
+      "status": "FAIL",
+      "error": "buổi đủ điều kiện phải được backfill receiver"
+    },
+    {
+      "name": "B. buổi không có bank giữ NULL sau upgrade",
+      "status": "PASS"
+    },
+    {
+      "name": "C. snapshot cũ bất biến sau upgrade",
+      "status": "PASS"
+    }
+  ],
+  "details": {
+    "a": {
+      "can_pay": true,
+      "player_id": "5045ca18-b066-49bd-9ec4-dafaf4dc08d2",
+      "reference": "BH-ADD319FFE5",
+      "session_id": "432e2b11-6d2f-4cd1-947d-29e617bd2353",
+      "display_name": "Guest A",
+      "has_receiver": false,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": null,
+      "active_revision_id": "e1093ac2-a4af-4dcc-a1ce-e9ac7363720b"
+    },
+    "b": {
+      "can_pay": true,
+      "player_id": "ee69cf03-6a9b-46a4-b637-a8ad71ae65cb",
+      "reference": "BH-4C4113FED5",
+      "session_id": "533caf4f-a4fe-47c7-af6b-c7311b5f0a92",
+      "display_name": "Guest B",
+      "has_receiver": false,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": null,
+      "active_revision_id": "e13d975a-b4ed-4db3-8b6a-9fa65f4c3466"
+    },
+    "c": {
+      "snapshot": {
+        "bank_code": "OLD",
+        "account_name": "OLD SNAPSHOT",
+        "account_number": "0000000000"
+      },
+      "fks": [
+        null,
+        null
+      ]
+    }
+  }
+}

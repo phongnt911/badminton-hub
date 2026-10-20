@@ -1,0 +1,70 @@
+{
+  "db": "bh06_upgrade_20261020052127",
+  "baseline_last": "20261016140000_bh06a_review_round1.sql",
+  "upgrade_migrations": [
+    "20261020100000_bh06_integration_receiver.sql",
+    "20261020160000_bh06_integration_receiver_backfill.sql",
+    "20261020170000_bh06_finance_session_version.sql"
+  ],
+  "results": [
+    {
+      "name": "A. buổi đã chốt phí + bank active được backfill sau upgrade",
+      "status": "PASS"
+    },
+    {
+      "name": "B. buổi không có bank giữ NULL sau upgrade",
+      "status": "PASS"
+    },
+    {
+      "name": "C. snapshot cũ bất biến sau upgrade",
+      "status": "PASS"
+    }
+  ],
+  "details": {
+    "a": {
+      "can_pay": true,
+      "player_id": "2605829a-3adc-4551-8c1c-63cfbfe8c76d",
+      "reference": "BH-B2C47EEB7F",
+      "session_id": "74be886f-1528-4d4f-bd72-e78ec87c318b",
+      "display_name": "Guest A",
+      "has_receiver": true,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": {
+        "bank_code": "TCB",
+        "account_name": "CLB UPGRADE",
+        "account_number": "9999888877"
+      },
+      "active_revision_id": "b88829dd-9a92-469c-bfe7-ae3425921ceb"
+    },
+    "b": {
+      "can_pay": true,
+      "player_id": "bf7e0c54-df06-448f-931c-bd984da77c49",
+      "reference": "BH-F302CC406B",
+      "session_id": "5e463145-7c81-49a8-90a5-801787728ad5",
+      "display_name": "Guest B",
+      "has_receiver": false,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": null,
+      "active_revision_id": "8692c0b4-1364-4ec3-b36c-3bf21cc85f09"
+    },
+    "c": {
+      "snapshot": {
+        "bank_code": "OLD",
+        "account_name": "OLD SNAPSHOT",
+        "account_number": "0000000000"
+      },
+      "fks": [
+        null,
+        null
+      ]
+    }
+  }
+}
