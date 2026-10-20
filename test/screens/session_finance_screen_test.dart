@@ -639,4 +639,58 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.text('Đang hiệu lực'), findsOneWidget);
   });
+
+  testWidgets('C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other',
+      (tester) async {
+    const accepted = {'court', 'shuttle', 'other'};
+    final calls = <Map<String, String>>[];
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => financeFixture());
+    when(() => repo.postSessionExpense(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          category: any(named: 'category'),
+          title: any(named: 'title'),
+          amountVnd: any(named: 'amountVnd'),
+        )).thenAnswer((invocation) async {
+      calls.add({
+        'category': invocation.namedArguments[#category] as String,
+        'title': invocation.namedArguments[#title] as String,
+      });
+      return const ExpenseResult(expenseId: 'e1', sessionId: 's1');
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    for (final label in ['Sân', 'Cầu', 'Nước', 'Khác']) {
+      await tester.tap(find.byKey(const Key('bh06c-add-expense')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(label).last);
+      await tester.pumpAndSettle();
+
+      final fields = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(fields.at(0), 'Chi $label');
+      await tester.enterText(fields.at(1), '10000');
+      await tester.tap(find.text('Ghi chi phí'));
+      await tester.pumpAndSettle();
+    }
+
+    expect(calls, hasLength(4));
+    expect(
+      calls.map((call) => call['category']),
+      everyElement(isIn(accepted)),
+    );
+    expect(calls[2]['category'], 'other');
+    expect(calls[2]['title'], 'Chi Nước');
+  });
 }
