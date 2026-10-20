@@ -81,6 +81,7 @@ class FinanceProvider extends ChangeNotifier {
     _pendingRequests.clear();
     _resetInstructions();
     _resetFinance();
+    _resetSummary();
     _resetLedger();
     _isSubmitting = false;
     _submitErrorMessage = null;
@@ -233,6 +234,70 @@ class FinanceProvider extends ChangeNotifier {
           serial == _financeSerial &&
           _financeSessionId == sessionId) {
         _isLoadingFinance = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  // --- Tổng kết buổi (BH-07B) --------------------------------------------- //
+
+  String? _summarySessionId;
+  SessionSummary? _sessionSummary;
+  bool _isLoadingSummary = false;
+  String? _summaryErrorMessage;
+  int _summarySerial = 0;
+
+  SessionSummary? get sessionSummary => _sessionSummary;
+  String? get summarySessionId => _summarySessionId;
+  bool get isLoadingSummary => _isLoadingSummary;
+  bool get hasSummary => _sessionSummary != null;
+  String? get summaryErrorMessage => _summaryErrorMessage;
+
+  void _resetSummary() {
+    _summarySerial++;
+    _summarySessionId = null;
+    _sessionSummary = null;
+    _isLoadingSummary = false;
+    _summaryErrorMessage = null;
+  }
+
+  /// Tải tổng kết server-side. Đổi buổi xoá dữ liệu cũ; lỗi cùng buổi giữ
+  /// nguyên aggregate đã có (không hạ tiền về 0 hoặc tự tính lại).
+  Future<void> fetchSessionSummary(String sessionId) async {
+    if (_authUserId == null) {
+      _resetSummary();
+      notifyListeners();
+      return;
+    }
+
+    final generation = _generation;
+    final serial = ++_summarySerial;
+    if (_summarySessionId != sessionId) {
+      _summarySessionId = sessionId;
+      _sessionSummary = null;
+    }
+    _isLoadingSummary = true;
+    _summaryErrorMessage = null;
+    notifyListeners();
+
+    try {
+      final summary = await _repository.getSessionSummary(sessionId);
+      if (_generation == generation &&
+          serial == _summarySerial &&
+          _summarySessionId == sessionId) {
+        _sessionSummary = summary;
+      }
+    } catch (e) {
+      if (_generation == generation &&
+          serial == _summarySerial &&
+          _summarySessionId == sessionId) {
+        _summaryErrorMessage = domainErrorMessage(e);
+      }
+    } finally {
+      if (_generation == generation &&
+          serial == _summarySerial &&
+          _summarySessionId == sessionId) {
+        _isLoadingSummary = false;
         notifyListeners();
       }
     }
@@ -406,6 +471,9 @@ class FinanceProvider extends ChangeNotifier {
   Future<void> _refreshSessionReads(String sessionId) async {
     if (_financeSessionId == sessionId) {
       await fetchSessionFinance(sessionId);
+    }
+    if (_summarySessionId == sessionId) {
+      await fetchSessionSummary(sessionId);
     }
     if (_instructionsSessionId == sessionId) {
       await fetchPaymentInstructions(

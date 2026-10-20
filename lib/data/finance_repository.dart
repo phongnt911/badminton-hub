@@ -50,6 +50,15 @@ class FinanceRepository {
     return SessionFinance.fromJson(_toMap(response));
   }
 
+  /// Tổng kết aggregate server-side; tiền nullable khi actor chỉ có quyền quản lý.
+  Future<SessionSummary> getSessionSummary(String sessionId) async {
+    final response = await _client.rpc(
+      'get_session_summary',
+      params: {'p_session_id': sessionId},
+    );
+    return SessionSummary.fromJson(_toMap(response));
+  }
+
   /// Sổ quỹ CLB cho owner/treasurer (phân trang, số dư từ SUM server).
   Future<ClubLedger> getClubLedger(
     String clubId, {

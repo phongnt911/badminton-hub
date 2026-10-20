@@ -39,6 +39,35 @@ class SessionRepository {
     return _toSessions(response);
   }
 
+  /// Lịch sử completed/cancelled của tôi (host/management/finance).
+  ///
+  /// RPC A trả mảng JSONB, đã phân trang trước aggregate và sắp mới nhất trước.
+  /// `limit`/`offset` được kẹp tại client theo contract 1..100 / >= 0.
+  Future<SessionHistoryPage> listMySessionHistory({
+    SessionHistoryFilter? filter,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final safeLimit = limit < 1 ? 1 : (limit > 100 ? 100 : limit);
+    final safeOffset = offset < 0 ? 0 : offset;
+    final historyFilter = filter ?? const SessionHistoryFilter();
+    final response = await _client.rpc(
+      'list_my_session_history',
+      params: {
+        'p_limit': safeLimit,
+        'p_offset': safeOffset,
+        'p_club_id': historyFilter.clubId,
+        'p_from': historyFilter.from?.toUtc().toIso8601String(),
+        'p_to': historyFilter.to?.toUtc().toIso8601String(),
+      },
+    );
+    return SessionHistoryPage.fromResponse(
+      response,
+      limit: safeLimit,
+      offset: safeOffset,
+    );
+  }
+
   /// Khám phá buổi công khai (whitelist, anon đọc được).
   Future<List<Session>> listPublicSessions({
     String? area,

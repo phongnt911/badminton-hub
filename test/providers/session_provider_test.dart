@@ -65,6 +65,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(DateTime(2020));
+    registerFallbackValue(const SessionHistoryFilter());
   });
 
   setUp(() {
@@ -97,6 +98,16 @@ void main() {
         offset: any(named: 'offset'),
       ),
     ).thenAnswer((_) async => result);
+  }
+
+  void stubHistory(SessionHistoryPage page) {
+    when(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async => page);
   }
 
   final form = SessionFormData(
@@ -834,6 +845,262 @@ void main() {
     invitationCompleter.complete(invitation);
     await first;
     expect(provider.myInvitation, isNull);
+    provider.dispose();
+  });
+
+  // --- BH-07B: lịch sử --------------------------------------------------- //
+
+  const completed = Session(
+    id: 'h1',
+    title: 'Buổi đã xong',
+    lifecycle: 'completed',
+    version: 4,
+    confirmedCount: 6,
+  );
+  const cancelled = Session(
+    id: 'h2',
+    title: 'Buổi đã huỷ',
+    lifecycle: 'cancelled',
+    version: 2,
+  );
+
+  test('history: empty/error/retry giữ đúng trạng thái và filter', () async {
+    final filters = <SessionHistoryFilter?>[];
+    final offsets = <int>[];
+    var calls = 0;
+    when(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) async {
+      calls++;
+      filters.add(invocation.namedArguments[#filter] as SessionHistoryFilter?);
+      offsets.add(invocation.namedArguments[#offset] as int);
+      if (calls == 1) {
+        return const SessionHistoryPage(limit: 2, offset: 0);
+      }
+      if (calls == 2) throw Exception('offline');
+      return const SessionHistoryPage(
+        sessions: [completed],
+        limit: 2,
+        offset: 0,
+      );
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    const filter = SessionHistoryFilter(clubId: 'c1');
+
+    await provider.fetchSessionHistory(filter: filter, limit: 2);
+    expect(provider.hasLoadedHistory, isTrue);
+    expect(provider.isHistoryEmpty, isTrue);
+    expect(provider.historyErrorMessage, isNull);
+    expect(provider.isLoadingHistory, isFalse);
+    expect(filters.first, filter);
+    expect(offsets.first, 0);
+
+    await provider.fetchSessionHistory(filter: filter, limit: 2);
+    expect(provider.historyErrorMessage, isNotNull);
+    expect(
+      provider.historyItems,
+      isEmpty,
+      reason: 'lỗi cùng scope giữ trang cũ (đang rỗng), không biến thành dữ liệu mới',
+    );
+
+    await provider.fetchSessionHistory(filter: filter, limit: 2);
+    expect(provider.historyErrorMessage, isNull);
+    expect(provider.historyItems.single.id, 'h1');
+    provider.dispose();
+  });
+
+  test('history: loadMore nối đúng offset, dừng khi hết trang', () async {
+    final offsets = <int>[];
+    when(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) async {
+      final offset = invocation.namedArguments[#offset] as int;
+      offsets.add(offset);
+      return offset == 0
+          ? const SessionHistoryPage(
+              sessions: [completed, cancelled],
+              limit: 2,
+              offset: 0,
+            )
+          : const SessionHistoryPage(
+              sessions: [Session(id: 'h3', title: 'Cũ hơn')],
+              limit: 2,
+              offset: 2,
+            );
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionHistory(limit: 2);
+    expect(provider.historyItems, hasLength(2));
+    expect(provider.hasMoreHistory, isTrue);
+
+    await provider.loadMoreHistory();
+    expect(offsets, [0, 2]);
+    expect(provider.historyItems, hasLength(3));
+    expect(provider.historyItems.last.id, 'h3');
+    expect(provider.hasMoreHistory, isFalse);
+    expect(provider.isLoadingMoreHistory, isFalse);
+
+    await provider.loadMoreHistory();
+    expect(offsets, [0, 2], reason: 'hết trang thì không phát RPC nữa');
+    provider.dispose();
+  });
+
+  test('history: đổi CLB xoá trang cũ và bỏ phản hồi đến trễ', () async {
+    final slowC2 = Completer<SessionHistoryPage>();
+    when(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) {
+      final filter =
+          invocation.namedArguments[#filter] as SessionHistoryFilter?;
+      if (filter?.clubId == 'c2') return slowC2.future;
+      return Future.value(
+        SessionHistoryPage(
+          sessions: [
+            Session(
+              id: filter?.clubId == 'c3' ? 'h3' : 'h1',
+              title: 'Lịch sử ${filter?.clubId}',
+              lifecycle: 'completed',
+            ),
+          ],
+          limit: invocation.namedArguments[#limit] as int,
+          offset: invocation.namedArguments[#offset] as int,
+        ),
+      );
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionHistory(
+      filter: const SessionHistoryFilter(clubId: 'c1'),
+    );
+    expect(provider.historyItems.single.id, 'h1');
+
+    final pending = provider.fetchSessionHistory(
+      filter: const SessionHistoryFilter(clubId: 'c2'),
+    );
+    expect(provider.history, isNull, reason: 'đổi CLB phải xoá dữ liệu CLB cũ');
+    expect(provider.isLoadingHistory, isTrue);
+
+    await provider.fetchSessionHistory(
+      filter: const SessionHistoryFilter(clubId: 'c3'),
+    );
+    slowC2.complete(
+      const SessionHistoryPage(
+        sessions: [Session(id: 'late-c2', title: 'Trễ')],
+        limit: 20,
+        offset: 0,
+      ),
+    );
+    await pending;
+
+    expect(provider.historyFilter.clubId, 'c3');
+    expect(provider.historyItems.single.id, 'h3');
+    expect(provider.isLoadingHistory, isFalse);
+    provider.dispose();
+  });
+
+  test('history: logout/đổi actor xoá state và chặn phản hồi cũ', () async {
+    final slow = Completer<SessionHistoryPage>();
+    var calls = 0;
+    when(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) {
+      calls++;
+      if (calls == 1) {
+        return Future.value(
+          const SessionHistoryPage(sessions: [completed], limit: 20, offset: 0),
+        );
+      }
+      return slow.future;
+    });
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionHistory();
+    expect(provider.historyItems, isNotEmpty);
+
+    final pending = provider.fetchSessionHistory();
+    auth.changeUser(null);
+    expect(provider.history, isNull);
+    expect(provider.isLoadingHistory, isFalse);
+
+    slow.complete(
+      const SessionHistoryPage(sessions: [cancelled], limit: 20, offset: 0),
+    );
+    await pending;
+    expect(
+      provider.history,
+      isNull,
+      reason: 'phản hồi của actor cũ không được khôi phục state',
+    );
+    provider.dispose();
+  });
+
+  test('history: đổi actor A→B xoá state của actor cũ', () async {
+    stubHistory(
+      const SessionHistoryPage(
+        sessions: [completed],
+        limit: 20,
+        offset: 0,
+      ),
+    );
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionHistory();
+    expect(provider.historyItems, isNotEmpty);
+
+    auth.changeUser('user-b');
+    expect(provider.history, isNull);
+    expect(provider.historyFilter.isEmpty, isTrue);
+    expect(provider.historyErrorMessage, isNull);
+    provider.dispose();
+  });
+
+  test('history: refreshHistoryIfLoaded chỉ gọi khi tab đã tải', () async {
+    stubHistory(
+      const SessionHistoryPage(sessions: [completed], limit: 20, offset: 0),
+    );
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+
+    await provider.refreshHistoryIfLoaded();
+    verifyNever(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    );
+
+    await provider.fetchSessionHistory();
+    await provider.refreshHistoryIfLoaded();
+    verify(
+      () => repo.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).called(2);
     provider.dispose();
   });
 }

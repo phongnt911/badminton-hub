@@ -288,4 +288,102 @@ void main() {
       expect(reversal.direction, isNull);
     });
   });
+
+  group('SessionSummary.fromJson', () {
+    test('finance: đọc aggregate, version, billing và giữ 0 thật', () {
+      final summary = SessionSummary.fromJson({
+        'session_id': 's1',
+        'title': 'Buổi tối',
+        'club_id': 'c1',
+        'club_name': 'CLB A',
+        'venue_name': 'Sân A',
+        'starts_at': '2026-10-20T10:00:00Z',
+        'ends_at': '2026-10-20T12:00:00Z',
+        'lifecycle': 'completed',
+        'fee_mode': 'split_actual',
+        'session_version': 7,
+        'can_manage': true,
+        'can_view_finance': true,
+        'present_count': 6,
+        'no_show_count': 1,
+        'confirmed_count': 7,
+        'billing_state': 'current',
+        'active_revision_id': 'r1',
+        'revision_no': 2,
+        'source_version': 7,
+        'expenses_total_vnd': 0,
+        'amount_due_total_vnd': 420000,
+        'total_paid_vnd': 400000,
+        'outstanding_total_vnd': 20000,
+      });
+
+      expect(summary.sessionId, 's1');
+      expect(summary.clubName, 'CLB A');
+      expect(summary.venueName, 'Sân A');
+      expect(summary.sessionVersion, 7);
+      expect(summary.canManage, isTrue);
+      expect(summary.canViewFinance, isTrue);
+      expect(summary.presentCount, 6);
+      expect(summary.noShowCount, 1);
+      expect(summary.confirmedCount, 7);
+      expect(summary.isBillingCurrent, isTrue);
+      expect(summary.hasActiveRevision, isTrue);
+      expect(summary.revisionNo, 2);
+      expect(summary.sourceVersion, 7);
+      expect(
+        summary.expensesTotalVnd,
+        0,
+        reason: '0 thật phải giữ là 0, không bị nhầm với thiếu quyền',
+      );
+      expect(summary.amountDueTotalVnd, 420000);
+      expect(summary.totalPaidVnd, 400000);
+      expect(summary.outstandingTotalVnd, 20000);
+    });
+
+    test('management-only: tiền/billing NULL, không tự đổi thành 0', () {
+      final summary = SessionSummary.fromJson({
+        'session_id': 's1',
+        'lifecycle': 'completed',
+        'can_manage': true,
+        'can_view_finance': false,
+        'present_count': 3,
+        'no_show_count': 0,
+        'confirmed_count': 3,
+        'billing_state': null,
+        'active_revision_id': null,
+        'revision_no': null,
+        'source_version': null,
+        'expenses_total_vnd': null,
+        'amount_due_total_vnd': null,
+        'total_paid_vnd': null,
+        'outstanding_total_vnd': null,
+      });
+
+      expect(summary.hasFinanceView, isFalse);
+      expect(summary.isBillingCurrent, isFalse);
+      expect(summary.hasActiveRevision, isFalse);
+      expect(summary.billingState, isNull);
+      expect(summary.expensesTotalVnd, isNull);
+      expect(summary.amountDueTotalVnd, isNull);
+      expect(summary.totalPaidVnd, isNull);
+      expect(summary.outstandingTotalVnd, isNull);
+      expect(summary.presentCount, 3);
+    });
+
+    test('stale giữ nhãn và số tiền server, không tự suy current', () {
+      final summary = SessionSummary.fromJson({
+        'session_id': 's1',
+        'lifecycle': 'completed',
+        'can_view_finance': true,
+        'billing_state': 'stale',
+        'amount_due_total_vnd': 100000,
+        'total_paid_vnd': 50000,
+        'outstanding_total_vnd': 50000,
+      });
+
+      expect(summary.isBillingStale, isTrue);
+      expect(summary.isBillingCurrent, isFalse);
+      expect(summary.outstandingTotalVnd, 50000);
+    });
+  });
 }

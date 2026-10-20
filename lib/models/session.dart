@@ -447,3 +447,75 @@ class SessionFilter {
     );
   }
 }
+
+/// Bộ lọc lịch sử buổi (BH-07A `list_my_session_history`).
+///
+/// `from`/`to` áp lên `starts_at`; repository đổi sang UTC trước khi gọi RPC.
+/// Không giữ filter trong model Session để lịch sử và khám phá công khai độc lập.
+class SessionHistoryFilter {
+  final String? clubId;
+  final DateTime? from;
+  final DateTime? to;
+
+  const SessionHistoryFilter({this.clubId, this.from, this.to});
+
+  bool get isEmpty => clubId == null && from == null && to == null;
+
+  SessionHistoryFilter copyWith({
+    String? clubId,
+    DateTime? from,
+    DateTime? to,
+    bool clearClubId = false,
+    bool clearFrom = false,
+    bool clearTo = false,
+  }) {
+    return SessionHistoryFilter(
+      clubId: clearClubId ? null : (clubId ?? this.clubId),
+      from: clearFrom ? null : (from ?? this.from),
+      to: clearTo ? null : (to ?? this.to),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SessionHistoryFilter &&
+          clubId == other.clubId &&
+          from == other.from &&
+          to == other.to;
+
+  @override
+  int get hashCode => Object.hash(clubId, from, to);
+}
+
+/// Một trang lịch sử buổi. RPC trả mảng JSON, nên `limit`/`offset` do caller
+/// gửi và `hasMore` chỉ suy từ trang vừa nhận (trang đầy ⇒ có thể còn).
+class SessionHistoryPage {
+  final List<Session> sessions;
+  final int limit;
+  final int offset;
+
+  const SessionHistoryPage({
+    this.sessions = const [],
+    this.limit = 20,
+    this.offset = 0,
+  });
+
+  bool get isEmpty => sessions.isEmpty;
+  bool get hasMore => sessions.length >= limit;
+
+  /// Parse response JSONB array của `list_my_session_history`.
+  factory SessionHistoryPage.fromResponse(
+    dynamic response, {
+    required int limit,
+    required int offset,
+  }) {
+    final sessions = response is List
+        ? response
+              .whereType<Map>()
+              .map((item) => Session.fromJson(Map<String, dynamic>.from(item)))
+              .toList()
+        : <Session>[];
+    return SessionHistoryPage(sessions: sessions, limit: limit, offset: offset);
+  }
+}

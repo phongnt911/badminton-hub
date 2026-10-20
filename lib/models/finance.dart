@@ -90,6 +90,101 @@ class PaymentInstructions {
   }
 }
 
+/// Tổng kết buổi (`get_session_summary`) — aggregate an toàn cho tab Tổng kết.
+///
+/// Các trường tiền là **nullable** và phải giữ nguyên `null` khi actor không có
+/// quyền tài chính. Không đổi `null` thành 0 và không suy `outstanding` từ
+/// `due - paid` hoặc từ một trang payment bị cắt.
+class SessionSummary {
+  final String sessionId;
+  final String? title;
+  final String? clubId;
+  final String? clubName;
+  final String? venueName;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final String lifecycle;
+  final String feeMode;
+
+  /// `sessions.version` server-side; null nếu DTO cũ/không có.
+  final int? sessionVersion;
+  final bool canManage;
+  final bool canViewFinance;
+  final int presentCount;
+  final int noShowCount;
+  final int confirmedCount;
+
+  // --- Chỉ có khi canViewFinance = true -------------------------------- //
+  final String? billingState;
+  final String? activeRevisionId;
+  final int? revisionNo;
+  final int? sourceVersion;
+  final int? expensesTotalVnd;
+  final int? amountDueTotalVnd;
+  final int? totalPaidVnd;
+  final int? outstandingTotalVnd;
+
+  const SessionSummary({
+    required this.sessionId,
+    this.title,
+    this.clubId,
+    this.clubName,
+    this.venueName,
+    this.startsAt,
+    this.endsAt,
+    this.lifecycle = '',
+    this.feeMode = 'split_actual',
+    this.sessionVersion,
+    this.canManage = false,
+    this.canViewFinance = false,
+    this.presentCount = 0,
+    this.noShowCount = 0,
+    this.confirmedCount = 0,
+    this.billingState,
+    this.activeRevisionId,
+    this.revisionNo,
+    this.sourceVersion,
+    this.expensesTotalVnd,
+    this.amountDueTotalVnd,
+    this.totalPaidVnd,
+    this.outstandingTotalVnd,
+  });
+
+  bool get hasFinanceView => canViewFinance;
+  bool get hasActiveRevision => activeRevisionId != null;
+  bool get isBillingCurrent => billingState == 'current';
+  bool get isBillingStale => billingState == 'stale';
+  bool get isBillingNotFinalized => billingState == 'not_finalized';
+
+  factory SessionSummary.fromJson(Map<String, dynamic> json) {
+    return SessionSummary(
+      sessionId: json['session_id']?.toString() ?? '',
+      title: json['title']?.toString(),
+      clubId: json['club_id']?.toString(),
+      clubName: json['club_name']?.toString(),
+      venueName: json['venue_name']?.toString(),
+      startsAt: _asDate(json['starts_at']),
+      endsAt: _asDate(json['ends_at']),
+      lifecycle: json['lifecycle']?.toString() ?? '',
+      feeMode: json['fee_mode']?.toString() ?? 'split_actual',
+      sessionVersion: _asInt(json['session_version']),
+      canManage: json['can_manage'] == true,
+      canViewFinance: json['can_view_finance'] == true,
+      presentCount: _asInt(json['present_count']) ?? 0,
+      noShowCount: _asInt(json['no_show_count']) ?? 0,
+      confirmedCount: _asInt(json['confirmed_count']) ?? 0,
+      billingState: json['billing_state']?.toString(),
+      activeRevisionId: json['active_revision_id']?.toString(),
+      revisionNo: _asInt(json['revision_no']),
+      sourceVersion: _asInt(json['source_version']),
+      expensesTotalVnd: _asInt(json['expenses_total_vnd']),
+      amountDueTotalVnd: _asInt(json['amount_due_total_vnd']),
+      totalPaidVnd: _asInt(json['total_paid_vnd']),
+      outstandingTotalVnd: _asInt(json['outstanding_total_vnd']),
+    );
+  }
+}
+
 /// Revision phí đang hiệu lực trong `get_session_finance`.
 class FinanceRevision {
   final String revisionId;

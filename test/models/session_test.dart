@@ -139,4 +139,63 @@ void main() {
       );
     });
   });
+
+  group('SessionHistoryPage / Filter', () {
+    test('parse mảng JSONB lịch sử và suy hasMore từ trang đầy', () {
+      final page = SessionHistoryPage.fromResponse([
+        {
+          'id': 's2',
+          'title': 'Buổi đã kết thúc',
+          'club_id': 'c1',
+          'lifecycle': 'completed',
+          'starts_at': '2026-10-20T10:00:00Z',
+          'capacity': 8,
+          'confirmed_count': 6,
+          'version': 4,
+        },
+        {
+          'id': 's1',
+          'title': 'Buổi đã huỷ',
+          'lifecycle': 'cancelled',
+          'starts_at': '2026-10-19T10:00:00Z',
+          'version': 2,
+        },
+      ], limit: 2, offset: 0);
+
+      expect(page.sessions, hasLength(2));
+      expect(page.sessions.first.id, 's2');
+      expect(page.sessions.first.isCompleted, isTrue);
+      expect(page.sessions.first.confirmedCount, 6);
+      expect(page.sessions.first.version, 4);
+      expect(page.sessions.last.isCancelled, isTrue);
+      expect(page.hasMore, isTrue);
+      expect(page.isEmpty, isFalse);
+    });
+
+    test('response rỗng/null không lỗi, hasMore false', () {
+      expect(
+        SessionHistoryPage.fromResponse([], limit: 20, offset: 0).isEmpty,
+        isTrue,
+      );
+      final nullPage =
+          SessionHistoryPage.fromResponse(null, limit: 20, offset: 0);
+      expect(nullPage.sessions, isEmpty);
+      expect(nullPage.hasMore, isFalse);
+    });
+
+    test('filter so sánh theo CLB/ngày và copyWith xoá đúng trường', () {
+      final from = DateTime.utc(2026, 10, 1);
+      final to = DateTime.utc(2026, 10, 31);
+      final a = SessionHistoryFilter(clubId: 'c1', from: from, to: to);
+      final b = SessionHistoryFilter(clubId: 'c1', from: from, to: to);
+      expect(a, b);
+      expect(a.isEmpty, isFalse);
+      expect(const SessionHistoryFilter().isEmpty, isTrue);
+
+      final cleared = a.copyWith(clearClubId: true, clearFrom: true);
+      expect(cleared.clubId, isNull);
+      expect(cleared.from, isNull);
+      expect(cleared.to, to);
+    });
+  });
 }

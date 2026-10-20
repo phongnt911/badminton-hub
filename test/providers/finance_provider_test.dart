@@ -62,6 +62,27 @@ void main() {
     outstandingTotalVnd: 450000,
   );
 
+  const sessionSummary = SessionSummary(
+    sessionId: 's1',
+    title: 'Buổi tối',
+    clubId: 'c1',
+    lifecycle: 'completed',
+    sessionVersion: 7,
+    canManage: true,
+    canViewFinance: true,
+    presentCount: 6,
+    noShowCount: 1,
+    confirmedCount: 7,
+    billingState: 'current',
+    activeRevisionId: 'r1',
+    revisionNo: 2,
+    sourceVersion: 7,
+    expensesTotalVnd: 0,
+    amountDueTotalVnd: 420000,
+    totalPaidVnd: 400000,
+    outstandingTotalVnd: 20000,
+  );
+
   const ledger = ClubLedger(
     clubId: 'c1',
     balanceVnd: 1550000,
@@ -107,6 +128,11 @@ void main() {
         offset: any(named: 'offset'),
       ),
     ).thenAnswer((_) async => result);
+  }
+
+  void stubSummary(String sessionId, SessionSummary result) {
+    when(() => repo.getSessionSummary(sessionId))
+        .thenAnswer((_) async => result);
   }
 
   void stubLedger(String clubId, ClubLedger result) {
@@ -867,4 +893,211 @@ void main() {
     );
     provider.dispose();
   });
+
+  // --- BH-07B: tổng kết + complete --------------------------------------- //
+
+  test('summary: load, lỗi giữ aggregate cũ, retry phục hồi', () async {
+    stubSummary('s1', sessionSummary);
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+
+    await provider.fetchSessionSummary('s1');
+    expect(provider.sessionSummary?.outstandingTotalVnd, 20000);
+    expect(provider.sessionSummary?.sessionVersion, 7);
+    expect(provider.isLoadingSummary, isFalse);
+    expect(provider.summaryErrorMessage, isNull);
+
+    when(() => repo.getSessionSummary('s1'))
+        .thenThrow(Exception('PostgrestException(FORBIDDEN: raw)'));
+    await provider.fetchSessionSummary('s1');
+    expect(
+      provider.sessionSummary?.outstandingTotalVnd,
+      20000,
+      reason: 'lỗi đọc cùng buổi không được hạ tiền về 0/xoá aggregate',
+    );
+    expect(
+      provider.summaryErrorMessage,
+      'Bạn không có quyền thực hiện thao tác này.',
+    );
+
+    stubSummary('s1', sessionSummary);
+    await provider.fetchSessionSummary('s1');
+    expect(provider.summaryErrorMessage, isNull);
+    expect(provider.hasSummary, isTrue);
+    provider.dispose();
+  });
+
+  test('summary: management-only giữ tiền NULL, không biến thành 0', () async {
+    stubSummary(
+      's1',
+      const SessionSummary(
+        sessionId: 's1',
+        lifecycle: 'completed',
+        canManage: true,
+        presentCount: 3,
+        confirmedCount: 3,
+      ),
+    );
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionSummary('s1');
+
+    expect(provider.sessionSummary?.hasFinanceView, isFalse);
+    expect(provider.sessionSummary?.billingState, isNull);
+    expect(provider.sessionSummary?.expensesTotalVnd, isNull);
+    expect(provider.sessionSummary?.amountDueTotalVnd, isNull);
+    expect(provider.sessionSummary?.totalPaidVnd, isNull);
+    expect(provider.sessionSummary?.outstandingTotalVnd, isNull);
+    provider.dispose();
+  });
+
+  test('summary: đổi buổi xoá dữ liệu cũ và bỏ phản hồi đến trễ', () async {
+    final slow = Completer<SessionSummary>();
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_) => slow.future);
+    when(() => repo.getSessionSummary('s2')).thenAnswer(
+      (_) async => const SessionSummary(
+        sessionId: 's2',
+        lifecycle: 'completed',
+        outstandingTotalVnd: 9,
+      ),
+    );
+
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    final pending = provider.fetchSessionSummary('s1');
+    await provider.fetchSessionSummary('s2');
+
+    slow.complete(sessionSummary);
+    await pending;
+
+    expect(provider.summarySessionId, 's2');
+    expect(provider.sessionSummary?.sessionId, 's2');
+    expect(provider.sessionSummary?.outstandingTotalVnd, 9);
+    expect(provider.isLoadingSummary, isFalse);
+    provider.dispose();
+  });
+
+  test(
+    'summary: logout/đổi actor dọn state, phản hồi cũ không khôi phục',
+    () async {
+      final slow = Completer<SessionSummary>();
+      when(() => repo.getSessionSummary('s1')).thenAnswer((_) => slow.future);
+
+      final provider = buildProvider();
+      auth.changeUser('user-a');
+      final pending = provider.fetchSessionSummary('s1');
+      auth.changeUser(null);
+
+      expect(provider.sessionSummary, isNull);
+      expect(provider.summarySessionId, isNull);
+      expect(provider.isLoadingSummary, isFalse);
+
+      slow.complete(sessionSummary);
+      await pending;
+      expect(provider.sessionSummary, isNull);
+      provider.dispose();
+    },
+  );
+
+  test(
+    'summary: đổi actor A→B xoá state của actor cũ',
+    () async {
+      stubSummary('s1', sessionSummary);
+      final provider = buildProvider();
+      auth.changeUser('user-a');
+      await provider.fetchSessionSummary('s1');
+      expect(provider.hasSummary, isTrue);
+
+      auth.changeUser('user-b');
+      expect(provider.sessionSummary, isNull);
+      expect(provider.summarySessionId, isNull);
+      expect(provider.summaryErrorMessage, isNull);
+      provider.dispose();
+    },
+  );
+
+  test(
+    'summary: mutation tiền làm mới summary đang mở, không gọi ngoài scope',
+    () async {
+      stubSummary('s1', sessionSummary);
+      when(
+        () => repo.recordCashPayment(
+          requestId: any(named: 'requestId'),
+          playerId: any(named: 'playerId'),
+          amountVnd: any(named: 'amountVnd'),
+          reference: any(named: 'reference'),
+        ),
+      ).thenAnswer(
+        (_) async => const PaymentResult(
+          paymentId: 'pay1',
+          playerId: 'p1',
+          sessionId: 's1',
+          status: 'confirmed',
+        ),
+      );
+
+      final provider = buildProvider();
+      auth.changeUser('user-a');
+      await provider.recordCashPayment(playerId: 'p1', amountVnd: 10000);
+      verifyNever(() => repo.getSessionSummary(any()));
+
+      await provider.fetchSessionSummary('s1');
+      await provider.recordCashPayment(playerId: 'p1', amountVnd: 10000);
+      verify(() => repo.getSessionSummary('s1')).called(2);
+      provider.dispose();
+    },
+  );
+
+  test(
+    'complete: stale trả null/error, retry giữ request_id rồi xoay key',
+    () async {
+      final keys = <String>[];
+      var attempts = 0;
+      when(
+        () => repo.completeSession(
+          requestId: any(named: 'requestId'),
+          sessionId: any(named: 'sessionId'),
+          expectedVersion: any(named: 'expectedVersion'),
+        ),
+      ).thenAnswer((invocation) async {
+        keys.add(invocation.namedArguments[#requestId] as String);
+        attempts++;
+        if (attempts == 1) {
+          throw Exception('PostgrestException(VERSION_CONFLICT: raw)');
+        }
+        return const Session(
+          id: 's2',
+          title: 'Buổi xong',
+          lifecycle: 'completed',
+          version: 2,
+        );
+      });
+
+      final provider = buildProvider();
+      final failed = await provider.completeSession(
+        sessionId: 's2',
+        expectedVersion: 1,
+      );
+      expect(
+        failed,
+        isNull,
+        reason: 'VERSION_CONFLICT không được báo thành công',
+      );
+      expect(
+        provider.submitErrorMessage,
+        'Buổi chơi đã được thay đổi ở nơi khác. Vui lòng tải lại.',
+      );
+
+      final retried = await provider.completeSession(
+        sessionId: 's2',
+        expectedVersion: 1,
+      );
+      expect(retried?.isCompleted, isTrue);
+      expect(keys.first, keys[1], reason: 'retry cùng intent dùng lại UUID');
+
+      await provider.completeSession(sessionId: 's2', expectedVersion: 1);
+      expect(keys[2], isNot(keys[1]), reason: 'thành công xong mới xoay UUID');
+      provider.dispose();
+    },
+  );
 }

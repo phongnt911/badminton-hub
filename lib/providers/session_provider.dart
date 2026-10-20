@@ -139,6 +139,7 @@ class SessionProvider extends ChangeNotifier {
     _publicErrorMessage = null;
     _mySessions = [];
     _myErrorMessage = null;
+    _resetHistory();
     _currentSessionId = null;
     _currentSession = null;
     _currentPlayers = [];
@@ -228,6 +229,146 @@ class SessionProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  // --- Lịch sử buổi (BH-07B) --------------------------------------------- //
+
+  SessionHistoryPage? _history;
+  SessionHistoryFilter _historyFilter = const SessionHistoryFilter();
+  bool _isLoadingHistory = false;
+  bool _isLoadingMoreHistory = false;
+  bool _historyHasMore = false;
+  String? _historyErrorMessage;
+  int _historySerial = 0;
+
+  SessionHistoryPage? get history => _history;
+  List<Session> get historyItems => _history?.sessions ?? const [];
+  SessionHistoryFilter get historyFilter => _historyFilter;
+  bool get isLoadingHistory => _isLoadingHistory;
+  bool get isLoadingMoreHistory => _isLoadingMoreHistory;
+  bool get hasMoreHistory => _history != null && _historyHasMore;
+  bool get hasLoadedHistory => _history != null;
+  bool get isHistoryEmpty => _history != null && _history!.sessions.isEmpty;
+  String? get historyErrorMessage => _historyErrorMessage;
+
+  void _resetHistory() {
+    _historySerial++;
+    _history = null;
+    _historyFilter = const SessionHistoryFilter();
+    _isLoadingHistory = false;
+    _isLoadingMoreHistory = false;
+    _historyHasMore = false;
+    _historyErrorMessage = null;
+  }
+
+  /// Xoá lịch sử đang mở (đổi tab/đăng xuất). Phản hồi đang bay bị bỏ qua.
+  void clearHistory() {
+    _resetHistory();
+    notifyListeners();
+  }
+
+  /// Tải lịch sử completed/cancelled.
+  ///
+  /// - filter đổi (CLB/ngày) ⇒ xoá trang cũ trước khi tải để không hiện dữ liệu
+  ///   của scope khác;
+  /// - `loadMore` nối trang kế bằng offset hiện có, không nhân đôi;
+  /// - lỗi đọc cùng scope giữ trang cũ và chỉ đặt `historyErrorMessage`.
+  Future<void> fetchSessionHistory({
+    SessionHistoryFilter? filter,
+    int limit = 20,
+    bool loadMore = false,
+  }) async {
+    if (_authUserId == null) {
+      _resetHistory();
+      notifyListeners();
+      return;
+    }
+
+    final safeLimit = limit < 1 ? 1 : (limit > 100 ? 100 : limit);
+    final requestedFilter = filter ?? _historyFilter;
+    final generation = _generation;
+    final previous = _history;
+    final switching = previous == null || requestedFilter != _historyFilter;
+    final appending = loadMore && !switching;
+
+    // Guard trước khi tăng serial: yêu cầu bị bỏ qua không được huỷ refresh
+    // đang bay của cùng scope.
+    if (appending && !_historyHasMore) return;
+    if (_isLoadingHistory || _isLoadingMoreHistory) {
+      // Vẫn cho refresh (loadMore=false) thay thế yêu cầu cũ; chặn nối trùng.
+      if (appending) return;
+    }
+
+    final serial = ++_historySerial;
+    _historyFilter = requestedFilter;
+    if (switching) {
+      _history = null;
+      _historyHasMore = false;
+    }
+    final offset = appending ? previous.sessions.length : 0;
+    if (appending) {
+      _isLoadingMoreHistory = true;
+    } else {
+      _isLoadingHistory = true;
+      _isLoadingMoreHistory = false;
+    }
+    _historyErrorMessage = null;
+    notifyListeners();
+
+    try {
+      final page = await _repository.listMySessionHistory(
+        filter: requestedFilter,
+        limit: safeLimit,
+        offset: offset,
+      );
+      if (_generation != generation ||
+          serial != _historySerial ||
+          requestedFilter != _historyFilter) {
+        return;
+      }
+      _historyHasMore = page.hasMore;
+      _history = appending
+          ? SessionHistoryPage(
+              sessions: [...previous.sessions, ...page.sessions],
+              limit: safeLimit,
+              offset: 0,
+            )
+          : page;
+    } catch (e) {
+      if (_generation == generation &&
+          serial == _historySerial &&
+          requestedFilter == _historyFilter) {
+        _historyErrorMessage = domainErrorMessage(e);
+      }
+    } finally {
+      if (_generation == generation &&
+          serial == _historySerial &&
+          requestedFilter == _historyFilter) {
+        _isLoadingHistory = false;
+        _isLoadingMoreHistory = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Nối trang lịch sử kế tiếp của filter hiện tại.
+  Future<void> loadMoreHistory() async {
+    final current = _history;
+    if (current == null || !_historyHasMore) return;
+    if (_isLoadingHistory || _isLoadingMoreHistory) return;
+    await fetchSessionHistory(
+      filter: _historyFilter,
+      limit: current.limit,
+      loadMore: true,
+    );
+  }
+
+  /// Làm mới lịch sử nếu tab đã tải (C gọi sau complete). Không tự gọi RPC
+  /// ngoài scope đang mở.
+  Future<void> refreshHistoryIfLoaded() async {
+    final current = _history;
+    if (current == null || _authUserId == null) return;
+    await fetchSessionHistory(filter: _historyFilter, limit: current.limit);
   }
 
   // --- Chi tiết buổi chơi ------------------------------------------------ //
