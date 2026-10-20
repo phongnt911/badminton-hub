@@ -1,5 +1,7 @@
 # BH-06C — ghi chú sửa theo review vòng 2
 
+> Kết luận reviewer 20/10/2026 tại `a0f7255`: **Chưa đạt C sau vòng sửa 2/2**; đóng C1/C2/C3, còn C4 P2 mới phát hiện. [Review và bằng chứng](review_a0f7255.md). Dừng vòng tự động theo AGENTS. Bằng chứng và trạng thái Chờ review dưới đây là lịch sử phía tác giả; reviewer đã chạy RPC refinalize local trong lượt mới.
+
 Ngày 20/10/2026. Nhánh `feat/bh06c-ui`. Phạm vi: **C3 (P2)** và ca còn thiếu mà review ghi NOT RUN, theo chỉ định của chủ dự án (“sửa P2 và các phần khác được chỉ ra”). Không đổi migration/RPC của A, không viết lại B, không merge `main`, không thêm dependency. Đây là vòng sửa **2/2**.
 
 ## 1. Test tái hiện trước (test-first)

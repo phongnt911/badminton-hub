@@ -1,5 +1,7 @@
 # Bàn giao BH-06C — UI tài chính buổi và sổ quỹ CLB
 
+> **Hiện hành 20/10/2026:** reviewer kết luận **Chưa đạt sau vòng sửa 2/2 tại `a0f7255`**; đóng C1/C2/C3, mở C4 P2 (category Nước không được RPC hỗ trợ). [Báo cáo/bằng chứng](review_a0f7255.md). Dừng vòng tự động theo AGENTS, báo chủ dự án; chưa tích hợp/merge/deploy. Phần bàn giao và kết luận cũ bên dưới giữ làm lịch sử.
+
 Ngày 18/10/2026 (Việt Nam). Người triển khai: phiên triển khai (DeepSeek) theo [docs/ai/IMPLEMENTER.md](../ai/IMPLEMENTER.md). Trạng thái bàn giao ban đầu: **Chờ review**. Kết luận reviewer 18/10/2026 tại `af31e7b`: **Chưa đạt C**, C1/C2 P1 và C3 P2 còn mở; xem [review_af31e7b](review_af31e7b.md) và bằng chứng. Giữ mô tả/lệnh tác giả bên dưới làm lịch sử. Người triển khai **không tự ghi Đạt**.
 
 ## 1. Nhánh, phụ thuộc, phạm vi

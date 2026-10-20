@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`. Vòng 2 sửa **C3 (P2)** theo chỉ định của chủ dự án: code `5174e9d`, test tái hiện `75aa95b`, [ghi chú vòng 2](reviews/bh06/bh06c_review_round2.md); analyze sạch, 186/186 Flutter. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
+> **Hiện hành BH-06C (20/10/2026): Chưa đạt sau vòng sửa 2/2** tại `a0f7255`, theo [review độc lập](reviews/bh06/review_a0f7255.md). Đóng C1/C2/C3; còn C4 P2: UI chọn Nước gửi category `water` không được RPC hỗ trợ. Analyze sạch, 186 Flutter +84 DB PASS; widget probe 7 PASS/1 FAIL, RPC C2 5 kiểm tra PASS, RPC C4 FAIL. Dừng vòng sửa tự động theo AGENTS, báo chủ dự án; A/B giữ Đạt theo SHA trước, chưa nghiệm thu C/tích hợp hoặc deploy.
+
+> **(Lịch sử bàn giao) BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`. Vòng 2 sửa **C3 (P2)** theo chỉ định của chủ dự án: code `5174e9d`, test tái hiện `75aa95b`, [ghi chú vòng 2](reviews/bh06/bh06c_review_round2.md); analyze sạch, 186/186 Flutter. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
 
 > **(Lịch sử) BH-06C (18/10/2026): Chưa đạt** tại `af31e7b` (cây code/test `b123db9`), theo [review độc lập](reviews/bh06/review_af31e7b.md). C1/C2 P1: sai ID đăng ký khi gửi thanh toán; reference cố định chặn gửi lại sau từ chối. C3 P2: tính khoản nợ từ trang payment thiếu lịch sử. Analyze sạch, 181 Flutter +84 DB PASS nhưng 2 probe widget và 1 probe RPC FAIL. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy.
 
@@ -510,3 +512,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Commit tách test-first: `75aa95b` (test tái hiện — 2 FAIL đúng C3), `5174e9d` (fix). Ghi chú: [bh06c_review_round2.md](reviews/bh06/bh06c_review_round2.md).
 - Bằng chứng trên cây `5174e9d`: `flutter analyze` **0 issue**; `flutter test` **186/186 PASS**. Không đổi DB nên runner DB BH-06 **không chạy lại**. Probe C3 của reviewer có hai kỳ vọng mâu thuẫn (vừa "100,000" vừa "0") nên nguyên văn không thể PASS; test hồi quy của tác giả kiểm đúng hành vi thay thế (không còn suy nợ; prefill từ RPC; đã trả đủ thì chặn).
 - Trạng thái **Chờ review vòng 2**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT/Auth thật, thiết bị/browser e2e, ảnh VietQR/bank thật, staging/production, backup/restore, concurrency HTTP, ca refinalize ở mức RPC/DB (chỉ kiểm ở UI/provider).
+
+### BH-06C — kết luận reviewer vòng sửa 2 tại a0f7255 (20/10/2026)
+
+- **Chưa đạt C sau 2/2 vòng sửa**, xem [review_a0f7255](reviews/bh06/review_a0f7255.md). Đóng C1/C2/C3. C4 P2 mới phát hiện: chọn Nước gửi `water` nhưng RPC chỉ nhận court/shuttle/other; không phải hồi quy của bản sửa. Dừng vòng tự động và báo chủ dự án theo AGENTS; không tự mở vòng 3 hay sửa triển khai.
+- Reviewer tự chạy analyze 0 issue, **186/186 Flutter**, **84/84 DB BH-06**; probe widget **7 PASS/1 FAIL (C4)**; RPC C2 **5 kiểm tra PASS** (retry/reject/refinalize/reference), RPC C4 **FAIL**. [Hash/summary](reviews/bh06/review_a0f7255_evidence/summary.json). Đã sửa thiết kế probe C3 mâu thuẫn; không dùng FAIL của probe cũ để giữ lỗi mở.
+- Source/test/migration tại HEAD trùng code sửa cuối 5174e9d. Không đổi code tác giả; không merge/deploy/chuyển tích hợp. NOT RUN: HTTP/JWT/Auth thật, thiết bị/browser, bank/VietQR thật, staging/production, backup/restore, concurrency HTTP và pilot/tích hợp. Refinalize C2 đã kiểm RPC local trong lượt này.

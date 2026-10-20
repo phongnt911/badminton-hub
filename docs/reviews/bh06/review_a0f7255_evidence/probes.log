@@ -1,0 +1,39 @@
+00:00 +0: loading /workspace/badminton-hub/test/screens/review_bh06c_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review distinct auth and registration IDs: người chơi: không thấy thao tác finance, thấy QR và gửi chờ xác nhận
+00:00 +1: review pagination: fully paid player must not show unpaid
+00:01 +2: review cash RPC boundary: paid
+00:02 +3: review cash RPC boundary: error
+00:02 +4: review cash RPC boundary: loading
+00:03 +5: review cash RPC boundary: partial
+00:03 +6: review cash RPC boundary: complete
+00:03 +7: review C4: water expense must use supported RPC category
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: is in ['court', 'shuttle', 'other']
+  Actual: 'water'
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/screens/review_bh06c_probe_test.dart:432:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/screens/review_bh06c_probe_test.dart line 432
+The test description was:
+  review C4: water expense must use supported RPC category
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +7 -1: review C4: water expense must use supported RPC category [E]
+  Test failed. See exception logs above.
+  The test description was: review C4: water expense must use supported RPC category
+  
+00:04 +7 -1: (tearDownAll)
+00:04 +7 -1: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/screens/review_bh06c_probe_test.dart: review C4: water expense must use supported RPC category
