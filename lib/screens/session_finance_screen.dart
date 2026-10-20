@@ -38,6 +38,9 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     'other': 'Khác',
   };
 
+  /// Đang đọc outstanding của một người từ RPC trước khi mở hộp thoại thu tiền.
+  bool _loadingOutstanding = false;
+
   @override
   void initState() {
     super.initState();
@@ -260,19 +263,45 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     );
   }
 
-  Future<void> _recordCash(SessionFinance finance, String playerId, int amount) async {
-    final value = await _askAmount(
-      'Thu tiền mặt',
-      initial: amount > 0 ? amount : null,
-    );
-    if (value == null || !mounted) return;
-    await _run(
-      () => context.read<FinanceProvider>().recordCashPayment(
-            playerId: playerId,
-            amountVnd: value,
-          ),
-      'Đã ghi thu tiền mặt.',
-    );
+  /// Đọc outstanding của đúng người từ RPC tổng hợp phía server trước khi ghi
+  /// thu tiền mặt; không prefill bằng phép trừ trên một trang payment.
+  Future<void> _recordCash(String playerId) async {
+    if (_loadingOutstanding) return;
+    final provider = context.read<FinanceProvider>();
+    setState(() => _loadingOutstanding = true);
+    try {
+      await provider.fetchPaymentInstructions(
+        widget.session.id,
+        playerId: playerId,
+      );
+      if (!mounted) return;
+      final instructions = provider.paymentInstructions;
+      if (provider.instructionsErrorMessage != null || instructions == null) {
+        _showSnack(
+          provider.instructionsErrorMessage ??
+              'Không đọc được khoản còn phải thu của người chơi.',
+        );
+        return;
+      }
+      if (instructions.outstandingVnd <= 0) {
+        _showSnack('Người chơi đã trả đủ.');
+        return;
+      }
+      final value = await _askAmount(
+        'Thu tiền mặt',
+        initial: instructions.outstandingVnd,
+      );
+      if (value == null || !mounted) return;
+      await _run(
+        () => context.read<FinanceProvider>().recordCashPayment(
+              playerId: playerId,
+              amountVnd: value,
+            ),
+        'Đã ghi thu tiền mặt.',
+      );
+    } finally {
+      if (mounted) setState(() => _loadingOutstanding = false);
+    }
   }
 
   Future<void> _confirmPayment(FinancePayment payment) async {
@@ -554,6 +583,12 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
 
   Widget _chargesSection(SessionFinance finance, FinanceProvider provider) {
     final collectAllowed = finance.canCollect;
+    // Trang payment của `get_session_finance` có thể bị cắt (mặc định 50 bản
+    // mới nhất), nên chỉ được suy "còn phải thu" theo người khi biết chắc đã
+    // có đủ lịch sử. Ngược lại hiển thị khoản phải trả theo revision (server)
+    // và để hộp thoại thu tiền mặt đọc outstanding từ RPC của đúng người.
+    final paymentsComplete =
+        finance.limit > 0 && finance.payments.length < finance.limit;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -567,17 +602,24 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
           const Text('Chưa có khoản phải thu.')
         else
           ...finance.charges.map((c) {
-            final outstanding = _outstandingFor(finance, c);
+            final outstanding =
+                paymentsComplete ? _outstandingFor(finance, c) : null;
             return Card(
               child: ListTile(
                 title: Text(c.displayName ?? c.playerId),
-                subtitle: Text('Còn phải thu: ${formatVnd(outstanding)} VNĐ'),
+                subtitle: Text(
+                  outstanding == null
+                      ? 'Phải trả theo phí: ${formatVnd(c.amountDueVnd)} VNĐ'
+                      : 'Còn phải thu: ${formatVnd(outstanding)} VNĐ',
+                ),
                 trailing: TextButton.icon(
                   key: Key('bh06c-cash-${c.playerId}'),
                   icon: const Icon(Icons.payments_outlined),
                   label: const Text('Thu tiền mặt'),
-                  onPressed: (collectAllowed && !provider.isSubmitting)
-                      ? () => _recordCash(finance, c.playerId, outstanding)
+                  onPressed: (collectAllowed &&
+                          !provider.isSubmitting &&
+                          !_loadingOutstanding)
+                      ? () => _recordCash(c.playerId)
                       : null,
                 ),
               ),
