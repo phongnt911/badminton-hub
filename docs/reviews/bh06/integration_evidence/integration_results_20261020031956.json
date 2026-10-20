@@ -1,0 +1,40 @@
+{
+  "timestamp_utc": "2026-10-20T03:20:00.622871+00:00",
+  "database": "bh06_integration_20261020031956",
+  "container": "bh02-test-postgres",
+  "tested_commit": "a9c7edbeabf26051f6f7f7f0b54ad8aa8c1d8ce2",
+  "total": 6,
+  "passed": 1,
+  "failed": 5,
+  "tests": [
+    {
+      "name": "receiver: host bank duoc chot khi publish",
+      "status": "FAIL",
+      "error": "publish phai chot receiver_snapshot tu host bank"
+    },
+    {
+      "name": "receiver: buoi CLB uu tien tai khoan CLB",
+      "status": "FAIL",
+      "error": "publish phai chot receiver_snapshot"
+    },
+    {
+      "name": "receiver: cau hinh bank sau publish mo duoc huong dan",
+      "status": "FAIL",
+      "error": "cau hinh bank sau publish phai mo duoc huong dan/QR"
+    },
+    {
+      "name": "receiver: draft khong chot snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "luong day du: chi phi/diem danh/chot phi/thanh toan/stale/tra them/hoan tac/quy",
+      "status": "FAIL",
+      "error": "{'can_pay': True, 'player_id': '0ea64d7a-aebf-45d6-9c73-e524b10b9775', 'reference': 'BH-EA9736B25A', 'session_id': '68d73f4c-2aa6-49f3-a9ca-d6322ff2cfd4', 'display_name': 'IT 4', 'has_receiver': False, 'billing_state': 'current', 'amount_due_vnd': 225000, 'source_version': 11, 'total_paid_vnd': 0, 'outstanding_vnd': 225000, 'receiver_snapshot': None, 'active_revision_id': '5ea2e189-3e8d-4b42-8a79-9996341bcb89'}"
+    },
+    {
+      "name": "contract DTO: get_session_finance/get_club_ledger/get_payment_instructions",
+      "status": "FAIL",
+      "error": "full chain phai chay truoc"
+    }
+  ]
+}
