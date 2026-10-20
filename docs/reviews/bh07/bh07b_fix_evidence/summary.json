@@ -12,7 +12,7 @@
   "worktree_dirty_at_db_run": false,
   "environment": {
     "platform": "Windows",
-    "flutter": "3.47.7",
+    "flutter": "3.47.6",
     "dart": "3.13.5",
     "postgres": "17 (Docker bh02-test-postgres)",
     "auth": "stub + SET ROLE",

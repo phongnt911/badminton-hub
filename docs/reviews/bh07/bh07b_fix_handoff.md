@@ -40,7 +40,7 @@ Test tái hiện nằm trong `test/providers/finance_provider_test.dart` (trư�
 
 ## 4. Lệnh, exit, kết quả tại `a682007`
 
-Môi trường: Windows, Flutter 3.47.7 / Dart 3.13.5, PostgreSQL 17 trong Docker `bh02-test-postgres`, `BH02_TEST_CONTAINER=bh02-test-postgres`, Auth stub + `SET ROLE`.
+Môi trường: Windows, Flutter 3.47.6 / Dart 3.13.5, PostgreSQL 17 trong Docker `bh02-test-postgres`, `BH02_TEST_CONTAINER=bh02-test-postgres`, Auth stub + `SET ROLE`.
 
 | Lệnh | Exit | Kết quả |
 |---|---:|---|
