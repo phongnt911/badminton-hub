@@ -8,7 +8,6 @@ import '../core/time_utils.dart';
 import '../core/vietqr_helper.dart';
 import '../models/finance.dart';
 import '../models/session.dart';
-import '../providers/auth_provider.dart';
 import '../providers/finance_provider.dart';
 
 /// Màn tài chính BH-06C của một buổi chơi.
@@ -312,7 +311,12 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     );
   }
 
-  Future<void> _submitPayment(PaymentInstructions instructions, String playerId) async {
+  Future<void> _submitPayment(PaymentInstructions instructions) async {
+    final playerId = instructions.playerId;
+    if (playerId.isEmpty) {
+      _showSnack('Thiếu thông tin đăng ký để gửi thanh toán.');
+      return;
+    }
     final ok = await _confirm(
       'Xác nhận đã chuyển khoản',
       'Ghi nhận ${formatVnd(instructions.outstandingVnd)} VNĐ ở trạng thái chờ ban quản lý xác nhận?',
@@ -320,10 +324,14 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     if (!ok || !mounted) return;
     await _run(
       () => context.read<FinanceProvider>().submitPayment(
+            // `submit_payment` tra `session_players.id`, không phải auth user id.
             playerId: playerId,
             amountVnd: instructions.outstandingVnd,
             method: 'bank_transfer',
-            reference: instructions.reference,
+            // Mã nội dung chuyển khoản của QR là cố định theo đăng ký và đã dùng
+            // làm `description` của VietQR; `payments.reference` phải là định danh
+            // mới cho từng intent nên để RPC tự sinh (NULL) — không tái dùng mã
+            // cố định, tránh va UNIQUE sau khi lần trước bị từ chối.
           ),
       'Đã ghi nhận, chờ ban quản lý xác nhận.',
     );
@@ -401,13 +409,12 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     if (instructions == null) {
       return const _FinanceEmptyView(message: 'Chưa có thông tin phí cho buổi này.');
     }
-    final selfId = context.watch<AuthProvider>().currentUser?.id;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _playerSummaryCard(instructions),
         const SizedBox(height: 16),
-        _playerPaymentArea(instructions, provider, selfId),
+        _playerPaymentArea(instructions, provider),
       ],
     );
   }
@@ -659,7 +666,6 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
   Widget _playerPaymentArea(
     PaymentInstructions instructions,
     FinanceProvider provider,
-    String? selfId,
   ) {
     if (instructions.outstandingVnd <= 0) {
       return _messageCard('Bạn đã trả đủ.');
@@ -676,13 +682,12 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     if (!instructions.hasReceiver) {
       return _messageCard('Chưa có tài khoản nhận tiền. Vui lòng liên hệ ban quản lý.');
     }
-    return _qrCard(instructions, provider, selfId);
+    return _qrCard(instructions, provider);
   }
 
   Widget _qrCard(
     PaymentInstructions instructions,
     FinanceProvider provider,
-    String? selfId,
   ) {
     final bankCode = instructions.bankCode ?? '';
     final accountNumber = instructions.accountNumber ?? '';
@@ -750,9 +755,9 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
               width: double.infinity,
               child: FilledButton(
                 key: const Key('bh06c-submit-payment'),
-                onPressed: (selfId == null || provider.isSubmitting)
+                onPressed: (instructions.playerId.isEmpty || provider.isSubmitting)
                     ? null
-                    : () => _submitPayment(instructions, selfId),
+                    : () => _submitPayment(instructions),
                 child: provider.isSubmitting
                     ? const SizedBox(
                         width: 18,
