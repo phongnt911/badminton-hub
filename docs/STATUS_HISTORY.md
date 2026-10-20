@@ -57,3 +57,9 @@ A `706bd73`, B `5e62007`, C `b31f988` đã Đạt theo từng phần; nhánh `fe
 ## Hiện hành — review tích hợp BH-06 Chưa đạt (20/10/2026)
 
 Reviewer kiểm độc lập `afeff39` trên `feat/bh06-integration`: analyze sạch, 189 Flutter +335 DB +6 case tích hợp PASS; probe nâng cấp receiver và widget version FAIL. [Báo cáo/bằng chứng](reviews/bh06/review_afeff39.md) mở I1 P1 (không backfill receiver cho buổi có sẵn) và I2 P2 (refresh không cập nhật version chốt phí). A/B/C giữ kết luận theo tested SHA trước; tiếp tục sửa theo review tích hợp, không merge/BH-07/deploy. HTTP/JWT thật, thiết bị/browser, ngân hàng/VietQR thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN.
+
+## Hiện hành — sửa review tích hợp BH-06 vòng 1 (20/10/2026)
+
+Người triển khai sửa **cả I1 P1 và I2 P2** của [review afeff39](reviews/bh06/review_afeff39.md) trên `feat/bh06-integration`, code/test/migration `31a553c`. I1: forward migration `20261020160000_bh06_integration_receiver_backfill.sql` backfill receiver cho buổi `published/in_progress/completed` còn NULL, dùng cùng resolver CLB→host, không ghi đè snapshot/FK đã chốt, buổi không bank giữ NULL. I2: `20261020170000_bh06_finance_session_version.sql` trả `session_version` trong `get_session_finance`; UI dùng version này cho `expectedVersion`, refresh sau `VERSION_CONFLICT` lấy được version mới.
+
+Test tái hiện FAIL trước sửa: nâng cấp DB vẫn `has_receiver=false`; widget conflict refresh vẫn gửi version 3 (`Expected [3,4]`, `Actual [3,3]`). Sau sửa trên `31a553c`: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 case tích hợp**, **3/3 case nâng cấp** (backfill, không bank, snapshot cũ bất biến). [Bàn giao, bảng lệnh và NOT RUN](reviews/bh06/integration_handoff.md). Trạng thái **Chờ review vòng 1**; chưa merge/deploy/apply, không tự ghi Đạt.

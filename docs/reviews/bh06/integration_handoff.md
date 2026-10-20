@@ -2,10 +2,63 @@
 
 Ngày 20/10/2026. Người triển khai: DeepSeek. Người review độc lập: Codex.
 
-> **Hiện hành reviewer 20/10/2026: Chưa đạt tích hợp tại `afeff39`** theo [review độc lập](review_afeff39.md): I1 P1 thiếu backfill receiver, I2 P2 refresh không cập nhật session version. Reviewer tự chạy analyze sạch, 189 Flutter +335 DB +6 tích hợp PASS; 2 probe FAIL. Các kết quả/trạng thái bàn giao bên dưới là lịch sử phía tác giả.
+> **Hiện hành sau sửa review vòng 1 (20/10/2026): Chờ review tích hợp.** Code/test `31a553c` trên `feat/bh06-integration`, sửa I1 P1 và I2 P2 của [review afeff39](review_afeff39.md). Bằng chứng mới: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 case tích hợp DB**, **3/3 case nâng cấp DB**. Người triển khai không tự ghi "Đạt"; chưa merge `main`/deploy/apply.
+
+> **Lịch sử reviewer 20/10/2026: Chưa đạt tích hợp tại `afeff39`** theo [review độc lập](review_afeff39.md): I1 P1 thiếu backfill receiver, I2 P2 refresh không cập nhật session version. Reviewer tự chạy analyze sạch, 189 Flutter +335 DB +6 tích hợp PASS; 2 probe FAIL. Các kết quả/trạng thái bàn giao ban đầu bên dưới là lịch sử phía tác giả.
 
 > **Trạng thái bàn giao ban đầu: Chờ review tích hợp.** Người triển khai không tự ghi "Đạt"/"Done".
 > Chưa merge `main`, chưa deploy, chưa apply staging/production.
+
+## 0. Sửa theo review tích hợp afeff39 — vòng 1
+
+### 0.1. Phạm vi và test tái hiện trước khi sửa
+
+Sửa đúng hai phát hiện của review, không mở BH-07, không đổi công thức chia phí, không thêm dependency:
+
+| Mã | Mức | Test tái hiện FAIL trước sửa | Bằng chứng |
+|---|---|---|---|
+| I1 | P1 | DB nâng cấp có bank active + buổi đã chốt phí từ trước migration; sau khi chỉ apply migration receiver, `get_payment_instructions` vẫn `has_receiver=false`, `receiver_snapshot=null` | `integration_evidence/upgrade_prefix.log`, `upgrade_results_20261020051411.json` (case A FAIL) |
+| I2 | P2 | Widget/provider thật, route version 3, server version 4: conflict → gọi đúng callback `RefreshIndicator` → chốt lại vẫn gửi 3 | `integration_evidence/i2_prefix.log` (`Expected [3,4]`, `Actual [3,3]`) |
+
+### 0.2. Cách sửa
+
+- **I1 — forward migration backfill** `supabase/migrations/20261020160000_bh06_integration_receiver_backfill.sql`:
+  - Chạy sau migration receiver đã có; chỉ quét buổi `published`/`in_progress`/`completed` còn `receiver_snapshot IS NULL`.
+  - Dùng lại `fill_session_receiver_snapshot` (cùng resolver CLB trước, host fallback); helper đã khoá hàng và chỉ UPDATE khi snapshot còn NULL.
+  - Không ghi đè snapshot/FK đã chốt; buổi chưa có bank active vẫn NULL để UI báo thiếu người nhận; không tạo bank, không ghi số dư, không đổi RLS/nghiệp vụ.
+  - Không sửa migration `20261020100000` đã chia sẻ.
+- **I2 — `session_version` trong DTO tài chính** `supabase/migrations/20261020170000_bh06_finance_session_version.sql`:
+  - `get_session_finance` trả thêm `session_version` = `sessions.version` hiện hành; giữ nguyên ACL, phân trang và các key cũ.
+  - `SessionFinance` parse `session_version`; `SessionFinanceScreen` dùng `finance.sessionVersion ?? widget.session.version` làm `expectedVersion` cho chốt phí. Sau conflict, `RefreshIndicator` tải lại DTO và lấy version mới; không bỏ gate optimistic concurrency, không tự tăng version ở client.
+  - Fallback về `Session` của route chỉ để tương thích server cũ/không có key; migration mới luôn trả key.
+
+### 0.3. Bằng chứng sau sửa trên code `31a553c`
+
+| Lệnh | Exit | Kết quả | Bằng chứng |
+|---|---|---|---|
+| `flutter analyze` | 0 | No issues found | `integration_evidence/analyze_postfix_round1.log` |
+| `flutter test` | 0 | **190/190 PASS** | `integration_evidence/flutter_postfix_round1.log` |
+| `run_integration_tests.py` | 0 | **7/7 PASS** (thêm case version/refresh) | `integration_evidence/integration_results_round1.json`, `integration_round1.log` |
+| `run_upgrade_tests.py` | 0 | **3/3 PASS** (backfill, không bank, snapshot cũ bất biến) | `integration_evidence/upgrade_results_round1.json`, `upgrade_round1.log` |
+| BH-02 `run_rls_tests.py` | 0 | 33/33 | `integration_evidence/bh02_round1_results.json`, `bh02_round1.log` |
+| BH-02 `extended_tests_15ef59b.py` | 0 | 14/14 | `integration_evidence/bh02_extended_round1_results.json`, `bh02_extended_round1.log` |
+| BH-03 `run_bh03_tests.py` | 0 | 48/48 | `integration_evidence/bh03_round1_results.json`, `bh03_round1.log` |
+| BH-03 `run_bh03_retry_tests.py` | 0 | 22/22 | `integration_evidence/bh03_retry_round1_results.json`, `bh03_retry_round1.log` |
+| BH-04 `run_bh04_tests.py` | 0 | 44/44 | `integration_evidence/bh04_round1_results.json`, `bh04_round1.log` |
+| BH-05 `run_bh05_tests.py` | 0 | 90/90 | `integration_evidence/bh05_round1_results.json`, `bh05_round1.log` |
+| BH-06 `run_bh06_tests.py` | 0 | 84/84 | `integration_evidence/bh06_round1_results.json`, `bh06_round1.log` |
+
+Tổng DB BH-02..06: 33 + 14 + 48 + 22 + 44 + 90 + 84 = **335/335 PASS**. Các JSON ghi `tested_commit=31a553c...`; một số runner ghi `worktree_dirty=true` vì bằng chứng JSON của runner trước đã được thêm vào cây, không phải thay đổi source/migration.
+
+Case nâng cấp mới kiểm đúng yêu cầu review: (A) buổi CLB đã chốt phí + bank active có sẵn được backfill sau upgrade; (B) buổi không có bank giữ NULL; (C) snapshot cũ bất biến và FK không bị ghi đè. Case DB tích hợp thứ 7 kiểm `session_version` tăng sau `start_session`, version cũ bị `VERSION_CONFLICT`, version mới chốt được.
+
+Hai probe gốc của reviewer được viết cho tip cũ nên cần cập nhật fixture khi chạy lại: (I1) phải apply **cả họ migration receiver mới** sau khi seed dữ liệu, không chỉ file `20261020100000`, vì backfill là forward migration; (I2) fixture server version 4 phải trả `session_version: 4` trong DTO tài chính, vì đây là nguồn version đã chọn theo đúng phương án review cho phép. Runner `run_upgrade_tests.py` và test widget trong repo mô phỏng đúng hai điều kiện này.
+
+### 0.4. Chưa sửa / giới hạn
+
+- Không sửa các quan sát UX ngoài review (pending trùng, nút kết thúc buổi BH-07).
+- NOT RUN giữ nguyên: HTTP/PostgREST/JWT/Auth thật, repository↔SupabaseClient qua HTTP, thiết bị/browser/deep link, ảnh VietQR/ngân hàng/chuyển khoản thật, apply staging/production, backup/restore, concurrency qua HTTP.
+- Kết quả trên là PostgreSQL cô lập + Auth stub; không thay kiểm chứng HTTP/JWT.
 
 ## 1. Nhánh và SHA
 
@@ -17,7 +70,9 @@ Ngày 20/10/2026. Người triển khai: DeepSeek. Người review độc lập:
 | Dependency B | `f28fd0f` (B tách từ đây) |
 | Commit code + test tích hợp | `8af7be5` |
 | Commit bằng chứng trên cây sạch | `6ecefb2` |
-| Commit tài liệu (báo cáo này) | commit ngay sau `6ecefb2` trên cùng nhánh |
+| Review tích hợp (Chưa đạt) | `c0cf69a` |
+| Sửa review vòng 1 (code/test/migration) | `31a553c` |
+| Commit tài liệu (báo cáo này) | commit ngay sau `31a553c` trên cùng nhánh |
 
 Đã kiểm tra `git merge-base --is-ancestor` cho `706bd73`, `5e62007`, `b31f988`,
 `48d45d2`, `f28fd0f` trên `a9c7edb`; không cherry-pick commit nào.
@@ -139,10 +194,11 @@ các case DB sẵn có (vì chưa case nào khẳng định `has_receiver = true
 1. **P2 UX — gửi trùng pending**: người chơi có thể bấm "Tôi đã chuyển khoản"
    nhiều lần trước khi manager xác nhận; server vẫn chặn thu dư khi confirm
    nhưng UI không hiển thị khoản đang chờ cho người chơi.
-2. **P2 UX — version snapshot**: `SessionFinanceScreen` dùng
-   `widget.session.version` tại thời điểm mở; nếu buổi bị sửa ở nơi khác, chốt
-   phí trả `VERSION_CONFLICT` và màn hình không tự lấy version mới (phải rời
-   màn hình mở lại). Không có bằng chứng hỏng dữ liệu.
+2. **P2 UX — version snapshot (đã sửa ở vòng 1)**: quan sát ban đầu là
+   `SessionFinanceScreen` dùng `widget.session.version` tại thời điểm mở; nếu
+   buổi bị sửa ở nơi khác, chốt phí trả `VERSION_CONFLICT` và màn hình không
+   tự lấy version mới. Vòng 1 thêm `session_version` vào DTO tài chính và dùng
+   version đó, nên refresh lấy được version hiện hành; xem §0.
 3. **Ngoài phạm vi C**: chưa có nút "Kết thúc buổi" trên UI; `complete_session`
    chỉ có repository/provider (BH-07 theo docs/24 §3.C). Không sửa.
 
@@ -152,6 +208,7 @@ các case DB sẵn có (vì chưa case nào khẳng định `has_receiver = true
 # Container PostgreSQL test (đã có role anon/authenticated/service_role)
 $env:BH02_TEST_CONTAINER='bh02-test-postgres'
 python docs\reviews\bh06\integration_evidence\run_integration_tests.py
+python docs\reviews\bh06\integration_evidence\run_upgrade_tests.py
 
 # Toàn bộ runner DB
 python docs\reviews\bh02\run_rls_tests.py
@@ -175,6 +232,8 @@ chép sang `integration_evidence/` và không commit ở thư mục gốc.
 
 - Kiểm tra migration trigger: không ghi đè snapshot đã chốt, không rò bank qua
   projection public, không ảnh hưởng RLS/lịch sử.
+- Kiểm tra backfill nâng cấp I1: DB có dữ liệu trước migration, bank active có
+  sẵn, buổi không bank và snapshot cũ bất biến (`run_upgrade_tests.py`).
 - Xác nhận quy tắc receiver (CLB trước, host fallback) hoặc yêu cầu API chọn
   receiver nếu cần quyết định sản phẩm khác.
 - Đánh giá chất lượng 2 widget test tích hợp (mock tại ranh giới RPC, không

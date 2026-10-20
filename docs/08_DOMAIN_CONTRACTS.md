@@ -82,7 +82,7 @@ Chỉ owner/treasurer CLB; type direction và amount>0/title/request_id; không 
 - get_session_public_detail(id): public/unlisted tối thiểu; private phải check quyền. Không trả contacts/bank/sổ quỹ.
 - get_session_management(id): đúng host/cohost, contacts; finance projection riêng nếu có quyền tiền.
 - get_my_registration(id): account hiện tại, charge active/payments và tài khoản nhận tiền khi confirmed; không danh sách contacts người khác.
-- get_session_finance(id), get_club_ledger(club_id): quyền theo ma trận; phân trang.
+- get_session_finance(id), get_club_ledger(club_id): quyền theo ma trận; phân trang. get_session_finance trả `billing_input_version` và `session_version` hiện hành để client chốt phí đúng gate optimistic concurrency và refresh sau VERSION_CONFLICT.
 - get_payment_instructions(player_id): đúng player/finance, chỉ khi billing_state=current, trả bank snapshot, outstanding, source_version và mã tham chiếu duy nhất. UI dùng VietQRHelper và chỉ tạo QR khi outstanding > 0; không có ngân hàng thì báo cấu hình thiếu.
 
 Danh sách mặc định limit 20, tối đa 100; cursor theo thời gian+ID ổn định. Tìm buổi host lọc club/date/lifecycle, không đọc tất cả lịch sử.
