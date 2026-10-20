@@ -1,6 +1,6 @@
 # Bàn giao BH-06C — UI tài chính buổi và sổ quỹ CLB
 
-> **Hiện hành 20/10/2026:** reviewer kết luận **Chưa đạt sau vòng sửa 2/2 tại `a0f7255`**; đóng C1/C2/C3, mở C4 P2 (category Nước không được RPC hỗ trợ). [Báo cáo/bằng chứng](review_a0f7255.md). Dừng vòng tự động theo AGENTS, báo chủ dự án; chưa tích hợp/merge/deploy. Phần bàn giao và kết luận cũ bên dưới giữ làm lịch sử.
+> **Hiện hành 20/10/2026:** reviewer mở **C4 P2** tại `a0f7255` (category Nước không được RPC hỗ trợ) và dừng vòng tự động; chủ dự án giao **LẦN 2** nên đã sửa C4 tại code `bd17a95` (test `bfbd8f6`, analyze sạch, 187/187 Flutter). [Báo cáo review](review_a0f7255.md), [ghi chú sửa C4](bh06c_c4_fix.md). Trạng thái: **Chờ review**; chưa tích hợp/merge/deploy. Phần bàn giao và kết luận cũ bên dưới giữ làm lịch sử.
 
 Ngày 18/10/2026 (Việt Nam). Người triển khai: phiên triển khai (DeepSeek) theo [docs/ai/IMPLEMENTER.md](../ai/IMPLEMENTER.md). Trạng thái bàn giao ban đầu: **Chờ review**. Kết luận reviewer 18/10/2026 tại `af31e7b`: **Chưa đạt C**, C1/C2 P1 và C3 P2 còn mở; xem [review_af31e7b](review_af31e7b.md) và bằng chứng. Giữ mô tả/lệnh tác giả bên dưới làm lịch sử. Người triển khai **không tự ghi Đạt**.
 
@@ -83,5 +83,12 @@ Ghi chú kỹ thuật cho reviewer:
 - Commit: `75aa95b` (test tái hiện — 2 FAIL đúng C3) → `5174e9d` (fix). `flutter analyze` 0 issue; `flutter test` **186/186 PASS**; không đổi DB nên runner DB không chạy lại. Chi tiết: [bh06c_review_round2.md](bh06c_review_round2.md).
 - Probe C3 của reviewer có hai kỳ vọng mâu thuẫn (vừa “100,000” vừa “0”) nên nguyên văn không thể PASS; test hồi quy của tác giả kiểm hành vi thay thế đúng hướng dẫn reviewer (không suy nợ; prefill từ RPC; chặn khi đã trả đủ).
 - Trạng thái: **Chờ review vòng 2** (vòng sửa 2/2). NOT RUN: refinalize ở mức RPC/DB, HTTP/JWT/Auth thật, thiết bị/browser, bank/VietQR thật, staging/production, backup/restore, concurrency HTTP.
+
+## 8. Sửa C4 theo chỉ định chủ dự án — LẦN 2 (20/10/2026)
+
+- Reviewer [review_a0f7255](review_a0f7255.md) đóng C1/C2/C3 và mở **C4 P2**: UI gửi `category: 'water'` trong khi RPC chỉ nhận `court`/`shuttle`/`other`. Reviewer dừng vòng tự động; chủ dự án giao tiếp **LẦN 2** nên sửa.
+- Test tái hiện `bfbd8f6` (`session_finance_screen_test.dart:643`): chọn từng loại chi phí và kiểm payload; **FAIL** trước sửa (`water` at index 2). Fix `bd17a95`: `_expenseRpcCategory` ánh xạ `water → other`, giữ nội dung; không đổi schema/migration.
+- `flutter analyze` 0 issue; `flutter test` **187/187 PASS**; không đổi DB nên runner DB không chạy lại. Chi tiết: [bh06c_c4_fix.md](bh06c_c4_fix.md).
+- Trạng thái: **Chờ review**. NOT RUN: chạy lại probe RPC C4/Docker, HTTP/JWT/Auth thật, thiết bị/browser, bank/VietQR thật, staging/production, backup/restore, concurrency HTTP.
 
 Đây là bằng chứng phía tác giả; reviewer cần tự chạy lại trên đúng SHA và tự kết luận. Người triển khai không tự ghi Đạt và không chuyển sang phần tích hợp khi chưa có kết luận Đạt C.
