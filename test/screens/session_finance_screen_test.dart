@@ -357,6 +357,213 @@ void main() {
     );
   });
 
+  testWidgets('C2: trả thêm sau refinalize tạo intent mới với số tiền mới',
+      (tester) async {
+    var calls = 0;
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async {
+        calls++;
+        if (calls == 1) {
+          return const PaymentInstructions(
+            sessionId: 's1',
+            playerId: 'registration-p1',
+            billingState: 'current',
+            amountDueVnd: 100000,
+            outstandingVnd: 100000,
+            reference: 'BH-ABC',
+            receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+            hasReceiver: true,
+            canPay: true,
+          );
+        }
+        // Sau khi chốt lại phí: due tăng, đã trả 100.000, còn 50.000.
+        return const PaymentInstructions(
+          sessionId: 's1',
+          playerId: 'registration-p1',
+          billingState: 'current',
+          amountDueVnd: 150000,
+          totalPaidVnd: 100000,
+          outstandingVnd: 50000,
+          reference: 'BH-ABC',
+          receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+          hasReceiver: true,
+          canPay: true,
+        );
+      },
+    );
+    final submitted = <String, int>{};
+    when(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: any(named: 'amountVnd'),
+          method: 'bank_transfer',
+          reference: null,
+        )).thenAnswer((invocation) async {
+      final requestId = invocation.namedArguments[#requestId] as String;
+      submitted[requestId] =
+          invocation.namedArguments[#amountVnd] as int;
+      return PaymentResult(
+        paymentId: 'p${submitted.length}',
+        playerId: 'registration-p1',
+        sessionId: 's1',
+      );
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byKey(const Key('bh06c-submit-payment')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Đồng ý'));
+      await tester.pumpAndSettle();
+    }
+
+    expect(submitted.values.toList(), [100000, 50000]);
+    expect(submitted.keys.toSet(), hasLength(2));
+  });
+
+  testWidgets('C3: không suy khoản nợ từ một trang payment thiếu lịch sử',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(
+        outstandingTotal: 0,
+        charges: const [
+          FinanceCharge(
+            playerId: 'paid-player',
+            displayName: 'Paid player',
+            amountDueVnd: 100000,
+          ),
+        ],
+        payments: List.generate(
+          50,
+          (i) => FinancePayment(
+            paymentId: 'new-$i',
+            playerId: 'other-player',
+            amountVnd: 1,
+            status: 'submitted',
+          ),
+        ),
+      ),
+    );
+    // Nguồn tổng hợp đầy đủ phía server cho người đã trả ở trang cũ.
+    when(() => repo.getPaymentInstructions('s1', playerId: 'paid-player'))
+        .thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'paid-player',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        totalPaidVnd: 100000,
+        outstandingVnd: 0,
+        reference: 'BH-PAID',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: false,
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    // Không hiển thị khoản nợ suy từ trang payment bị cắt.
+    expect(find.textContaining('Còn phải thu'), findsNothing);
+    expect(find.text('Phải trả theo phí: 100,000 VNĐ'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('bh06c-cash-paid-player')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Người chơi đã trả đủ.'), findsOneWidget);
+    expect(find.text('Số tiền (VNĐ) *'), findsNothing);
+  });
+
+  testWidgets('C3: prefill thu tiền mặt lấy outstanding từ RPC',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(
+        outstandingTotal: 30000,
+        charges: const [
+          FinanceCharge(playerId: 'p1', amountDueVnd: 100000),
+        ],
+        payments: [
+          const FinancePayment(
+            paymentId: 'c1',
+            playerId: 'p1',
+            amountVnd: 40000,
+            status: 'confirmed',
+          ),
+          for (var i = 0; i < 49; i++)
+            FinancePayment(
+              paymentId: 'n$i',
+              playerId: 'other-player',
+              amountVnd: 1,
+              status: 'submitted',
+            ),
+        ],
+      ),
+    );
+    // Trang payment chỉ có 40.000; server biết còn 70.000 đã trả trước đó.
+    when(() => repo.getPaymentInstructions('s1', playerId: 'p1')).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'p1',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        totalPaidVnd: 70000,
+        outstandingVnd: 30000,
+        reference: 'BH-P1',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: true,
+      ),
+    );
+    when(() => repo.recordCashPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'p1',
+          amountVnd: 30000,
+          reference: null,
+        )).thenAnswer(
+      (_) async => const PaymentResult(
+        paymentId: 'cash1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('bh06c-cash-p1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('30000'), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text('Xác nhận'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    verify(() => repo.recordCashPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'p1',
+          amountVnd: 30000,
+          reference: null,
+        )).called(1);
+  });
+
   testWidgets('người chơi: chưa chốt phí thì không có QR', (tester) async {
     when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
       (_) async => const PaymentInstructions(
