@@ -1,0 +1,54 @@
+Khởi tạo cơ sở dữ liệu kiểm thử BH-03: bh03_clean_20261020040929 và bh03_legacy_20261020040929...
+Chuỗi migrations đã áp dụng thành công trên cả CLEAN và LEGACY.
+PASS: Tạo CLB và Owner nguyên tử (create_club)
+PASS: Idempotency replay không tạo CLB kép
+PASS: Idempotency khác payload bị chặn (IDEMPOTENCY_CONFLICT)
+PASS: Anon bị chặn tạo CLB (UNAUTHENTICATED)
+PASS: Owner cập nhật thông tin CLB thành công
+PASS: Người ngoài bị chặn sửa CLB (FORBIDDEN)
+PASS: Thêm thành viên offline không tài khoản với liên hệ riêng tư
+PASS: Từ chối thêm thành viên với user_id không tồn tại
+PASS: Host của CLB thêm thành viên thành công
+PASS: Thành viên thường bị chặn thêm người (FORBIDDEN)
+PASS: Host cập nhật SĐT và ghi chú của thành viên thành công
+PASS: Thủ quỹ bị chặn cập nhật liên hệ thành viên (FORBIDDEN)
+PASS: Chặn cấp vai trò quản lý (host/treasurer) cho người chưa có tài khoản
+PASS: Owner phân quyền thành công cho thành viên đã liên kết tài khoản
+PASS: Chặn sửa hoặc hạ quyền Owner qua endpoint role thông thường
+PASS: Chặn thành viên tự nâng quyền hoặc sửa role người khác
+PASS: Owner cấu hình ngân hàng CLB giữ nguyên số 0 ở đầu (TEXT)
+PASS: Cập nhật bank vô hiệu hóa tài khoản cũ, giữ đúng 1 active
+PASS: Thủ quỹ bị chặn cấu hình tài khoản ngân hàng CLB (FORBIDDEN)
+PASS: Host tự cấu hình tài khoản cá nhân của chính mình
+PASS: Số dư quỹ chỉ hiển thị cho Chủ nhiệm và Thủ quỹ, ẩn với thành viên
+PASS: SĐT thành viên chỉ hiển thị cho Owner/Host và chính chủ, ẩn với Thủ quỹ và member khác
+PASS: Tài khoản ngân hàng CLB chỉ Chủ nhiệm và Thủ quỹ xem được
+PASS: Danh sách CLB của tôi (list_my_clubs) hiển thị đúng theo vai trò
+PASS: Tạo CLB và Owner nguyên tử (create_club)
+PASS: Idempotency replay không tạo CLB kép
+PASS: Idempotency khác payload bị chặn (IDEMPOTENCY_CONFLICT)
+PASS: Anon bị chặn tạo CLB (UNAUTHENTICATED)
+PASS: Owner cập nhật thông tin CLB thành công
+PASS: Người ngoài bị chặn sửa CLB (FORBIDDEN)
+PASS: Thêm thành viên offline không tài khoản với liên hệ riêng tư
+PASS: Từ chối thêm thành viên với user_id không tồn tại
+PASS: Host của CLB thêm thành viên thành công
+PASS: Thành viên thường bị chặn thêm người (FORBIDDEN)
+PASS: Host cập nhật SĐT và ghi chú của thành viên thành công
+PASS: Thủ quỹ bị chặn cập nhật liên hệ thành viên (FORBIDDEN)
+PASS: Chặn cấp vai trò quản lý (host/treasurer) cho người chưa có tài khoản
+PASS: Owner phân quyền thành công cho thành viên đã liên kết tài khoản
+PASS: Chặn sửa hoặc hạ quyền Owner qua endpoint role thông thường
+PASS: Chặn thành viên tự nâng quyền hoặc sửa role người khác
+PASS: Owner cấu hình ngân hàng CLB giữ nguyên số 0 ở đầu (TEXT)
+PASS: Cập nhật bank vô hiệu hóa tài khoản cũ, giữ đúng 1 active
+PASS: Thủ quỹ bị chặn cấu hình tài khoản ngân hàng CLB (FORBIDDEN)
+PASS: Host tự cấu hình tài khoản cá nhân của chính mình
+PASS: Số dư quỹ chỉ hiển thị cho Chủ nhiệm và Thủ quỹ, ẩn với thành viên
+PASS: SĐT thành viên chỉ hiển thị cho Owner/Host và chính chủ, ẩn với Thủ quỹ và member khác
+PASS: Tài khoản ngân hàng CLB chỉ Chủ nhiệm và Thủ quỹ xem được
+PASS: Danh sách CLB của tôi (list_my_clubs) hiển thị đúng theo vai trò
+
+==========================================
+KẾT QUẢ KIỂM THỬ BH-03: TỔNG 48 | PASS 48 | FAIL 0
+==========================================

@@ -1,0 +1,9 @@
+Tao DB bh06_integration_20261020040929 tren container bh02-review-bh06 ...
+PASS: receiver: host bank duoc chot khi publish
+PASS: receiver: buoi CLB uu tien tai khoan CLB
+PASS: receiver: cau hinh bank sau publish mo duoc huong dan
+PASS: receiver: draft khong chot snapshot
+PASS: luong day du: chi phi/diem danh/chot phi/thanh toan/stale/tra them/hoan tac/quy
+PASS: contract DTO: get_session_finance/get_club_ledger/get_payment_instructions
+TOTAL 6 PASS 6 FAIL 0
+Results file: /workspace/badminton-hub/docs/reviews/bh06/integration_evidence/integration_results_20261020040929.json

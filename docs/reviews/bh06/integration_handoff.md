@@ -2,7 +2,9 @@
 
 Ngày 20/10/2026. Người triển khai: DeepSeek. Người review độc lập: Codex.
 
-> **Trạng thái: Chờ review tích hợp.** Người triển khai không tự ghi "Đạt"/"Done".
+> **Hiện hành reviewer 20/10/2026: Chưa đạt tích hợp tại `afeff39`** theo [review độc lập](review_afeff39.md): I1 P1 thiếu backfill receiver, I2 P2 refresh không cập nhật session version. Reviewer tự chạy analyze sạch, 189 Flutter +335 DB +6 tích hợp PASS; 2 probe FAIL. Các kết quả/trạng thái bàn giao bên dưới là lịch sử phía tác giả.
+
+> **Trạng thái bàn giao ban đầu: Chờ review tích hợp.** Người triển khai không tự ghi "Đạt"/"Done".
 > Chưa merge `main`, chưa deploy, chưa apply staging/production.
 
 ## 1. Nhánh và SHA
