@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md). Reviewer vòng 0 kết luận BH-07B **Chưa đạt tại `1298490`** ([review](reviews/bh07/review_1298490.md): B1/B2 P2); người triển khai đã sửa và bàn giao **Chờ review BH-07B vòng 1 tại `a682007`** theo [bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md). C/D, toàn BH-07 và pilot chưa nghiệm thu.
+Ngày 20/10/2026. BH-06 đã merge main `e7f7627`; BH-07A Đạt local tại `4512c3a`. BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
 
 ## 1. Nền bắt buộc
 
@@ -20,7 +20,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 | C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
 | D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
 
-**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã sửa review vòng 0 và bàn giao Chờ review vòng 1 tại `a682007`**; chỉ bắt đầu C/D khi được giao. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã Đạt local tại `d7bac04`, tested code `a682007`, đóng B1/B2 vòng 1/2**; chỉ bắt đầu C/D khi được giao. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
 
 ## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
 
@@ -67,10 +67,16 @@ Viết tài liệu vận hành và chạy rehearsal trên môi trường cô l�
 
 **Chưa đạt B**, theo [review độc lập](reviews/bh07/review_1298490.md): B1/B2 P2 còn mở (cache summary sau FORBIDDEN; history trùng ID khi các trang OFFSET chồng lấn). Reviewer tự chạy analyze sạch, 211 Flutter +335 DB +23 BH-07, 7 tích hợp +3 nâng cấp BH-06 PASS; probe provider 4 PASS/2 FAIL. Chỉ sửa B theo review, test đỏ trước sửa rồi xanh; tối đa hai vòng theo AGENTS. Không sửa RPC/migration A, làm UI C/D hoặc merge/deploy.
 
-## 9. Bàn giao BH-07B sửa review vòng 1/2 — Chờ review (20/10/2026)
+## 9. (Lịch sử) Bàn giao BH-07B sửa review vòng 1/2 — Chờ review (20/10/2026)
 
 - Nhánh `feat/bh07b-data`, review công bố `135ff23`, base A `fd38838`, tested code vòng 0 `89e1d8f`, **tested code vòng 1 `a682007f6cd85931b410ec2930fd40cdd3fc73f4`**. **Chờ review BH-07B vòng 1**, không tự ghi Đạt.
 - B1: `FORBIDDEN` xoá summary/quyền finance cache, giữ lỗi rõ ràng và scope để retry; transport error tạm thời vẫn giữ cache kèm lỗi; tiền không bị đổi thành 0.
 - B2: dedupe lịch sử theo session ID; offset kế tiếp theo số dòng thô server đã tiêu thụ, không theo số ID duy nhất; filter/actor/serial/loading giữ nguyên; test ba trang `[0,2,4]` với dữ liệu chồng lấn.
 - Test-first `prefix.log`: exit 1, đúng 2 FAIL; sau sửa targeted **58/58 PASS**, probe reviewer **6/6 PASS**. Final: analyze sạch, **212/212 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**. [Bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md), [summary JSON](reviews/bh07/bh07b_fix_evidence/summary.json).
 - Không sửa migration/RPC A, không UI C/D, không merge main/deploy. HTTP/PostgREST/JWT/Auth thật, UI/thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN.
+
+## 10. Kết luận reviewer vòng 1/2 — d7bac04 (20/10/2026)
+
+BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
+
+Các bàn giao/kết luận vòng 0–1 phía trên giữ làm snapshot lịch sử. NOT RUN giữ theo review; chưa giao hoặc triển khai C/D.

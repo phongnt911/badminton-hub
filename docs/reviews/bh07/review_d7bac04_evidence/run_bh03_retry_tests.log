@@ -1,0 +1,23 @@
+PASS bh03_clean_20261020145751: pagination stable and bounded
+PASS bh03_clean_20261020145751: ACL list_my_clubs()
+PASS bh03_clean_20261020145751: ACL get_club_detail(uuid)
+PASS bh03_clean_20261020145751: ACL list_club_members(uuid,integer,integer)
+PASS bh03_clean_20261020145751: consent required
+PASS bh03_clean_20261020145751: request id required
+PASS bh03_clean_20261020145751: changed contact note conflicts
+PASS bh03_clean_20261020145751: changed bank name conflicts
+PASS bh03_clean_20261020145751: field boundaries cannot collide
+PASS bh03_clean_20261020145751: concurrent replay returns one club
+PASS bh03_clean_20261020145751: concurrent changed payload conflicts
+PASS bh03_legacy_20261020145751: pagination stable and bounded
+PASS bh03_legacy_20261020145751: ACL list_my_clubs()
+PASS bh03_legacy_20261020145751: ACL get_club_detail(uuid)
+PASS bh03_legacy_20261020145751: ACL list_club_members(uuid,integer,integer)
+PASS bh03_legacy_20261020145751: consent required
+PASS bh03_legacy_20261020145751: request id required
+PASS bh03_legacy_20261020145751: changed contact note conflicts
+PASS bh03_legacy_20261020145751: changed bank name conflicts
+PASS bh03_legacy_20261020145751: field boundaries cannot collide
+PASS bh03_legacy_20261020145751: concurrent replay returns one club
+PASS bh03_legacy_20261020145751: concurrent changed payload conflicts
+TOTAL 22 PASS 22 FAIL 0

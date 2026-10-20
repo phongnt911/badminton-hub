@@ -84,6 +84,12 @@ Người triển khai bàn giao B trên `feat/bh07b-data`, base `fd38838`, teste
 
 Reviewer kiểm độc lập đúng tip 1298490, source trùng 89e1d8f và mở B1/B2 P2 theo [review/bằng chứng](reviews/bh07/review_1298490.md). Analyze sạch, 211 Flutter +335 DB +23 BH-07, 7 tích hợp +3 nâng cấp BH-06 PASS; probe provider 4 PASS/2 FAIL. B1: summary/permission cache còn sau FORBIDDEN; B2: history trùng ID khi OFFSET dịch do buổi mới chen đầu. A giữ Đạt; chỉ sửa B theo quy trình, không tự chuyển C/D, merge main hoặc deploy. Các cổng HTTP/JWT/Auth, UI/thiết bị/ngân hàng thật và pilot chưa nghiệm thu.
 
-## Hiện hành — BH-07B sửa review vòng 1/2, Chờ review (20/10/2026)
+## (Lịch sử) — BH-07B sửa review vòng 1/2, Chờ review (20/10/2026)
 
 Người triển khai đã sửa B1/B2 P2 trên `feat/bh07b-data`, tested code **`a682007f6cd85931b410ec2930fd40cdd3fc73f4`**, theo [bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md). Test-first `prefix.log` exit 1 với đúng 2 FAIL; sau sửa targeted 58/58, probe reviewer phát lại 6/6. Final: analyze sạch, **212/212 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**; reviewer chưa chạy lại vòng 1. **Chờ review BH-07B vòng 1**; chưa Đạt, chưa chuyển C/D, chưa merge main/deploy/apply staging/production.
+
+## Hiện hành — BH-07B Đạt local vòng 1/2 (20/10/2026)
+
+BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
+
+Checkout ban đầu sạch, nguồn trùng a682007 và không đổi sau kiểm thử; mọi runner exit 0. Chỉ commit/push báo cáo, bằng chứng, trạng thái trên feat/bh07b-data. Giữ NOT RUN theo review.

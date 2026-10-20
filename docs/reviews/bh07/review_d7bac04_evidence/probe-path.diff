@@ -1,0 +1,11 @@
+--- docs/reviews/bh07/review_1298490_evidence/provider_probe.dart.txt
++++ provider_probe_replay.dart.txt
+@@ -13,7 +13,7 @@
+ 
+ void main() {
+   setUpAll(() => registerFallbackValue(const SessionHistoryFilter()));
+-  Map<String,dynamic> fixture() => jsonDecode(File('/workspace/scratch/bh07-review-1298490/rpc-fixture.json').readAsStringSync()) as Map<String,dynamic>;
++  Map<String,dynamic> fixture() => jsonDecode(File('/workspace/badminton-hub/docs/reviews/bh07/review_1298490_evidence/rpc-fixture.json').readAsStringSync()) as Map<String,dynamic>;
+ 
+   test('review history: overlapping RPC pages do not duplicate a session or corrupt raw offset', () async {
+     final data=fixture();

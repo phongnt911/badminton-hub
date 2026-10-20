@@ -1,0 +1,118 @@
+{
+  "tested_head": "d7bac04df0712ab37ab5568900ee2da60b95b612",
+  "tested_code_sha": "a682007f6cd85931b410ec2930fd40cdd3fc73f4",
+  "base_a": "fd38838d85fed31603eae99ed363cf202650aeee",
+  "branch": "feat/bh07b-data",
+  "round": "1/2",
+  "status": "Đạt B local",
+  "initial_worktree_clean": true,
+  "source_unchanged_after_checks": true,
+  "code_tree_matches_tested_sha": true,
+  "migrations_and_screens_unchanged_from_A": true,
+  "environment": {
+    "flutter": "3.47.7",
+    "dart": "3.13.5",
+    "postgres": "17, Docker bh02-review-bh06 --network none",
+    "auth": "stub + SET ROLE; no HTTP"
+  },
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_full_before_probe": {
+      "exit": 0,
+      "passed": 212
+    },
+    "original_reviewer_probe_replay": {
+      "exit": 0,
+      "passed": 6,
+      "only_fixture_path_changed": true
+    },
+    "db_bh02_06": {
+      "passed": 335,
+      "all_runner_exits": 0
+    },
+    "db_bh07": {
+      "exit": 0,
+      "passed": 23
+    },
+    "bh06_integration": {
+      "exit": 0,
+      "passed": 7
+    },
+    "bh06_upgrade": {
+      "exit": 0,
+      "passed": 3
+    }
+  },
+  "db_results": [
+    {
+      "file": "extended_results_20261020145751.json",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "file": "rls_test_results_20261020145751.json",
+      "passed": 33,
+      "failed": 0
+    },
+    {
+      "file": "bh03_retry_results_20261020145751.json",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "file": "bh03_test_results_20261020145751.json",
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "file": "bh04_test_results_20261020145751.json",
+      "passed": 44,
+      "failed": 0
+    },
+    {
+      "file": "bh05_test_results_20261020145751.json",
+      "passed": 90,
+      "failed": 0
+    },
+    {
+      "file": "bh06_test_results_20261020145751.json",
+      "passed": 84,
+      "failed": 0
+    },
+    {
+      "file": "integration_results_20261020145818.json",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "upgrade_results_20261020145852.json",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "bh07_test_results_20261020145751.json",
+      "passed": 23,
+      "failed": 0
+    }
+  ],
+  "closed_findings": [
+    "B1 P2",
+    "B2 P2"
+  ],
+  "open_findings": [],
+  "worktree_note": "Initial checkout clean; generated JSON/probe may make runner metadata dirty=true. Tracked lib/test/migration hashes unchanged. Temporary test removed after replay.",
+  "author_evidence_limit": "Author red/green raw log filenames are referenced but not committed; not counted as independent results. Previous reviewer red probes and current unchanged-expectation replay are retained.",
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "UI C",
+    "thiết bị/browser/offline",
+    "ngân hàng/VietQR thật",
+    "staging/production",
+    "backup/restore",
+    "concurrency HTTP",
+    "pilot D"
+  ]
+}
