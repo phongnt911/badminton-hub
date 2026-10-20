@@ -504,7 +504,10 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
   }
 
   Widget _managerActions(SessionFinance finance, FinanceProvider provider) {
-    final version = widget.session.version;
+    // Version phải lấy từ DTO tài chính vừa đọc: refresh sau VERSION_CONFLICT
+    // sẽ cập nhật version hiện hành. Chỉ fallback về Session của route khi
+    // server cũ chưa trả `session_version`.
+    final version = finance.sessionVersion ?? widget.session.version;
     final busy = provider.isSubmitting;
     return Card(
       child: Padding(

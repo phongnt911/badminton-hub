@@ -693,4 +693,75 @@ void main() {
     expect(calls[2]['category'], 'other');
     expect(calls[2]['title'], 'Chi Nước');
   });
+
+  testWidgets(
+      'I2: refresh cập nhật session version hiện hành sau VERSION_CONFLICT',
+      (tester) async {
+    var reads = 0;
+    final versions = <int>[];
+    // Route mở ở version 3; manager khác start/cập nhật buổi lên version 4.
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async {
+      reads++;
+      return SessionFinance.fromJson({
+        'session_id': 's1',
+        'session_version': reads == 1 ? 3 : 4,
+        'billing_input_version': 5,
+        'billing_state': 'current',
+        'active_revision': {
+          'revision_id': 'r1',
+          'revision_no': 1,
+          'source_version': 5,
+          'allocation_total_vnd': 1500000,
+        },
+        'expenses_total_vnd': 1500000,
+        'outstanding_total_vnd': 300000,
+      });
+    });
+    when(() => repo.finalizeSessionCharges(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          expectedVersion: any(named: 'expectedVersion'),
+          expectedBillingInputVersion: 5,
+          reason: any(named: 'reason'),
+        )).thenAnswer((invocation) async {
+      final version = invocation.namedArguments[#expectedVersion] as int;
+      versions.add(version);
+      if (version != 4) {
+        throw Exception('VERSION_CONFLICT: newer session');
+      }
+      return const RevisionResult(revisionId: 'r2', sessionId: 's1');
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    Future<void> attemptFinalize() async {
+      await tester.tap(find.byKey(const Key('bh06c-finalize')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'chốt lại sau conflict');
+      await tester.tap(find.text('Xác nhận'));
+      await tester.pumpAndSettle();
+    }
+
+    await attemptFinalize();
+    expect(
+      find.text('Buổi chơi đã được thay đổi ở nơi khác. Vui lòng tải lại.'),
+      findsOneWidget,
+    );
+
+    // Đúng callback của RefreshIndicator, như người dùng kéo tải lại.
+    await tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    await tester.pumpAndSettle();
+
+    await attemptFinalize();
+    expect(reads, greaterThanOrEqualTo(2));
+    expect(versions, [3, 4]);
+  });
 }

@@ -230,6 +230,11 @@ class SessionFinance {
   final String lifecycle;
   final String feeMode;
   final int billingInputVersion;
+
+  /// `sessions.version` hiện hành tại thời điểm đọc DTO — dùng làm
+  /// `expectedVersion` cho `finalize_session_charges` để refresh sau
+  /// VERSION_CONFLICT lấy được version mới. Nullable khi server cũ/không có.
+  final int? sessionVersion;
   final String billingState;
   final FinanceRevision? activeRevision;
   final int expensesTotalVnd;
@@ -247,6 +252,7 @@ class SessionFinance {
     this.lifecycle = 'draft',
     this.feeMode = 'split_actual',
     this.billingInputVersion = 1,
+    this.sessionVersion,
     this.billingState = 'not_finalized',
     this.activeRevision,
     this.expensesTotalVnd = 0,
@@ -278,6 +284,7 @@ class SessionFinance {
       lifecycle: json['lifecycle']?.toString() ?? 'draft',
       feeMode: json['fee_mode']?.toString() ?? 'split_actual',
       billingInputVersion: _asInt(json['billing_input_version']) ?? 1,
+      sessionVersion: _asInt(json['session_version']),
       billingState: json['billing_state']?.toString() ?? 'not_finalized',
       activeRevision:
           revision == null ? null : FinanceRevision.fromJson(revision),

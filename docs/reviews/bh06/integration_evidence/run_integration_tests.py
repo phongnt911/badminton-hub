@@ -328,6 +328,35 @@ def t_draft_not_snapshotted():
     assert snapshot(sid) is None, 'draft khong duoc chot snapshot'
 
 
+def t_session_version_refresh():
+    sid = create_session(1, 'VersionRefresh', club_link=CLUB)
+    publish(sid)
+    guest = add_guest(1, sid, 'Guest Version')['player_id']
+    before = finance(1, sid)
+    db_version = int(must(
+        f"SELECT version FROM public.sessions WHERE id='{sid}';", 'session version'))
+    assert before['session_version'] == db_version, (before['session_version'], db_version)
+
+    # Manager khac bat dau buoi: sessions.version tang, billing input khong doi.
+    start(sid)
+    attend(1, sid, guest)
+    post_expense(1, sid, 'court', 'san version', 100000)
+    refreshed = finance(1, sid)
+    assert refreshed['session_version'] > before['session_version'], refreshed
+    assert refreshed['billing_input_version'] >= before['billing_input_version'], refreshed
+
+    # Gui version cu phai bi RPC chan; version moi tu DTO phai chot duoc.
+    billing = refreshed['billing_input_version']
+    r = user_exec(1, "SELECT public.finalize_session_charges("
+                     f"'{sid}'::uuid, {before['session_version']}::bigint, "
+                     f"{billing}::bigint, NULL, '{newreq()}');")
+    assert expect_error(r, 'VERSION_CONFLICT'), f"version cu phai bi chan: {r.stderr}"
+    final = load(must_user(1, "SELECT public.finalize_session_charges("
+                              f"'{sid}'::uuid, {refreshed['session_version']}::bigint, "
+                              f"{billing}::bigint, NULL, '{newreq()}');", 'finalize new version'))
+    assert final['billing_state'] == 'current', final
+
+
 # ------------------------------------------------------ full chain ----------
 SHARED = {}
 
@@ -472,9 +501,9 @@ def t_dto_shapes():
     assert sid, 'full chain phai chay truoc'
     fin = finance(3, sid)
     for key in ('session_id', 'title', 'club_id', 'lifecycle', 'fee_mode',
-                'billing_input_version', 'billing_state', 'active_revision',
-                'expenses_total_vnd', 'outstanding_total_vnd', 'expenses',
-                'charges', 'payments', 'limit', 'offset'):
+                'billing_input_version', 'session_version', 'billing_state',
+                'active_revision', 'expenses_total_vnd', 'outstanding_total_vnd',
+                'expenses', 'charges', 'payments', 'limit', 'offset'):
         assert key in fin, f'thieu key {key} trong get_session_finance'
     led = ledger(3)
     for key in ('club_id', 'balance_vnd', 'limit', 'offset', 'entries'):
@@ -491,6 +520,7 @@ run_test("receiver: host bank duoc chot khi publish", t_host_receiver_on_publish
 run_test("receiver: buoi CLB uu tien tai khoan CLB", t_club_receiver_preferred)
 run_test("receiver: cau hinh bank sau publish mo duoc huong dan", t_bank_after_publish)
 run_test("receiver: draft khong chot snapshot", t_draft_not_snapshotted)
+run_test("version: refresh DTO sau start + chan version cu, chot version moi", t_session_version_refresh)
 run_test("luong day du: chi phi/diem danh/chot phi/thanh toan/stale/tra them/hoan tac/quy", t_full_chain)
 run_test("contract DTO: get_session_finance/get_club_ledger/get_payment_instructions", t_dto_shapes)
 

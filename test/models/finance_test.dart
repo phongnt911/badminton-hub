@@ -71,6 +71,7 @@ void main() {
         'lifecycle': 'in_progress',
         'fee_mode': 'split_actual',
         'billing_input_version': 4,
+        'session_version': 6,
         'billing_state': 'current',
         'active_revision': {
           'revision_id': 'r1',
@@ -126,6 +127,7 @@ void main() {
       expect(finance.sessionId, 's1');
       expect(finance.clubId, 'c1');
       expect(finance.billingInputVersion, 4);
+      expect(finance.sessionVersion, 6);
       expect(finance.isCurrent, isTrue);
       expect(finance.canCollect, isTrue);
       expect(finance.activeRevision?.revisionId, 'r1');
