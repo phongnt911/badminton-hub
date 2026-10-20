@@ -1,0 +1,6 @@
+{
+  "rpc_category": "other",
+  "exit": 0,
+  "error": ""
+}
+PASS: mapped other category, title and amount persisted

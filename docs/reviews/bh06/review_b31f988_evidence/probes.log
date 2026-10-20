@@ -1,0 +1,12 @@
+00:00 +0: loading /workspace/badminton-hub/test/screens/review_bh06c_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review distinct auth and registration IDs: người chơi: không thấy thao tác finance, thấy QR và gửi chờ xác nhận
+00:01 +1: review pagination: fully paid player must not show unpaid
+00:01 +2: review cash RPC boundary: paid
+00:03 +3: review cash RPC boundary: error
+00:03 +4: review cash RPC boundary: loading
+00:04 +5: review cash RPC boundary: partial
+00:05 +6: review cash RPC boundary: complete
+00:05 +7: review C4: water expense must use supported RPC category
+00:05 +8: (tearDownAll)
+00:05 +8: All tests passed!

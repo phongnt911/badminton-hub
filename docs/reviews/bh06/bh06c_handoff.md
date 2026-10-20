@@ -1,6 +1,6 @@
 # Bàn giao BH-06C — UI tài chính buổi và sổ quỹ CLB
 
-> **Hiện hành 20/10/2026:** reviewer mở **C4 P2** tại `a0f7255` (category Nước không được RPC hỗ trợ) và dừng vòng tự động; chủ dự án giao **LẦN 2** nên đã sửa C4 tại code `bd17a95` (test `bfbd8f6`, analyze sạch, 187/187 Flutter). [Báo cáo review](review_a0f7255.md), [ghi chú sửa C4](bh06c_c4_fix.md). Trạng thái: **Chờ review**; chưa tích hợp/merge/deploy. Phần bàn giao và kết luận cũ bên dưới giữ làm lịch sử.
+> **Hiện hành 20/10/2026: Đạt phần C tại `b31f988`**, theo [review độc lập](review_b31f988.md). Đóng C4, C1/C2/C3 giữ đóng. Reviewer tự chạy analyze sạch, 187 Flutter +84 DB PASS, 8 widget probe PASS, RPC C2/C4 PASS. Chưa nghiệm thu tích hợp/merge/deploy. Bàn giao và kết luận cũ bên dưới giữ làm lịch sử.
 
 Ngày 18/10/2026 (Việt Nam). Người triển khai: phiên triển khai (DeepSeek) theo [docs/ai/IMPLEMENTER.md](../ai/IMPLEMENTER.md). Trạng thái bàn giao ban đầu: **Chờ review**. Kết luận reviewer 18/10/2026 tại `af31e7b`: **Chưa đạt C**, C1/C2 P1 và C3 P2 còn mở; xem [review_af31e7b](review_af31e7b.md) và bằng chứng. Giữ mô tả/lệnh tác giả bên dưới làm lịch sử. Người triển khai **không tự ghi Đạt**.
 

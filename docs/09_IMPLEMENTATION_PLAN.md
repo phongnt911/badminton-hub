@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06C (20/10/2026): Chờ review sau sửa C4 (chủ dự án giao LẦN 2)** trên nhánh `feat/bh06c-ui`. C1/C2/C3 đã được reviewer đóng tại `a0f7255` ([review](reviews/bh06/review_a0f7255.md)); C4 P2 (Nước gửi `water`) sửa tại code `bd17a95`, test tái hiện `bfbd8f6`, [ghi chú C4](reviews/bh06/bh06c_c4_fix.md). Analyze sạch, 187/187 Flutter; runner DB không chạy lại (không đổi DB). A/B giữ Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
+> **Hiện hành BH-06C (20/10/2026): Đạt phần C** tại `b31f988`, theo [review độc lập](reviews/bh06/review_b31f988.md). Đóng C4; C1/C2/C3 giữ đóng theo review trước. Reviewer tự chạy analyze sạch, **187 Flutter +84 DB PASS**, **8/8 widget probe PASS**, RPC C2 5 kiểm tra PASS và RPC C4 ghi/đọc lại thành công. A/B giữ Đạt theo SHA trước; chưa nghiệm thu tích hợp toàn BH-06 hoặc cho phép deploy. Các kết luận Chưa đạt/Chờ review bên dưới là lịch sử.
+
+> **(Lịch sử bàn giao) BH-06C (20/10/2026): Chờ review sau sửa C4 (chủ dự án giao LẦN 2)** trên nhánh `feat/bh06c-ui`. C1/C2/C3 đã được reviewer đóng tại `a0f7255` ([review](reviews/bh06/review_a0f7255.md)); C4 P2 (Nước gửi `water`) sửa tại code `bd17a95`, test tái hiện `bfbd8f6`, [ghi chú C4](reviews/bh06/bh06c_c4_fix.md). Analyze sạch, 187/187 Flutter; runner DB không chạy lại (không đổi DB). A/B giữ Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
 
 > **(Lịch sử bàn giao) BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`. Vòng 2 sửa **C3 (P2)** theo chỉ định của chủ dự án: code `5174e9d`, test tái hiện `75aa95b`, [ghi chú vòng 2](reviews/bh06/bh06c_review_round2.md); analyze sạch, 186/186 Flutter. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
 
@@ -525,3 +527,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Test tái hiện `bfbd8f6` (`session_finance_screen_test.dart:643`): đi qua từng loại chi phí, **FAIL** trước sửa (`water` at index 2). Fix `bd17a95`: `_expenseRpcCategory` ánh xạ `water → other`, giữ nội dung; các loại khác giữ nguyên. Ghi chú: [bh06c_c4_fix.md](reviews/bh06/bh06c_c4_fix.md).
 - Bằng chứng trên cây `bd17a95`: `flutter analyze` **0 issue**; `flutter test` **187/187 PASS**; không đổi DB nên runner DB không chạy lại.
 - Trạng thái **Chờ review**; người triển khai không tự ghi Đạt. NOT RUN: chạy lại probe RPC C4/Docker, HTTP/PostgREST/JWT/Auth thật, thiết bị/browser e2e, ảnh VietQR/bank thật, staging/production, backup/restore, concurrency HTTP.
+
+### BH-06C — kết luận reviewer sau sửa C4 tại b31f988 (20/10/2026)
+
+- **Đạt phần C** theo [review_b31f988](reviews/bh06/review_b31f988.md), code sửa `bd17a95`, test tái hiện `bfbd8f6`. Đóng C4 P2 bằng mapping Nước → other; C1/C2/C3 giữ đóng, không còn phát hiện mở từ các review C trước. Giữ lịch sử Chưa đạt/Chờ review phía trên.
+- Reviewer tự chạy analyze 0 issue, **187/187 Flutter**, **84/84 DB BH-06**, **8/8 widget probe PASS**; RPC C2 **5 kiểm tra PASS**, RPC C4 ghi/đọc lại category/title/amount thành công. [Hash/summary](reviews/bh06/review_b31f988_evidence/summary.json). Source/test/migration HEAD trùng bd17a95; không sửa code tác giả.
+- Chỉ Đạt C, chưa nghiệm thu tích hợp BH-06; không tự chuyển tích hợp, merge main hoặc deploy. NOT RUN: HTTP/JWT/Auth thật, thiết bị/browser, bank/VietQR thật, staging/production, backup/restore, concurrency HTTP và pilot/nghiệm thu A+B+C.

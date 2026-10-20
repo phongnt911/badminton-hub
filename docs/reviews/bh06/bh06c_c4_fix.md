@@ -1,5 +1,7 @@
 # BH-06C — sửa C4 theo chỉ định của chủ dự án (LẦN 2)
 
+> Reviewer 20/10/2026 kết luận **Đạt phần C tại `b31f988`**, đóng C4 theo [review và bằng chứng](review_b31f988.md). Đã chạy lại 84 DB và RPC C4 local thành công; các lệnh/NOT RUN/Chờ review bên dưới là lịch sử phía tác giả. Các cổng HTTP/thiết bị/ngân hàng thật và nghiệm thu tích hợp vẫn chưa chạy.
+
 Ngày 20/10/2026. Nhánh `feat/bh06c-ui`, tiếp sau review [review_a0f7255](review_a0f7255.md) (commit review `0868287`). Reviewer đã đóng C1/C2/C3 và mở **C4 (P2)**; theo AGENTS reviewer dừng vòng tự động, nhưng chủ dự án giao tiếp **LẦN 2** nên người triển khai sửa C4. Không đổi migration/RPC của A, không viết lại B, không merge `main`.
 
 ## 1. Phát hiện C4
