@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. **Đầu bài đã chuẩn bị; BH-07A chưa triển khai, chưa nghiệm thu.**
+Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47`; BH-07 chưa nghiệm thu.
 
 ## 1. Nền bắt buộc
 
@@ -47,3 +47,10 @@ Bằng chứng mới đặt `docs/reviews/bh07/`: base/full tested SHA, diff, mi
 BH-06 mới Đạt trong phạm vi local/PostgreSQL cô lập. HTTP/PostgREST/JWT/Supabase Auth thật, thiết bị/browser/deep link, tải ảnh VietQR/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn chưa có nghiệm thu. BH-07D phải báo bằng chứng thực tế cho các cổng pilot được yêu cầu, không kết luận pilot Đạt từ 190 unit/widget test hoặc 335 DB fixture.
 
 Viết tài liệu vận hành và chạy rehearsal trên môi trường cô lập được phép; không apply staging/production, thay Auth settings, chuyển tiền/ngân hàng hoặc deploy nếu chưa được giao. Không tự merge main hoặc chuyển phần tiếp theo.
+
+## 6. Bàn giao BH-07A — Chờ review (20/10/2026)
+
+- Nhánh `feat/bh07a-db`, base `62d2c67dc66d512cf7f6f19932e2131ae060e2e9`, tested code `c339a47fdcb08e50811079bd89df7a1f9f53908a`. **Chờ review BH-07A**, không tự ghi Đạt.
+- Migration `20261020180000_bh07_reads.sql` thêm `get_session_summary` và `list_my_session_history`; không sửa gate complete/billing/payment/ledger, không thêm cột/bảng/backfill.
+- Runner `docs/reviews/bh07/run_bh07_tests.py`: **23/23 PASS** (21 CLEAN + 2 upgrade); test-first 9 PASS/13 FAIL trước migration. Analyze sạch, 190 Flutter, 335 DB hồi quy, 7 tích hợp, 3 nâng cấp PASS.
+- [Audit/contract](reviews/bh07/bh07a_audit.md); [bàn giao, lệnh/exit/bằng chứng/NOT RUN](reviews/bh07/bh07a_handoff.md). Không chuyển B/C/D, không merge main, không deploy. HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN.

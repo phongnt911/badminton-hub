@@ -83,6 +83,8 @@ Chỉ owner/treasurer CLB; type direction và amount>0/title/request_id; không 
 - get_session_management(id): đúng host/cohost, contacts; finance projection riêng nếu có quyền tiền.
 - get_my_registration(id): account hiện tại, charge active/payments và tài khoản nhận tiền khi confirmed; không danh sách contacts người khác.
 - get_session_finance(id), get_club_ledger(club_id): quyền theo ma trận; phân trang. get_session_finance trả `billing_input_version` và `session_version` hiện hành để client chốt phí đúng gate optimistic concurrency và refresh sau VERSION_CONFLICT.
+- list_my_session_history(limit,offset,club_id,from,to): lịch sử completed/cancelled của host/management/finance, mới nhất trước; phân trang trước aggregate; lọc CLB/khoảng ngày; whitelist field, không contact/bank. `list_my_sessions` giữ vai trò danh sách tổng hợp sắp tới/đang mở.
+- get_session_summary(id): tổng kết server-side cho management/finance. Management thấy present/no_show/confirmed count; finance thấy thêm billing_state, revision, expenses, due, paid, outstanding. Không trả contact/bank/receiver/player list/charges/payments thô. Participant/outsider bị chặn. Bản copy UI chỉ dùng aggregate này, không tự tính từ trang finance bị cắt; không suy outstanding = due - paid khi có overpayment/payment ngoài revision.
 - get_payment_instructions(player_id): đúng player/finance, chỉ khi billing_state=current, trả bank snapshot, outstanding, source_version và mã tham chiếu duy nhất. UI dùng VietQRHelper và chỉ tạo QR khi outstanding > 0; không có ngân hàng thì báo cấu hình thiếu.
 
 Danh sách mặc định limit 20, tối đa 100; cursor theo thời gian+ID ổn định. Tìm buổi host lọc club/date/lifecycle, không đọc tất cả lịch sử.
@@ -200,7 +202,7 @@ Helper nội bộ `registration_result(...)` và `bump_billing_input_version(...
 
 ## 13. BH-06 tài chính phía DB — contract đã Đạt tích hợp local
 
-Trạng thái 20/10/2026: **Đạt tích hợp local BH-06 tại 318bc52**, A/B/C đã có và merge main `e7f7627`. [Review](reviews/bh06/review_318bc52.md); [bàn giao](24_BH06_IMPLEMENTATION_HANDOFF.md). BH-07 chưa triển khai, không cho phép deploy production.
+Trạng thái 20/10/2026: **Đạt tích hợp local BH-06 tại 318bc52**, A/B/C đã có và merge main `e7f7627`. [Review](reviews/bh06/review_318bc52.md); [bàn giao](24_BH06_IMPLEMENTATION_HANDOFF.md). BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47` ([bàn giao](reviews/bh07/bh07a_handoff.md)); BH-07 chưa nghiệm thu, không cho phép deploy production.
 
 `billing_state` **không phải cột**: suy diễn từ `charge_revisions.status='active'` so `source_version` với `sessions.billing_input_version` (`not_finalized` khi chưa có revision active, `stale` khi lệch, `current` khi khớp). Mọi nguồn đổi input tính phí đều tăng `billing_input_version` trong transaction: chi phí (post/reverse tại §13 này), roster confirmed và điểm danh (đã tăng ở BH-05). `update_session` chỉ chạy ở `draft/published` (trước khi có revision) nên không làm revision đã chốt trở nên stale.
 

@@ -1,6 +1,6 @@
 # Luồng màn hình và nội dung UI
 
-> **Hiện hành 20/10/2026:** Các luồng tài chính/QR BH-06 đã có ở local; complete/history/summary/pilot được giao theo từng phần BH-07. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
+> **Hiện hành 20/10/2026:** Các luồng tài chính/QR BH-06 đã có ở local; complete/history/summary/pilot được giao theo từng phần BH-07. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). BH-07A đã có DB/projection local, **Chờ review** tại tested code `c339a47`; UI B/C/D chưa làm. Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Đặc tả v1.1, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
 
@@ -40,7 +40,7 @@ flowchart TD
 | CLB | Tên/cấu hình, thành viên, lịch, quỹ theo quyền; không hiện quỹ cho mọi member mặc định |
 | Sổ quỹ | Balance server, lọc thu/chi, nguồn liên kết, manual entry/đảo có lý do; không sửa trực tiếp balance |
 | Tài khoản | Tên/trình độ, ngân hàng host cá nhân, đổi/khôi phục mật khẩu, đăng xuất |
-| Tổng kết | Số người present, chi phí, khoản phải thu/đã thu/còn nợ; copy nội dung gửi nhóm đã bỏ contacts/private details |
+| Tổng kết | Số người present, chi phí, khoản phải thu/đã thu/còn nợ; copy nội dung gửi nhóm đã bỏ contacts/private details. Dùng `get_session_summary` aggregate server-side; management-only không thấy tiền, copy không lấy contact/bank. |
 
 ## 3. Validation và trạng thái
 
