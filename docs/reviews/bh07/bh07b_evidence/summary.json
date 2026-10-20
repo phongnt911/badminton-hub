@@ -1,0 +1,73 @@
+{
+  "ticket": "BH-07B",
+  "status": "Chờ review",
+  "date": "2026-10-20",
+  "branch": "feat/bh07b-data",
+  "base_sha": "fd38838d85fed31603eae99ed363cf202650aeee",
+  "tested_code_sha": "1c3acab2eb10f6914b466129a46ac9447e6c21c5",
+  "worktree_dirty_at_db_run": false,
+  "environment": {
+    "platform": "Windows",
+    "flutter": "3.47.7",
+    "dart": "3.13.5",
+    "postgres": "17 (Docker bh02-test-postgres)",
+    "auth": "stub + SET ROLE",
+    "not_real_http": true
+  },
+  "flutter": {
+    "analyze_exit": 0,
+    "test_exit": 0,
+    "test_total": 209,
+    "test_passed": 209,
+    "test_failed": 0,
+    "new_tests": 19
+  },
+  "db": {
+    "bh07": {"total": 23, "passed": 23, "failed": 0},
+    "regression_bh02": {"total": 33, "passed": 33, "failed": 0},
+    "regression_bh02_extended": {"total": 14, "passed": 14, "failed": 0},
+    "regression_bh03": {"total": 48, "passed": 48, "failed": 0},
+    "regression_bh03_retry": {"total": 22, "passed": 22, "failed": 0},
+    "regression_bh04": {"total": 44, "passed": 44, "failed": 0},
+    "regression_bh05": {"total": 90, "passed": 90, "failed": 0},
+    "regression_bh06": {"total": 84, "passed": 84, "failed": 0},
+    "regression_total_bh02_06": {"total": 335, "passed": 335, "failed": 0},
+    "integration_bh06": {"total": 7, "passed": 7, "failed": 0},
+    "upgrade_bh06": {"total": 3, "passed": 3, "failed": 0}
+  },
+  "files": [
+    "flutter_analyze.log",
+    "flutter_test.log",
+    "bh07_final_run.log",
+    "bh07_test_results_20261020115007.json",
+    "regression_bh02.log",
+    "regression_bh02_results.json",
+    "regression_bh02_extended.log",
+    "regression_bh02_extended_results.json",
+    "regression_bh03.log",
+    "regression_bh03_results.json",
+    "regression_bh03_retry.log",
+    "regression_bh03_retry_results.json",
+    "regression_bh04.log",
+    "regression_bh04_results.json",
+    "regression_bh05.log",
+    "regression_bh05_results.json",
+    "regression_bh06.log",
+    "regression_bh06_results.json",
+    "regression_bh06_integration.log",
+    "regression_bh06_integration_results.json",
+    "regression_bh06_upgrade.log",
+    "regression_bh06_upgrade_results.json",
+    "regression-exits.json"
+  ],
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "repository qua HTTP thật và RLS qua token thật",
+    "UI C và màn hình lịch sử/tổng kết",
+    "thiết bị/browser/deep link/offline/reopen",
+    "ngân hàng/VietQR/webhook/chuyển tiền thật",
+    "staging/production, apply DB, backup/restore rehearsal",
+    "concurrency qua HTTP",
+    "pilot D và nghiệm thu toàn BH-07"
+  ]
+}

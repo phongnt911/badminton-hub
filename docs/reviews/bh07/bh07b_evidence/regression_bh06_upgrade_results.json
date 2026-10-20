@@ -1,0 +1,71 @@
+{
+  "db": "bh06_upgrade_20261020115342",
+  "baseline_last": "20261016140000_bh06a_review_round1.sql",
+  "upgrade_migrations": [
+    "20261020100000_bh06_integration_receiver.sql",
+    "20261020160000_bh06_integration_receiver_backfill.sql",
+    "20261020170000_bh06_finance_session_version.sql",
+    "20261020180000_bh07_reads.sql"
+  ],
+  "results": [
+    {
+      "name": "A. buổi đã chốt phí + bank active được backfill sau upgrade",
+      "status": "PASS"
+    },
+    {
+      "name": "B. buổi không có bank giữ NULL sau upgrade",
+      "status": "PASS"
+    },
+    {
+      "name": "C. snapshot cũ bất biến sau upgrade",
+      "status": "PASS"
+    }
+  ],
+  "details": {
+    "a": {
+      "can_pay": true,
+      "player_id": "8b82e727-21bd-4fa9-a083-f90dd9a2cc55",
+      "reference": "BH-FB1F6FD69E",
+      "session_id": "398366ed-1257-41e2-b88e-873ce4a0d1bf",
+      "display_name": "Guest A",
+      "has_receiver": true,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": {
+        "bank_code": "TCB",
+        "account_name": "CLB UPGRADE",
+        "account_number": "9999888877"
+      },
+      "active_revision_id": "c4ee07d1-9dc1-4e05-8ab2-83d1590129a7"
+    },
+    "b": {
+      "can_pay": true,
+      "player_id": "8d0624ff-1fe8-415e-b166-6e8bb14dfac2",
+      "reference": "BH-54C9AA292A",
+      "session_id": "0f744e88-bd4b-4cc2-868d-05b2733dc5ec",
+      "display_name": "Guest B",
+      "has_receiver": false,
+      "billing_state": "current",
+      "amount_due_vnd": 100000,
+      "source_version": 4,
+      "total_paid_vnd": 0,
+      "outstanding_vnd": 100000,
+      "receiver_snapshot": null,
+      "active_revision_id": "49758ef0-2080-4452-b90d-93f1afbda562"
+    },
+    "c": {
+      "snapshot": {
+        "bank_code": "OLD",
+        "account_name": "OLD SNAPSHOT",
+        "account_number": "0000000000"
+      },
+      "fks": [
+        null,
+        null
+      ]
+    }
+  }
+}

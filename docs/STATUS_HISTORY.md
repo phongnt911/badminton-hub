@@ -72,6 +72,10 @@ Reviewer kết luận **Đạt tích hợp local tại `318bc52`**, code/test/mi
 
 Theo yêu cầu chủ dự án, main đã nhận docs/ai tại eaeb209 và BH-06 tại **e7f7627** (parents eaeb209 và b3bcfbb). Lib/test/migration trùng bản Đạt 318bc52; [xác minh merge](reviews/bh06/main_merge_e7f7627.md) phân biệt kiểm tra mới với DB bằng chứng cũ. Đã đồng bộ README, AGENTS, trạng thái docs và [đầu bài BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md). Chưa triển khai/nghiệm thu BH-07 hoặc apply staging/production; merge code không phải deploy.
 
-## Hiện hành — BH-07A Đạt phần A local (20/10/2026)
+## (Lịch sử) — BH-07A Đạt phần A local (20/10/2026)
 
 Reviewer kiểm độc lập 4512c3a trên feat/bh07a-db và kết luận **Đạt A** theo [review/bằng chứng](reviews/bh07/review_4512c3a.md). Analyze sạch, 190 Flutter +335 DB hồi quy +23 BH-07, 7 tích hợp +3 nâng cấp BH-06 và 9 kiểm tra RPC độc lập PASS. Không sửa lib/test/migration; B/C/D và pilot chưa nghiệm thu. Chưa merge main/deploy/apply staging/production; HTTP/JWT/Auth thật, thiết bị/ngân hàng thật và backup/restore vẫn chưa nghiệm thu.
+
+## Hiện hành — BH-07B Chờ review (20/10/2026)
+
+Người triển khai bàn giao B trên `feat/bh07b-data`, base `fd38838`, tested code `1c3acab`, theo [bàn giao](reviews/bh07/bh07b_handoff.md). Tự chạy analyze sạch, **209/209 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**; reviewer chưa chạy lại B. Chỉ model/repository/provider, không sửa migration/RPC A, không UI C/pilot D. **Chờ review BH-07B**; chưa Đạt, chưa chuyển C/D, chưa merge main/deploy/apply staging/production.

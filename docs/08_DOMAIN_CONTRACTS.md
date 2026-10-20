@@ -1,6 +1,6 @@
 # Hợp đồng thao tác nghiệp vụ
 
-> **Hiện hành 20/10/2026:** Finance DB/RPC, data/provider và UI BH-06 đã Đạt; contract thực tế finance tại §13, không coi toàn bộ đề xuất đích là API live. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md); B/C/D và pilot chưa nghiệm thu, không tự chuyển phần tiếp theo. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
+> **Hiện hành 20/10/2026:** Finance DB/RPC, data/provider và UI BH-06 đã Đạt; contract thực tế finance tại §13, không coi toàn bộ đề xuất đích là API live. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A **Đạt phần A local tại `4512c3a`** theo [review độc lập](reviews/bh07/review_4512c3a.md); BH-07B **Chờ review tại tested code `1c3acab`** theo [bàn giao](reviews/bh07/bh07b_handoff.md); C/D và pilot chưa nghiệm thu, không tự chuyển phần tiếp theo. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Phiên bản 1.1 · phân biệt yêu cầu đích §1–9 với contract thực tế BH-03..06 tại §10–13. Finance BH-06 đã Đạt tích hợp local; schema live và mọi endpoint đề xuất chưa được xác nhận chỉ từ tài liệu này.
 
@@ -88,6 +88,8 @@ Chỉ owner/treasurer CLB; type direction và amount>0/title/request_id; không 
 - get_payment_instructions(player_id): đúng player/finance, chỉ khi billing_state=current, trả bank snapshot, outstanding, source_version và mã tham chiếu duy nhất. UI dùng VietQRHelper và chỉ tạo QR khi outstanding > 0; không có ngân hàng thì báo cấu hình thiếu.
 
 Danh sách mặc định limit 20, tối đa 100; cursor theo thời gian+ID ổn định. Tìm buổi host lọc club/date/lifecycle, không đọc tất cả lịch sử.
+
+BH-07B ánh xạ contract trên vào `SessionSummary` (finance nullable, giữ nguyên `null` khi management-only) và `SessionHistoryPage`/`SessionHistoryFilter`; repository gọi đúng RPC, provider chịu trách nhiệm loading/error/empty/retry, phân trang, filter và bỏ phản hồi trễ. Model/provider không quyết định ACL và không tự tính công nợ từ `due - paid` hoặc một trang payment.
 
 ## 6. Các tình huống phải kiểm thử
 
