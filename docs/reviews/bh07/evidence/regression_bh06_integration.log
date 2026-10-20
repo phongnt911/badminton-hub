@@ -1,0 +1,10 @@
+Tao DB bh06_integration_20261020101359 tren container bh02-test-postgres ...
+PASS: receiver: host bank duoc chot khi publish
+PASS: receiver: buoi CLB uu tien tai khoan CLB
+PASS: receiver: cau hinh bank sau publish mo duoc huong dan
+PASS: receiver: draft khong chot snapshot
+PASS: version: refresh DTO sau start + chan version cu, chot version moi
+PASS: luong day du: chi phi/diem danh/chot phi/thanh toan/stale/tra them/hoan tac/quy
+PASS: contract DTO: get_session_finance/get_club_ledger/get_payment_instructions
+TOTAL 7 PASS 7 FAIL 0
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh06\integration_evidence\integration_results_20261020101359.json

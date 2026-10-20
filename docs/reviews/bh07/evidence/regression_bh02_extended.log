@@ -1,0 +1,17 @@
+PASS treasurer sees outstanding roster: 2
+PASS treasurer sees confirmed payment: 1
+PASS member without registration cannot read receiver snapshot: 0
+PASS pending guest cannot read receiver snapshot: 0
+PASS legacy time follows starts_at update: 18:00:00
+PASS legacy venue name comes from venue rather than session title: Test venue
+PASS session finance sees outstanding roster: 2
+PASS session finance sees confirmed payment: 1
+PASS waitlisted player cannot read receiver snapshot: 0
+PASS cancelled player cannot read receiver snapshot: 0
+PASS confirmed player gets payment instructions via RPC: true
+PASS pending player blocked from payment instructions RPC: ERROR:  42501: FORBIDDEN: Chß╗ë ng╞░ß╗¥i ch╞íi ─æ├ú ─æ╞░ß╗úc x├íc nhß║¡n (confirmed) mß╗¢i c├│ thß╗â xem th├┤ng tin thanh to├ín
+CONTEXT:  PL/pgSQL function get_session_payment_instructions(uuid) line 34 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+PASS legacy venue name updates when venue_id changes: Test venue
+PASS legacy end_time follows ends_at update: 20:00:00
+EXTENDED TOTAL 14 PASS 14 FAIL 0

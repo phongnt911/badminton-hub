@@ -1,0 +1,97 @@
+Khß╗ƒi tß║ío c╞í sß╗ƒ dß╗» liß╗çu kiß╗âm thß╗¡ BH-05: bh05_clean_20261020101148 v├á bh05_legacy_20261020101148...
+Chuß╗ùi migrations ─æ├ú ├íp dß╗Ñng th├ánh c├┤ng tr├¬n cß║ú CLEAN v├á LEGACY.
+PASS: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc request_join_session (ACL)
+PASS: request_join_session bß║»t buß╗Öc request_id
+PASS: request_join_session host_approval: pending, kh├┤ng chiß║┐m slot, replay c├╣ng key
+PASS: request_join_session auto_confirm: confirmed v├á chß╗æt agreed_fee fixed
+PASS: request_join_session auto_confirm hß║┐t chß╗ù: waitlisted, kh├┤ng v╞░ß╗út sß╗⌐c chß╗⌐a
+PASS: request_join_session chß║╖n ─æ─âng k├╜ tr├╣ng (DUPLICATE_PARTICIPANT)
+PASS: request_join_session c├╣ng request_id kh├íc payload trß║ú IDEMPOTENCY_CONFLICT
+PASS: ─æ─âng k├╜ lß║íi sau cancelled d├╣ng lß║íi player_id (kh├┤ng th├¬m ID)
+PASS: request_join_session chß║╖n buß╗òi ch╞░a publish (INVALID_STATE)
+PASS: request_join_session chß║╖n sau registration_deadline (DEADLINE_PASSED)
+PASS: request_join_session buß╗òi private: member CLB v├áo ─æ╞░ß╗úc, ng╞░ß╗¥i ngo├ái FORBIDDEN
+PASS: decide_registration duyß╗çt pending v├á chß║╖n duyß╗çt thß║│ng waitlisted
+PASS: decide_registration chß║╖n khi hß║┐t chß╗ù (CAPACITY_FULL)
+PASS: add_session_player th├¬m guest v├á member CLB (guest user_id NULL, giß╗» contact ri├¬ng)
+PASS: add_session_player chß║╖n member ngo├ái CLB (INVALID_INPUT)
+PASS: add_session_player hß║┐t chß╗ù: CAPACITY_FULL hoß║╖c waitlist khi host chß╗ìn
+PASS: add_session_player fee_exempt cß║ºn quyß╗ün t├ái ch├¡nh (cohost kh├┤ng finance bß╗ï chß║╖n)
+PASS: cancel_registration: tß╗▒ hß╗ºy ─æ├║ng hß║ín, chß║╖n ng╞░ß╗¥i kh├íc v├á qu├í hß║ín
+PASS: cancel_registration ng╞░ß╗¥i ─æ├ú present cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: record_attendance: chß╗ë in_progress, chß╗ë confirmed, replay c├╣ng kß║┐t quß║ú
+PASS: start_session: chß╗ë quß║ún l├╜, publishedΓåÆin_progress, replay kh├┤ng lß║╖p, ─æiß╗âm danh sau start
+PASS: t├¡ch hß╗úp createΓåÆpublishΓåÆjoinΓåÆapproveΓåÆstartΓåÆ─æiß╗âm danh (─æ╞░ß╗¥ng hß╗úp lß╗ç tß╗½ app)
+PASS: t├¡ch hß╗úp joinΓåÆapproveΓåÆcancelΓåÆ─æ─âng k├╜ lß║íi giß╗» nguy├¬n player_id
+PASS: invite_waitlisted_player: tß║ío lß╗¥i mß╗¥i kh├┤ng giß╗» slot, replay c├╣ng key, chß║╖n non-waitlisted
+PASS: invite_waitlisted_player chß║╖n expiry ngo├ái bi├¬n (qu├í khß╗⌐/v╞░ß╗út starts_at)
+PASS: accept_waitlist_invitation: hß║┐t chß╗ù CAPACITY_FULL, giß║úi ph├│ng chß╗ù th├¼ confirmed, accept lß║╖p kh├┤ng th├¬m slot
+PASS: accept_waitlist_invitation sai ng╞░ß╗¥i nhß║¡n trß║ú FORBIDDEN
+PASS: accept_waitlist_invitation: lß╗¥i mß╗¥i thu hß╗ôi/hß║┐t hß║ín trß║ú ─æ├║ng m├ú
+PASS: revoke_waitlist_invitation chß║╖n lß╗¥i mß╗¥i ─æ├ú accepted (d├╣ng hß╗ºy ─æ─âng k├╜)
+PASS: accept_waitlist_invitation host_recorded: cß║ºn consent, kh├┤ng cho account kh├íc, ghi mode+consent
+PASS: cancel_registration thu hß╗ôi lß╗¥i mß╗¥i pending c├╣ng transaction
+PASS: get_my_waitlist_invitation: ─æ├║ng ng╞░ß╗¥i nhß║¡n lß╗¥i mß╗¥i, ng╞░ß╗¥i kh├íc NULL
+PASS: ng╞░ß╗¥i ngo├ái/buß╗òi kh├┤ng duyß╗çt ─æ╞░ß╗úc v├á kh├┤ng ─æß╗ìc contact qua RPC
+PASS: kh├┤ng c├│ direct write cho authenticated tr├¬n session_players/waitlist_invitations
+PASS: hai kß║┐t nß╗æi tranh slot cuß╗æi: chß╗ë mß╗Öt confirmed, ng╞░ß╗¥i kia waitlisted
+PASS: hai kß║┐t nß╗æi duyß╗çt cß║ính tranh: kh├┤ng v╞░ß╗út sß╗⌐c chß╗⌐a (ng╞░ß╗¥i thua CAPACITY_FULL)
+PASS: A1 add_session_player: th├¬m confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh (cohost FORBIDDEN, finance cho ph├⌐p)
+PASS: A1 decide_registration: duyß╗çt confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A1 cancel_registration: hß╗ºy confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A1 accept_waitlist_invitation: nhß║¡n chß╗ù sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A2 update_session: tß╗½ chß╗æi hß║í capacity d╞░ß╗¢i sß╗æ ─æ├ú confirmed
+PASS: A2 race: hß║í capacity ─æß║Ñu vß╗¢i join ΓÇö confirmed kh├┤ng v╞░ß╗út capacity
+PASS: A3 huß╗╖ buß╗òi thu hß╗ôi lß╗¥i mß╗¥i pending; get_my_waitlist_invitation kh├┤ng trß║ú lß╗¥i mß╗¥i ─æ├ú huß╗╖
+PASS: A3 race: huß╗╖ buß╗òi ─æß║Ñu vß╗¢i accept ΓÇö kh├┤ng ─æß╗â lß╗¥i mß╗¥i pending khi buß╗òi ─æ├ú huß╗╖
+PASS: A3 replay huß╗╖ buß╗òi kh├┤ng tß║ío th├¬m t├íc dß╗Ñng phß╗Ñ
+PASS: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc request_join_session (ACL)
+PASS: request_join_session bß║»t buß╗Öc request_id
+PASS: request_join_session host_approval: pending, kh├┤ng chiß║┐m slot, replay c├╣ng key
+PASS: request_join_session auto_confirm: confirmed v├á chß╗æt agreed_fee fixed
+PASS: request_join_session auto_confirm hß║┐t chß╗ù: waitlisted, kh├┤ng v╞░ß╗út sß╗⌐c chß╗⌐a
+PASS: request_join_session chß║╖n ─æ─âng k├╜ tr├╣ng (DUPLICATE_PARTICIPANT)
+PASS: request_join_session c├╣ng request_id kh├íc payload trß║ú IDEMPOTENCY_CONFLICT
+PASS: ─æ─âng k├╜ lß║íi sau cancelled d├╣ng lß║íi player_id (kh├┤ng th├¬m ID)
+PASS: request_join_session chß║╖n buß╗òi ch╞░a publish (INVALID_STATE)
+PASS: request_join_session chß║╖n sau registration_deadline (DEADLINE_PASSED)
+PASS: request_join_session buß╗òi private: member CLB v├áo ─æ╞░ß╗úc, ng╞░ß╗¥i ngo├ái FORBIDDEN
+PASS: decide_registration duyß╗çt pending v├á chß║╖n duyß╗çt thß║│ng waitlisted
+PASS: decide_registration chß║╖n khi hß║┐t chß╗ù (CAPACITY_FULL)
+PASS: add_session_player th├¬m guest v├á member CLB (guest user_id NULL, giß╗» contact ri├¬ng)
+PASS: add_session_player chß║╖n member ngo├ái CLB (INVALID_INPUT)
+PASS: add_session_player hß║┐t chß╗ù: CAPACITY_FULL hoß║╖c waitlist khi host chß╗ìn
+PASS: add_session_player fee_exempt cß║ºn quyß╗ün t├ái ch├¡nh (cohost kh├┤ng finance bß╗ï chß║╖n)
+PASS: cancel_registration: tß╗▒ hß╗ºy ─æ├║ng hß║ín, chß║╖n ng╞░ß╗¥i kh├íc v├á qu├í hß║ín
+PASS: cancel_registration ng╞░ß╗¥i ─æ├ú present cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: record_attendance: chß╗ë in_progress, chß╗ë confirmed, replay c├╣ng kß║┐t quß║ú
+PASS: start_session: chß╗ë quß║ún l├╜, publishedΓåÆin_progress, replay kh├┤ng lß║╖p, ─æiß╗âm danh sau start
+PASS: t├¡ch hß╗úp createΓåÆpublishΓåÆjoinΓåÆapproveΓåÆstartΓåÆ─æiß╗âm danh (─æ╞░ß╗¥ng hß╗úp lß╗ç tß╗½ app)
+PASS: t├¡ch hß╗úp joinΓåÆapproveΓåÆcancelΓåÆ─æ─âng k├╜ lß║íi giß╗» nguy├¬n player_id
+PASS: invite_waitlisted_player: tß║ío lß╗¥i mß╗¥i kh├┤ng giß╗» slot, replay c├╣ng key, chß║╖n non-waitlisted
+PASS: invite_waitlisted_player chß║╖n expiry ngo├ái bi├¬n (qu├í khß╗⌐/v╞░ß╗út starts_at)
+PASS: accept_waitlist_invitation: hß║┐t chß╗ù CAPACITY_FULL, giß║úi ph├│ng chß╗ù th├¼ confirmed, accept lß║╖p kh├┤ng th├¬m slot
+PASS: accept_waitlist_invitation sai ng╞░ß╗¥i nhß║¡n trß║ú FORBIDDEN
+PASS: accept_waitlist_invitation: lß╗¥i mß╗¥i thu hß╗ôi/hß║┐t hß║ín trß║ú ─æ├║ng m├ú
+PASS: revoke_waitlist_invitation chß║╖n lß╗¥i mß╗¥i ─æ├ú accepted (d├╣ng hß╗ºy ─æ─âng k├╜)
+PASS: accept_waitlist_invitation host_recorded: cß║ºn consent, kh├┤ng cho account kh├íc, ghi mode+consent
+PASS: cancel_registration thu hß╗ôi lß╗¥i mß╗¥i pending c├╣ng transaction
+PASS: get_my_waitlist_invitation: ─æ├║ng ng╞░ß╗¥i nhß║¡n lß╗¥i mß╗¥i, ng╞░ß╗¥i kh├íc NULL
+PASS: ng╞░ß╗¥i ngo├ái/buß╗òi kh├┤ng duyß╗çt ─æ╞░ß╗úc v├á kh├┤ng ─æß╗ìc contact qua RPC
+PASS: kh├┤ng c├│ direct write cho authenticated tr├¬n session_players/waitlist_invitations
+PASS: hai kß║┐t nß╗æi tranh slot cuß╗æi: chß╗ë mß╗Öt confirmed, ng╞░ß╗¥i kia waitlisted
+PASS: hai kß║┐t nß╗æi duyß╗çt cß║ính tranh: kh├┤ng v╞░ß╗út sß╗⌐c chß╗⌐a (ng╞░ß╗¥i thua CAPACITY_FULL)
+PASS: A1 add_session_player: th├¬m confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh (cohost FORBIDDEN, finance cho ph├⌐p)
+PASS: A1 decide_registration: duyß╗çt confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A1 cancel_registration: hß╗ºy confirmed sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A1 accept_waitlist_invitation: nhß║¡n chß╗ù sau chß╗æt ph├¡ cß║ºn quyß╗ün t├ái ch├¡nh
+PASS: A2 update_session: tß╗½ chß╗æi hß║í capacity d╞░ß╗¢i sß╗æ ─æ├ú confirmed
+PASS: A2 race: hß║í capacity ─æß║Ñu vß╗¢i join ΓÇö confirmed kh├┤ng v╞░ß╗út capacity
+PASS: A3 huß╗╖ buß╗òi thu hß╗ôi lß╗¥i mß╗¥i pending; get_my_waitlist_invitation kh├┤ng trß║ú lß╗¥i mß╗¥i ─æ├ú huß╗╖
+PASS: A3 race: huß╗╖ buß╗òi ─æß║Ñu vß╗¢i accept ΓÇö kh├┤ng ─æß╗â lß╗¥i mß╗¥i pending khi buß╗òi ─æ├ú huß╗╖
+PASS: A3 replay huß╗╖ buß╗òi kh├┤ng tß║ío th├¬m t├íc dß╗Ñng phß╗Ñ
+
+==========================================
+Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-05: Tß╗öNG 90 | PASS 90 | FAIL 0
+==========================================
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh05\bh05_test_results_20261020101148.json

@@ -1,0 +1,51 @@
+Khß╗ƒi tß║ío c╞í sß╗ƒ dß╗» liß╗çu kiß╗âm thß╗¡ BH-04: bh04_clean_20261020101138 v├á bh04_legacy_20261020101138...
+Chuß╗ùi migrations ─æ├ú ├íp dß╗Ñng th├ánh c├┤ng tr├¬n cß║ú CLEAN v├á LEGACY.
+PASS: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc create_session (ACL)
+PASS: create_session bß║»t buß╗Öc request_id
+PASS: create_session tß╗½ chß╗æi thß╗¥i gian bß║»t ─æß║ºu trong qu├í khß╗⌐
+PASS: create_session tß╗½ chß╗æi ends_at <= starts_at
+PASS: create_session fee_mode=fixed y├¬u cß║ºu cß║ú hai mß╗⌐c ph├¡
+PASS: create_session gß║»n CLB y├¬u cß║ºu owner/host
+PASS: create_session tß║ío draft + replay c├╣ng request_id trß║ú c├╣ng bß║ún ghi
+PASS: create_session payload kh├íc c├╣ng request_id trß║ú IDEMPOTENCY_CONFLICT
+PASS: get_session_public_detail: draft ß║⌐n vß╗¢i anon
+PASS: get_session_public_detail: host ─æß╗ìc ─æ╞░ß╗úc draft, whitelist sß║ích
+PASS: set_session_lifecycle: draft->published, publish lß║íi bß╗ï INVALID_STATE
+PASS: get_session_public_detail: unlisted ─æ├ú publish ─æß╗ìc ─æ╞░ß╗úc bß║▒ng link (anon)
+PASS: get_session_public_detail: private chß╗ë th├ánh vi├¬n/host ─æß╗ìc ─æ╞░ß╗úc
+PASS: update_session: t─âng version v├á tß╗½ chß╗æi version c┼⌐ (VERSION_CONFLICT)
+PASS: update_session chß║╖n ng╞░ß╗¥i kh├┤ng c├│ quyß╗ün quß║ún l├╜
+PASS: update_session chß║╖n sß╗¡a khi buß╗òi ─æang diß╗àn ra (INVALID_STATE)
+PASS: duplicate_session sao ch├⌐p cß║Ñu h├¼nh nh╞░ng kh├┤ng sao ch├⌐p ng╞░ß╗¥i/tiß╗ün
+PASS: list_my_sessions: ─æ├║ng chß╗º sß╗ƒ hß╗»u, ph├ón trang offset>0 trß║ú phß║ºn c├▓n lß║íi
+PASS: list_public_sessions: whitelist c├┤ng khai, lß╗ìc khu vß╗▒c v├á c├▓n chß╗ù
+PASS: list_session_players: chß╗ë host/quß║ún l├╜, ph├ón trang, chß║╖n thß╗º quß╗╣/member
+PASS: cancel retry replays same result
+PASS: DB clean kh├┤ng c├▓n cß╗Öt bß╗Ö ─æß║┐m joined_count (kh├┤ng ghi bß╗Ö ─æß║┐m tß╗½ client)
+PASS: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc create_session (ACL)
+PASS: create_session bß║»t buß╗Öc request_id
+PASS: create_session tß╗½ chß╗æi thß╗¥i gian bß║»t ─æß║ºu trong qu├í khß╗⌐
+PASS: create_session tß╗½ chß╗æi ends_at <= starts_at
+PASS: create_session fee_mode=fixed y├¬u cß║ºu cß║ú hai mß╗⌐c ph├¡
+PASS: create_session gß║»n CLB y├¬u cß║ºu owner/host
+PASS: create_session tß║ío draft + replay c├╣ng request_id trß║ú c├╣ng bß║ún ghi
+PASS: create_session payload kh├íc c├╣ng request_id trß║ú IDEMPOTENCY_CONFLICT
+PASS: get_session_public_detail: draft ß║⌐n vß╗¢i anon
+PASS: get_session_public_detail: host ─æß╗ìc ─æ╞░ß╗úc draft, whitelist sß║ích
+PASS: set_session_lifecycle: draft->published, publish lß║íi bß╗ï INVALID_STATE
+PASS: get_session_public_detail: unlisted ─æ├ú publish ─æß╗ìc ─æ╞░ß╗úc bß║▒ng link (anon)
+PASS: get_session_public_detail: private chß╗ë th├ánh vi├¬n/host ─æß╗ìc ─æ╞░ß╗úc
+PASS: update_session: t─âng version v├á tß╗½ chß╗æi version c┼⌐ (VERSION_CONFLICT)
+PASS: update_session chß║╖n ng╞░ß╗¥i kh├┤ng c├│ quyß╗ün quß║ún l├╜
+PASS: update_session chß║╖n sß╗¡a khi buß╗òi ─æang diß╗àn ra (INVALID_STATE)
+PASS: duplicate_session sao ch├⌐p cß║Ñu h├¼nh nh╞░ng kh├┤ng sao ch├⌐p ng╞░ß╗¥i/tiß╗ün
+PASS: list_my_sessions: ─æ├║ng chß╗º sß╗ƒ hß╗»u, ph├ón trang offset>0 trß║ú phß║ºn c├▓n lß║íi
+PASS: list_public_sessions: whitelist c├┤ng khai, lß╗ìc khu vß╗▒c v├á c├▓n chß╗ù
+PASS: list_session_players: chß╗ë host/quß║ún l├╜, ph├ón trang, chß║╖n thß╗º quß╗╣/member
+PASS: cancel retry replays same result
+PASS: DB clean kh├┤ng c├▓n cß╗Öt bß╗Ö ─æß║┐m joined_count (kh├┤ng ghi bß╗Ö ─æß║┐m tß╗½ client)
+
+==========================================
+Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-04: Tß╗öNG 44 | PASS 44 | FAIL 0
+==========================================
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh04\bh04_test_results_20261020101138.json

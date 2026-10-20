@@ -1,0 +1,54 @@
+Khß╗ƒi tß║ío c╞í sß╗ƒ dß╗» liß╗çu kiß╗âm thß╗¡ BH-03: bh03_clean_20261020101126 v├á bh03_legacy_20261020101126...
+Chuß╗ùi migrations ─æ├ú ├íp dß╗Ñng th├ánh c├┤ng tr├¬n cß║ú CLEAN v├á LEGACY.
+PASS: Tß║ío CLB v├á Owner nguy├¬n tß╗¡ (create_club)
+PASS: Idempotency replay kh├┤ng tß║ío CLB k├⌐p
+PASS: Idempotency kh├íc payload bß╗ï chß║╖n (IDEMPOTENCY_CONFLICT)
+PASS: Anon bß╗ï chß║╖n tß║ío CLB (UNAUTHENTICATED)
+PASS: Owner cß║¡p nhß║¡t th├┤ng tin CLB th├ánh c├┤ng
+PASS: Ng╞░ß╗¥i ngo├ái bß╗ï chß║╖n sß╗¡a CLB (FORBIDDEN)
+PASS: Th├¬m th├ánh vi├¬n offline kh├┤ng t├ái khoß║ún vß╗¢i li├¬n hß╗ç ri├¬ng t╞░
+PASS: Tß╗½ chß╗æi th├¬m th├ánh vi├¬n vß╗¢i user_id kh├┤ng tß╗ôn tß║íi
+PASS: Host cß╗ºa CLB th├¬m th├ánh vi├¬n th├ánh c├┤ng
+PASS: Th├ánh vi├¬n th╞░ß╗¥ng bß╗ï chß║╖n th├¬m ng╞░ß╗¥i (FORBIDDEN)
+PASS: Host cß║¡p nhß║¡t S─ÉT v├á ghi ch├║ cß╗ºa th├ánh vi├¬n th├ánh c├┤ng
+PASS: Thß╗º quß╗╣ bß╗ï chß║╖n cß║¡p nhß║¡t li├¬n hß╗ç th├ánh vi├¬n (FORBIDDEN)
+PASS: Chß║╖n cß║Ñp vai tr├▓ quß║ún l├╜ (host/treasurer) cho ng╞░ß╗¥i ch╞░a c├│ t├ái khoß║ún
+PASS: Owner ph├ón quyß╗ün th├ánh c├┤ng cho th├ánh vi├¬n ─æ├ú li├¬n kß║┐t t├ái khoß║ún
+PASS: Chß║╖n sß╗¡a hoß║╖c hß║í quyß╗ün Owner qua endpoint role th├┤ng th╞░ß╗¥ng
+PASS: Chß║╖n th├ánh vi├¬n tß╗▒ n├óng quyß╗ün hoß║╖c sß╗¡a role ng╞░ß╗¥i kh├íc
+PASS: Owner cß║Ñu h├¼nh ng├ón h├áng CLB giß╗» nguy├¬n sß╗æ 0 ß╗ƒ ─æß║ºu (TEXT)
+PASS: Cß║¡p nhß║¡t bank v├┤ hiß╗çu h├│a t├ái khoß║ún c┼⌐, giß╗» ─æ├║ng 1 active
+PASS: Thß╗º quß╗╣ bß╗ï chß║╖n cß║Ñu h├¼nh t├ái khoß║ún ng├ón h├áng CLB (FORBIDDEN)
+PASS: Host tß╗▒ cß║Ñu h├¼nh t├ái khoß║ún c├í nh├ón cß╗ºa ch├¡nh m├¼nh
+PASS: Sß╗æ d╞░ quß╗╣ chß╗ë hiß╗ân thß╗ï cho Chß╗º nhiß╗çm v├á Thß╗º quß╗╣, ß║⌐n vß╗¢i th├ánh vi├¬n
+PASS: S─ÉT th├ánh vi├¬n chß╗ë hiß╗ân thß╗ï cho Owner/Host v├á ch├¡nh chß╗º, ß║⌐n vß╗¢i Thß╗º quß╗╣ v├á member kh├íc
+PASS: T├ái khoß║ún ng├ón h├áng CLB chß╗ë Chß╗º nhiß╗çm v├á Thß╗º quß╗╣ xem ─æ╞░ß╗úc
+PASS: Danh s├ích CLB cß╗ºa t├┤i (list_my_clubs) hiß╗ân thß╗ï ─æ├║ng theo vai tr├▓
+PASS: Tß║ío CLB v├á Owner nguy├¬n tß╗¡ (create_club)
+PASS: Idempotency replay kh├┤ng tß║ío CLB k├⌐p
+PASS: Idempotency kh├íc payload bß╗ï chß║╖n (IDEMPOTENCY_CONFLICT)
+PASS: Anon bß╗ï chß║╖n tß║ío CLB (UNAUTHENTICATED)
+PASS: Owner cß║¡p nhß║¡t th├┤ng tin CLB th├ánh c├┤ng
+PASS: Ng╞░ß╗¥i ngo├ái bß╗ï chß║╖n sß╗¡a CLB (FORBIDDEN)
+PASS: Th├¬m th├ánh vi├¬n offline kh├┤ng t├ái khoß║ún vß╗¢i li├¬n hß╗ç ri├¬ng t╞░
+PASS: Tß╗½ chß╗æi th├¬m th├ánh vi├¬n vß╗¢i user_id kh├┤ng tß╗ôn tß║íi
+PASS: Host cß╗ºa CLB th├¬m th├ánh vi├¬n th├ánh c├┤ng
+PASS: Th├ánh vi├¬n th╞░ß╗¥ng bß╗ï chß║╖n th├¬m ng╞░ß╗¥i (FORBIDDEN)
+PASS: Host cß║¡p nhß║¡t S─ÉT v├á ghi ch├║ cß╗ºa th├ánh vi├¬n th├ánh c├┤ng
+PASS: Thß╗º quß╗╣ bß╗ï chß║╖n cß║¡p nhß║¡t li├¬n hß╗ç th├ánh vi├¬n (FORBIDDEN)
+PASS: Chß║╖n cß║Ñp vai tr├▓ quß║ún l├╜ (host/treasurer) cho ng╞░ß╗¥i ch╞░a c├│ t├ái khoß║ún
+PASS: Owner ph├ón quyß╗ün th├ánh c├┤ng cho th├ánh vi├¬n ─æ├ú li├¬n kß║┐t t├ái khoß║ún
+PASS: Chß║╖n sß╗¡a hoß║╖c hß║í quyß╗ün Owner qua endpoint role th├┤ng th╞░ß╗¥ng
+PASS: Chß║╖n th├ánh vi├¬n tß╗▒ n├óng quyß╗ün hoß║╖c sß╗¡a role ng╞░ß╗¥i kh├íc
+PASS: Owner cß║Ñu h├¼nh ng├ón h├áng CLB giß╗» nguy├¬n sß╗æ 0 ß╗ƒ ─æß║ºu (TEXT)
+PASS: Cß║¡p nhß║¡t bank v├┤ hiß╗çu h├│a t├ái khoß║ún c┼⌐, giß╗» ─æ├║ng 1 active
+PASS: Thß╗º quß╗╣ bß╗ï chß║╖n cß║Ñu h├¼nh t├ái khoß║ún ng├ón h├áng CLB (FORBIDDEN)
+PASS: Host tß╗▒ cß║Ñu h├¼nh t├ái khoß║ún c├í nh├ón cß╗ºa ch├¡nh m├¼nh
+PASS: Sß╗æ d╞░ quß╗╣ chß╗ë hiß╗ân thß╗ï cho Chß╗º nhiß╗çm v├á Thß╗º quß╗╣, ß║⌐n vß╗¢i th├ánh vi├¬n
+PASS: S─ÉT th├ánh vi├¬n chß╗ë hiß╗ân thß╗ï cho Owner/Host v├á ch├¡nh chß╗º, ß║⌐n vß╗¢i Thß╗º quß╗╣ v├á member kh├íc
+PASS: T├ái khoß║ún ng├ón h├áng CLB chß╗ë Chß╗º nhiß╗çm v├á Thß╗º quß╗╣ xem ─æ╞░ß╗úc
+PASS: Danh s├ích CLB cß╗ºa t├┤i (list_my_clubs) hiß╗ân thß╗ï ─æ├║ng theo vai tr├▓
+
+==========================================
+Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-03: Tß╗öNG 48 | PASS 48 | FAIL 0
+==========================================

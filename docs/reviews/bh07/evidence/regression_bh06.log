@@ -1,0 +1,91 @@
+Khß╗ƒi tß║ío c╞í sß╗ƒ dß╗» liß╗çu kiß╗âm thß╗¡ BH-06: bh06_clean_20261020101236 v├á bh06_legacy_20261020101236...
+Chuß╗ùi migrations ─æ├ú ├íp dß╗Ñng th├ánh c├┤ng tr├¬n cß║ú CLEAN v├á LEGACY.
+PASS: ACL: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc RPC t├ái ch├¡nh/quß╗╣
+PASS: ACL: chß║╖n ghi trß╗▒c tiß║┐p bß║úng t├ái ch├¡nh v├á helper nß╗Öi bß╗Ö
+PASS: Quyß╗ün: outsider kh├┤ng ghi ─æ╞░ß╗úc chi ph├¡ (FORBIDDEN)
+PASS: Quyß╗ün: cohost kh├┤ng finance bß╗ï chß║╖n, treasurer/staff finance ─æ╞░ß╗úc ghi chi ph├¡
+PASS: Quyß╗ün: player kh├┤ng tß╗▒ x├íc nhß║¡n thanh to├ín
+PASS: Quyß╗ün: player kh├┤ng gß╗¡i thanh to├ín thay ng╞░ß╗¥i kh├íc
+PASS: Quyß╗ün: chß╗ë owner/treasurer ─æß╗ìc sß╗ò quß╗╣ CLB
+PASS: Quyß╗ün: get_payment_instructions ─æ├║ng ng╞░ß╗¥i/finance, chß║╖n pending
+PASS: Quyß╗ün: outsider/cohost kh├┤ng ─æß╗ìc c├┤ng nß╗ú kh├ích offline user_id NULL (R1)
+PASS: Gate: RPC bank c┼⌐ v├á mß╗¢i ─æß╗üu chß║╖n not_finalized/stale (R2)
+PASS: Privacy: projection public kh├┤ng lß╗Ö ng├ón h├áng
+PASS: Quyß╗ün: get_session_finance chß╗ë finance
+PASS: Chia tiß╗ün: split 450.000/7 tß╗òng ch├¡nh x├íc, chia d╞░ ß╗òn ─æß╗ïnh
+PASS: Chia tiß╗ün: exemption 0, no_show kh├┤ng t├¡nh, phß║ºn c├▓n lß║íi chia ─æß╗üu
+PASS: Chia tiß╗ün: c├│ chi ph├¡ nh╞░ng kh├┤ng ng╞░ß╗¥i chß╗ïu ph├¡ -> NO_BILLABLE_PLAYERS, rollback
+PASS: Chia tiß╗ün: total 0 vß║½n c├│ revision current, charges 0
+PASS: Chia tiß╗ün: fixed kh├íc tß╗òng expense (thu theo agreed fee)
+PASS: Stale: chi ph├¡ sau chß╗æt l├ám stale, chß║╖n QR/submit/cash/complete
+PASS: Revision: refinalize supersede nguy├¬n tß╗¡, revision_no 2, current trß╗ƒ lß║íi
+PASS: Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE
+PASS: Revision: chß╗æt lß║íi lß║ºn 2 thiß║┐u l├╜ do -> INVALID_INPUT
+PASS: Stale: ─æß╗òi ─æiß╗âm danh sau chß╗æt l├ám stale
+PASS: Stale: ─æß╗òi roster confirmed sau chß╗æt l├ám stale
+PASS: Gate: ch╞░a chß╗æt ph├¡ -> BILLING_NOT_FINALIZED cho submit/cash/complete
+PASS: Tiß╗ün ─æ├ú thu: refinalize kh├┤ng giß║úm due d╞░ß╗¢i paid (kß╗â cß║ú ng╞░ß╗¥i bß╗ï loß║íi khß╗Åi billable)
+PASS: Tiß╗ün ─æ├ú thu: refinalize giß╗» payment, kh├┤ng ghi ledger thu lß║╖p
+PASS: Idempotency: submit replay c├╣ng key, kh├íc payload -> IDEMPOTENCY_CONFLICT
+PASS: Thanh to├ín: tß╗òng confirmed kh├┤ng v╞░ß╗út active due
+PASS: ─Éß╗ông thß╗¥i: 2 confirm tranh outstanding kh├┤ng thu d╞░
+PASS: ─Éß╗ông thß╗¥i: 2 ghi tiß╗ün mß║╖t tranh outstanding kh├┤ng thu d╞░
+PASS: Thanh to├ín: cash kh├┤ng thu d╞░ outstanding
+PASS: Thanh to├ín: cash tß║ío+confirm nguy├¬n tß╗¡ v├á ─æ├║ng mß╗Öt entry quß╗╣
+PASS: Thanh to├ín: ─æß║úo mß╗Öt lß║ºn, giß╗» payment, entry ─æß║úo duy nhß║Ñt
+PASS: Replay/history: reject vß║½n ─æ╞░ß╗úc khi stale, kh├┤ng ghi ledger
+PASS: Replay/history: confirm ─æ├ú confirmed trß║ú kß║┐t quß║ú hiß╗çn tß║íi, kh├┤ng ghi ledger lß║╖p d├╣ stale
+PASS: Ledger: chi ph├¡ buß╗òi CLB sinh mß╗Öt entry, buß╗òi ─æß╗Öc lß║¡p kh├┤ng
+PASS: Ledger: ─æß║úo chi ph├¡ mß╗Öt lß║ºn, giß╗» nguß╗ôn v├á entry ─æß║úo duy nhß║Ñt
+PASS: Ledger: quß╗╣ manual chß╗ë owner/treasurer, ─æß║úo mß╗Öt lß║ºn, kh├┤ng ─æß║úo entry tß╗▒ sinh
+PASS: Ledger: sß╗æ d╞░ trß║ú tß╗½ SUM DB khß╗¢p ledger
+PASS: Complete: chß╗ë in_progress v├á cß║ºn revision current (buß╗òi miß╗àn ph├¡ charges 0)
+PASS: Complete: chß╗ë host/quß║ún l├╜
+PASS: Rollback: input sai kh├┤ng tß║ío expense/ledger v├á kh├┤ng t─âng billing_input_version
+PASS: ACL: anon kh├┤ng gß╗ìi ─æ╞░ß╗úc RPC t├ái ch├¡nh/quß╗╣
+PASS: ACL: chß║╖n ghi trß╗▒c tiß║┐p bß║úng t├ái ch├¡nh v├á helper nß╗Öi bß╗Ö
+PASS: Quyß╗ün: outsider kh├┤ng ghi ─æ╞░ß╗úc chi ph├¡ (FORBIDDEN)
+PASS: Quyß╗ün: cohost kh├┤ng finance bß╗ï chß║╖n, treasurer/staff finance ─æ╞░ß╗úc ghi chi ph├¡
+PASS: Quyß╗ün: player kh├┤ng tß╗▒ x├íc nhß║¡n thanh to├ín
+PASS: Quyß╗ün: player kh├┤ng gß╗¡i thanh to├ín thay ng╞░ß╗¥i kh├íc
+PASS: Quyß╗ün: chß╗ë owner/treasurer ─æß╗ìc sß╗ò quß╗╣ CLB
+PASS: Quyß╗ün: get_payment_instructions ─æ├║ng ng╞░ß╗¥i/finance, chß║╖n pending
+PASS: Quyß╗ün: outsider/cohost kh├┤ng ─æß╗ìc c├┤ng nß╗ú kh├ích offline user_id NULL (R1)
+PASS: Gate: RPC bank c┼⌐ v├á mß╗¢i ─æß╗üu chß║╖n not_finalized/stale (R2)
+PASS: Privacy: projection public kh├┤ng lß╗Ö ng├ón h├áng
+PASS: Quyß╗ün: get_session_finance chß╗ë finance
+PASS: Chia tiß╗ün: split 450.000/7 tß╗òng ch├¡nh x├íc, chia d╞░ ß╗òn ─æß╗ïnh
+PASS: Chia tiß╗ün: exemption 0, no_show kh├┤ng t├¡nh, phß║ºn c├▓n lß║íi chia ─æß╗üu
+PASS: Chia tiß╗ün: c├│ chi ph├¡ nh╞░ng kh├┤ng ng╞░ß╗¥i chß╗ïu ph├¡ -> NO_BILLABLE_PLAYERS, rollback
+PASS: Chia tiß╗ün: total 0 vß║½n c├│ revision current, charges 0
+PASS: Chia tiß╗ün: fixed kh├íc tß╗òng expense (thu theo agreed fee)
+PASS: Stale: chi ph├¡ sau chß╗æt l├ám stale, chß║╖n QR/submit/cash/complete
+PASS: Revision: refinalize supersede nguy├¬n tß╗¡, revision_no 2, current trß╗ƒ lß║íi
+PASS: Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE
+PASS: Revision: chß╗æt lß║íi lß║ºn 2 thiß║┐u l├╜ do -> INVALID_INPUT
+PASS: Stale: ─æß╗òi ─æiß╗âm danh sau chß╗æt l├ám stale
+PASS: Stale: ─æß╗òi roster confirmed sau chß╗æt l├ám stale
+PASS: Gate: ch╞░a chß╗æt ph├¡ -> BILLING_NOT_FINALIZED cho submit/cash/complete
+PASS: Tiß╗ün ─æ├ú thu: refinalize kh├┤ng giß║úm due d╞░ß╗¢i paid (kß╗â cß║ú ng╞░ß╗¥i bß╗ï loß║íi khß╗Åi billable)
+PASS: Tiß╗ün ─æ├ú thu: refinalize giß╗» payment, kh├┤ng ghi ledger thu lß║╖p
+PASS: Idempotency: submit replay c├╣ng key, kh├íc payload -> IDEMPOTENCY_CONFLICT
+PASS: Thanh to├ín: tß╗òng confirmed kh├┤ng v╞░ß╗út active due
+PASS: ─Éß╗ông thß╗¥i: 2 confirm tranh outstanding kh├┤ng thu d╞░
+PASS: ─Éß╗ông thß╗¥i: 2 ghi tiß╗ün mß║╖t tranh outstanding kh├┤ng thu d╞░
+PASS: Thanh to├ín: cash kh├┤ng thu d╞░ outstanding
+PASS: Thanh to├ín: cash tß║ío+confirm nguy├¬n tß╗¡ v├á ─æ├║ng mß╗Öt entry quß╗╣
+PASS: Thanh to├ín: ─æß║úo mß╗Öt lß║ºn, giß╗» payment, entry ─æß║úo duy nhß║Ñt
+PASS: Replay/history: reject vß║½n ─æ╞░ß╗úc khi stale, kh├┤ng ghi ledger
+PASS: Replay/history: confirm ─æ├ú confirmed trß║ú kß║┐t quß║ú hiß╗çn tß║íi, kh├┤ng ghi ledger lß║╖p d├╣ stale
+PASS: Ledger: chi ph├¡ buß╗òi CLB sinh mß╗Öt entry, buß╗òi ─æß╗Öc lß║¡p kh├┤ng
+PASS: Ledger: ─æß║úo chi ph├¡ mß╗Öt lß║ºn, giß╗» nguß╗ôn v├á entry ─æß║úo duy nhß║Ñt
+PASS: Ledger: quß╗╣ manual chß╗ë owner/treasurer, ─æß║úo mß╗Öt lß║ºn, kh├┤ng ─æß║úo entry tß╗▒ sinh
+PASS: Ledger: sß╗æ d╞░ trß║ú tß╗½ SUM DB khß╗¢p ledger
+PASS: Complete: chß╗ë in_progress v├á cß║ºn revision current (buß╗òi miß╗àn ph├¡ charges 0)
+PASS: Complete: chß╗ë host/quß║ún l├╜
+PASS: Rollback: input sai kh├┤ng tß║ío expense/ledger v├á kh├┤ng t─âng billing_input_version
+
+==========================================
+Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-06: Tß╗öNG 84 | PASS 84 | FAIL 0
+==========================================
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh06\bh06_test_results_20261020101236.json

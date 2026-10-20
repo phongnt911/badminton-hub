@@ -1,0 +1,6 @@
+BASELINE: 20261016120000_bh06_payments_ledger.sql, 20261016130000_bh06_reads.sql, 20261016140000_bh06a_review_round1.sql
+UPGRADE : 20261020100000_bh06_integration_receiver.sql, 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql, 20261020180000_bh07_reads.sql
+PASS: A. buß╗òi ─æ├ú chß╗æt ph├¡ + bank active ─æ╞░ß╗úc backfill sau upgrade
+PASS: B. buß╗òi kh├┤ng c├│ bank giß╗» NULL sau upgrade
+PASS: C. snapshot c┼⌐ bß║Ñt biß║┐n sau upgrade
+SUMMARY: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh06\integration_evidence\upgrade_results_20261020101408.json
