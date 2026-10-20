@@ -16,6 +16,6 @@ Vai trò: DeepSeek/Antigravity = người triển khai. Codex (GPT-6.1 Sol) = ng
 - Mỗi ticket chia phần nhỏ (A: DB/RPC, B: model/repository/provider, C: UI), mỗi phần một nhánh `feat/bh05a-...`, commit riêng.
 - Trước khi gửi review phải xanh: `flutter analyze`, `flutter test`, và runner DB của ticket (nếu có đổi DB).
 - Review nằm ở `docs/reviews/<ticket>/review_<sha>.md`, mỗi phát hiện ghi: file:dòng, mức P0/P1/P2, cách sửa.
-- Sửa theo review: viết test tái hiện lỗi trước, chỉ sửa P0/P1 được nêu, tối đa 2 vòng. Còn lỗi sau 2 vòng thì dừng và báo chủ dự án.
+- Sửa theo review: viết test tái hiện lỗi trước, sửa toàn bộ phát hiện P0/P1/P2 được nêu (kể cả P2), tối đa 2 vòng. Còn lỗi sau 2 vòng thì dừng và báo chủ dự án.
 - Người review không viết lại code, trừ khi chủ dự án giao rõ.
 Vai trò làm việc: xem docs/ai/IMPLEMENTER.md (người triển khai) và docs/ai/REVIEWER.md (người review). Chỉ làm đúng vai trò được giao trong yêu cầu.

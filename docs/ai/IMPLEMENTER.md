@@ -11,6 +11,6 @@
 
 ## Sửa theo review
 1. Đọc review mới nhất trong docs/reviews/<ticket>/.
-2. Mỗi phát hiện P0/P1: viết test tái hiện (phải FAIL) → sửa → test PASS.
+2. Mỗi phát hiện P0/P1/P2 được nêu: viết test tái hiện (phải FAIL) → sửa → test PASS.
 3. Không sửa ngoài phạm vi review. Tối đa 2 vòng, hết vòng thì báo chủ dự án.
 4. Chạy lại analyze/test/runner DB, báo: đã sửa gì, chưa sửa gì và lý do.
