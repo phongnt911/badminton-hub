@@ -1,8 +1,8 @@
 {
-  "tested_commit": "a9c7edbeabf26051f6f7f7f0b54ad8aa8c1d8ce2",
+  "tested_commit": "8af7be5dfc54f3ba124b966bb66ab684d8473064",
   "container": "bh02-test-postgres",
-  "clean_database": "bh02_clean_20261020033327",
-  "legacy_database": "bh02_legacy_20261020033327",
+  "clean_database": "bh02_clean_20261020033907",
+  "legacy_database": "bh02_legacy_20261020033907",
   "auth": "minimal auth.users/auth.uid stubs; no PostgREST or full Supabase stack",
   "migration_clean": "PASS",
   "migration_legacy_execution": "PASS",
