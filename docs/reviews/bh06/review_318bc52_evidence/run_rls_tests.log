@@ -1,0 +1,35 @@
+PASS anon venues active read
+PASS anon raw player denied
+PASS outsider player rows hidden
+PASS player sees own row
+PASS player cannot see other row
+PASS cohost sees session roster
+PASS outsider contacts hidden
+PASS player only own contact
+PASS treasurer cannot read contacts
+PASS outsider ledger hidden
+PASS treasurer reads ledger
+PASS player cannot self elevate
+PASS player cannot direct insert paid flag
+PASS outsider cannot update private profile
+PASS anon cannot forge audit
+PASS outsider cannot forge foreign audit
+PASS client cannot preseed idempotency
+PASS outsider cannot read bank snapshot
+PASS outsider cannot list unlisted drafts
+PASS anon public summary correct count
+PASS outsider public summary correct count
+PASS player public summary correct count
+PASS host public summary correct count
+PASS player sees own outstanding
+PASS host sees player outstanding
+PASS host can read own bank
+PASS owner can read club bank
+PASS treasurer can read club bank
+PASS public detail hides private fields
+PASS outsider private detail blocked
+PASS new schema session insert into legacy
+PASS new schema player insert into legacy
+PASS treasurer cannot read legacy contact
+TOTAL 33 PASS 33 FAIL 0
+Results file: /workspace/badminton-hub/docs/reviews/bh02/rls_test_results_20261020082929.json

@@ -1,0 +1,5 @@
+00:00 +0: loading /workspace/badminton-hub/test/screens/review_bh06_integration_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review version conflict: refresh must enable finalize with current version
+00:03 +1: (tearDownAll)
+00:03 +1: All tests passed!

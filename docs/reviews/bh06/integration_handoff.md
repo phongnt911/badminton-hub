@@ -2,7 +2,9 @@
 
 Ngày 20/10/2026. Người triển khai: DeepSeek. Người review độc lập: Codex.
 
-> **Hiện hành sau sửa review vòng 1 (20/10/2026): Chờ review tích hợp.** Code/test `31a553c` trên `feat/bh06-integration`, sửa I1 P1 và I2 P2 của [review afeff39](review_afeff39.md). Bằng chứng mới: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 case tích hợp DB**, **3/3 case nâng cấp DB**. Người triển khai không tự ghi "Đạt"; chưa merge `main`/deploy/apply.
+> **Hiện hành reviewer 20/10/2026: Đạt tích hợp tại `318bc52`** sau vòng sửa 1, theo [review độc lập](review_318bc52.md). Đóng I1/I2; reviewer tự chạy analyze sạch, 190 Flutter +335 DB, 7 tích hợp, 3 nâng cấp và 2 probe I1/I2 PASS. Giới hạn local/PostgreSQL/Auth stub, các cổng HTTP/JWT/Auth/thiết bị/ngân hàng thật và production vẫn NOT RUN. Không tự merge/BH-07/deploy. Kết quả/trạng thái bên dưới là lịch sử theo từng tested SHA.
+
+> **(Lịch sử bàn giao) Sau sửa review vòng 1 (20/10/2026): Chờ review tích hợp.** Code/test `31a553c` trên `feat/bh06-integration`, sửa I1 P1 và I2 P2 của [review afeff39](review_afeff39.md). Bằng chứng mới: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 case tích hợp DB**, **3/3 case nâng cấp DB**. Người triển khai không tự ghi "Đạt"; chưa merge `main`/deploy/apply.
 
 > **Lịch sử reviewer 20/10/2026: Chưa đạt tích hợp tại `afeff39`** theo [review độc lập](review_afeff39.md): I1 P1 thiếu backfill receiver, I2 P2 refresh không cập nhật session version. Reviewer tự chạy analyze sạch, 189 Flutter +335 DB +6 tích hợp PASS; 2 probe FAIL. Các kết quả/trạng thái bàn giao ban đầu bên dưới là lịch sử phía tác giả.
 

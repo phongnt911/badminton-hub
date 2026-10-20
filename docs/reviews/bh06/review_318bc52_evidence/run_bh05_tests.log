@@ -1,0 +1,97 @@
+Khởi tạo cơ sở dữ liệu kiểm thử BH-05: bh05_clean_20261020082929 và bh05_legacy_20261020082929...
+Chuỗi migrations đã áp dụng thành công trên cả CLEAN và LEGACY.
+PASS: anon không gọi được request_join_session (ACL)
+PASS: request_join_session bắt buộc request_id
+PASS: request_join_session host_approval: pending, không chiếm slot, replay cùng key
+PASS: request_join_session auto_confirm: confirmed và chốt agreed_fee fixed
+PASS: request_join_session auto_confirm hết chỗ: waitlisted, không vượt sức chứa
+PASS: request_join_session chặn đăng ký trùng (DUPLICATE_PARTICIPANT)
+PASS: request_join_session cùng request_id khác payload trả IDEMPOTENCY_CONFLICT
+PASS: đăng ký lại sau cancelled dùng lại player_id (không thêm ID)
+PASS: request_join_session chặn buổi chưa publish (INVALID_STATE)
+PASS: request_join_session chặn sau registration_deadline (DEADLINE_PASSED)
+PASS: request_join_session buổi private: member CLB vào được, người ngoài FORBIDDEN
+PASS: decide_registration duyệt pending và chặn duyệt thẳng waitlisted
+PASS: decide_registration chặn khi hết chỗ (CAPACITY_FULL)
+PASS: add_session_player thêm guest và member CLB (guest user_id NULL, giữ contact riêng)
+PASS: add_session_player chặn member ngoài CLB (INVALID_INPUT)
+PASS: add_session_player hết chỗ: CAPACITY_FULL hoặc waitlist khi host chọn
+PASS: add_session_player fee_exempt cần quyền tài chính (cohost không finance bị chặn)
+PASS: cancel_registration: tự hủy đúng hạn, chặn người khác và quá hạn
+PASS: cancel_registration người đã present cần quyền tài chính
+PASS: record_attendance: chỉ in_progress, chỉ confirmed, replay cùng kết quả
+PASS: start_session: chỉ quản lý, published→in_progress, replay không lặp, điểm danh sau start
+PASS: tích hợp create→publish→join→approve→start→điểm danh (đường hợp lệ từ app)
+PASS: tích hợp join→approve→cancel→đăng ký lại giữ nguyên player_id
+PASS: invite_waitlisted_player: tạo lời mời không giữ slot, replay cùng key, chặn non-waitlisted
+PASS: invite_waitlisted_player chặn expiry ngoài biên (quá khứ/vượt starts_at)
+PASS: accept_waitlist_invitation: hết chỗ CAPACITY_FULL, giải phóng chỗ thì confirmed, accept lặp không thêm slot
+PASS: accept_waitlist_invitation sai người nhận trả FORBIDDEN
+PASS: accept_waitlist_invitation: lời mời thu hồi/hết hạn trả đúng mã
+PASS: revoke_waitlist_invitation chặn lời mời đã accepted (dùng hủy đăng ký)
+PASS: accept_waitlist_invitation host_recorded: cần consent, không cho account khác, ghi mode+consent
+PASS: cancel_registration thu hồi lời mời pending cùng transaction
+PASS: get_my_waitlist_invitation: đúng người nhận lời mời, người khác NULL
+PASS: người ngoài/buổi không duyệt được và không đọc contact qua RPC
+PASS: không có direct write cho authenticated trên session_players/waitlist_invitations
+PASS: hai kết nối tranh slot cuối: chỉ một confirmed, người kia waitlisted
+PASS: hai kết nối duyệt cạnh tranh: không vượt sức chứa (người thua CAPACITY_FULL)
+PASS: A1 add_session_player: thêm confirmed sau chốt phí cần quyền tài chính (cohost FORBIDDEN, finance cho phép)
+PASS: A1 decide_registration: duyệt confirmed sau chốt phí cần quyền tài chính
+PASS: A1 cancel_registration: hủy confirmed sau chốt phí cần quyền tài chính
+PASS: A1 accept_waitlist_invitation: nhận chỗ sau chốt phí cần quyền tài chính
+PASS: A2 update_session: từ chối hạ capacity dưới số đã confirmed
+PASS: A2 race: hạ capacity đấu với join — confirmed không vượt capacity
+PASS: A3 huỷ buổi thu hồi lời mời pending; get_my_waitlist_invitation không trả lời mời đã huỷ
+PASS: A3 race: huỷ buổi đấu với accept — không để lời mời pending khi buổi đã huỷ
+PASS: A3 replay huỷ buổi không tạo thêm tác dụng phụ
+PASS: anon không gọi được request_join_session (ACL)
+PASS: request_join_session bắt buộc request_id
+PASS: request_join_session host_approval: pending, không chiếm slot, replay cùng key
+PASS: request_join_session auto_confirm: confirmed và chốt agreed_fee fixed
+PASS: request_join_session auto_confirm hết chỗ: waitlisted, không vượt sức chứa
+PASS: request_join_session chặn đăng ký trùng (DUPLICATE_PARTICIPANT)
+PASS: request_join_session cùng request_id khác payload trả IDEMPOTENCY_CONFLICT
+PASS: đăng ký lại sau cancelled dùng lại player_id (không thêm ID)
+PASS: request_join_session chặn buổi chưa publish (INVALID_STATE)
+PASS: request_join_session chặn sau registration_deadline (DEADLINE_PASSED)
+PASS: request_join_session buổi private: member CLB vào được, người ngoài FORBIDDEN
+PASS: decide_registration duyệt pending và chặn duyệt thẳng waitlisted
+PASS: decide_registration chặn khi hết chỗ (CAPACITY_FULL)
+PASS: add_session_player thêm guest và member CLB (guest user_id NULL, giữ contact riêng)
+PASS: add_session_player chặn member ngoài CLB (INVALID_INPUT)
+PASS: add_session_player hết chỗ: CAPACITY_FULL hoặc waitlist khi host chọn
+PASS: add_session_player fee_exempt cần quyền tài chính (cohost không finance bị chặn)
+PASS: cancel_registration: tự hủy đúng hạn, chặn người khác và quá hạn
+PASS: cancel_registration người đã present cần quyền tài chính
+PASS: record_attendance: chỉ in_progress, chỉ confirmed, replay cùng kết quả
+PASS: start_session: chỉ quản lý, published→in_progress, replay không lặp, điểm danh sau start
+PASS: tích hợp create→publish→join→approve→start→điểm danh (đường hợp lệ từ app)
+PASS: tích hợp join→approve→cancel→đăng ký lại giữ nguyên player_id
+PASS: invite_waitlisted_player: tạo lời mời không giữ slot, replay cùng key, chặn non-waitlisted
+PASS: invite_waitlisted_player chặn expiry ngoài biên (quá khứ/vượt starts_at)
+PASS: accept_waitlist_invitation: hết chỗ CAPACITY_FULL, giải phóng chỗ thì confirmed, accept lặp không thêm slot
+PASS: accept_waitlist_invitation sai người nhận trả FORBIDDEN
+PASS: accept_waitlist_invitation: lời mời thu hồi/hết hạn trả đúng mã
+PASS: revoke_waitlist_invitation chặn lời mời đã accepted (dùng hủy đăng ký)
+PASS: accept_waitlist_invitation host_recorded: cần consent, không cho account khác, ghi mode+consent
+PASS: cancel_registration thu hồi lời mời pending cùng transaction
+PASS: get_my_waitlist_invitation: đúng người nhận lời mời, người khác NULL
+PASS: người ngoài/buổi không duyệt được và không đọc contact qua RPC
+PASS: không có direct write cho authenticated trên session_players/waitlist_invitations
+PASS: hai kết nối tranh slot cuối: chỉ một confirmed, người kia waitlisted
+PASS: hai kết nối duyệt cạnh tranh: không vượt sức chứa (người thua CAPACITY_FULL)
+PASS: A1 add_session_player: thêm confirmed sau chốt phí cần quyền tài chính (cohost FORBIDDEN, finance cho phép)
+PASS: A1 decide_registration: duyệt confirmed sau chốt phí cần quyền tài chính
+PASS: A1 cancel_registration: hủy confirmed sau chốt phí cần quyền tài chính
+PASS: A1 accept_waitlist_invitation: nhận chỗ sau chốt phí cần quyền tài chính
+PASS: A2 update_session: từ chối hạ capacity dưới số đã confirmed
+PASS: A2 race: hạ capacity đấu với join — confirmed không vượt capacity
+PASS: A3 huỷ buổi thu hồi lời mời pending; get_my_waitlist_invitation không trả lời mời đã huỷ
+PASS: A3 race: huỷ buổi đấu với accept — không để lời mời pending khi buổi đã huỷ
+PASS: A3 replay huỷ buổi không tạo thêm tác dụng phụ
+
+==========================================
+KẾT QUẢ KIỂM THỬ BH-05: TỔNG 90 | PASS 90 | FAIL 0
+==========================================
+Results file: /workspace/badminton-hub/docs/reviews/bh05/bh05_test_results_20261020082929.json
