@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-07B (20/10/2026): Chờ review tại tested code `89e1d8f`** trên `feat/bh07b-data`, theo [bàn giao](reviews/bh07/bh07b_handoff.md). A đã Đạt local tại `4512c3a` ([review](reviews/bh07/review_4512c3a.md)). Người triển khai tự chạy analyze sạch, **211 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**; reviewer chưa chạy lại B. Chỉ model/repository/provider local; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần tiếp theo, merge main hoặc deploy.
+> **Hiện hành BH-07B (20/10/2026): Chưa đạt tại `1298490`**, theo [review độc lập](reviews/bh07/review_1298490.md). B1/B2 P2: cache tổng kết giữ quyền/tiền cũ sau FORBIDDEN; lịch sử append bị trùng khi trang OFFSET dịch. Reviewer tự chạy analyze sạch, **211 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06 PASS**, nhưng **4 control PASS/2 probe FAIL**. A giữ Đạt; sửa theo review B, không tự chuyển C/D hoặc merge/deploy.
+
+> **(Lịch sử bàn giao) BH-07B (20/10/2026): Chờ review tại tested code `89e1d8f`** trên `feat/bh07b-data`, theo [bàn giao](reviews/bh07/bh07b_handoff.md). A đã Đạt local tại `4512c3a` ([review](reviews/bh07/review_4512c3a.md)). Người triển khai tự chạy analyze sạch, **211 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**; reviewer chưa chạy lại B. Chỉ model/repository/provider local; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần tiếp theo, merge main hoặc deploy.
 
 > **(Lịch sử bàn giao) 20/10/2026:** BH-06 Đạt tích hợp local tại `318bc52`, **đã merge main tại `e7f7627`** cùng docs/ai. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. BH-07A đã triển khai local, **Chờ review** tại tested code `c339a47`; BH-07 chưa nghiệm thu. Chưa apply staging/production/deploy; các cổng HTTP/JWT/Auth, thiết bị/ngân hàng thật, backup/restore và concurrency HTTP vẫn chưa nghiệm thu.
 
@@ -594,3 +596,9 @@ Chủ dự án giao merge main, đồng bộ tiến độ và gửi prompt mới
 - Giữ tiền NULL khi management-only, không đổi NULL thành 0, không suy `outstanding` từ `due - paid`/một trang payment. Không sửa migration/RPC A; giữ `completeSession`, version và `request_id` hiện có.
 - Kết quả mới: analyze sạch, **211/211 Flutter** (thêm 21 test), **23/23 BH-07**, **335/335 DB hồi quy BH-02..06**, **7/7 tích hợp**, **3/3 nâng cấp**. Chi tiết [bàn giao](reviews/bh07/bh07b_handoff.md) và [evidence](reviews/bh07/bh07b_evidence/summary.json).
 - NOT RUN: HTTP/PostgREST/JWT/Supabase Auth thật, UI C, thiết bị/browser/deep link/offline, ngân hàng/VietQR thật, staging/production, backup/restore và concurrency HTTP. Chưa chuyển C/D, chưa merge main, chưa deploy.
+
+### BH-07B — kết luận reviewer tại 1298490 (20/10/2026)
+
+- **Chưa đạt B** theo [review_1298490](reviews/bh07/review_1298490.md), source trùng tested code 89e1d8f. B1 P2: FORBIDDEN không vô hiệu summary/permission cache; B2 P2: append trang OFFSET chồng lấn tạo buổi trùng. Viết test tái hiện trước, sửa toàn bộ P theo AGENTS, tối đa hai vòng sửa B.
+- Reviewer tự chạy analyze sạch, **211/211 Flutter**, **335/335 DB hồi quy BH-02..06**, **23/23 BH-07**, **7/7 tích hợp +3/3 nâng cấp BH-06** PASS. Probe provider với fixture RPC thật **4 PASS/2 FAIL**. [Hash/summary](reviews/bh07/review_1298490_evidence/summary.json). Không sửa migration/RPC A, UI C hoặc source triển khai; không dùng log tác giả làm kết quả reviewer.
+- A giữ kết luận trước; C/D/pilot chưa nghiệm thu. Không merge main/deploy/apply DB thật. NOT RUN: HTTP/JWT/Auth thật, UI C/copy, thiết bị/browser/deep link/offline/reopen, ngân hàng/VietQR thật, staging/production, backup/restore và concurrency HTTP.

@@ -1,0 +1,42 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh07b_provider_probe_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: review history: overlapping RPC pages do not duplicate a session or corrupt raw offset
+00:00 +0 -1: review history: overlapping RPC pages do not duplicate a session or corrupt raw offset [E]
+  Expected: [
+              '1baa99a6-907c-44be-a5fd-aaabb32cc395',
+              '46f64e47-2820-4ec8-b6a0-d003a5d532f5',
+              'bcb9d4d1-d825-4049-81c0-03b77848f28f',
+              '3ce368cd-857d-4f4e-8a26-f7e675e34857'
+            ]
+    Actual: [
+              '1baa99a6-907c-44be-a5fd-aaabb32cc395',
+              '46f64e47-2820-4ec8-b6a0-d003a5d532f5',
+              '46f64e47-2820-4ec8-b6a0-d003a5d532f5',
+              'bcb9d4d1-d825-4049-81c0-03b77848f28f',
+              '3ce368cd-857d-4f4e-8a26-f7e675e34857'
+            ]
+     Which: at location [2] is '46f64e47-2820-4ec8-b6a0-d003a5d532f5' instead of 'bcb9d4d1-d825-4049-81c0-03b77848f28f'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/review_bh07b_provider_probe_test.dart 35:5     main.<fn>
+  
+00:00 +0 -1: review summary: FORBIDDEN must invalidate privileged cached summary
+00:00 +0 -2: review summary: FORBIDDEN must invalidate privileged cached summary [E]
+  Expected: null
+    Actual: <Instance of 'SessionSummary'>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/review_bh07b_provider_probe_test.dart 51:5     main.<fn>
+  
+00:00 +0 -2: review control: temporary transport error retains data with explicit error
+00:00 +1 -2: review control: old summary refresh cannot overwrite a newer scope
+00:00 +2 -2: review complete control: VERSION_CONFLICT fails and retry keeps request ID
+00:00 +3 -2: review complete control: BILLING_STALE fails and retry keeps request ID
+00:00 +4 -2: (tearDownAll)
+00:00 +4 -2: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/review_bh07b_provider_probe_test.dart: review history: overlapping RPC pages do not duplicate a session or corrupt raw offset
+  /workspace/badminton-hub/test/review_bh07b_provider_probe_test.dart: review summary: FORBIDDEN must invalidate privileged cached summary

@@ -1,0 +1,24 @@
+{
+  "db": "bh07b_review_20261020141732_2a6043",
+  "fixture": "/workspace/scratch/bh07-review-1298490/rpc-fixture.json",
+  "history_page_ids": {
+    "0": [
+      "1baa99a6-907c-44be-a5fd-aaabb32cc395",
+      "46f64e47-2820-4ec8-b6a0-d003a5d532f5"
+    ],
+    "2": [
+      "46f64e47-2820-4ec8-b6a0-d003a5d532f5",
+      "bcb9d4d1-d825-4049-81c0-03b77848f28f"
+    ],
+    "3": [
+      "bcb9d4d1-d825-4049-81c0-03b77848f28f",
+      "3ce368cd-857d-4f4e-8a26-f7e675e34857"
+    ],
+    "4": [
+      "3ce368cd-857d-4f4e-8a26-f7e675e34857"
+    ]
+  },
+  "summary_before_outstanding": 100000,
+  "summary_after_revoke_exit": 3,
+  "summary_error": "ERROR:  FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi\nCONTEXT:  PL/pgSQL function get_session_summary(uuid) line 39 at RAISE"
+}
