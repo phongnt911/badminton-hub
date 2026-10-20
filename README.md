@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 23 PASS (A); B self-run 23 PASS | **Đạt phần A local tại 4512c3a; B Chưa đạt tại 1298490 (B1/B2 P2)**, chưa nghiệm thu toàn BH-07 |
+| BH-07 | 23 PASS (A); B self-run 23 PASS; sửa vòng 1 23 PASS | **Đạt phần A local tại 4512c3a; B Chờ review vòng 1 tại a682007** (review vòng 0 Chưa đạt tại 1298490), chưa nghiệm thu toàn BH-07 |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-[BH-07A đã Đạt local](docs/reviews/bh07/review_4512c3a.md); [BH-07B Chưa đạt](docs/reviews/bh07/review_1298490.md) tại `1298490` (B1/B2 P2 còn mở); C/D và pilot chưa nghiệm thu. Giữ [cổng hai AI](docs/25_BH07_IMPLEMENTATION_HANDOFF.md), không tự chuyển phần. Chưa nghiệm thu HTTP/PostgREST/JWT/Auth thật, mobile/web/deep link e2e, ngân hàng/VietQR thật, staging/production, backup/restore hoặc concurrency HTTP. **Chưa deploy; merge code không phải apply DB.** Nhật ký nằm ở [STATUS_HISTORY](docs/STATUS_HISTORY.md).
+[BH-07A đã Đạt local](docs/reviews/bh07/review_4512c3a.md); [review vòng 0 BH-07B Chưa đạt](docs/reviews/bh07/review_1298490.md) tại `1298490`; người triển khai đã sửa B1/B2 và bàn giao [Chờ review vòng 1](docs/reviews/bh07/bh07b_fix_handoff.md) tại `a682007`; C/D và pilot chưa nghiệm thu. Giữ [cổng hai AI](docs/25_BH07_IMPLEMENTATION_HANDOFF.md), không tự chuyển phần. Chưa nghiệm thu HTTP/PostgREST/JWT/Auth thật, mobile/web/deep link e2e, ngân hàng/VietQR thật, staging/production, backup/restore hoặc concurrency HTTP. **Chưa deploy; merge code không phải apply DB.** Nhật ký nằm ở [STATUS_HISTORY](docs/STATUS_HISTORY.md).
 
 ## Tài liệu để triển khai
 

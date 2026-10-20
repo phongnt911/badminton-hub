@@ -1,0 +1,47 @@
+[
+    {
+        "name":  "regression_bh02",
+        "exit":  0,
+        "tail":  "PASS treasurer cannot read legacy contact | TOTAL 33 PASS 33 FAIL 0 | Results file: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh02\\rls_test_results_20261020143347.json"
+    },
+    {
+        "name":  "regression_bh02_extended",
+        "exit":  0,
+        "tail":  "PASS legacy venue name updates when venue_id changes: Test venue | PASS legacy end_time follows ends_at update: 20:00:00 | EXTENDED TOTAL 14 PASS 14 FAIL 0"
+    },
+    {
+        "name":  "regression_bh03",
+        "exit":  0,
+        "tail":  "========================================== | Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-03: Tß╗öNG 48 | PASS 48 | FAIL 0 | =========================================="
+    },
+    {
+        "name":  "regression_bh03_retry",
+        "exit":  0,
+        "tail":  "PASS bh03_legacy_20261020143351: concurrent replay returns one club | PASS bh03_legacy_20261020143351: concurrent changed payload conflicts | TOTAL 22 PASS 22 FAIL 0"
+    },
+    {
+        "name":  "regression_bh04",
+        "exit":  0,
+        "tail":  "Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-04: Tß╗öNG 44 | PASS 44 | FAIL 0 | ========================================== | Results file: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh04\\bh04_test_results_20261020143404.json"
+    },
+    {
+        "name":  "regression_bh05",
+        "exit":  0,
+        "tail":  "Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-05: Tß╗öNG 90 | PASS 90 | FAIL 0 | ========================================== | Results file: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh05\\bh05_test_results_20261020143414.json"
+    },
+    {
+        "name":  "regression_bh06",
+        "exit":  0,
+        "tail":  "Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-06: Tß╗öNG 84 | PASS 84 | FAIL 0 | ========================================== | Results file: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh06\\bh06_test_results_20261020143504.json"
+    },
+    {
+        "name":  "regression_bh06_integration",
+        "exit":  0,
+        "tail":  "PASS: contract DTO: get_session_finance/get_club_ledger/get_payment_instructions | TOTAL 7 PASS 7 FAIL 0 | Results file: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh06\\integration_evidence\\integration_results_20261020143620.json"
+    },
+    {
+        "name":  "regression_bh06_upgrade",
+        "exit":  0,
+        "tail":  "PASS: B. buß╗òi kh├┤ng c├│ bank giß╗» NULL sau upgrade | PASS: C. snapshot c┼⌐ bß║Ñt biß║┐n sau upgrade | SUMMARY: C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\docs\\reviews\\bh06\\integration_evidence\\upgrade_results_20261020143630.json"
+    }
+]

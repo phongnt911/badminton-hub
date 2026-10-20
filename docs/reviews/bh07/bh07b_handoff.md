@@ -1,8 +1,10 @@
 # BH-07B — bàn giao Chờ review (20/10/2026)
 
 > **Reviewer 20/10/2026: Chưa đạt B tại `1298490`**, source trùng tested 89e1d8f. [Review/bằng chứng](review_1298490.md): B1/B2 P2 còn mở. Các trạng thái Chờ review và kết quả tự chạy bên dưới giữ làm lịch sử tác giả. Không chuyển C/D, merge main hoặc deploy.
+>
+> **Sửa vòng 1/2:** đã sửa B1/B2 tại tested code `a682007`; xem [bàn giao sửa](bh07b_fix_handoff.md). Nội dung dưới đây là bản giao vòng 0, giữ lịch sử.
 
-**Trạng thái: Chờ review BH-07B.** Người triển khai không tự ghi Đạt/Done và không chuyển C/D.
+**Trạng thái (lịch sử vòng 0): Chờ review BH-07B.** Người triển khai không tự ghi Đạt/Done và không chuyển C/D.
 
 - Nhánh: `feat/bh07b-data`
 - Base: `fd38838d85fed31603eae99ed363cf202650aeee` (commit công bố review BH-07A trên `origin/feat/bh07a-db`, sau `4512c3a`)

@@ -1,6 +1,6 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-Phiên bản đặc tả: 1.1 · trạng thái 20/10/2026: BH-01..06 đã triển khai ở local; BH-06 Đạt tích hợp tại `318bc52`, đã merge main `e7f7627`. BH-07A **Đạt phần A local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md). BH-07B **Chưa đạt tại `1298490`** ([review](reviews/bh07/review_1298490.md): B1/B2 P2 còn mở) theo [bàn giao](reviews/bh07/bh07b_handoff.md); C/D và toàn BH-07 chưa nghiệm thu, chưa apply staging/production.
+Phiên bản đặc tả: 1.1 · trạng thái 20/10/2026: BH-01..06 đã triển khai ở local; BH-06 Đạt tích hợp tại `318bc52`, đã merge main `e7f7627`. BH-07A **Đạt phần A local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md). Reviewer vòng 0 kết luận BH-07B **Chưa đạt tại `1298490`** ([review](reviews/bh07/review_1298490.md): B1/B2 P2); người triển khai đã sửa và bàn giao **Chờ review BH-07B vòng 1 tại tested code `a682007`** theo [bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md). C/D và toàn BH-07 chưa nghiệm thu, chưa apply staging/production.
 
 ## Trạng thái hiện tại (cập nhật 20/10/2026)
 
@@ -10,7 +10,7 @@ Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng b�
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục: sửa B1/B2 P2 theo [review BH-07B](reviews/bh07/review_1298490.md)** tại `1298490` trên `feat/bh07b-data`: invalidation cache khi FORBIDDEN và ghép trang lịch sử chồng lấn. A giữ Đạt; không tự chuyển C/D, merge main hoặc deploy.
+- **Điểm tiếp tục: review BH-07B vòng 1** tại tested code `a682007` trên `feat/bh07b-data`; B1/B2 P2 đã có test tái hiện và sửa theo [bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md). Reviewer vòng 0 vẫn giữ kết luận Chưa đạt tại `1298490`; A giữ Đạt. Không tự chuyển C/D, merge main hoặc deploy.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu

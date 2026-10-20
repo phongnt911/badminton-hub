@@ -1,0 +1,107 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+import 'package:badminton_hub/models/session.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/providers/session_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'providers/session_provider_test.dart' as st;
+import 'providers/finance_provider_test.dart' as ft;
+
+void main() {
+  setUpAll(() => registerFallbackValue(const SessionHistoryFilter()));
+  Map<String,dynamic> fixture() => jsonDecode(File('docs/reviews/bh07/review_1298490_evidence/rpc-fixture.json').readAsStringSync()) as Map<String,dynamic>;
+
+  test('review history: overlapping RPC pages do not duplicate a session or corrupt raw offset', () async {
+    final data=fixture();
+    final pages=data['history_pages'] as Map<String,dynamic>;
+    final offsets=<int>[];
+    final repo=st.MockSessionRepository();
+    when(() => repo.listMySessionHistory(filter:any(named:'filter'),limit:any(named:'limit'),offset:any(named:'offset')))
+      .thenAnswer((call) async {
+        final offset=call.namedArguments[#offset] as int;offsets.add(offset);
+        return SessionHistoryPage.fromResponse(pages['$offset'],limit:2,offset:offset);
+      });
+    final auth=st.FakeAuth()..changeUser('00000000-0000-0000-0000-000000000001');
+    final provider=SessionProvider(repository:repo,auth:auth);addTearDown(provider.dispose);
+    await provider.fetchSessionHistory(filter:SessionHistoryFilter(clubId:data['club_id'] as String),limit:2);
+    await provider.loadMoreHistory();
+    await provider.loadMoreHistory();
+    expect(offsets,[0,2,4]);
+    expect(provider.hasMoreHistory,isFalse);
+    expect(provider.historyItems.map((s)=>s.id).toList(),data['initial_order']);
+  });
+
+  test('review summary: FORBIDDEN must invalidate privileged cached summary', () async {
+    final data=fixture();
+    final summary=SessionSummary.fromJson(data['summary_before'] as Map<String,dynamic>);
+    final repo=ft.MockFinanceRepository();
+    when(() => repo.getSessionSummary(summary.sessionId)).thenAnswer((_) async=>summary);
+    final auth=ft.FakeAuth()..changeUser('00000000-0000-0000-0000-000000000007');
+    final provider=FinanceProvider(repository:repo,auth:auth);addTearDown(provider.dispose);
+    await provider.fetchSessionSummary(summary.sessionId);
+    expect(provider.sessionSummary?.canViewFinance,isTrue);
+    when(() => repo.getSessionSummary(summary.sessionId)).thenThrow(PostgrestException(message:data['summary_error_message'] as String,code:'42501'));
+    await provider.fetchSessionSummary(summary.sessionId);
+    expect(provider.summaryErrorMessage,'Bạn không có quyền thực hiện thao tác này.');
+    expect(provider.isLoadingSummary,isFalse);
+    expect(provider.sessionSummary,isNull);
+    expect(provider.hasSummary,isFalse);
+  });
+
+  test('review control: temporary transport error retains data with explicit error', () async {
+    final data=fixture();
+    final summary=SessionSummary.fromJson(data['summary_before'] as Map<String,dynamic>);
+    final repo=ft.MockFinanceRepository();
+    when(() => repo.getSessionSummary(summary.sessionId)).thenAnswer((_) async=>summary);
+    final auth=ft.FakeAuth()..changeUser('actor-a');
+    final provider=FinanceProvider(repository:repo,auth:auth);addTearDown(provider.dispose);
+    await provider.fetchSessionSummary(summary.sessionId);
+    when(() => repo.getSessionSummary(summary.sessionId)).thenThrow(Exception('network disconnected'));
+    await provider.fetchSessionSummary(summary.sessionId);
+    expect(provider.sessionSummary,same(summary));
+    expect(provider.summaryErrorMessage,isNotNull);
+  });
+
+  test('review control: old summary refresh cannot overwrite a newer scope', () async {
+    final data=fixture();
+    final summary=SessionSummary.fromJson(data['summary_before'] as Map<String,dynamic>);
+    final slow=Completer<SessionSummary>();
+    final repo=ft.MockFinanceRepository();
+    when(() => repo.getSessionSummary(summary.sessionId)).thenAnswer((_)=>slow.future);
+    when(() => repo.getSessionSummary('other-session')).thenAnswer((_) async=>const SessionSummary(sessionId:'other-session',canManage:true));
+    final auth=ft.FakeAuth()..changeUser('actor-a');
+    final provider=FinanceProvider(repository:repo,auth:auth);addTearDown(provider.dispose);
+    final old=provider.fetchSessionSummary(summary.sessionId);
+    await provider.fetchSessionSummary('other-session');
+    slow.complete(summary);await old;
+    expect(provider.sessionSummary?.sessionId,'other-session');
+    expect(provider.sessionSummary?.outstandingTotalVnd,isNull);
+  });
+  for (final code in ['VERSION_CONFLICT', 'BILLING_STALE']) {
+    test('review complete control: $code fails and retry keeps request ID', () async {
+      final repo=ft.MockFinanceRepository();
+      final keys=<String>[];
+      when(() => repo.completeSession(requestId:any(named:'requestId'),sessionId:'complete-s1',expectedVersion:3))
+        .thenAnswer((call) async {
+          keys.add(call.namedArguments[#requestId] as String);
+          if (keys.length==1) throw PostgrestException(message:'$code: review fixture',code:'22023');
+          return const Session(id:'complete-s1',title:'Complete fixture',lifecycle:'completed',version:4);
+        });
+      final auth=ft.FakeAuth()..changeUser('actor-a');
+      final provider=FinanceProvider(repository:repo,auth:auth);addTearDown(provider.dispose);
+      final failed=await provider.completeSession(sessionId:'complete-s1',expectedVersion:3);
+      expect(failed,isNull);
+      expect(provider.submitErrorMessage,isNotNull);
+      final retried=await provider.completeSession(sessionId:'complete-s1',expectedVersion:3);
+      expect(retried?.isCompleted,isTrue);
+      expect(keys,hasLength(2));
+      expect(keys[0],keys[1]);
+      expect(provider.submitErrorMessage,isNull);
+    });
+  }
+
+}
