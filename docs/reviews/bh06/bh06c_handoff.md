@@ -66,4 +66,11 @@ Ghi chú kỹ thuật cho reviewer:
 - Thiết bị/browser e2e, apply staging/production, backup/restore, concurrency qua HTTP.
 - Runner DB BH-06 **không chạy lại** ở lượt này vì không đổi DB/migration (baseline DB 335/335 thuộc các lượt A/B, không phải kết quả chạy trong lượt C).
 
+## 6. Sửa theo review vòng 1 (20/10/2026)
+
+- Review nguồn [review_af31e7b](review_af31e7b.md) (commit review `7c23bbb`); sửa **C1/C2 (P1)**, giữ **C3 (P2)** mở vì chưa có chỉ định của chủ dự án. Chi tiết: [bh06c_review_round1.md](bh06c_review_round1.md).
+- Commit: `498d4d8` (test tái hiện — 3 FAIL) → `8e3cd83` (fix). `flutter analyze` 0 issue; `flutter test` **183/183 PASS**; không đổi DB nên runner DB không chạy lại.
+- Phát lại probe C1 của reviewer: nguyên văn chỉ FAIL tại matcher `reference` (probe viết trước khi C2 đổi contract); đổi đúng matcher đó sang `null` thì PASS. Probe C3 vẫn FAIL như dự kiến (P2 chưa sửa).
+- Trạng thái: **Chờ review vòng 2**.
+
 Đây là bằng chứng phía tác giả; reviewer cần tự chạy lại trên đúng SHA và tự kết luận. Người triển khai không tự ghi Đạt và không chuyển sang phần tích hợp khi chưa có kết luận Đạt C.

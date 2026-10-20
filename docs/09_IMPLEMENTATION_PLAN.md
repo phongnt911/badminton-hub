@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06C (18/10/2026): Chưa đạt** tại `af31e7b` (cây code/test `b123db9`), theo [review độc lập](reviews/bh06/review_af31e7b.md). C1/C2 P1: sai ID đăng ký khi gửi thanh toán; reference cố định chặn gửi lại sau từ chối. C3 P2: tính khoản nợ từ trang payment thiếu lịch sử. Analyze sạch, 181 Flutter +84 DB PASS nhưng 2 probe widget và 1 probe RPC FAIL. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy.
+> **Hiện hành BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`, [ghi chú sửa vòng 1](reviews/bh06/bh06c_review_round1.md); analyze sạch, 183/183 Flutter. **C3 (P2) giữ mở, chưa sửa** (chưa có chỉ định của chủ dự án). A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
+
+> **(Lịch sử) BH-06C (18/10/2026): Chưa đạt** tại `af31e7b` (cây code/test `b123db9`), theo [review độc lập](reviews/bh06/review_af31e7b.md). C1/C2 P1: sai ID đăng ký khi gửi thanh toán; reference cố định chặn gửi lại sau từ chối. C3 P2: tính khoản nợ từ trang payment thiếu lịch sử. Analyze sạch, 181 Flutter +84 DB PASS nhưng 2 probe widget và 1 probe RPC FAIL. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy.
 
 > **(Lịch sử bàn giao) BH-06C (18/10/2026): Chờ review** trên nhánh `feat/bh06c-ui`, tách từ bản B đã Đạt `f28fd0f` (tested `5e62007`). Nối `FinanceProvider` vào `main.dart`, thêm màn tài chính buổi (trạng thái phí current/stale/not_finalized kèm nguồn/version, chi phí, khoản phải thu, thanh toán, QR VietQR dựng từ receiver snapshot + outstanding + reference, có copy/fallback), lối vào theo quyền trong chi tiết buổi, và màn sổ quỹ CLB theo vai trò; thêm widget test loading/error/retry/empty/submitting/permission-denied. Người triển khai **không tự ghi Đạt**; B vẫn Đạt; C và tích hợp chưa nghiệm thu, chưa cho phép deploy.
 
@@ -490,3 +492,12 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Chưa đạt C** theo [review_af31e7b](reviews/bh06/review_af31e7b.md). C1/C2 P1 và C3 P2 còn mở; giữ lịch sử bàn giao Chờ review phía trên.
 - Reviewer tự chạy analyze 0 issue, **181/181 Flutter**, **84/84 DB BH-06**; probe độc lập **2 widget FAIL +1 RPC FAIL** tái hiện lỗi. [Hash/summary](reviews/bh06/review_af31e7b_evidence/summary.json). Không sửa code/migration/test tác giả; cây lib/test/supabase tại af31e7b trùng b123db9.
 - Chưa tích hợp/merge/deploy; A/B giữ kết luận trước. Người triển khai viết test tái hiện rồi sửa P1 theo quy trình tối đa hai vòng; P2 vẫn mở và theo giới hạn AGENTS. NOT RUN: HTTP/JWT thật, thiết bị/browser, bank/VietQR thực, staging/production, backup/restore, concurrency HTTP và pilot/tích hợp. Chi tiết giới hạn fixture trong báo cáo.
+
+### BH-06C — sửa theo review vòng 1 (20/10/2026)
+
+- Người triển khai sửa **C1/C2 (P1)** trong `feat/bh06c-ui`; **không sửa C3 (P2)** vì chưa có chỉ định của chủ dự án, không đổi migration/RPC của A, không viết lại B, không merge `main`. Đây là **vòng sửa 1/2**.
+- C1: nút gửi thanh toán dùng `PaymentInstructions.playerId` (`session_players.id`) thay cho `AuthProvider.currentUser.id`; khoá nút khi thiếu ID; bỏ phụ thuộc auth khỏi màn tài chính.
+- C2: giữ mã nội dung chuyển khoản cố định cho QR/`description` nhưng **không** truyền làm `payments.reference`; để RPC tự sinh `PAY-<uuid>` cho từng intent, request ID vẫn ổn định khi retry và xoay sau thành công.
+- Commit tách test-first: `498d4d8` (thêm/cập nhật test — 3 FAIL: C1, C2, ca người chơi), `8e3cd83` (fix). Ghi chú: [bh06c_review_round1.md](reviews/bh06/bh06c_review_round1.md).
+- Bằng chứng trên cây `8e3cd83` (sạch): `flutter analyze` **0 issue**; `flutter test` **183/183 PASS**. Không đổi DB nên runner DB BH-06 **không chạy lại**. Phát lại probe C1 của reviewer: nguyên văn chỉ FAIL tại matcher `reference` (probe viết trước khi C2 đổi contract); đổi đúng matcher đó sang `null` thì **PASS**. Probe C3 vẫn **FAIL** như dự kiến (P2 chưa sửa).
+- Trạng thái ghi **Chờ review vòng 2**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT/Auth thật, thiết bị/browser e2e, ảnh VietQR/bank thật, staging/production, backup/restore, concurrency HTTP, ca trả thêm sau refinalize ở mức RPC.
