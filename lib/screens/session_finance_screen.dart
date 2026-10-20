@@ -270,6 +270,30 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     );
   }
 
+  /// Complete dùng version vừa đọc từ DTO tài chính. Trả `true` về màn chi tiết
+  /// để màn đó tải lại session và lịch sử; công nợ còn lại do server giữ.
+  Future<void> _complete(SessionFinance finance, int sessionVersion) async {
+    final ok = await _confirm(
+      'Kết thúc buổi chơi',
+      'Kết thúc buổi chơi? Các khoản còn nợ vẫn được giữ trong lịch sử; '
+          'bạn có thể tiếp tục thu theo quy định.',
+    );
+    if (!ok || !mounted) return;
+    final provider = context.read<FinanceProvider>();
+    final result = await provider.completeSession(
+      sessionId: finance.sessionId,
+      expectedVersion: sessionVersion,
+    );
+    if (!mounted) return;
+    if (result == null) {
+      _showSnack(
+        provider.submitErrorMessage ?? 'Không kết thúc được buổi chơi.',
+      );
+      return;
+    }
+    Navigator.of(context).pop(true);
+  }
+
   /// Đọc outstanding của đúng người từ RPC tổng hợp phía server trước khi ghi
   /// thu tiền mặt; không prefill bằng phép trừ trên một trang payment.
   Future<void> _recordCash(String playerId) async {
@@ -544,6 +568,22 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
                 ),
               ],
             ),
+            if (widget.session.canManage &&
+                finance.lifecycle == 'in_progress') ...[
+              const SizedBox(height: 12),
+              if (!finance.canCollect)
+                _stateNote(
+                  'Phí phải đang ở trạng thái hiện hành trước khi kết thúc buổi.',
+                ),
+              FilledButton.icon(
+                key: const Key('bh07c-complete-session'),
+                icon: const Icon(Icons.flag_outlined),
+                label: const Text('Kết thúc buổi chơi'),
+                onPressed: (finance.canCollect && version != null && !busy)
+                    ? () => _complete(finance, version)
+                    : null,
+              ),
+            ],
           ],
         ),
       ),

@@ -45,6 +45,7 @@ void main() {
 
   SessionFinance financeFixture({
     String state = 'current',
+    String lifecycle = 'draft',
     int expensesTotal = 1500000,
     int outstandingTotal = 300000,
     List<FinanceExpense> expenses = const [],
@@ -53,6 +54,7 @@ void main() {
   }) {
     return SessionFinance(
       sessionId: 's1',
+      lifecycle: lifecycle,
       billingInputVersion: 5,
       billingState: state,
       activeRevision: const FinanceRevision(
@@ -763,5 +765,101 @@ void main() {
     await attemptFinalize();
     expect(reads, greaterThanOrEqualTo(2));
     expect(versions, [3, 4]);
+  });
+
+  testWidgets('manager: kết thúc buổi gửi đúng version và trả true', (
+    tester,
+  ) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(lifecycle: 'in_progress'),
+    );
+    when(() => repo.completeSession(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          expectedVersion: 3,
+        )).thenAnswer(
+      (_) async =>
+          const Session(id: 's1', title: 'Buổi A', lifecycle: 'completed'),
+    );
+
+    final instance = provider();
+    bool? result;
+    tester.view.physicalSize = const Size(1200, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<FinanceProvider>.value(value: instance),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                key: const Key('open-finance'),
+                onPressed: () async {
+                  result = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const SessionFinanceScreen(session: managerSession),
+                    ),
+                  );
+                },
+                child: const Text('Mở tài chính'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('open-finance')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-complete-session')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('bh07c-complete-session')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đồng ý'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => repo.completeSession(
+        requestId: any(named: 'requestId'),
+        sessionId: 's1',
+        expectedVersion: 3,
+      ),
+    ).called(1);
+    expect(result, isTrue);
+    expect(find.byType(SessionFinanceScreen), findsNothing);
+  });
+
+  testWidgets('manager: stale thì nút kết thúc bị khoá', (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(state: 'stale', lifecycle: 'in_progress'),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    final button = tester.widget<FilledButton>(
+      find.byKey(const Key('bh07c-complete-session')),
+    );
+    expect(button.onPressed, isNull);
+    expect(
+      find.text(
+        'Phí phải đang ở trạng thái hiện hành trước khi kết thúc buổi.',
+      ),
+      findsOneWidget,
+    );
   });
 }

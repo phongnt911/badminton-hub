@@ -1129,4 +1129,49 @@ void main() {
     expect(find.text('Phần phí của tôi'), findsOneWidget);
     expect(find.text('Tài chính & thu tiền'), findsNothing);
   });
+
+  testWidgets('buổi đã kết thúc: quản lý/finance thấy lối vào tổng kết', (
+    tester,
+  ) async {
+    final p = authedProviders();
+    const completedSession = Session(
+      id: 's1',
+      title: 'Buổi đã xong',
+      capacity: 8,
+      lifecycle: 'completed',
+      canManage: true,
+      canViewFinance: true,
+      version: 4,
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => completedSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-summary-entry')), findsOneWidget);
+    expect(find.text('Tổng kết buổi'), findsOneWidget);
+  });
+
+  testWidgets('người chơi không thấy lối vào tổng kết', (tester) async {
+    final p = authedProviders();
+    const completedSession = Session(
+      id: 's1',
+      title: 'Buổi đã xong',
+      capacity: 8,
+      lifecycle: 'completed',
+    );
+    when(() => sessionRepository.getSessionDetail('s1'))
+        .thenAnswer((_) async => completedSession);
+
+    await tester.pumpWidget(
+      buildAuthed(const SessionDetailScreen(sessionId: 's1'), p.auth, p.session),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-summary-entry')), findsNothing);
+    expect(find.text('Tổng kết buổi'), findsNothing);
+  });
 }

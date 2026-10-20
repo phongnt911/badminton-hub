@@ -87,6 +87,7 @@ void main() {
 
     expect(find.text('Bạn đang xem dưới dạng khách'), findsOneWidget);
     expect(find.text('Khám phá buổi công khai'), findsOneWidget);
+    expect(find.byKey(const Key('bh07c-history-entry')), findsNothing);
     expect(find.text('TẠO BUỔI'), findsNothing);
   });
 
@@ -104,5 +105,7 @@ void main() {
 
     expect(find.text('TẠO BUỔI'), findsOneWidget);
     expect(find.text('Buổi của tôi'), findsWidgets);
+    expect(find.byKey(const Key('bh07c-history-entry')), findsOneWidget);
+    expect(find.text('Lịch sử buổi'), findsOneWidget);
   });
 }

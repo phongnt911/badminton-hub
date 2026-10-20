@@ -10,6 +10,7 @@ import '../providers/session_provider.dart';
 import 'public_sessions_screen.dart';
 import 'session_detail_screen.dart';
 import 'session_form_screen.dart';
+import 'session_history_screen.dart';
 
 /// Tab "Buổi chơi": danh sách buổi host quản lý + lối vào khám phá buổi công khai.
 class HomeScreen extends StatefulWidget {
@@ -52,6 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openDiscovery() async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const PublicSessionsScreen()),
+    );
+  }
+
+  Future<void> _openHistory() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const SessionHistoryScreen()),
     );
   }
 
@@ -101,6 +108,10 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(12),
           children: [
             _DiscoveryTile(onTap: _openDiscovery),
+            if (auth.isAuthenticated) ...[
+              const SizedBox(height: 8),
+              _HistoryTile(onTap: _openHistory),
+            ],
             const SizedBox(height: 16),
             if (!auth.isAuthenticated)
               _GuestNote(onLogin: () => requireAuth(context))
@@ -152,6 +163,32 @@ class _DiscoveryTile extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: const Text('Lọc theo khu vực, thời gian, còn chỗ và cách thu phí'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _HistoryTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _HistoryTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        key: const Key('bh07c-history-entry'),
+        leading: const Icon(Icons.history, color: AppConstants.primaryColor),
+        title: const Text(
+          'Lịch sử buổi',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: const Text(
+          'Buổi đã kết thúc/đã huỷ, tổng kết và công nợ còn lại',
+        ),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),

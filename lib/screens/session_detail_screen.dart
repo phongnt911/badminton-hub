@@ -12,6 +12,7 @@ import '../providers/club_provider.dart';
 import '../providers/session_provider.dart';
 import 'session_finance_screen.dart';
 import 'session_form_screen.dart';
+import 'session_summary_screen.dart';
 
 /// Nhãn tiếng Việt cho trạng thái đăng ký (giá trị lưu ở DB vẫn là tiếng Anh).
 String registrationStatusLabel(String status) {
@@ -364,10 +365,25 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         .showSnackBar(SnackBar(content: Text('Đã sao chép liên kết: $path')));
   }
 
-  void _openFinance(Session session) {
+  Future<void> _openFinance(Session session) async {
+    final completed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => SessionFinanceScreen(session: session),
+      ),
+    );
+    if (!mounted || completed != true) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã kết thúc buổi chơi.')),
+    );
+    await _reload();
+    if (!mounted) return;
+    await context.read<SessionProvider>().refreshHistoryIfLoaded();
+  }
+
+  void _openSummary(Session session) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SessionFinanceScreen(session: session),
+        builder: (_) => SessionSummaryScreen(sessionId: session.id),
       ),
     );
   }
@@ -538,6 +554,22 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _openFinance(session),
+              ),
+            ),
+          ],
+          if ((session.canManage || session.canViewFinance) &&
+              (session.isCompleted || session.isCancelled)) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                key: const Key('bh07c-summary-entry'),
+                leading: const Icon(Icons.summarize_outlined),
+                title: const Text('Tổng kết buổi'),
+                subtitle: const Text(
+                  'Số có mặt, vắng và tổng hợp tài chính theo quyền',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openSummary(session),
               ),
             ),
           ],
