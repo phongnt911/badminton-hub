@@ -1,15 +1,15 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; chưa apply production.
+Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; BH-06 đã tích hợp và đang chờ review; chưa apply production.
 
-## Trạng thái hiện tại (cập nhật 16/10/2026)
+## Trạng thái hiện tại (cập nhật 20/10/2026)
 
 Chủ dự án đã xác nhận toàn bộ B1–B9 và các đề xuất C1/C2; cập nhật chỉ tài liệu đã áp dụng. Xem [xác nhận và điểm tiếp tục BH-06](23_DOC_AUDIT_FOLLOWUP.md).
 
 - BH-01 đến BH-05 đã triển khai ở mức local/staging theo [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md). **BH-05 đạt review tích hợp A+B+C** tại `d769531` theo [review_d769531.md](reviews/bh05/review_d769531.md): không có phát hiện P0/P1/P2 trong phạm vi kiểm chứng.
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
-- Ticket kế tiếp: **BH-06** (chốt phí, VietQR, thu tiền). Giữ regression 137 Flutter + 251 DB.
+- Ticket kế tiếp: chờ **review tích hợp BH-06** trên `feat/bh06-integration` (code `8af7be5`, bằng chứng `6ecefb2`). Đã chạy analyze sạch, 189/189 Flutter, 335/335 DB, 6/6 case tích hợp; vá lỗi `receiver_snapshot` khiến QR/hướng dẫn chuyển khoản không hoạt động. Bằng chứng và NOT RUN tại [bàn giao tích hợp](reviews/bh06/integration_handoff.md). Chưa merge/deploy/apply; BH-07 chỉ sau khi tích hợp được nghiệm thu. Giữ regression 189 Flutter + 335 DB.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu
@@ -33,16 +33,16 @@ Xây công cụ cho host quản lý CLB và buổi cầu lông tại Nha Trang. 
 
 ## Hiện trạng và đích
 
-Cột "Hiện trạng" dưới đây dựa trên báo cáo trong docs/09, docs/22, review_d769531 và review_main_3a34883; dòng nào chưa đối chiếu với code thì ghi rõ.
+Cột "Hiện trạng" dưới đây dựa trên báo cáo trong docs/09, docs/22, review_d769531, review_main_3a34883 và bàn giao tích hợp BH-06; dòng nào chưa đối chiếu với code thì ghi rõ.
 
 | Hiện trạng | Đích triển khai |
 |---|---|
 | Flutter + Supabase + Provider; lớp demo `SupabaseService` đã bị thay bằng model/repository/provider typed từ BH-04 | Giữ stack, triển khai dần |
 | Đã có đăng nhập (BH-01), schema v1.1 + RLS (BH-02) và phân quyền CLB (BH-03) ở mức local/staging; chưa kiểm HTTP/JWT thật | Auth và RLS kiểm chứng trên Supabase thật trước pilot |
 | CLB, buổi, đăng ký đã liên kết qua schema v1.1 và RPC (BH-03 đến BH-05) ở mức local/staging | Schema tại 03_DATABASE |
-| Mutation đăng ký/duyệt/huỷ/điểm danh đi qua RPC nguyên tử, client không ghi bộ đếm theo thiết kế BH-05. Phần quỹ/số dư thuộc BH-06, chưa làm | DB xử lý nguyên tử, client chỉ gửi ý định |
-| QR thật gắn ID buổi/người thuộc BH-06; chưa triển khai theo backlog (chưa đối chiếu trực tiếp với code) | QR thật, dữ liệu gắn ID buổi/người |
-| 137 Flutter + 251 DB test (reviewer tự chạy lại toàn bộ trên main `3a34883`), trên PostgreSQL cô lập; chưa HTTP/JWT thật, chưa thiết bị thật | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
+| Mutation đăng ký/duyệt/huỷ/điểm danh đi qua RPC nguyên tử, client không ghi bộ đếm theo thiết kế BH-05. Chốt phí/chi phí/thanh toán/sổ quỹ đã có ở mức local/staging (BH-06), đang chờ review tích hợp; chưa kiểm HTTP/JWT thật | DB xử lý nguyên tử, client chỉ gửi ý định |
+| QR/hướng dẫn chuyển khoản dựng từ `receiver_snapshot` + outstanding + reference (BH-06C); đã vá lỗi snapshot không được chốt. UI/DB đã test; ảnh QR qua mạng thật, ngân hàng thật và webhook chưa kiểm | QR thật, dữ liệu gắn ID buổi/người |
+| 189 Flutter + 335 DB test trên nhánh tích hợp BH-06 (code `8af7be5`, bằng chứng `6ecefb2`), PostgreSQL cô lập; chưa HTTP/JWT thật, chưa thiết bị thật | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
 
 Không được diễn giải tài liệu đích là chức năng đã tồn tại; đối chiếu bảng trên và nhật ký ở docs/09. Đợt cập nhật tài liệu không thay đổi code hoặc DB remote.
 
@@ -69,4 +69,4 @@ Khi đổi yêu cầu: cập nhật PRD → model/schema → hợp đồng DB �
 
 ## Giao việc BH-06 — 16/10/2026
 
-Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái: đã giao phần A, chưa triển khai/chưa review.
+Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái 20/10/2026: A/B/C đã Đạt từng phần; nhánh `feat/bh06-integration` đang **chờ review tích hợp** (xem mục "Trạng thái hiện tại" và [bàn giao tích hợp](reviews/bh06/integration_handoff.md)).
