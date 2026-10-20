@@ -10,6 +10,7 @@ import '../models/session.dart';
 import '../providers/auth_provider.dart';
 import '../providers/club_provider.dart';
 import '../providers/session_provider.dart';
+import 'session_finance_screen.dart';
 import 'session_form_screen.dart';
 
 /// Nhãn tiếng Việt cho trạng thái đăng ký (giá trị lưu ở DB vẫn là tiếng Anh).
@@ -363,6 +364,14 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         .showSnackBar(SnackBar(content: Text('Đã sao chép liên kết: $path')));
   }
 
+  void _openFinance(Session session) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SessionFinanceScreen(session: session),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SessionProvider>();
@@ -509,6 +518,26 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                   onPressed: _copyShareLink,
                   icon: const Icon(Icons.copy),
                 ),
+              ),
+            ),
+          ],
+          if (session.canViewFinance || auth.isAuthenticated) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.account_balance_wallet),
+                title: Text(
+                  session.canViewFinance
+                      ? 'Tài chính & thu tiền'
+                      : 'Phần phí của tôi',
+                ),
+                subtitle: Text(
+                  session.canViewFinance
+                      ? 'Chốt phí, chi phí, thu tiền, xác nhận thanh toán'
+                      : 'Xem số phải trả và hướng dẫn chuyển khoản',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openFinance(session),
               ),
             ),
           ],

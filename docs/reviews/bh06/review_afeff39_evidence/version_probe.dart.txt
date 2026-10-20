@@ -1,0 +1,154 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthState, User;
+
+import 'package:badminton_hub/data/auth_repository.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/models/session.dart';
+import 'package:badminton_hub/providers/auth_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'package:badminton_hub/screens/session_finance_screen.dart';
+
+class MockFinanceRepository extends Mock implements FinanceRepository {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
+
+void main() {
+  late MockFinanceRepository repo;
+  late MockAuthRepository authRepository;
+  late StreamController<AuthState> authStateController;
+  late AuthProvider authProvider;
+
+  const managerSession = Session(
+    id: 's1',
+    title: 'Buổi A',
+    canViewFinance: true,
+    canManage: true,
+    version: 3,
+  );
+
+  const playerSession = Session(id: 's1', title: 'Buổi A');
+
+  User user() => User(
+        id: 'u1',
+        appMetadata: {},
+        userMetadata: {},
+        aud: 'authenticated',
+        createdAt: '2026-10-15',
+      );
+
+  SessionFinance financeFixture({
+    String state = 'current',
+    int expensesTotal = 1500000,
+    int outstandingTotal = 300000,
+    List<FinanceExpense> expenses = const [],
+    List<FinanceCharge> charges = const [],
+    List<FinancePayment> payments = const [],
+  }) {
+    return SessionFinance(
+      sessionId: 's1',
+      billingInputVersion: 5,
+      billingState: state,
+      activeRevision: const FinanceRevision(
+        revisionId: 'r1',
+        revisionNo: 1,
+        sourceVersion: 5,
+        allocationTotalVnd: 1500000,
+      ),
+      expensesTotalVnd: expensesTotal,
+      outstandingTotalVnd: outstandingTotal,
+      expenses: expenses,
+      charges: charges,
+      payments: payments,
+    );
+  }
+
+  setUpAll(() {
+    registerFallbackValue(DateTime(2020));
+  });
+
+  setUp(() {
+    repo = MockFinanceRepository();
+    authRepository = MockAuthRepository();
+    authStateController = StreamController<AuthState>.broadcast();
+    when(() => authRepository.authStateChanges)
+        .thenAnswer((_) => authStateController.stream);
+    when(() => authRepository.currentUser).thenReturn(user());
+    authProvider = AuthProvider(repository: authRepository);
+  });
+
+  tearDown(() {
+    authProvider.dispose();
+    authStateController.close();
+  });
+
+  Widget build(Session session, FinanceProvider provider) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+        ChangeNotifierProvider<FinanceProvider>.value(value: provider),
+      ],
+      child: MaterialApp(home: SessionFinanceScreen(session: session)),
+    );
+  }
+
+  FinanceProvider provider() {
+    final instance = FinanceProvider(repository: repo, auth: authProvider);
+    addTearDown(instance.dispose);
+    return instance;
+  }
+
+  /// Cửa sổ cao để mọi mục trong ListView được dựng (ListView dựng lười).
+  Future<void> pumpScreen(
+    WidgetTester tester,
+    Session session,
+    FinanceProvider provider,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(build(session, provider));
+  }
+
+
+  testWidgets('review version conflict: refresh must enable finalize with current version', (tester) async {
+    var reads = 0;
+    final versions = <int>[];
+    when(() => repo.getSessionFinance('s1', limit: any(named: 'limit'), offset: any(named: 'offset')))
+      .thenAnswer((_) async { reads++; return financeFixture(); });
+    // Another manager started/updated the session after this route opened at v3.
+    const currentServerVersion = 4;
+    when(() => repo.finalizeSessionCharges(requestId: any(named: 'requestId'), sessionId: 's1', expectedVersion: any(named: 'expectedVersion'), expectedBillingInputVersion: 5, reason: any(named: 'reason')))
+      .thenAnswer((call) async {
+        final v=call.namedArguments[#expectedVersion] as int;
+        versions.add(v);
+        if (v != currentServerVersion) throw Exception('VERSION_CONFLICT: newer session');
+        return const RevisionResult(revisionId: 'r2', sessionId: 's1');
+      });
+    final instance=provider();
+    await pumpScreen(tester,managerSession,instance);
+    await tester.pumpAndSettle();
+    Future<void> attempt() async {
+      await tester.tap(find.byKey(const Key('bh06c-finalize')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField),'review reason');
+      await tester.tap(find.text('Xác nhận'));
+      await tester.pumpAndSettle();
+    }
+    await attempt();
+    expect(find.text('Buổi chơi đã được thay đổi ở nơi khác. Vui lòng tải lại.'),findsOneWidget);
+    await tester.widget<RefreshIndicator>(find.byType(RefreshIndicator)).onRefresh();
+    await tester.pumpAndSettle();
+    await attempt();
+    expect(reads,greaterThanOrEqualTo(2));
+    expect(versions.first,3);
+    expect(versions.last,currentServerVersion);
+  });
+}

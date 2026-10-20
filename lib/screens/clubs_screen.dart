@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/app_constants.dart';
 import '../models/club.dart';
 import '../providers/club_provider.dart';
+import 'club_fund_screen.dart';
 
 class ClubsScreen extends StatefulWidget {
   const ClubsScreen({super.key});
@@ -635,6 +636,14 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> with SingleTickerPr
     );
   }
 
+  void _openFund(Club club, String direction) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ClubFundScreen(club: club, initialAction: direction),
+      ),
+    );
+  }
+
   Widget _buildOverviewTab(Club club) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -695,29 +704,21 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> with SingleTickerPr
                       ElevatedButton.icon(
                         icon: const Icon(Icons.add),
                         label: const Text('THU QUỸ'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade400, foregroundColor: Colors.white),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Chức năng ghi thu/chi quỹ sẽ khả dụng trong BH-06')),
-                          );
-                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                        onPressed: () => _openFund(club, 'income'),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.remove),
                         label: const Text('CHI QUỸ'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade400, foregroundColor: Colors.white),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Chức năng ghi thu/chi quỹ sẽ khả dụng trong BH-06')),
-                          );
-                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                        onPressed: () => _openFund(club, 'expense'),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '* Tính năng ghi giao dịch quỹ thuộc kế hoạch BH-06',
+                    '* Ghi thu/chi thủ công thuộc sổ quỹ và chỉ dành cho Chủ nhiệm/Thủ quỹ.',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
                   ),
                 ],

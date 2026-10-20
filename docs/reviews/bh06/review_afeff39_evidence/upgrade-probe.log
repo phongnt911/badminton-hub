@@ -1,0 +1,13 @@
+{
+  "case": "existing finalized session after upgrade",
+  "db": "bh06_review_upgrade_20261020041014",
+  "has_receiver": false,
+  "receiver_snapshot": null,
+  "can_pay": true,
+  "outstanding": 100000
+}
+Traceback (most recent call last):
+  File "/workspace/scratch/bh06-review-afeff39/upgrade_probe.py", line 298, in <module>
+    assert actual['has_receiver'], 'Migration must backfill existing eligible sessions without an extra mutation'
+           ~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: Migration must backfill existing eligible sessions without an extra mutation

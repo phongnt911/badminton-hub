@@ -1,0 +1,162 @@
+00:00 +0: loading /workspace/badminton-hub/test/core/app_config_test.dart
+00:00 +0: /workspace/badminton-hub/test/core/app_config_test.dart: configuration is explicit and test/production targets are guarded
+00:00 +1: loading /workspace/badminton-hub/test/core/app_routes_test.dart
+00:00 +1: /workspace/badminton-hub/test/core/app_routes_test.dart: share link contains configured origin and round trips
+00:00 +2: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse chấp nhận path nội bộ /sessions/:id
+00:00 +3: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse chấp nhận URL tuyệt đối với host trong allowlist
+00:00 +4: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse chuẩn hoá UUID về chữ thường
+00:00 +5: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse từ chối host lạ
+00:00 +6: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse từ chối scheme lạ
+00:00 +7: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse từ chối path không nằm trong allowlist
+00:00 +8: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse từ chối id không phải UUID
+00:00 +9: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse từ chối query chưa định nghĩa (không nhận token lạ)
+00:00 +10: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse chấp nhận query đã định nghĩa
+00:00 +11: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse hỗ trợ /clubs/:id
+00:00 +12: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes.parse trả null cho chuỗi rỗng/null
+00:00 +13: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes helpers sessionPath và clubPath
+00:00 +14: /workspace/badminton-hub/test/core/app_routes_test.dart: AppRoutes helpers isSafeReturnRoute chỉ nhận route nội bộ hợp lệ
+00:00 +15: loading /workspace/badminton-hub/test/data/auth_repository_test.dart
+00:01 +15: /workspace/badminton-hub/test/data/auth_repository_test.dart: (setUpAll)
+00:01 +15: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests currentUser và isAuthenticated phản ánh đúng trạng thái
+00:01 +16: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests currentSession phản ánh đúng phiên
+00:01 +17: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests signInWithEmail thành công trả về AuthResponse
+00:01 +18: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests signInWithEmail thất bại dịch lỗi thân thiện tiếng Việt
+00:01 +19: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests signUpWithEmail thành công gọi signUp với dữ liệu metadata
+00:01 +20: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests signUpWithEmail báo lỗi khi email đã tồn tại
+00:01 +21: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests sendPasswordResetEmail gọi resetPasswordForEmail
+00:01 +22: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests updatePassword gọi updateUser với mật khẩu mới
+00:01 +23: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests signOut gọi auth.signOut
+00:01 +24: /workspace/badminton-hub/test/data/auth_repository_test.dart: AuthRepository Tests authStateChanges stream hoạt động chuẩn
+00:01 +25: /workspace/badminton-hub/test/data/auth_repository_test.dart: (tearDownAll)
+00:01 +25: loading /workspace/badminton-hub/test/models/club_model_test.dart
+00:01 +25: /workspace/badminton-hub/test/models/club_model_test.dart: Club Model Tests deserialize and serialize Club correctly
+00:01 +26: /workspace/badminton-hub/test/models/club_model_test.dart: Club Model Tests Club role getters for regular member
+00:01 +27: /workspace/badminton-hub/test/models/club_model_test.dart: Club Model Tests Club role getters for treasurer
+00:01 +28: /workspace/badminton-hub/test/models/club_model_test.dart: ClubMember Model Tests deserialize offline member with private contact
+00:01 +29: /workspace/badminton-hub/test/models/club_model_test.dart: ClubMember Model Tests deserialize linked member with host role
+00:01 +30: /workspace/badminton-hub/test/models/club_model_test.dart: BankAccount Model Tests preserves leading zeros in account number
+00:01 +31: loading /workspace/badminton-hub/test/models/session_test.dart
+00:02 +31: /workspace/badminton-hub/test/models/session_test.dart: Session.fromJson map đầy đủ projection chi tiết
+00:02 +32: /workspace/badminton-hub/test/models/session_test.dart: Session.fromJson map danh sách quản lý (thiếu cờ quyền) dùng giá trị mặc định an toàn
+00:02 +33: /workspace/badminton-hub/test/models/session_test.dart: Session.fromJson null/absent an toàn
+00:02 +34: /workspace/badminton-hub/test/models/session_test.dart: Session nhãn và chỗ trống lifecycleLabel tiếng Việt
+00:02 +35: /workspace/badminton-hub/test/models/session_test.dart: Session nhãn và chỗ trống isShareable chỉ đúng khi đã công bố/đang diễn ra
+00:02 +36: /workspace/badminton-hub/test/models/session_test.dart: Session nhãn và chỗ trống seatsLeft không âm, isFull khi đủ chỗ
+00:02 +37: /workspace/badminton-hub/test/models/session_test.dart: Session nhãn và chỗ trống visibilityLabel
+00:02 +38: loading /workspace/badminton-hub/test/providers/auth_provider_test.dart
+00:02 +38: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests Trạng thái khởi tạo chính xác
+00:02 +39: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests login thành công cập nhật user và successMessage
+00:02 +40: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests login thất bại lưu errorMessage và trả về false
+00:02 +41: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests chống bấm trùng nút login khi đang submitting
+00:02 +42: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests signUp chưa confirm không tạo phiên đăng nhập
+00:02 +43: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests signup with session authenticates
+00:02 +44: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests resetPassword thành công cập nhật successMessage
+00:02 +45: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests updatePassword thành công cập nhật successMessage
+00:02 +46: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests logout đặt lại currentUser về null
+00:02 +47: /workspace/badminton-hub/test/providers/auth_provider_test.dart: AuthProvider Tests authStateChanges tự động cập nhật session user
+00:02 +48: loading /workspace/badminton-hub/test/providers/club_provider_test.dart
+00:03 +48: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider List State Tests initial state is empty and not loading
+00:03 +49: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider List State Tests fetchClubs success updates clubs list
+00:03 +50: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider List State Tests fetchClubs failure sets error message
+00:03 +51: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Detail & Switch Club Tests switching club clears previous private data immediately to prevent data leakage
+00:03 +52: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Detail & Switch Club Tests clearAll clears list and detail state completely
+00:03 +53: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Mutation & Submitting Guard Tests createClub blocks concurrent submissions and updates clubs
+00:03 +54: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Mutation & Submitting Guard Tests createClub failure records submit error message
+00:03 +55: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Scoped Roster Tests (BH-05C) fetchClubRoster tải roster theo clubId và bật/tắt loading
+00:03 +56: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Scoped Roster Tests (BH-05C) fetchClubRoster lỗi ghi error và thử lại phục hồi
+00:03 +57: /workspace/badminton-hub/test/providers/club_provider_test.dart: ClubProvider Scoped Roster Tests (BH-05C) đổi CLB xoá roster ngay và bỏ phản hồi đến trễ của CLB cũ
+00:03 +58: loading /workspace/badminton-hub/test/providers/club_session_retry_test.dart
+00:04 +58: /workspace/badminton-hub/test/providers/club_session_retry_test.dart: logout clears cached list and ignores previous-session list response
+00:04 +59: /workspace/badminton-hub/test/providers/club_session_retry_test.dart: logout clears contacts and ignores late bank response
+00:04 +60: /workspace/badminton-hub/test/providers/club_session_retry_test.dart: timeout retry reuses UUID; next successful intent has a new UUID
+00:04 +61: /workspace/badminton-hub/test/providers/club_session_retry_test.dart: changed form payload after timeout creates a new request key
+00:04 +62: /workspace/badminton-hub/test/providers/club_session_retry_test.dart: late mutation from logged-out user cannot refresh private data
+00:04 +63: loading /workspace/badminton-hub/test/providers/session_provider_test.dart
+00:04 +63: /workspace/badminton-hub/test/providers/session_provider_test.dart: (setUpAll)
+00:04 +63: /workspace/badminton-hub/test/providers/session_provider_test.dart: khởi tạo rỗng và không loading
+00:04 +64: /workspace/badminton-hub/test/providers/session_provider_test.dart: fetchPublicSessions truyền bộ lọc và lưu kết quả
+00:04 +65: /workspace/badminton-hub/test/providers/session_provider_test.dart: lỗi domain được ánh xạ sang tiếng Việt, không lộ chi tiết DB
+00:04 +66: /workspace/badminton-hub/test/providers/session_provider_test.dart: fetchMySessions lỗi rồi retry phục hồi
+00:04 +67: /workspace/badminton-hub/test/providers/session_provider_test.dart: fetchSessionDetail tải người đăng ký khi có quyền quản lý
+00:04 +68: /workspace/badminton-hub/test/providers/session_provider_test.dart: fetchSessionDetail KHÔNG tải người đăng ký khi là khách/không quản lý
+00:04 +69: /workspace/badminton-hub/test/providers/session_provider_test.dart: createSession lỗi rồi retry dùng lại cùng request_id; đổi payload tạo khoá mới
+00:04 +70: /workspace/badminton-hub/test/providers/session_provider_test.dart: publishSession gửi action publish và làm mới danh sách
+00:04 +71: /workspace/badminton-hub/test/providers/session_provider_test.dart: đổi người dùng/đăng xuất xoá state riêng tư
+00:04 +72: /workspace/badminton-hub/test/providers/session_provider_test.dart: requestJoinSession gửi request_id, làm mới chi tiết và trả true
+00:04 +73: /workspace/badminton-hub/test/providers/session_provider_test.dart: requestJoinSession lỗi giữ nguyên request_id khi retry, xoay key sau thành công
+00:04 +74: /workspace/badminton-hub/test/providers/session_provider_test.dart: chặn double-submit khi đang gửi
+00:04 +75: /workspace/badminton-hub/test/providers/session_provider_test.dart: buổi waitlisted tải lời mời của tôi
+00:04 +76: /workspace/badminton-hub/test/providers/session_provider_test.dart: accept/cancel/decide/attendance/add/invite/revoke gọi repository đúng
+00:04 +77: /workspace/badminton-hub/test/providers/session_provider_test.dart: phản hồi chi tiết đến muộn của phiên cũ không lộ state
+00:04 +78: /workspace/badminton-hub/test/providers/session_provider_test.dart: đăng xuất xoá lời mời đang chờ
+00:04 +79: /workspace/badminton-hub/test/providers/session_provider_test.dart: B1 lời mời: tải lỗi phải lộ error, không bị coi là rỗng
+00:04 +80: /workspace/badminton-hub/test/providers/session_provider_test.dart: B1 lời mời: bật loading trong khi đang tải
+00:04 +81: /workspace/badminton-hub/test/providers/session_provider_test.dart: B1 lời mời: response null hợp lệ là rỗng, không phải lỗi
+00:04 +82: /workspace/badminton-hub/test/providers/session_provider_test.dart: B1 lời mời: retry sau lỗi phục hồi và nhận lời mời
+00:04 +83: /workspace/badminton-hub/test/providers/session_provider_test.dart: B2 lời mời: làm mới sang confirmed thì xoá lời mời cũ
+00:04 +84: /workspace/badminton-hub/test/providers/session_provider_test.dart: B2 lời mời: làm mới khi không còn đăng ký thì xoá lời mời cũ
+00:04 +85: /workspace/badminton-hub/test/providers/session_provider_test.dart: B2 lời mời: phản hồi đến trễ không khôi phục state đã xoá
+00:04 +86: /workspace/badminton-hub/test/providers/session_provider_test.dart: (tearDownAll)
+00:04 +86: loading /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart
+00:05 +86: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) (setUpAll)
+00:05 +86: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Chứa đầy đủ 21 bảng theo đặc tả docs/03_DATABASE.md
+00:05 +87: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Kích hoạt Row Level Security (RLS) trên toàn bộ các bảng nghiệp vụ
+00:05 +88: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Thu hồi quyền ghi trực tiếp từ anon và authenticated
+00:05 +89: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Định nghĩa đầy đủ các Security Views & Projections với security_invoker = true
+00:05 +90: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Định nghĩa đầy đủ các Security Helper Functions tránh đệ quy RLS
+00:05 +91: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Định nghĩa hợp đồng Idempotency và Audit Trail
+00:05 +92: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Định nghĩa RPC public / private whitelist đọc dữ liệu
+00:05 +93: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Bảo vệ tính tương thích và chuyển đổi dữ liệu không làm mất dữ liệu cũ
+00:05 +94: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Chứa các ràng buộc (Constraints) quan trọng theo ADR-02, ADR-08, ADR-09
+00:05 +95: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Đảm bảo khắc phục đầy đủ các phát hiện review F1–F7 (Security & Compatibility)
+00:05 +96: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) Đảm bảo khắc phục đầy đủ các phát hiện review H1–H3 (Finance Roster, Snapshot Protection, Legacy Sync)
+00:05 +97: /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) (tearDownAll)
+00:05 +97: loading /workspace/badminton-hub/test/screens/auth_screen_test.dart
+00:06 +97: /workspace/badminton-hub/test/screens/auth_screen_test.dart: login callback returns to previous route
+00:07 +98: /workspace/badminton-hub/test/screens/auth_screen_test.dart: AuthScreen Widget Tests Hiển thị tab Đăng Nhập mặc định với các trường nhập liệu
+00:07 +99: /workspace/badminton-hub/test/screens/auth_screen_test.dart: AuthScreen Widget Tests Chuyển tab sang Đăng Ký hiển thị các trường đăng ký
+00:08 +100: /workspace/badminton-hub/test/screens/auth_screen_test.dart: AuthScreen Widget Tests Báo lỗi SnackBar khi nhấn Đăng Nhập mà để trống trường dữ liệu
+00:08 +101: /workspace/badminton-hub/test/screens/auth_screen_test.dart: AuthScreen Widget Tests Đăng nhập thành công kích hoạt callback onSuccess / route return
+00:08 +102: loading /workspace/badminton-hub/test/screens/clubs_screen_test.dart
+00:08 +102: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: member and bank failures show retry and recover
+00:10 +103: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: failed role change keeps dialog open
+00:10 +104: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: ClubsScreen Widget Tests displays empty state when user has no clubs
+00:10 +105: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: ClubsScreen Widget Tests displays clubs with role badges and privacy-aware balance
+00:10 +106: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: ClubsScreen Widget Tests create club dialog does NOT ask for phone or bank account
+00:11 +107: /workspace/badminton-hub/test/screens/clubs_screen_test.dart: ClubDetailScreen Widget Tests shows tabs and disables direct ledger writes with BH-06 notification
+00:11 +108: loading /workspace/badminton-hub/test/screens/public_read_test.dart
+00:12 +108: /workspace/badminton-hub/test/screens/public_read_test.dart: Public Read & Auth Guard Tests Người dùng chưa đăng nhập mở AccountScreen thấy giao diện khách và nút Đăng Nhập
+00:12 +109: /workspace/badminton-hub/test/screens/public_read_test.dart: Public Read & Auth Guard Tests Người dùng đã đăng nhập mở AccountScreen thấy thông tin tài khoản và nút Đăng Xuất
+00:12 +110: /workspace/badminton-hub/test/screens/public_read_test.dart: Public Read & Auth Guard Tests AuthGuard chặn người chưa đăng nhập và hiển thị thông báo yêu cầu đăng nhập
+00:12 +111: /workspace/badminton-hub/test/screens/public_read_test.dart: Public Read & Auth Guard Tests AuthGuard cho phép truy cập nội dung khi đã đăng nhập
+00:13 +112: loading /workspace/badminton-hub/test/screens/session_detail_screen_test.dart
+00:13 +112: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: (setUpAll)
+00:13 +112: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:16 +113: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: roster error is not empty state and retry recovers
+00:17 +114: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: guest mở link công khai, được mời đăng nhập và giữ đúng route quay lại
+00:17 +115: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: host thấy nút Công bố cho bản nháp và gọi publish
+00:17 +116: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi cần đăng nhập hiển thị nút Đăng nhập và Thử lại
+00:18 +117: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi khác chỉ hiển thị Thử lại
+00:18 +118: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player chưa đăng ký bấm Đăng ký tham gia gọi requestJoinSession
+00:18 +119: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player trong danh sách chờ có lời mời thấy nút Chấp nhận lời mời
+00:18 +120: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player confirmed tự huỷ đăng ký sau khi xác nhận
+00:18 +121: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: host duyệt pending gọi decide_registration
+00:19 +122: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi mutation đăng ký hiển thị thông điệp và cho phép thử lại
+00:19 +123: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1 lỗi tải lời mời hiển thị lỗi và cho thử lại
+00:19 +124: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1 đang tải lời mời có chỉ báo, chưa cho chấp nhận
+00:19 +125: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C2 buổi đầy vẫn cho đăng ký; lỗi hiển thị và thử lại được
+00:20 +126: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C3 dialog thêm người tải roster CLB của buổi chưa mở màn CLB
+00:20 +127: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:21 +128: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ
+00:22 +129: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I1 host có nút Bắt đầu buổi chơi và gọi start_session
+00:22 +130: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I1 người không quản lý không thấy nút Bắt đầu buổi chơi
+00:22 +131: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 người đã huỷ đăng ký bấm Đăng ký tham gia gọi lại RPC
+00:22 +132: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 đăng ký lại lỗi hiển thị và thử lại được
+00:22 +133: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 buổi đã huỷ thì không có nút đăng ký lại
+00:23 +134: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: (tearDownAll)
+00:23 +134: loading /workspace/badminton-hub/test/screens/sessions_screen_test.dart
+00:23 +134: /workspace/badminton-hub/test/screens/sessions_screen_test.dart: guest thấy ghi chú khách, không có nút tạo buổi
+00:25 +135: /workspace/badminton-hub/test/screens/sessions_screen_test.dart: host thấy danh sách buổi quản lý và nút tạo buổi
+00:25 +136: loading /workspace/badminton-hub/test/widget_test.dart
+00:26 +136: /workspace/badminton-hub/test/widget_test.dart: App loads correctly smoke test
+00:27 +137: All tests passed!

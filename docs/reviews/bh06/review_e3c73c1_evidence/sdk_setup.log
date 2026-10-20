@@ -1,0 +1,30 @@
+Cloning into '/workspace/toolchains/flutter-review-3.47.7'...
+Note: switching to 'abaf9c523780a608bd46686fd5e53740a07077f8'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Downloading Linux x64 Dart SDK from Flutter engine deb287481e3ce9468f3434937ced4240a70539ca...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 18  227M   18 41.5M    0     0  59.8M      0  0:00:03 --:--:--  0:00:03 59.8M 57  227M   57  130M    0     0  76.9M      0  0:00:02  0:00:01  0:00:01 76.9M 90  227M   90  206M    0     0  76.5M      0  0:00:02  0:00:02 --:--:-- 76.5M100  227M  100  227M    0     0  77.6M      0  0:00:02  0:00:02 --:--:-- 77.6M
+Building flutter tool...
+Resolving dependencies...
+Downloading packages...
+Got dependencies.
+Flutter 3.47.7 • channel [user-branch] • https://github.com/flutter/flutter.git
+Framework • revision abaf9c5237 (8 days ago) • 2026-10-08 09:51:21 -0700
+Engine • hash d8a2d6c768c334d53e16277f837970ffa1e2de81 (revision deb287481e) (8 days ago) • 2026-10-07 17:09:12.000Z
+Tools • Dart 3.13.5 • DevTools 2.60.0

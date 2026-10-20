@@ -1,15 +1,15 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; chưa apply production.
+Phiên bản đặc tả: 1.1 · 14/10/2026 · trạng thái: BH-01 đến BH-05 đã triển khai ở mức local/staging, BH-05 đạt review tích hợp và hồi quy main; BH-06 Đạt review tích hợp local tại `318bc52` sau vòng sửa 1; chưa apply production.
 
-## Trạng thái hiện tại (cập nhật 16/10/2026)
+## Trạng thái hiện tại (cập nhật 20/10/2026)
 
 Chủ dự án đã xác nhận toàn bộ B1–B9 và các đề xuất C1/C2; cập nhật chỉ tài liệu đã áp dụng. Xem [xác nhận và điểm tiếp tục BH-06](23_DOC_AUDIT_FOLLOWUP.md).
 
 - BH-01 đến BH-05 đã triển khai ở mức local/staging theo [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md). **BH-05 đạt review tích hợp A+B+C** tại `d769531` theo [review_d769531.md](reviews/bh05/review_d769531.md): không có phát hiện P0/P1/P2 trong phạm vi kiểm chứng.
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
-- Ticket kế tiếp: **BH-06** (chốt phí, VietQR, thu tiền). Giữ regression 137 Flutter + 251 DB.
+- **BH-06 Đạt tích hợp local tại `318bc52`**, theo [review độc lập](reviews/bh06/review_318bc52.md): đóng I1/I2 sau vòng sửa 1. Reviewer tự chạy analyze sạch, **190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS**. Giữ các kết luận A/B/C và review trước theo tested SHA để truy vết. Chưa merge/deploy/apply; không tự chuyển BH-07, thực hiện tiếp theo nhiệm vụ chủ dự án giao. [Bàn giao/NOT RUN](reviews/bh06/integration_handoff.md).
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu
@@ -33,16 +33,16 @@ Xây công cụ cho host quản lý CLB và buổi cầu lông tại Nha Trang. 
 
 ## Hiện trạng và đích
 
-Cột "Hiện trạng" dưới đây dựa trên báo cáo trong docs/09, docs/22, review_d769531 và review_main_3a34883; dòng nào chưa đối chiếu với code thì ghi rõ.
+Cột "Hiện trạng" dưới đây dựa trên báo cáo trong docs/09, docs/22, review_d769531, review_main_3a34883 và bàn giao tích hợp BH-06; dòng nào chưa đối chiếu với code thì ghi rõ.
 
 | Hiện trạng | Đích triển khai |
 |---|---|
 | Flutter + Supabase + Provider; lớp demo `SupabaseService` đã bị thay bằng model/repository/provider typed từ BH-04 | Giữ stack, triển khai dần |
 | Đã có đăng nhập (BH-01), schema v1.1 + RLS (BH-02) và phân quyền CLB (BH-03) ở mức local/staging; chưa kiểm HTTP/JWT thật | Auth và RLS kiểm chứng trên Supabase thật trước pilot |
 | CLB, buổi, đăng ký đã liên kết qua schema v1.1 và RPC (BH-03 đến BH-05) ở mức local/staging | Schema tại 03_DATABASE |
-| Mutation đăng ký/duyệt/huỷ/điểm danh đi qua RPC nguyên tử, client không ghi bộ đếm theo thiết kế BH-05. Phần quỹ/số dư thuộc BH-06, chưa làm | DB xử lý nguyên tử, client chỉ gửi ý định |
-| QR thật gắn ID buổi/người thuộc BH-06; chưa triển khai theo backlog (chưa đối chiếu trực tiếp với code) | QR thật, dữ liệu gắn ID buổi/người |
-| 137 Flutter + 251 DB test (reviewer tự chạy lại toàn bộ trên main `3a34883`), trên PostgreSQL cô lập; chưa HTTP/JWT thật, chưa thiết bị thật | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
+| Mutation đăng ký/duyệt/huỷ/điểm danh đi qua RPC nguyên tử, client không ghi bộ đếm theo thiết kế BH-05. Chốt phí/chi phí/thanh toán/sổ quỹ đã có ở mức local/staging (BH-06); Đạt review tích hợp local tại `318bc52` sau vòng sửa 1; chưa kiểm HTTP/JWT thật | DB xử lý nguyên tử, client chỉ gửi ý định |
+| QR/hướng dẫn chuyển khoản dựng từ `receiver_snapshot` + outstanding + reference (BH-06C); đã vá lỗi snapshot không được chốt và backfill cho buổi có sẵn khi nâng cấp. UI/DB đã test; ảnh QR qua mạng thật, ngân hàng thật và webhook chưa kiểm | QR thật, dữ liệu gắn ID buổi/người |
+| Reviewer tự chạy 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe tại `318bc52`, PostgreSQL cô lập; chưa HTTP/JWT/thiết bị thật | Kiểm thử quyền, cạnh tranh slot, tiền và luồng thực |
 
 Không được diễn giải tài liệu đích là chức năng đã tồn tại; đối chiếu bảng trên và nhật ký ở docs/09. Đợt cập nhật tài liệu không thay đổi code hoặc DB remote.
 
@@ -59,7 +59,7 @@ Không được diễn giải tài liệu đích là chức năng đã tồn t�
 
 ## Prompt bắt đầu gợi ý
 
-> Đọc AGENTS.md (gồm mục "Quy trình hai AI") và docs/00_START_HERE.md, rồi các tài liệu chuẩn theo thứ tự. Làm đúng vai trò và ticket được giao trong docs/09_IMPLEMENTATION_PLAN.md (ticket kế tiếp: BH-06). Kiểm tra code/schema hiện có, nêu file cần sửa, chỉ làm phạm vi được giao và chạy các kiểm thử trong tiêu chí nghiệm thu, giữ regression các ticket trước. Không chạy SQL cũ hoặc tự deploy Supabase production. Không tự ghi "Done": ghi "Chờ review" kèm bằng chứng. Báo rõ thay đổi, kết quả kiểm thử, phần NOT RUN và việc cần cấu hình ngoài code.
+> Đọc AGENTS.md (gồm mục "Quy trình hai AI") và docs/00_START_HERE.md, rồi các tài liệu chuẩn theo thứ tự. Làm đúng vai trò và ticket được giao trong docs/09_IMPLEMENTATION_PLAN.md (BH-06 đã Đạt tích hợp local; không tự chuyển BH-07). Kiểm tra code/schema hiện có, nêu file cần sửa, chỉ làm phạm vi được giao và chạy các kiểm thử trong tiêu chí nghiệm thu, giữ regression các ticket trước. Không chạy SQL cũ hoặc tự deploy Supabase production. Không tự ghi "Done": ghi "Chờ review" kèm bằng chứng. Báo rõ thay đổi, kết quả kiểm thử, phần NOT RUN và việc cần cấu hình ngoài code.
 
 Khi đổi yêu cầu: cập nhật PRD → model/schema → hợp đồng DB → màn hình/backlog trong cùng thay đổi. Không tự suy ra chủ CLB hoặc gộp người từ tên/SĐT.
 
@@ -69,4 +69,4 @@ Khi đổi yêu cầu: cập nhật PRD → model/schema → hợp đồng DB �
 
 ## Giao việc BH-06 — 16/10/2026
 
-Chủ dự án giao AI triển khai ở phiên mới kéo main và làm từng phần; Codex giao việc/review độc lập. [Đầu bài BH-06A, cổng A→B→C và prompt phiên mới](24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái: đã giao phần A, chưa triển khai/chưa review.
+Chủ dự án giao AI triển khai, Codex review độc lập. [Đầu bài BH-06 và cổng A→B→C→tích hợp](24_BH06_IMPLEMENTATION_HANDOFF.md). Trạng thái 20/10/2026: A/B/C đã Đạt từng phần; **Đạt tích hợp local tại `318bc52`**, đóng I1/I2 theo [review độc lập](reviews/bh06/review_318bc52.md). Chưa merge/deploy; không tự chuyển BH-07.

@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:badminton_hub/providers/club_provider.dart';
 import 'package:badminton_hub/providers/session_provider.dart';
 import 'package:badminton_hub/providers/auth_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
 
 import 'screens/account_screen.dart';
 
@@ -38,6 +39,10 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) =>
               SessionProvider(auth: context.read<AuthProvider>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              FinanceProvider(auth: context.read<AuthProvider>()),
         ),
       ],
       child: const BadmintonHubApp(),

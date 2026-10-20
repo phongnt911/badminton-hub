@@ -3,24 +3,37 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:badminton_hub/screens/clubs_screen.dart';
+import 'package:badminton_hub/screens/club_fund_screen.dart';
 import 'package:badminton_hub/providers/club_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
 import 'package:badminton_hub/data/club_repository.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
 import 'package:badminton_hub/models/club.dart';
+import 'package:badminton_hub/models/finance.dart';
 
 class MockClubRepository extends Mock implements ClubRepository {}
+
+class MockFinanceRepository extends Mock implements FinanceRepository {}
 
 void main() {
   late MockClubRepository mockRepo;
   late ClubProvider clubProvider;
+  late MockFinanceRepository mockFinanceRepo;
+  late FinanceProvider financeProvider;
 
   setUp(() {
     mockRepo = MockClubRepository();
     clubProvider = ClubProvider(repository: mockRepo);
+    mockFinanceRepo = MockFinanceRepository();
+    financeProvider = FinanceProvider(repository: mockFinanceRepo);
   });
 
   Widget createWidgetUnderTest({Widget? child}) {
-    return ChangeNotifierProvider<ClubProvider>.value(
-      value: clubProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ClubProvider>.value(value: clubProvider),
+        ChangeNotifierProvider<FinanceProvider>.value(value: financeProvider),
+      ],
       child: MaterialApp(
         home: child ?? const ClubsScreen(),
       ),
@@ -139,7 +152,7 @@ void main() {
   });
 
   group('ClubDetailScreen Widget Tests', () {
-    testWidgets('shows tabs and disables direct ledger writes with BH-06 notification', (tester) async {
+    testWidgets('shows tabs and opens the club fund screen from balance actions', (tester) async {
       const testClub = Club(
         id: 'c1',
         ownerUserId: 'u1',
@@ -160,6 +173,11 @@ void main() {
         accountNumber: '190333444555',
         accountName: 'CHU NHIEM A',
       ));
+      when(() => mockFinanceRepo.getClubLedger(
+            'c1',
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer((_) async => const ClubLedger(clubId: 'c1'));
 
       await tester.pumpWidget(createWidgetUnderTest(
         child: const ClubDetailScreen(clubId: 'c1', clubName: 'CLB Test Detail'),
@@ -174,10 +192,17 @@ void main() {
       // Thẻ số dư quỹ
       expect(find.text('2,000,000 VNĐ'), findsOneWidget);
 
-      // Nhấn nút THU QUỸ -> Phải hiện SnackBar thông báo tính năng thuộc BH-06
+      // Nhấn nút THU QUỸ -> mở sổ quỹ BH-06C (không còn thông báo placeholder)
+      expect(find.text('Chức năng ghi thu/chi quỹ sẽ khả dụng trong BH-06'), findsNothing);
       await tester.tap(find.text('THU QUỸ'));
       await tester.pumpAndSettle();
-      expect(find.text('Chức năng ghi thu/chi quỹ sẽ khả dụng trong BH-06'), findsOneWidget);
+      expect(find.byType(ClubFundScreen), findsOneWidget);
+      expect(find.text('Ghi thu quỹ'), findsOneWidget);
+      await tester.tap(find.text('Huỷ'));
+      await tester.pumpAndSettle();
+      expect(find.text('SỐ DƯ QUỸ HIỆN TẠI'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
 
       // Chuyển sang Tab Thành viên
       await tester.tap(find.text('Thành viên'));

@@ -1,0 +1,363 @@
+{
+  "timestamp": "20261020034031",
+  "tested_commit": "8af7be5dfc54f3ba124b966bb66ab684d8473064",
+  "worktree_dirty": true,
+  "migration_sha256": {
+    "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "20261015140216_bh03_identity_retry_session_fixes.sql": "3424bb8a37979e9985722c4bd92db68ba875a4d3221e2874ff113799a3560e3e",
+    "20261015151445_pre_bh04_hardening.sql": "404edb4a0b6bbbe8aebb5788c34ab5d799072f915bb5274611890ee09ceb59db",
+    "20261015163000_bh04_sessions.sql": "489f13e230949ac398cf0ffb32c91c4b3bdd91303f3a7b957d228920094479b2",
+    "20261015163001_bh04_review_fixes.sql": "d2d134b570cec5fa297a88c1ce13771c857daf72c0fe617b17560742e3dd52a0",
+    "20261015170500_bh05_registrations.sql": "356f5831649eb4d09efa624402679cce67211056ce44e09cf6088715970ac588",
+    "20261016090000_bh05_review_fixes.sql": "f0e2573c0f95e1108511f78acece37f90eaa0cb7c63093389e25a8878bc5e30e",
+    "20261016091000_bh05_a3_cancel_revokes_invitations.sql": "8895c9550a2611915b218ab92b5742a37acaca6f3ed8e88c951efc7a7b0fba72",
+    "20261016100000_bh05_start_session.sql": "72474dd0072c74b2b42dcb9a6e5d12621afa4206c13aadb0f2c30ad228309dfc",
+    "20261016110000_bh06_expenses_finalize.sql": "94febc9c98dbee6187ccf4715a0ee1ad50255fb8860d40d307c1d2be3d443ebf",
+    "20261016120000_bh06_payments_ledger.sql": "0ce1becf73ca260b012bb9f797f1f561979ed24c170d579d3e84548b911b7ab8",
+    "20261016130000_bh06_reads.sql": "6f24a80b7ceb6e4a4fa534bf9551e72b570a3bb690fc5066f0d12fd0fd58dd9f",
+    "20261016140000_bh06a_review_round1.sql": "22baea9065a7fbe4213685a2d2dae692fcf4d4334073edf2ec68297216187fae",
+    "20261020100000_bh06_integration_receiver.sql": "601f96fe3959263ad220632741b842dd5583f054962e1100656844a7a9a2eead"
+  },
+  "total": 84,
+  "passed": 84,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "ACL: anon không gọi được RPC tài chính/quỹ",
+      "status": "PASS"
+    },
+    {
+      "name": "ACL: chặn ghi trực tiếp bảng tài chính và helper nội bộ",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: outsider không ghi được chi phí (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: cohost không finance bị chặn, treasurer/staff finance được ghi chi phí",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: player không tự xác nhận thanh toán",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: player không gửi thanh toán thay người khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: chỉ owner/treasurer đọc sổ quỹ CLB",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: get_payment_instructions đúng người/finance, chặn pending",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: outsider/cohost không đọc công nợ khách offline user_id NULL (R1)",
+      "status": "PASS"
+    },
+    {
+      "name": "Gate: RPC bank cũ và mới đều chặn not_finalized/stale (R2)",
+      "status": "PASS"
+    },
+    {
+      "name": "Privacy: projection public không lộ ngân hàng",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: get_session_finance chỉ finance",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: split 450.000/7 tổng chính xác, chia dư ổn định",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: exemption 0, no_show không tính, phần còn lại chia đều",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: có chi phí nhưng không người chịu phí -> NO_BILLABLE_PLAYERS, rollback",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: total 0 vẫn có revision current, charges 0",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: fixed khác tổng expense (thu theo agreed fee)",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: chi phí sau chốt làm stale, chặn QR/submit/cash/complete",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: refinalize supersede nguyên tử, revision_no 2, current trở lại",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: chốt lại lần 2 thiếu lý do -> INVALID_INPUT",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: đổi điểm danh sau chốt làm stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: đổi roster confirmed sau chốt làm stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Gate: chưa chốt phí -> BILLING_NOT_FINALIZED cho submit/cash/complete",
+      "status": "PASS"
+    },
+    {
+      "name": "Tiền đã thu: refinalize không giảm due dưới paid (kể cả người bị loại khỏi billable)",
+      "status": "PASS"
+    },
+    {
+      "name": "Tiền đã thu: refinalize giữ payment, không ghi ledger thu lặp",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency: submit replay cùng key, khác payload -> IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: tổng confirmed không vượt active due",
+      "status": "PASS"
+    },
+    {
+      "name": "Đồng thời: 2 confirm tranh outstanding không thu dư",
+      "status": "PASS"
+    },
+    {
+      "name": "Đồng thời: 2 ghi tiền mặt tranh outstanding không thu dư",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: cash không thu dư outstanding",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: cash tạo+confirm nguyên tử và đúng một entry quỹ",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: đảo một lần, giữ payment, entry đảo duy nhất",
+      "status": "PASS"
+    },
+    {
+      "name": "Replay/history: reject vẫn được khi stale, không ghi ledger",
+      "status": "PASS"
+    },
+    {
+      "name": "Replay/history: confirm đã confirmed trả kết quả hiện tại, không ghi ledger lặp dù stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: chi phí buổi CLB sinh một entry, buổi độc lập không",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: đảo chi phí một lần, giữ nguồn và entry đảo duy nhất",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: quỹ manual chỉ owner/treasurer, đảo một lần, không đảo entry tự sinh",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: số dư trả từ SUM DB khớp ledger",
+      "status": "PASS"
+    },
+    {
+      "name": "Complete: chỉ in_progress và cần revision current (buổi miễn phí charges 0)",
+      "status": "PASS"
+    },
+    {
+      "name": "Complete: chỉ host/quản lý",
+      "status": "PASS"
+    },
+    {
+      "name": "Rollback: input sai không tạo expense/ledger và không tăng billing_input_version",
+      "status": "PASS"
+    },
+    {
+      "name": "ACL: anon không gọi được RPC tài chính/quỹ",
+      "status": "PASS"
+    },
+    {
+      "name": "ACL: chặn ghi trực tiếp bảng tài chính và helper nội bộ",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: outsider không ghi được chi phí (FORBIDDEN)",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: cohost không finance bị chặn, treasurer/staff finance được ghi chi phí",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: player không tự xác nhận thanh toán",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: player không gửi thanh toán thay người khác",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: chỉ owner/treasurer đọc sổ quỹ CLB",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: get_payment_instructions đúng người/finance, chặn pending",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: outsider/cohost không đọc công nợ khách offline user_id NULL (R1)",
+      "status": "PASS"
+    },
+    {
+      "name": "Gate: RPC bank cũ và mới đều chặn not_finalized/stale (R2)",
+      "status": "PASS"
+    },
+    {
+      "name": "Privacy: projection public không lộ ngân hàng",
+      "status": "PASS"
+    },
+    {
+      "name": "Quyền: get_session_finance chỉ finance",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: split 450.000/7 tổng chính xác, chia dư ổn định",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: exemption 0, no_show không tính, phần còn lại chia đều",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: có chi phí nhưng không người chịu phí -> NO_BILLABLE_PLAYERS, rollback",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: total 0 vẫn có revision current, charges 0",
+      "status": "PASS"
+    },
+    {
+      "name": "Chia tiền: fixed khác tổng expense (thu theo agreed fee)",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: chi phí sau chốt làm stale, chặn QR/submit/cash/complete",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: refinalize supersede nguyên tử, revision_no 2, current trở lại",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: expected version/billing version sai -> VERSION_CONFLICT/BILLING_STALE",
+      "status": "PASS"
+    },
+    {
+      "name": "Revision: chốt lại lần 2 thiếu lý do -> INVALID_INPUT",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: đổi điểm danh sau chốt làm stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Stale: đổi roster confirmed sau chốt làm stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Gate: chưa chốt phí -> BILLING_NOT_FINALIZED cho submit/cash/complete",
+      "status": "PASS"
+    },
+    {
+      "name": "Tiền đã thu: refinalize không giảm due dưới paid (kể cả người bị loại khỏi billable)",
+      "status": "PASS"
+    },
+    {
+      "name": "Tiền đã thu: refinalize giữ payment, không ghi ledger thu lặp",
+      "status": "PASS"
+    },
+    {
+      "name": "Idempotency: submit replay cùng key, khác payload -> IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: tổng confirmed không vượt active due",
+      "status": "PASS"
+    },
+    {
+      "name": "Đồng thời: 2 confirm tranh outstanding không thu dư",
+      "status": "PASS"
+    },
+    {
+      "name": "Đồng thời: 2 ghi tiền mặt tranh outstanding không thu dư",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: cash không thu dư outstanding",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: cash tạo+confirm nguyên tử và đúng một entry quỹ",
+      "status": "PASS"
+    },
+    {
+      "name": "Thanh toán: đảo một lần, giữ payment, entry đảo duy nhất",
+      "status": "PASS"
+    },
+    {
+      "name": "Replay/history: reject vẫn được khi stale, không ghi ledger",
+      "status": "PASS"
+    },
+    {
+      "name": "Replay/history: confirm đã confirmed trả kết quả hiện tại, không ghi ledger lặp dù stale",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: chi phí buổi CLB sinh một entry, buổi độc lập không",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: đảo chi phí một lần, giữ nguồn và entry đảo duy nhất",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: quỹ manual chỉ owner/treasurer, đảo một lần, không đảo entry tự sinh",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger: số dư trả từ SUM DB khớp ledger",
+      "status": "PASS"
+    },
+    {
+      "name": "Complete: chỉ in_progress và cần revision current (buổi miễn phí charges 0)",
+      "status": "PASS"
+    },
+    {
+      "name": "Complete: chỉ host/quản lý",
+      "status": "PASS"
+    },
+    {
+      "name": "Rollback: input sai không tạo expense/ledger và không tăng billing_input_version",
+      "status": "PASS"
+    }
+  ]
+}

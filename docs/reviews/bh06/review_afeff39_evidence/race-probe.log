@@ -1,0 +1,15 @@
+{
+  "case": "publish uncommitted then bank commit then publish commit",
+  "db": "bh06_review_race_20261020041232",
+  "bank_exit": 0,
+  "publish_exit": 0,
+  "receiver_snapshot": null
+}
+{
+  "control": "start rechecks receiver",
+  "snapshot_after_start": {
+    "bank_code": "VCB",
+    "account_name": "RACE HOST",
+    "account_number": "88880000"
+  }
+}

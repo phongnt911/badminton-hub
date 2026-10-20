@@ -1,0 +1,13 @@
+{
+  "case": "existing finalized session after upgrade",
+  "db": "bh06_review_fix_upgrade_20261020083029",
+  "has_receiver": true,
+  "receiver_snapshot": {
+    "bank_code": "VCB",
+    "account_name": "HOST ONE",
+    "account_number": "1111222233"
+  },
+  "can_pay": true,
+  "outstanding": 100000
+}
+PASS: existing finalized host session backfilled without extra session/bank mutation

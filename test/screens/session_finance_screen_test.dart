@@ -1,0 +1,767 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthState, User;
+
+import 'package:badminton_hub/data/auth_repository.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/models/session.dart';
+import 'package:badminton_hub/providers/auth_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'package:badminton_hub/screens/session_finance_screen.dart';
+
+class MockFinanceRepository extends Mock implements FinanceRepository {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
+
+void main() {
+  late MockFinanceRepository repo;
+  late MockAuthRepository authRepository;
+  late StreamController<AuthState> authStateController;
+  late AuthProvider authProvider;
+
+  const managerSession = Session(
+    id: 's1',
+    title: 'Buổi A',
+    canViewFinance: true,
+    canManage: true,
+    version: 3,
+  );
+
+  const playerSession = Session(id: 's1', title: 'Buổi A');
+
+  User user() => User(
+        id: 'u1',
+        appMetadata: {},
+        userMetadata: {},
+        aud: 'authenticated',
+        createdAt: '2026-10-15',
+      );
+
+  SessionFinance financeFixture({
+    String state = 'current',
+    int expensesTotal = 1500000,
+    int outstandingTotal = 300000,
+    List<FinanceExpense> expenses = const [],
+    List<FinanceCharge> charges = const [],
+    List<FinancePayment> payments = const [],
+  }) {
+    return SessionFinance(
+      sessionId: 's1',
+      billingInputVersion: 5,
+      billingState: state,
+      activeRevision: const FinanceRevision(
+        revisionId: 'r1',
+        revisionNo: 1,
+        sourceVersion: 5,
+        allocationTotalVnd: 1500000,
+      ),
+      expensesTotalVnd: expensesTotal,
+      outstandingTotalVnd: outstandingTotal,
+      expenses: expenses,
+      charges: charges,
+      payments: payments,
+    );
+  }
+
+  setUpAll(() {
+    registerFallbackValue(DateTime(2020));
+  });
+
+  setUp(() {
+    repo = MockFinanceRepository();
+    authRepository = MockAuthRepository();
+    authStateController = StreamController<AuthState>.broadcast();
+    when(() => authRepository.authStateChanges)
+        .thenAnswer((_) => authStateController.stream);
+    when(() => authRepository.currentUser).thenReturn(user());
+    authProvider = AuthProvider(repository: authRepository);
+  });
+
+  tearDown(() {
+    authProvider.dispose();
+    authStateController.close();
+  });
+
+  Widget build(Session session, FinanceProvider provider) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+        ChangeNotifierProvider<FinanceProvider>.value(value: provider),
+      ],
+      child: MaterialApp(home: SessionFinanceScreen(session: session)),
+    );
+  }
+
+  FinanceProvider provider() {
+    final instance = FinanceProvider(repository: repo, auth: authProvider);
+    addTearDown(instance.dispose);
+    return instance;
+  }
+
+  /// Cửa sổ cao để mọi mục trong ListView được dựng (ListView dựng lười).
+  Future<void> pumpScreen(
+    WidgetTester tester,
+    Session session,
+    FinanceProvider provider,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(build(session, provider));
+  }
+
+  testWidgets('manager: hiện trạng thái phí và chốt phí gửi đúng version',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => financeFixture());
+    when(() => repo.finalizeSessionCharges(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          expectedVersion: 3,
+          expectedBillingInputVersion: 5,
+          reason: any(named: 'reason'),
+        )).thenAnswer(
+      (_) async => const RevisionResult(revisionId: 'r2', sessionId: 's1'),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đang hiệu lực'), findsOneWidget);
+    expect(find.text('Revision #1 (nguồn v5)'), findsOneWidget);
+    expect(find.text('1,500,000 VNĐ'), findsOneWidget);
+    expect(find.text('300,000 VNĐ'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('bh06c-finalize')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'chốt phí tháng 10');
+    await tester.tap(find.text('Xác nhận'));
+    await tester.pumpAndSettle();
+
+    verify(() => repo.finalizeSessionCharges(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          expectedVersion: 3,
+          expectedBillingInputVersion: 5,
+          reason: 'chốt phí tháng 10',
+        )).called(1);
+  });
+
+  testWidgets('stale: chặn thu mới nhưng vẫn cho từ chối/hoàn tác',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(
+        state: 'stale',
+        charges: const [FinanceCharge(playerId: 'pl1', amountDueVnd: 100000)],
+        payments: const [
+          FinancePayment(
+            paymentId: 'p1',
+            playerId: 'pl1',
+            amountVnd: 100000,
+            status: 'submitted',
+          ),
+          FinancePayment(
+            paymentId: 'p2',
+            playerId: 'pl2',
+            amountVnd: 200000,
+            status: 'confirmed',
+          ),
+        ],
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cần chốt lại'), findsOneWidget);
+    expect(
+      find.text('Phí đã cũ sau khi dữ liệu thay đổi — chốt lại trước khi thu tiếp.'),
+      findsOneWidget,
+    );
+
+    expect(
+      tester.widget<TextButton>(find.byKey(const Key('bh06c-confirm-p1'))).onPressed,
+      isNull,
+    );
+    expect(
+      tester.widget<TextButton>(find.byKey(const Key('bh06c-cash-pl1'))).onPressed,
+      isNull,
+    );
+    expect(
+      tester.widget<TextButton>(find.byKey(const Key('bh06c-reject-p1'))).onPressed,
+      isNotNull,
+    );
+    expect(
+      tester.widget<TextButton>(find.byKey(const Key('bh06c-reverse-p2'))).onPressed,
+      isNotNull,
+    );
+  });
+
+  testWidgets(
+      'người chơi: không thấy thao tác finance, gửi đúng registration ID và reference do RPC sinh',
+      (tester) async {
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'registration-p1',
+        billingState: 'current',
+        amountDueVnd: 1000000,
+        outstandingVnd: 1000000,
+        reference: 'BH06 S1 U1',
+        receiverSnapshot: {
+          'bank_code': 'MB',
+          'account_number': '00001234',
+          'account_name': 'CHU NHIEM',
+        },
+        hasReceiver: true,
+        canPay: true,
+      ),
+    );
+    when(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: 1000000,
+          method: 'bank_transfer',
+          reference: null,
+        )).thenAnswer(
+      (_) async => const PaymentResult(
+        paymentId: 'p9',
+        playerId: 'registration-p1',
+        sessionId: 's1',
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Phần phí của bạn'), findsOneWidget);
+    expect(find.text('Chốt phí'), findsNothing);
+    expect(find.text('Thêm chi phí'), findsNothing);
+    expect(find.byKey(const Key('bh06c-qr')), findsOneWidget);
+    expect(find.textContaining('KHÔNG tự xác nhận'), findsOneWidget);
+    expect(find.text('00001234'), findsOneWidget);
+    // Nội dung chuyển khoản cố định vẫn hiển thị để người chơi ghi vào ngân hàng.
+    expect(find.text('BH06 S1 U1'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('bh06c-submit-payment')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Đồng ý'));
+    await tester.pumpAndSettle();
+
+    // C1: submit_payment tra session_players.id, không phải auth user id.
+    // C2: payment.reference do RPC sinh mới, không tái dùng mã nội dung cố định.
+    verify(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: 1000000,
+          method: 'bank_transfer',
+          reference: null,
+        )).called(1);
+    expect(find.text('Đã ghi nhận, chờ ban quản lý xác nhận.'), findsOneWidget);
+  });
+
+  testWidgets('C2: gửi lại sau từ chối dùng request ID mới và reference RPC sinh',
+      (tester) async {
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'registration-p1',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        outstandingVnd: 100000,
+        reference: 'BH-ABC',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: true,
+      ),
+    );
+    final requestIds = <String>[];
+    when(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: 100000,
+          method: 'bank_transfer',
+          reference: null,
+        )).thenAnswer((invocation) async {
+      requestIds.add(invocation.namedArguments[#requestId] as String);
+      return PaymentResult(
+        paymentId: 'p${requestIds.length}',
+        playerId: 'registration-p1',
+        sessionId: 's1',
+      );
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byKey(const Key('bh06c-submit-payment')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Đồng ý'));
+      await tester.pumpAndSettle();
+    }
+
+    expect(requestIds, hasLength(2));
+    expect(requestIds[0], isNot(requestIds[1]));
+    verify(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: 100000,
+          method: 'bank_transfer',
+          reference: null,
+        )).called(2);
+  });
+
+  testWidgets('C1: thiếu registration ID thì không bật nút gửi', (tester) async {
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: '',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        outstandingVnd: 100000,
+        reference: 'BH-ABC',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: true,
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const Key('bh06c-submit-payment')))
+          .onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('C2: trả thêm sau refinalize tạo intent mới với số tiền mới',
+      (tester) async {
+    var calls = 0;
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async {
+        calls++;
+        if (calls == 1) {
+          return const PaymentInstructions(
+            sessionId: 's1',
+            playerId: 'registration-p1',
+            billingState: 'current',
+            amountDueVnd: 100000,
+            outstandingVnd: 100000,
+            reference: 'BH-ABC',
+            receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+            hasReceiver: true,
+            canPay: true,
+          );
+        }
+        // Sau khi chốt lại phí: due tăng, đã trả 100.000, còn 50.000.
+        return const PaymentInstructions(
+          sessionId: 's1',
+          playerId: 'registration-p1',
+          billingState: 'current',
+          amountDueVnd: 150000,
+          totalPaidVnd: 100000,
+          outstandingVnd: 50000,
+          reference: 'BH-ABC',
+          receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+          hasReceiver: true,
+          canPay: true,
+        );
+      },
+    );
+    final submitted = <String, int>{};
+    when(() => repo.submitPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'registration-p1',
+          amountVnd: any(named: 'amountVnd'),
+          method: 'bank_transfer',
+          reference: null,
+        )).thenAnswer((invocation) async {
+      final requestId = invocation.namedArguments[#requestId] as String;
+      submitted[requestId] =
+          invocation.namedArguments[#amountVnd] as int;
+      return PaymentResult(
+        paymentId: 'p${submitted.length}',
+        playerId: 'registration-p1',
+        sessionId: 's1',
+      );
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byKey(const Key('bh06c-submit-payment')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Đồng ý'));
+      await tester.pumpAndSettle();
+    }
+
+    expect(submitted.values.toList(), [100000, 50000]);
+    expect(submitted.keys.toSet(), hasLength(2));
+  });
+
+  testWidgets('C3: không suy khoản nợ từ một trang payment thiếu lịch sử',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(
+        outstandingTotal: 0,
+        charges: const [
+          FinanceCharge(
+            playerId: 'paid-player',
+            displayName: 'Paid player',
+            amountDueVnd: 100000,
+          ),
+        ],
+        payments: List.generate(
+          50,
+          (i) => FinancePayment(
+            paymentId: 'new-$i',
+            playerId: 'other-player',
+            amountVnd: 1,
+            status: 'submitted',
+          ),
+        ),
+      ),
+    );
+    // Nguồn tổng hợp đầy đủ phía server cho người đã trả ở trang cũ.
+    when(() => repo.getPaymentInstructions('s1', playerId: 'paid-player'))
+        .thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'paid-player',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        totalPaidVnd: 100000,
+        outstandingVnd: 0,
+        reference: 'BH-PAID',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: false,
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    // Không hiển thị khoản nợ suy từ trang payment bị cắt.
+    expect(find.textContaining('Còn phải thu'), findsNothing);
+    expect(find.text('Phải trả theo phí: 100,000 VNĐ'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('bh06c-cash-paid-player')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Người chơi đã trả đủ.'), findsOneWidget);
+    expect(find.text('Số tiền (VNĐ) *'), findsNothing);
+  });
+
+  testWidgets('C3: prefill thu tiền mặt lấy outstanding từ RPC',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer(
+      (_) async => financeFixture(
+        outstandingTotal: 30000,
+        charges: const [
+          FinanceCharge(playerId: 'p1', amountDueVnd: 100000),
+        ],
+        payments: [
+          const FinancePayment(
+            paymentId: 'c1',
+            playerId: 'p1',
+            amountVnd: 40000,
+            status: 'confirmed',
+          ),
+          for (var i = 0; i < 49; i++)
+            FinancePayment(
+              paymentId: 'n$i',
+              playerId: 'other-player',
+              amountVnd: 1,
+              status: 'submitted',
+            ),
+        ],
+      ),
+    );
+    // Trang payment chỉ có 40.000; server biết còn 70.000 đã trả trước đó.
+    when(() => repo.getPaymentInstructions('s1', playerId: 'p1')).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'p1',
+        billingState: 'current',
+        amountDueVnd: 100000,
+        totalPaidVnd: 70000,
+        outstandingVnd: 30000,
+        reference: 'BH-P1',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: true,
+      ),
+    );
+    when(() => repo.recordCashPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'p1',
+          amountVnd: 30000,
+          reference: null,
+        )).thenAnswer(
+      (_) async => const PaymentResult(
+        paymentId: 'cash1',
+        playerId: 'p1',
+        sessionId: 's1',
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('bh06c-cash-p1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('30000'), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text('Xác nhận'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    verify(() => repo.recordCashPayment(
+          requestId: any(named: 'requestId'),
+          playerId: 'p1',
+          amountVnd: 30000,
+          reference: null,
+        )).called(1);
+  });
+
+  testWidgets('người chơi: chưa chốt phí thì không có QR', (tester) async {
+    when(() => repo.getPaymentInstructions('s1', playerId: null)).thenAnswer(
+      (_) async => const PaymentInstructions(
+        sessionId: 's1',
+        playerId: 'u1',
+        billingState: 'not_finalized',
+        outstandingVnd: 100000,
+        reference: 'BH06',
+        receiverSnapshot: {'bank_code': 'MB', 'account_number': '00001234'},
+        hasReceiver: true,
+        canPay: false,
+      ),
+    );
+
+    final instance = provider();
+    await pumpScreen(tester, playerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buổi chưa chốt phí.'), findsOneWidget);
+    expect(find.byKey(const Key('bh06c-qr')), findsNothing);
+    expect(find.byKey(const Key('bh06c-submit-payment')), findsNothing);
+  });
+
+  testWidgets('manager: lỗi đọc hiện Thử lại và tải lại, không hạ số về 0',
+      (tester) async {
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenThrow(Exception('PostgrestException(FORBIDDEN: raw)'));
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thử lại'), findsOneWidget);
+    expect(instance.finance, isNull);
+    expect(find.text('0 VNĐ'), findsNothing);
+
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => financeFixture());
+
+    await tester.tap(find.text('Thử lại'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đang hiệu lực'), findsOneWidget);
+    verify(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).called(2);
+  });
+
+  testWidgets('manager: đang tải thì hiện vòng xoay', (tester) async {
+    final pending = Completer<SessionFinance>();
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) => pending.future);
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    pending.complete(financeFixture());
+    await tester.pumpAndSettle();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('Đang hiệu lực'), findsOneWidget);
+  });
+
+  testWidgets('C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other',
+      (tester) async {
+    const accepted = {'court', 'shuttle', 'other'};
+    final calls = <Map<String, String>>[];
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => financeFixture());
+    when(() => repo.postSessionExpense(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          category: any(named: 'category'),
+          title: any(named: 'title'),
+          amountVnd: any(named: 'amountVnd'),
+        )).thenAnswer((invocation) async {
+      calls.add({
+        'category': invocation.namedArguments[#category] as String,
+        'title': invocation.namedArguments[#title] as String,
+      });
+      return const ExpenseResult(expenseId: 'e1', sessionId: 's1');
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    for (final label in ['Sân', 'Cầu', 'Nước', 'Khác']) {
+      await tester.tap(find.byKey(const Key('bh06c-add-expense')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(label).last);
+      await tester.pumpAndSettle();
+
+      final fields = find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(fields.at(0), 'Chi $label');
+      await tester.enterText(fields.at(1), '10000');
+      await tester.tap(find.text('Ghi chi phí'));
+      await tester.pumpAndSettle();
+    }
+
+    expect(calls, hasLength(4));
+    expect(
+      calls.map((call) => call['category']),
+      everyElement(isIn(accepted)),
+    );
+    expect(calls[2]['category'], 'other');
+    expect(calls[2]['title'], 'Chi Nước');
+  });
+
+  testWidgets(
+      'I2: refresh cập nhật session version hiện hành sau VERSION_CONFLICT',
+      (tester) async {
+    var reads = 0;
+    final versions = <int>[];
+    // Route mở ở version 3; manager khác start/cập nhật buổi lên version 4.
+    when(() => repo.getSessionFinance(
+          's1',
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async {
+      reads++;
+      return SessionFinance.fromJson({
+        'session_id': 's1',
+        'session_version': reads == 1 ? 3 : 4,
+        'billing_input_version': 5,
+        'billing_state': 'current',
+        'active_revision': {
+          'revision_id': 'r1',
+          'revision_no': 1,
+          'source_version': 5,
+          'allocation_total_vnd': 1500000,
+        },
+        'expenses_total_vnd': 1500000,
+        'outstanding_total_vnd': 300000,
+      });
+    });
+    when(() => repo.finalizeSessionCharges(
+          requestId: any(named: 'requestId'),
+          sessionId: 's1',
+          expectedVersion: any(named: 'expectedVersion'),
+          expectedBillingInputVersion: 5,
+          reason: any(named: 'reason'),
+        )).thenAnswer((invocation) async {
+      final version = invocation.namedArguments[#expectedVersion] as int;
+      versions.add(version);
+      if (version != 4) {
+        throw Exception('VERSION_CONFLICT: newer session');
+      }
+      return const RevisionResult(revisionId: 'r2', sessionId: 's1');
+    });
+
+    final instance = provider();
+    await pumpScreen(tester, managerSession, instance);
+    await tester.pumpAndSettle();
+
+    Future<void> attemptFinalize() async {
+      await tester.tap(find.byKey(const Key('bh06c-finalize')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'chốt lại sau conflict');
+      await tester.tap(find.text('Xác nhận'));
+      await tester.pumpAndSettle();
+    }
+
+    await attemptFinalize();
+    expect(
+      find.text('Buổi chơi đã được thay đổi ở nơi khác. Vui lòng tải lại.'),
+      findsOneWidget,
+    );
+
+    // Đúng callback của RefreshIndicator, như người dùng kéo tải lại.
+    await tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    await tester.pumpAndSettle();
+
+    await attemptFinalize();
+    expect(reads, greaterThanOrEqualTo(2));
+    expect(versions, [3, 4]);
+  });
+}

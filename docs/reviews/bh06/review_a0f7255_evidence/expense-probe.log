@@ -1,0 +1,10 @@
+{
+  "rpc_category": "water",
+  "exit": 3,
+  "error": "ERROR:  INVALID_INPUT: Loại chi phí không hợp lệ\nCONTEXT:  PL/pgSQL function post_session_expense(uuid,text,text,bigint,uuid) line 37 at RAISE"
+}
+Traceback (most recent call last):
+  File "/workspace/scratch/bh06-review-a0f7255/expense_probe.py", line 13, in <module>
+    assert r.returncode==0, 'UI exposes Nước but RPC rejects water'
+           ^^^^^^^^^^^^^^^
+AssertionError: UI exposes Nước but RPC rejects water

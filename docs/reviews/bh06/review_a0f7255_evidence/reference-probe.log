@@ -1,0 +1,11 @@
+{
+  "db": "bh06_clean_20261020020042",
+  "checks": {
+    "retry_same_request_same_response": true,
+    "new_intent_after_reject_succeeds": true,
+    "additional_intent_after_refinalize_50000": true,
+    "three_unique_payment_references": true,
+    "qr_description_stays_stable": true
+  },
+  "passed": 5
+}

@@ -1,0 +1,205 @@
+{
+  "timestamp": "20261020051908",
+  "tested_commit": "31a553cdb32d26962757fcca78153ae714802e7a",
+  "worktree_dirty": true,
+  "migration_sha256": {
+    "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",
+    "20261015133247_bh03_clubs_and_members.sql": "1a1fd5443b2c1eeccbf4bf88ebee37274e0438ed819983d7c2d75db2319b9e43",
+    "20261015140216_bh03_identity_retry_session_fixes.sql": "33f3c6ff4d8ad2f2ad23d645600012fd9a0f95b5952f2b3f979b4f84d3d06d44",
+    "20261015151445_pre_bh04_hardening.sql": "6c8d4af94f40d284e45438f6aa08644bcca14433a0c5d0f133a1e2853bd055b9",
+    "20261015163000_bh04_sessions.sql": "489f13e230949ac398cf0ffb32c91c4b3bdd91303f3a7b957d228920094479b2",
+    "20261015163001_bh04_review_fixes.sql": "2603d799a577708f126f5b104319a7763051f6d5204569d224fb7b69986c4538",
+    "20261015170500_bh05_registrations.sql": "2c63e2cb5cf98d7b7c1474ec09e7ada61bc0a6b67130b5776a8ca8f95aaade51",
+    "20261016090000_bh05_review_fixes.sql": "629a0cad48587fe7516f48962d4a5c44fac69c493fb1b1b0f1e42a535ef369a7",
+    "20261016091000_bh05_a3_cancel_revokes_invitations.sql": "5981843750597ec54864bdf99e26a75d920dfb8c889bda0f6a748b60a09a0442",
+    "20261016100000_bh05_start_session.sql": "c218a745219ebd775fff24525c7abcd528d08643ce57dab1733ce4bd684c0494",
+    "20261016110000_bh06_expenses_finalize.sql": "af082b0e6fbac74aca3470b3da7bcee1fcb9a075ae026889a60ffd3ff17bc78e",
+    "20261016120000_bh06_payments_ledger.sql": "d3b62b7330cb6faffcabe1c58660c8f2be2f43cffc41919352159120956ee87b",
+    "20261016130000_bh06_reads.sql": "1ccf01f891be1df8c8c3e503fab9971c13888fa9ec0efe79fe14b5b61711f8f3",
+    "20261016140000_bh06a_review_round1.sql": "cbfdcf69ce346f7a18350f45f23b64de7aca24d4973c72387dbc018ada809f1f",
+    "20261020100000_bh06_integration_receiver.sql": "601f96fe3959263ad220632741b842dd5583f054962e1100656844a7a9a2eead",
+    "20261020160000_bh06_integration_receiver_backfill.sql": "b91e808b66821a52d02531729517487c29764f89107215064250817ad2a78c6e",
+    "20261020170000_bh06_finance_session_version.sql": "797881aef635a775a4b3703992ecbfc7426efee5508368362dd3df80e8a9dcf7"
+  },
+  "total": 44,
+  "passed": 44,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "anon không gọi được create_session (ACL)",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session bắt buộc request_id",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session từ chối thời gian bắt đầu trong quá khứ",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session từ chối ends_at <= starts_at",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session fee_mode=fixed yêu cầu cả hai mức phí",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session gắn CLB yêu cầu owner/host",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session tạo draft + replay cùng request_id trả cùng bản ghi",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session payload khác cùng request_id trả IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: draft ẩn với anon",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: host đọc được draft, whitelist sạch",
+      "status": "PASS"
+    },
+    {
+      "name": "set_session_lifecycle: draft->published, publish lại bị INVALID_STATE",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: unlisted đã publish đọc được bằng link (anon)",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: private chỉ thành viên/host đọc được",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session: tăng version và từ chối version cũ (VERSION_CONFLICT)",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session chặn người không có quyền quản lý",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session chặn sửa khi buổi đang diễn ra (INVALID_STATE)",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_session sao chép cấu hình nhưng không sao chép người/tiền",
+      "status": "PASS"
+    },
+    {
+      "name": "list_my_sessions: đúng chủ sở hữu, phân trang offset>0 trả phần còn lại",
+      "status": "PASS"
+    },
+    {
+      "name": "list_public_sessions: whitelist công khai, lọc khu vực và còn chỗ",
+      "status": "PASS"
+    },
+    {
+      "name": "list_session_players: chỉ host/quản lý, phân trang, chặn thủ quỹ/member",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel retry replays same result",
+      "status": "PASS"
+    },
+    {
+      "name": "DB clean không còn cột bộ đếm joined_count (không ghi bộ đếm từ client)",
+      "status": "PASS"
+    },
+    {
+      "name": "anon không gọi được create_session (ACL)",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session bắt buộc request_id",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session từ chối thời gian bắt đầu trong quá khứ",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session từ chối ends_at <= starts_at",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session fee_mode=fixed yêu cầu cả hai mức phí",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session gắn CLB yêu cầu owner/host",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session tạo draft + replay cùng request_id trả cùng bản ghi",
+      "status": "PASS"
+    },
+    {
+      "name": "create_session payload khác cùng request_id trả IDEMPOTENCY_CONFLICT",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: draft ẩn với anon",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: host đọc được draft, whitelist sạch",
+      "status": "PASS"
+    },
+    {
+      "name": "set_session_lifecycle: draft->published, publish lại bị INVALID_STATE",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: unlisted đã publish đọc được bằng link (anon)",
+      "status": "PASS"
+    },
+    {
+      "name": "get_session_public_detail: private chỉ thành viên/host đọc được",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session: tăng version và từ chối version cũ (VERSION_CONFLICT)",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session chặn người không có quyền quản lý",
+      "status": "PASS"
+    },
+    {
+      "name": "update_session chặn sửa khi buổi đang diễn ra (INVALID_STATE)",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_session sao chép cấu hình nhưng không sao chép người/tiền",
+      "status": "PASS"
+    },
+    {
+      "name": "list_my_sessions: đúng chủ sở hữu, phân trang offset>0 trả phần còn lại",
+      "status": "PASS"
+    },
+    {
+      "name": "list_public_sessions: whitelist công khai, lọc khu vực và còn chỗ",
+      "status": "PASS"
+    },
+    {
+      "name": "list_session_players: chỉ host/quản lý, phân trang, chặn thủ quỹ/member",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel retry replays same result",
+      "status": "PASS"
+    },
+    {
+      "name": "DB clean không còn cột bộ đếm joined_count (không ghi bộ đếm từ client)",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "db": "bh06_clean_20261016055216",
+    "probe": "R1 outsider reads offline confirmed guest",
+    "expected": "FORBIDDEN",
+    "exit": 0,
+    "stdout": "00000000-0000-0000-0000-000000000010\n{\"can_pay\": true, \"player_id\": \"abfc4c6b-6b76-49be-a755-ee7417d42293\", \"reference\": \"BH-0526E94988\", \"session_id\": \"f57a7ecb-20ee-4e2f-b6ed-7a02bd5e1db1\", \"display_name\": \"Synthetic offline guest\", \"has_receiver\": true, \"billing_state\": \"current\", \"amount_due_vnd\": 100000, \"source_version\": 1, \"total_paid_vnd\": 0, \"outstanding_vnd\": 100000, \"receiver_snapshot\": {\"bank_code\": \"TEST_ONLY\", \"account_name\": \"SYNTHETIC\", \"account_number\": \"00001234\"}, \"active_revision_id\": \"1706e36d-549e-4ba2-984f-83fdf26feb1e\"}",
+    "stderr": "",
+    "pass": false
+  },
+  {
+    "db": "bh06_clean_20261016055216",
+    "probe": "control outsider reads account-linked guest",
+    "exit": 3,
+    "pass": true
+  },
+  {
+    "db": "bh06_clean_20261016055216",
+    "probe": "control new read after expense",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function get_payment_instructions(uuid,uuid) line 39 at assignment",
+    "pass": true
+  },
+  {
+    "db": "bh06_clean_20261016055216",
+    "probe": "R2 legacy bank read after expense makes billing stale",
+    "expected": "BILLING_STALE",
+    "exit": 0,
+    "stdout": "00000000-0000-0000-0000-000000000001\n{\"status\": \"posted\", \"category\": \"court\", \"amount_vnd\": 1000, \"expense_id\": \"d67e74c6-2764-4e3f-b020-7172a1cb563e\", \"session_id\": \"f57a7ecb-20ee-4e2f-b6ed-7a02bd5e1db1\", \"billing_state\": \"stale\", \"club_ledger_entry\": false}\n00000000-0000-0000-0000-000000000005\n{\"session_id\": \"f57a7ecb-20ee-4e2f-b6ed-7a02bd5e1db1\", \"receiver_snapshot\": {\"bank_code\": \"TEST_ONLY\", \"account_name\": \"SYNTHETIC\", \"account_number\": \"00001234\"}}",
+    "stderr": "",
+    "pass": false
+  },
+  {
+    "db": "bh06_legacy_20261016055216",
+    "probe": "R1 outsider reads offline confirmed guest",
+    "expected": "FORBIDDEN",
+    "exit": 0,
+    "stdout": "00000000-0000-0000-0000-000000000010\n{\"can_pay\": true, \"player_id\": \"c87efb12-7db0-4c48-a139-24b052d345d9\", \"reference\": \"BH-B405EF6149\", \"session_id\": \"86ca7495-241d-4f30-af4b-7a7b3d534482\", \"display_name\": \"Synthetic offline guest\", \"has_receiver\": true, \"billing_state\": \"current\", \"amount_due_vnd\": 100000, \"source_version\": 1, \"total_paid_vnd\": 0, \"outstanding_vnd\": 100000, \"receiver_snapshot\": {\"bank_code\": \"TEST_ONLY\", \"account_name\": \"SYNTHETIC\", \"account_number\": \"00001234\"}, \"active_revision_id\": \"8fac9546-8a56-4437-86df-58c30a2f94d1\"}",
+    "stderr": "",
+    "pass": false
+  },
+  {
+    "db": "bh06_legacy_20261016055216",
+    "probe": "control outsider reads account-linked guest",
+    "exit": 3,
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016055216",
+    "probe": "control new read after expense",
+    "expected": "BILLING_STALE",
+    "exit": 3,
+    "stderr": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function get_payment_instructions(uuid,uuid) line 39 at assignment",
+    "pass": true
+  },
+  {
+    "db": "bh06_legacy_20261016055216",
+    "probe": "R2 legacy bank read after expense makes billing stale",
+    "expected": "BILLING_STALE",
+    "exit": 0,
+    "stdout": "00000000-0000-0000-0000-000000000001\n{\"status\": \"posted\", \"category\": \"court\", \"amount_vnd\": 1000, \"expense_id\": \"e0e5309e-7472-4253-9e88-0a005faf55a6\", \"session_id\": \"86ca7495-241d-4f30-af4b-7a7b3d534482\", \"billing_state\": \"stale\", \"club_ledger_entry\": false}\n00000000-0000-0000-0000-000000000005\n{\"session_id\": \"86ca7495-241d-4f30-af4b-7a7b3d534482\", \"receiver_snapshot\": {\"bank_code\": \"TEST_ONLY\", \"account_name\": \"SYNTHETIC\", \"account_number\": \"00001234\"}}",
+    "stderr": "",
+    "pass": false
+  }
+]
