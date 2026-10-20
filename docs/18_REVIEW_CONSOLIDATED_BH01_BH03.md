@@ -1,6 +1,6 @@
 # Rà soát tổng hợp BH-01 → BH-03
 
-> **Hiện hành 16/10/2026:** Các phát hiện bên dưới là baseline lịch sử: xem docs/19 cho cấu hình/auth/ACL, docs/20–21 cho chuyển đổi màn buổi demo, docs/22 cho BH-05. Không mở lại lỗi cũ từ snapshot này. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Nội dung dưới là snapshot lịch sử; không dùng lỗi hoặc prompt cũ để triển khai lại ticket đã nghiệm thu. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Ngày 15/10/2026. Tài liệu tổng hợp rà soát ba ticket BH-01 (Auth & cấu hình), BH-02 (Schema nền, migration và quyền) và BH-03 (CLB / thành viên / tài khoản nhận tiền) dưới ba góc nhìn: **Code Reviewer**, **Backend Architect** và **Software Architect**.
 

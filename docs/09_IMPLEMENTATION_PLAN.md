@@ -1,6 +1,8 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành tích hợp BH-06 (20/10/2026): Đạt tích hợp tại `318bc52`** sau vòng sửa 1, theo [review độc lập](reviews/bh06/review_318bc52.md). Đóng I1/I2; không còn phát hiện mở từ các review BH-06 trong phạm vi kiểm chứng. Reviewer tự chạy analyze sạch, **190 Flutter +335 DB PASS**, **7/7 tích hợp DB**, **3/3 nâng cấp DB**, **2/2 probe reviewer PASS**. Chỉ kết luận trong phạm vi local/PostgreSQL cô lập; HTTP/JWT/Auth thật, thiết bị/ngân hàng thật và các cổng production vẫn NOT RUN. Không tự merge/BH-07/deploy. Các kết luận trước bên dưới là lịch sử.
+> **Hiện hành 20/10/2026:** BH-06 Đạt tích hợp local tại `318bc52`, **đã merge main tại `e7f7627`** cùng docs/ai. [Xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục **[BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md)** từ main mới nhất; đầu bài đã chuẩn bị, chưa triển khai/nghiệm thu BH-07. Chưa apply staging/production/deploy; các cổng HTTP/JWT/Auth, thiết bị/ngân hàng thật, backup/restore và concurrency HTTP vẫn chưa nghiệm thu.
+
+> **(Lịch sử nghiệm thu trước merge) Tích hợp BH-06 (20/10/2026): Đạt tích hợp tại `318bc52`** sau vòng sửa 1, theo [review độc lập](reviews/bh06/review_318bc52.md). Đóng I1/I2; không còn phát hiện mở từ các review BH-06 trong phạm vi kiểm chứng. Reviewer tự chạy analyze sạch, **190 Flutter +335 DB PASS**, **7/7 tích hợp DB**, **3/3 nâng cấp DB**, **2/2 probe reviewer PASS**. Chỉ kết luận trong phạm vi local/PostgreSQL cô lập; HTTP/JWT/Auth thật, thiết bị/ngân hàng thật và các cổng production vẫn NOT RUN. Không tự merge/BH-07/deploy. Các kết luận trước bên dưới là lịch sử.
 
 > **(Lịch sử bàn giao) Tích hợp BH-06 (20/10/2026): Chờ review vòng 1 sau sửa I1/I2** tại code/test `31a553c` trên `feat/bh06-integration`. Đã sửa theo [review afeff39](reviews/bh06/review_afeff39.md): I1 P1 thêm forward migration backfill receiver cho buổi có sẵn; I2 P2 trả `session_version` trong DTO tài chính và dùng version đó khi chốt phí. Bằng chứng mới: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 tích hợp DB**, **3/3 case nâng cấp DB**; chi tiết/NOT RUN tại [bàn giao tích hợp](reviews/bh06/integration_handoff.md). Chưa merge/BH-07/deploy; người triển khai không tự ghi Đạt.
 
@@ -22,9 +24,9 @@
 
 > **Hiện hành BH-06 (16/10/2026):** BH-06A **Đạt phần A** tại `706bd73`, theo [review độc lập vòng sửa 1](reviews/bh06/review_706bd73.md); R1/R2 đã đóng trong phạm vi kiểm chứng. BH-06B (model/repository/provider) **Chờ review vòng 1** trên nhánh `feat/bh06b-data`, tách từ bản A đã Đạt `48d45d2`; C và tích hợp chưa nghiệm thu. Các kết luận Chưa đạt/Chờ review bên dưới giữ làm lịch sử; chưa cho phép deploy production.
 
-Trạng thái khởi đầu: mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
+Trạng thái khởi đầu (snapshot 14/10/2026): mọi ticket dưới đây **chưa triển khai theo đặc tả v1.1**. Code demo có sẵn được tận dụng sau khi đối chiếu. Mỗi ticket cần commit riêng hoặc nhóm thay đổi có liên quan; không triển khai toàn bộ app trong một prompt.
 
-(Snapshot 14/10/2026, giữ làm lịch sử.) **Hiện hành:** BH-01 đến BH-05 đã triển khai ở mức local/staging; BH-05 đạt review tích hợp (`d769531`) và hồi quy main (`3a34883`); BH-06 trở đi chưa làm; chưa apply production.
+(Snapshot 14/10/2026, giữ làm lịch sử.) **Trạng thái tại snapshot:** BH-01 đến BH-05 đã triển khai ở mức local/staging; BH-05 đạt review tích hợp (`d769531`) và hồi quy main (`3a34883`); BH-06 trở đi chưa làm; chưa apply production.
 
 ## Thứ tự và phụ thuộc
 
@@ -55,8 +57,10 @@ Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([revie
 | BH-03 | CLB, thành viên, ngân hàng | 48 + 22 PASS | Đã triển khai |
 | BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
 | BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
+| BH-06 | Phí/QR/thu tiền/quỹ | 84 PASS; tích hợp 7, nâng cấp 3 | **Đạt tích hợp local, đã merge main e7f7627** |
+| BH-07 | Complete/history/summary/pilot | Chưa chạy BH-07 | **Đầu bài A đã chuẩn bị; chưa triển khai/nghiệm thu** |
 
-BH-06A (tài chính phía DB/RPC/RLS/projection + runner) đã triển khai ở local, **chờ review** theo [24_BH06_IMPLEMENTATION_HANDOFF.md](24_BH06_IMPLEMENTATION_HANDOFF.md) — xem mục cuối tài liệu. BH-06B/C và BH-07 đến BH-09: chưa triển khai.
+BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A có [đầu bài](25_BH07_IMPLEMENTATION_HANDOFF.md), chưa triển khai; BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
 
 ## Checklist mỗi ticket
 
@@ -560,3 +564,9 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - **Đạt tích hợp BH-06 tại `318bc52`** theo [review_318bc52](reviews/bh06/review_318bc52.md), code/test/migration `31a553c`. Đóng I1 P1 (backfill receiver) và I2 P2 (refresh lấy session_version); không sửa lịch sử review Chưa đạt tại afeff39 hoặc Đạt từng phần A/B/C.
 - Reviewer tự chạy analyze 0 issue, **190/190 Flutter**, **335/335 DB BH-02..06** (33+14+48+22+44+90+84), **7/7 case tích hợp**, **3/3 case nâng cấp**, **2/2 probe I1/I2 PASS**. [Hash/summary](reviews/bh06/review_318bc52_evidence/summary.json). Source triển khai giữ nguyên tested HEAD; không sửa migration đã chia sẻ.
 - Kết luận giới hạn local/PostgreSQL/Auth stub; không cho phép deploy production. NOT RUN: repository↔HTTP/PostgREST/JWT/Supabase Auth thật, thiết bị/browser/deep link, ảnh VietQR/ngân hàng thật, apply staging/production, backup/restore và concurrency HTTP. Không tự merge main, chuyển BH-07 hoặc deploy.
+
+### Merge BH-06 vào main và chuẩn bị BH-07A (20/10/2026)
+
+Chủ dự án giao merge main, đồng bộ tiến độ và gửi prompt mới BH-07. `feat/bh06-integration` tại b3bcfbb đã merge vào main tại **e7f7627**, giữ nguyên lib/test/migration đã review 318bc52; docs/ai đã merge tại eaeb209. [Xác minh merge và kiểm tra mới](reviews/bh06/main_merge_e7f7627.md). Các kết luận không được hiểu là deploy hoặc apply DB thật.
+
+[Đầu bài BH-07](25_BH07_IMPLEMENTATION_HANDOFF.md) quy định A/B/C/D; lượt triển khai tiếp chỉ A trên feat/bh07a-db từ main mới nhất. Chưa có code hoặc nghiệm thu BH-07. Không tự bắt đầu B/C/D, BH-08/BH-09 hoặc nới gate tài chính sau complete.

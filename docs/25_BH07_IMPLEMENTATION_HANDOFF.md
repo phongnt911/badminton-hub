@@ -1,0 +1,49 @@
+# BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
+
+Ngày 20/10/2026 (Việt Nam). Chủ dự án giao merge BH-06 lên main, cập nhật tiến độ và chuẩn bị prompt triển khai BH-07. Người triển khai: AI triển khai; Codex: giao việc/reviewer độc lập. **Đầu bài đã chuẩn bị; BH-07A chưa triển khai, chưa nghiệm thu.**
+
+## 1. Nền bắt buộc
+
+- BH-06 Đạt tích hợp local tại `318bc52`, công bố review tại `b3bcfbb`: [review và bằng chứng](reviews/bh06/review_318bc52.md). I1/I2 đã đóng; giữ lịch sử các review theo tested SHA.
+- `chore/ai-roles` đã merge vào main tại `eaeb209`; BH-06 merge vào main tại `e7f7627`. Checkout mới dùng main mới nhất, ghi full base SHA và kiểm nó chứa cả hai merge này. Không bắt đầu BH-07 từ main BH-05 cũ hoặc cherry-pick lại BH-06.
+- Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy** (33+14+48+22+44+90+84), **7 tích hợp +3 nâng cấp +2 probe PASS**. [Xác minh merge main](reviews/bh06/main_merge_e7f7627.md) phân biệt kiểm tra mới trên main với bằng chứng DB trước merge.
+- Đọc [IMPLEMENTER](ai/IMPLEMENTER.md), [REVIEWER](ai/REVIEWER.md), AGENTS, docs/00, docs/04, [backlog](09_IMPLEMENTATION_PLAN.md), [contract](08_DOMAIN_CONTRACTS.md), [flows](10_SCREEN_FLOWS.md) và [ADR](11_ARCHITECTURE_DECISIONS.md).
+
+## 2. Phạm vi BH-07 và các cổng
+
+Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ sau complete; sao chép tổng kết đúng quyền; kiểm mất mạng/retry/mở lại app; end-to-end mobile/web và rehearsal vận hành/migration/backup. Không mở BH-08/BH-09, push/chat hoặc tích hợp ngân hàng/webhook.
+
+| Phần | Phạm vi | Cổng chuyển phần |
+|---|---|---|
+| A | Rà soát/bổ sung DB/RPC/projection, kiểm quyền và complete/history/debt | Reviewer Đạt A trước khi giao B |
+| B | Model/repository/provider đúng contract A, loading/error/retry/isolation | Reviewer Đạt B trước khi giao C |
+| C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
+| D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
+
+**Lượt được giao ngay chỉ là A trên `feat/bh07a-db` từ main mới nhất.** Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+
+## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
+
+1. Lập bảng đã có/thiếu, signature/response/error/ACL/caller và file dự kiến sửa. `start_session`, `complete_session`, repository/provider tương ứng và gate current đã có từ BH-05/06; không viết lại hoặc gọi RPC chưa tồn tại.
+2. Rà complete: management đúng scope, session version từ nguồn server, chỉ in_progress và billing current. Chưa chốt hoặc stale bị chặn; buổi miễn phí vẫn cần revision current. **Không bắt buộc thu đủ tiền mới complete.**
+3. Rà quyền đọc lịch sử/chi tiết/tổng kết sau complete, cả list và detail; không để session biến mất đối với actor có quyền chỉ vì projection cho buổi đang mở. Chỉ thêm endpoint/projection nếu nguồn hiện có chưa đáp ứng; ghi contract thực tế, không tự mở toàn bộ raw tables.
+4. Công nợ/tiền đã thu/lịch sử payment-ledger không mất hoặc bị zero giả khi complete. Kiểm các thao tác tài chính sau complete theo contract hiện hành; không tự nới quyền, bypass stale hoặc cho sửa trực tiếp số dư để làm luồng chạy được. Nếu contract có khoảng trống nghiệp vụ, nêu đúng điểm trước khi mở rộng.
+5. Tổng kết/copy chỉ lấy dữ liệu server đúng scope; không tính số dư từ trang lịch sử bị cắt, không lộ contact/bank của người khác. Việc bố trí UI/copy thực hiện ở C; A chuẩn bị contract cần thiết.
+6. Mutation nguyên tử, actor lấy từ auth.uid(), request ID bền qua retry, cùng key/payload replay một kết quả, khác payload conflict; version conflict và audit có kiểm chứng. Forward migration mới nếu cần; không sửa migration đã chia sẻ hoặc chạy SQL legacy.
+
+## 4. Kiểm thử và bằng chứng A
+
+- Complete: quyền sai/actor khác/anonymous bị chặn; chưa chốt/stale bị chặn; current/free current được phép; còn nợ vẫn complete.
+- Retry cùng request, payload khác, version cũ; lỗi transaction rollback; không tạo lifecycle/audit/payment/ledger lặp.
+- Sau complete: đọc detail/history/summary theo đúng vai trò, công nợ còn nguyên; các đường thu/confirm/reject/reverse được phép theo contract không làm mất lịch sử hoặc thu dư.
+- Phân trang/empty/error, quyền chéo CLB/buổi và không lộ dữ liệu riêng; dữ liệu cũ nếu có thêm migration.
+- Viết test tái hiện trước khi sửa lỗi. Chạy analyze + toàn bộ Flutter test + runner BH-07 và hồi quy BH-02..06; giữ kiểm tra tích hợp/nâng cấp BH-06 phù hợp thay đổi. Nếu chỉ audit không đổi DB, nêu rõ những runner đã chạy, không dùng kết quả lịch sử làm kết quả mới.
+- SET ROLE/Auth stub và widget mock không thay HTTP/JWT/Auth thật. Thiếu môi trường vẫn chuẩn bị phần độc lập, ghi NOT RUN và tác động đến cổng nghiệm thu; không dùng production thay môi trường test.
+
+Bằng chứng mới đặt `docs/reviews/bh07/`: base/full tested SHA, diff, migration/RPC, lệnh/exit/count, JSON/log, môi trường, PASS/FAIL/NOT RUN, cấu hình ngoài code. Cập nhật docs/00, docs/09 và bàn giao thành **Chờ review BH-07A**, rồi commit/push nhánh và dừng để Codex review. Không tự ghi Đạt/Done; sửa toàn bộ P0/P1/P2 theo review, tối đa hai vòng theo AGENTS.
+
+## 5. Giới hạn môi trường và triển khai
+
+BH-06 mới Đạt trong phạm vi local/PostgreSQL cô lập. HTTP/PostgREST/JWT/Supabase Auth thật, thiết bị/browser/deep link, tải ảnh VietQR/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn chưa có nghiệm thu. BH-07D phải báo bằng chứng thực tế cho các cổng pilot được yêu cầu, không kết luận pilot Đạt từ 190 unit/widget test hoặc 335 DB fixture.
+
+Viết tài liệu vận hành và chạy rehearsal trên môi trường cô lập được phép; không apply staging/production, thay Auth settings, chuyển tiền/ngân hàng hoặc deploy nếu chưa được giao. Không tự merge main hoặc chuyển phần tiếp theo.

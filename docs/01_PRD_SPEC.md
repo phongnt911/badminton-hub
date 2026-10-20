@@ -1,6 +1,6 @@
 # PRD — Badminton Hub
 
-> **Hiện hành 16/10/2026:** Đây là yêu cầu đích; phạm vi tài chính/QR/pilot vẫn thuộc BH-06 trở đi. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Đây là yêu cầu đích; phí/QR/thu tiền BH-06 đã có ở local, pilot/end-to-end thuộc BH-07. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Phiên bản 1.1 · 14/10/2026. Đây là yêu cầu đích, không phải báo cáo hoàn thành.
 

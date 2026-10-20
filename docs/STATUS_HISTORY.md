@@ -64,6 +64,10 @@ Người triển khai sửa **cả I1 P1 và I2 P2** của [review afeff39](revi
 
 Test tái hiện FAIL trước sửa: nâng cấp DB vẫn `has_receiver=false`; widget conflict refresh vẫn gửi version 3 (`Expected [3,4]`, `Actual [3,3]`). Sau sửa trên `31a553c`: analyze sạch, **190/190 Flutter**, **335/335 DB**, **7/7 case tích hợp**, **3/3 case nâng cấp** (backfill, không bank, snapshot cũ bất biến). [Bàn giao, bảng lệnh và NOT RUN](reviews/bh06/integration_handoff.md). Trạng thái **Chờ review vòng 1**; chưa merge/deploy/apply, không tự ghi Đạt.
 
-## Hiện hành — Đạt review tích hợp BH-06 vòng sửa 1 (20/10/2026)
+## (Lịch sử) — Đạt review tích hợp BH-06 vòng sửa 1 (20/10/2026)
 
 Reviewer kết luận **Đạt tích hợp local tại `318bc52`**, code/test/migration `31a553c`, theo [review/bằng chứng](reviews/bh06/review_318bc52.md). Đóng I1/I2. Reviewer tự chạy analyze sạch, 190 Flutter +335 DB, 7 case tích hợp, 3 case nâng cấp và 2 probe độc lập PASS. Giữ review trước và kết luận từng phần A/B/C làm lịch sử. HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN; không tự merge main, chuyển BH-07 hoặc deploy.
+
+## Hiện hành — BH-06 merge main, chuẩn bị BH-07A (20/10/2026)
+
+Theo yêu cầu chủ dự án, main đã nhận docs/ai tại eaeb209 và BH-06 tại **e7f7627** (parents eaeb209 và b3bcfbb). Lib/test/migration trùng bản Đạt 318bc52; [xác minh merge](reviews/bh06/main_merge_e7f7627.md) phân biệt kiểm tra mới với DB bằng chứng cũ. Đã đồng bộ README, AGENTS, trạng thái docs và [đầu bài BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md). Chưa triển khai/nghiệm thu BH-07 hoặc apply staging/production; merge code không phải deploy.

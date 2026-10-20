@@ -1,6 +1,6 @@
 # Kiến trúc tổng thể — đặc tả đích
 
-> **Hiện hành 16/10/2026:** Đây là kiến trúc đích; migration BH-02..05 và lớp typed đã có, không tạo lại scaffold/demo. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Giữ Flutter/Provider/Supabase và lớp typed hiện có; không dựng lại scaffold BH-01..06. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Phiên bản 1.1 · 14/10/2026. Giữ Flutter/Dart, Provider, Supabase PostgreSQL/Auth/Storage. Phiên bản SDK thực tế lấy từ pubspec và toolchain đã xác minh, không tự nâng SDK theo tài liệu.
 

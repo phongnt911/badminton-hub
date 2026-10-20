@@ -2,21 +2,23 @@
 
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
-## Trạng thái hiện tại
+## Trạng thái hiện tại — 20/10/2026
 
-Chủ dự án đã xác nhận toàn bộ B1–B9 và các đề xuất C1/C2; cập nhật chỉ tài liệu đã áp dụng. Xem [xác nhận và điểm tiếp tục BH-06](docs/23_DOC_AUDIT_FOLLOWUP.md).
+**BH-06 đã Đạt tích hợp local tại `318bc52` và merge vào main tại `e7f7627`.** [Review/bằng chứng](docs/reviews/bh06/review_318bc52.md), [xác minh merge main](docs/reviews/bh06/main_merge_e7f7627.md). Quy trình [người triển khai](docs/ai/IMPLEMENTER.md) và [reviewer](docs/ai/REVIEWER.md) cũng đã có trên main.
 
-BH-01 đến BH-05 đã triển khai ở mức local/staging; **chưa apply production**, chưa kiểm PostgREST HTTP/JWT thật, thiết bị thật hoặc deep link mức hệ điều hành. BH-05 đã **đạt review tích hợp** tại `d769531` ([review_d769531.md](docs/reviews/bh05/review_d769531.md)) và **đạt hồi quy trên `main`** tại `3a34883` ([review_main_3a34883.md](docs/reviews/bh05/review_main_3a34883.md)); các kết quả này không cho phép deploy production.
+| Ticket | Kiểm chứng DB local | Trạng thái |
+|---|---|---|
+| BH-01 | Flutter/Auth fixture | Đã triển khai; chưa kiểm Auth HTTP thật đầy đủ |
+| BH-02 | 33 +14 PASS | Đã triển khai |
+| BH-03 | 48 +22 PASS | Đã triển khai |
+| BH-04 | 44 PASS | Đã triển khai |
+| BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
+| BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
+| BH-07 | Chưa chạy | Đầu bài A đã chuẩn bị; chưa triển khai/nghiệm thu |
 
-| Ticket | Phạm vi | Kiểm thử DB (PostgreSQL cô lập + Auth stub) | Trạng thái |
-|---|---|---|---|
-| BH-01 | Auth và cấu hình | (Flutter test) | Đã triển khai |
-| BH-02 | Schema nền, RLS | 33 + 14 PASS | Đã triển khai |
-| BH-03 | CLB, thành viên, ngân hàng | 48 + 22 PASS | Đã triển khai |
-| BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
-| BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
+Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-Tổng trên `main` tại `3a34883` (reviewer tự chạy): 137 Flutter test, 251 DB test, `flutter analyze` sạch. Ticket kế tiếp: BH-06 (phí, VietQR, thu tiền). Lịch sử và giới hạn từng ticket nằm ở docs/09 và các file bàn giao trong `docs/`.
+Tiếp tục [BH-07A](docs/25_BH07_IMPLEMENTATION_HANDOFF.md) theo quy trình hai AI; chỉ làm từng phần sau cổng review. Chưa nghiệm thu HTTP/PostgREST/JWT/Auth thật, mobile/web/deep link e2e, ngân hàng/VietQR thật, staging/production, backup/restore hoặc concurrency HTTP. **Chưa deploy; merge code không phải apply DB.** Nhật ký nằm ở [STATUS_HISTORY](docs/STATUS_HISTORY.md).
 
 ## Tài liệu để triển khai
 
@@ -28,6 +30,7 @@ Bắt đầu tại **[docs/00_START_HERE.md](docs/00_START_HERE.md)**. Bộ đ�
 - [Quy tắc cho Antigravity/AI](docs/04_LLM_RULES.md).
 - [Hợp đồng thao tác nghiệp vụ](docs/08_DOMAIN_CONTRACTS.md).
 - [Backlog và nghiệm thu](docs/09_IMPLEMENTATION_PLAN.md).
+- [Đầu bài BH-07A và cổng A/B/C/D](docs/25_BH07_IMPLEMENTATION_HANDOFF.md).
 - [Luồng màn hình](docs/10_SCREEN_FLOWS.md).
 - [Rà soát code và tham khảo Vmito](docs/07_HOST_FIRST_REVIEW.md).
 

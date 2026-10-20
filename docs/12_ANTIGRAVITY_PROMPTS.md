@@ -1,8 +1,8 @@
 # Prompt triển khai cho Antigravity
 
-> **Hiện hành 16/10/2026:** Điểm tiếp tục hiện hành là AG-06/BH-06; AG-00..05 và các prompt remediation bên dưới giữ để tham khảo lịch sử, không giao triển khai lại. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Điểm tiếp tục là AG-07/BH-07A theo đầu bài mới; AG-00..06 và remediation cũ là lịch sử, không giao triển khai lại. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
-v1.1 · 14/10/2026. Dùng từng prompt theo trạng thái hiện hành, mỗi lượt giao một phạm vi. BH-01..05 đã có triển khai và bằng chứng; BH-05 đạt review tích hợp, ticket kế tiếp là AG-06/BH-06. Người dùng sẽ yêu cầu code riêng; tài liệu này không tự giao quyền deploy production.
+v1.1 · soạn ban đầu 14/10/2026, trạng thái hiện hành 20/10/2026: BH-01..06 đã có triển khai local và BH-06 đã merge main. Dùng từng prompt theo nhiệm vụ hiện hành; tiếp theo chỉ BH-07A từ main mới nhất theo docs/25. Tài liệu không tự cấp quyền deploy production.
 
 ## Prompt chung dùng cho mọi lượt
 
@@ -32,13 +32,13 @@ v1.1 · 14/10/2026. Dùng từng prompt theo trạng thái hiện hành, mỗi l
 
 > Triển khai join/approve/cancel/attendance bằng RPC transaction và UI; invitation issue/revoke/accept có expiry, đúng player và guest host_recorded consent. Không dùng currentJoined từ client; không coi UPDATE 0 hàng là thành công. Test hai request slot cuối chỉ một confirmed, pending không chiếm slot, retry không trùng, rollback toàn bộ, guest ID ổn định, lời mời chưa phát hành/sai người/hết hạn/thu hồi/full bị chặn; accept lặp không lấy slot hai lần. Cohost không finance không chỉnh đầu vào tiền đã chốt. API cần trả ID/state/version để UI phản ánh kết quả thật.
 
-## AG-06: BH-06 Phí/QR/payment/quỹ (R4, phần R6)
+## AG-06: BH-06 Phí/QR/payment/quỹ (lịch sử — đã Đạt local, merge main)
 
 > Triển khai expenses/revisions/charges/payments/ledger theo ADR-02/04/08. Mọi input tính phí đổi tăng billing_input_version nguyên tử; finalize ghi source_version. DB chặn get_payment_instructions/submit/confirm mới/cash/complete nếu chưa chốt hoặc stale, không đợi BH-07 mới bảo vệ complete contract. QR là ảnh thanh toán thật theo bank snapshot/outstanding; không tự xác nhận tiền từ QR. Test chia dư tổng đúng, không billable người, free charges 0, stale sau chi phí/attendance/roster/miễn phí đổi, tiền đã thu được giữ, new due không thấp hơn paid; cạnh tranh/retry/đảo không thu dư/ghi quỹ kép. Read history/reversal và replay committed có quyền vẫn hoạt động khi stale. Không tích hợp ngân hàng/webhook.
 
 ## AG-07: BH-07 Một buổi hoàn chỉnh và pilot
 
-> Tích hợp start/complete/history/tổng kết, không mở tính năng sân mới. Test full flow với host/player/cohost không finance/outsider/anon; slot cuối, stale phí, waitlist, QR, thu từng phần, mất mạng, mở lại app; công nợ giữ sau complete. Tổng kết chia sẻ không lộ contact/private details. Ghi kết quả backup/restore staging rehearsal, migration compatibility và gates trước pilot; không báo đã deploy nếu mới test local. BH-08/09 chưa được giao ở lượt này.
+> Đọc [đầu bài BH-07](25_BH07_IMPLEMENTATION_HANDOFF.md), tạo feat/bh07a-db từ main mới nhất chứa merge e7f7627 và docs/ai. Lượt này chỉ A: audit phần có/thiếu, tái sử dụng start_session/complete_session và gate current, bổ sung DB/RPC/projection/kiểm thử cho complete/history/summary/debt khi cần. Không bắt buộc thu đủ mới complete; không mất công nợ sau complete. Chạy test phù hợp, ghi Chờ review BH-07A, commit/push và dừng. Chỉ làm B/C/D sau cổng reviewer tương ứng. Pilot cần bằng chứng HTTP/JWT/Auth, mobile/web/offline/reopen và rehearsal vận hành thực tế; thiếu thì NOT RUN, không lấy mock làm e2e. Không tự merge main, apply staging/production hoặc deploy.
 
 ## Khuôn báo cáo kết thúc mỗi lượt
 

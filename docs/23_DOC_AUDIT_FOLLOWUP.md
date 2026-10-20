@@ -2,7 +2,11 @@
 
 Ngày 16/10/2026 (Việt Nam). Chủ dự án xác nhận: “làm theo đề xuất, tích toàn bộ mục B”, cập nhật tài liệu/trạng thái toàn bộ docs và push để tiếp tục. Phạm vi **chỉ Markdown**, không mở ticket code hoặc cấp quyền deploy. Bản ghi này thay trạng thái chờ quyết định của [audit ban đầu](reviews/bh05/doc_audit_after_bh05.md); audit/review cũ giữ nguyên theo thời điểm và vị trí dòng lúc rà soát.
 
-## Trạng thái hiện hành và điểm tiếp tục
+## Hiện hành 20/10/2026
+
+BH-06 đã Đạt tích hợp local tại 318bc52 và merge main e7f7627; [review](reviews/bh06/review_318bc52.md), [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Chủ dự án giao merge/cập nhật tiến độ/chuẩn bị prompt BH-07; [đầu bài BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md) đã chuẩn bị, chưa triển khai. Nội dung audit 16/10 phía dưới giữ nguyên theo thời điểm, không dùng chỉ dẫn BH-06 chưa làm bên dưới làm hiện trạng mới. Chưa deploy/apply DB thật hoặc nghiệm thu HTTP/JWT/thiết bị/ngân hàng thật.
+
+## Snapshot xác nhận 16/10/2026 và điểm tiếp tục khi đó
 
 BH-01..05 đã triển khai ở mức kiểm thử local/PostgreSQL cô lập + Auth stub. **BH-05 Đạt tích hợp A+B+C** tại `d769531` theo [review độc lập](reviews/bh05/review_d769531.md). Hồi quy main `3a34883`: analyze sạch, **137/137 Flutter + 251/251 DB** theo [review và bằng chứng](reviews/bh05/review_main_3a34883.md). Không có lần chạy app/DB mới trong lượt cập nhật tài liệu này.
 

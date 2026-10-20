@@ -1,8 +1,8 @@
 # Hợp đồng thao tác nghiệp vụ
 
-> **Hiện hành 16/10/2026:** Các đề xuất C1-01..04 đã được chủ dự án duyệt và cập nhật ở §12; hợp đồng đích finance §4–7 nay đã có phần A (DB/RPC/RLS/runner) của BH-06 triển khai ở local, **chờ review** tại §13. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. BH-06B/C chưa làm. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Finance DB/RPC, data/provider và UI BH-06 đã Đạt; contract thực tế finance tại §13, không coi toàn bộ đề xuất đích là API live. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
-Phiên bản 1.1 · yêu cầu đích và hợp đồng RPC đã triển khai. BH-03/04/05 đã có migration và kiểm thử PostgreSQL cô lập; §10–12 ghi chi tiết hiện thực. Các thao tác ngoài phạm vi này, nhất là finance BH-06, vẫn là yêu cầu để triển khai; không suy ra mọi tên ở §1–9 đã tồn tại trên DB live.
+Phiên bản 1.1 · phân biệt yêu cầu đích §1–9 với contract thực tế BH-03..06 tại §10–13. Finance BH-06 đã Đạt tích hợp local; schema live và mọi endpoint đề xuất chưa được xác nhận chỉ từ tài liệu này.
 
 ## 1. Quy ước chung
 
@@ -196,9 +196,11 @@ RPC đọc:
 
 Helper nội bộ `registration_result(...)` và `bump_billing_input_version(...)` bị `REVOKE` khỏi mọi role client. `accept_waitlist_invitation` cho khách cần đồng ý không rỗng; mọi chuyển trạng thái đều kiểm lại lifecycle/deadline/quyền/state ở DB. Bằng chứng/giới hạn: [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 
-## 13. BH-06A tài chính phía DB (đã triển khai ở local — **chờ review**)
+<a id="13-bh-06a-tài-chính-phía-db-đã-triển-khai-ở-local--chờ-review"></a>
 
-Trạng thái: **chờ review**, chưa phải Đạt. Đây là phần A của BH-06 (DB/RPC/RLS/projection/runner + hợp đồng chính xác) theo [24_BH06_IMPLEMENTATION_HANDOFF.md](24_BH06_IMPLEMENTATION_HANDOFF.md); phần B (model/repository/provider) và C (UI VietQR/sổ quỹ) chưa làm. Không suy ra BH-06 hay BH-07 hoàn thành, không cho phép deploy.
+## 13. BH-06 tài chính phía DB — contract đã Đạt tích hợp local
+
+Trạng thái 20/10/2026: **Đạt tích hợp local BH-06 tại 318bc52**, A/B/C đã có và merge main `e7f7627`. [Review](reviews/bh06/review_318bc52.md); [bàn giao](24_BH06_IMPLEMENTATION_HANDOFF.md). BH-07 chưa triển khai, không cho phép deploy production.
 
 `billing_state` **không phải cột**: suy diễn từ `charge_revisions.status='active'` so `source_version` với `sessions.billing_input_version` (`not_finalized` khi chưa có revision active, `stale` khi lệch, `current` khi khớp). Mọi nguồn đổi input tính phí đều tăng `billing_input_version` trong transaction: chi phí (post/reverse tại §13 này), roster confirmed và điểm danh (đã tăng ở BH-05). `update_session` chỉ chạy ở `draft/published` (trước khi có revision) nên không làm revision đã chốt trở nên stale.
 
@@ -208,6 +210,12 @@ Ba migration nối tiếp chuỗi v1.1 (forward-only, không sửa migration cũ
 2. [`20261016120000_bh06_payments_ledger.sql`](../supabase/migrations/20261016120000_bh06_payments_ledger.sql): `submit_payment`, `confirm_payment`, `reject_payment`, `reverse_payment`, `record_cash_payment`, `post_manual_club_transaction`, `reverse_club_transaction`.
 3. [`20261016130000_bh06_reads.sql`](../supabase/migrations/20261016130000_bh06_reads.sql): `get_payment_instructions`, `get_session_finance`, `get_club_ledger`.
 4. [`20261016140000_bh06a_review_round1.sql`](../supabase/migrations/20261016140000_bh06a_review_round1.sql): sửa R1/R2 vòng 1 — `get_payment_instructions` kiểm quyền null-safe, `get_session_payment_instructions` gate `current` (không sửa lại ba file trên).
+
+Các migration tích hợp forward đã được review, không sửa lại migration lịch sử:
+
+5. [`20261020100000_bh06_integration_receiver.sql`](../supabase/migrations/20261020100000_bh06_integration_receiver.sql): resolver và trigger chốt receiver snapshot; bank CLB active trước, host fallback; không ghi đè snapshot đã có.
+6. [`20261020160000_bh06_integration_receiver_backfill.sql`](../supabase/migrations/20261020160000_bh06_integration_receiver_backfill.sql): backfill các buổi published/in_progress/completed còn snapshot NULL bằng cùng helper; không có bank thì giữ NULL.
+7. [`20261020170000_bh06_finance_session_version.sql`](../supabase/migrations/20261020170000_bh06_finance_session_version.sql): thêm session_version vào DTO get_session_finance; UI dùng version này sau refresh, fallback route chỉ khi server chưa có key.
 
 Helper nội bộ, bị `REVOKE` khỏi PUBLIC/anon/authenticated: `active_charge_revision_id(UUID)`, `session_billing_state(UUID)`, `assert_billing_current(UUID)`, `player_charge_snapshot(UUID)`. `assert_billing_current` gate dùng chung: chưa có revision active ⇒ `BILLING_NOT_FINALIZED`; lệch phiên bản ⇒ `BILLING_STALE` (đều 22023).
 

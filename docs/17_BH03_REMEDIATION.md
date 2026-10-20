@@ -1,6 +1,6 @@
 # Khắc phục BH-03 sau review 88dd247
 
-> **Hiện hành 16/10/2026:** Báo cáo dưới là snapshot sửa BH-03; giữ các con số/giới hạn của lượt đó, regression BH-03 hiện có 48+22 DB PASS. BH-05 đạt review tích hợp tại `d769531`; hồi quy main `3a34883`: analyze sạch, 137 Flutter + 251 DB. Tiếp theo BH-06. Chỉ kiểm thử local/PostgreSQL cô lập; chưa apply staging/production, chưa HTTP/JWT thật, thiết bị/browser e2e, backup/restore hoặc concurrency qua HTTP. [Trạng thái và xác nhận sau audit](23_DOC_AUDIT_FOLLOWUP.md).
+> **Hiện hành 20/10/2026:** Nội dung dưới là snapshot lịch sử; không dùng lỗi hoặc prompt cũ để triển khai lại ticket đã nghiệm thu. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). Baseline review: analyze sạch, 190 Flutter +335 DB, 7 tích hợp +3 nâng cấp +2 probe PASS. Điểm tiếp tục: [BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md), đầu bài đã chuẩn bị, chưa triển khai. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
 
 Ngày 15/10/2026. Baseline review [C1–C5](reviews/bh03/review_88dd247.md). Thay đổi lần này gồm SQL forward migration, app, tests và tài liệu; **không apply Supabase production**. Môi trường DB kiểm thử là PostgreSQL 17.11 tắt mạng với Auth stub tối thiểu, chưa tương đương full Supabase/PostgREST.
 
