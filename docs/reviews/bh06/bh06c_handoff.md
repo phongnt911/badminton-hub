@@ -38,7 +38,7 @@ Cách nối: `main.dart` thêm `ChangeNotifierProvider(create: (context) => Fina
 - **QR theo receiver snapshot + outstanding > 0 + reference**: dựng URL bằng `VietQRHelper.generateQrUrl` từ `receiverSnapshot` + `outstandingVnd` + `reference`; hiển thị ngân hàng/số TK/chủ TK/số tiền/nội dung kèm nút **sao chép** (Clipboard) và `errorBuilder` fallback khi ảnh không tải. QR **không** xác nhận đã thu, không webhook/ngân hàng, không tự chuyển tiền (có dòng cảnh báo trong UI).
 - **Loading/error/retry/empty/submitting + permission-denied**: vòng xoay khi tải, màn lỗi có **Thử lại**, trạng thái rỗng, khoá nút khi `isSubmitting`; người chơi không thấy thao tác tài chính; vai trò không đủ quyền ở sổ quỹ bị chặn và **không** gọi RPC.
 
-Không tự tính số dư/outstanding ở client: số dư lấy từ `get_club_ledger`; outstanding hiển thị lấy từ RPC (chỉ phần “còn phải thu theo người” trong màn quản lý là phép trừ dùng cho prefill ô thu tiền mặt, server vẫn là nguồn chặn cuối qua `PAYMENT_EXCEEDS_OUTSTANDING`).
+Không tự tính số dư/outstanding ở client: số dư lấy từ `get_club_ledger`; outstanding hiển thị lấy từ RPC. Từ vòng sửa 2, “còn phải thu theo người” chỉ hiển thị khi trang payments đã đầy đủ, và prefill ô thu tiền mặt luôn đọc `get_payment_instructions` của đúng người; server vẫn là nguồn chặn cuối qua `PAYMENT_EXCEEDS_OUTSTANDING`.
 
 ## 4. Test mới và lệnh đã chạy
 
@@ -72,5 +72,14 @@ Ghi chú kỹ thuật cho reviewer:
 - Commit: `498d4d8` (test tái hiện — 3 FAIL) → `8e3cd83` (fix). `flutter analyze` 0 issue; `flutter test` **183/183 PASS**; không đổi DB nên runner DB không chạy lại.
 - Phát lại probe C1 của reviewer: nguyên văn chỉ FAIL tại matcher `reference` (probe viết trước khi C2 đổi contract); đổi đúng matcher đó sang `null` thì PASS. Probe C3 vẫn FAIL như dự kiến (P2 chưa sửa).
 - Trạng thái: **Chờ review vòng 2**.
+
+## 7. Sửa theo review vòng 2 (20/10/2026)
+
+- Chủ dự án giao sửa **toàn bộ P còn lại**: **C3 (P2)** và ca “trả thêm sau refinalize” mà review ghi NOT RUN. Đồng thời cập nhật quy trình để người triển khai sửa P0/P1/P2: `AGENTS.md` (nhánh này, commit `docs(process)` cùng lượt) và `docs/ai/IMPLEMENTER.md` (nhánh `chore/ai-roles`, `07b31d4`).
+- C3: chỉ hiển thị “Còn phải thu” theo người khi trang payments đã đầy đủ (`payments.length < limit`); trang bị cắt thì hiển thị “Phải trả theo phí” theo revision hiện hành. Thu tiền mặt luôn đọc `outstandingVnd` của đúng người qua `get_payment_instructions` trước khi prefill; đã trả đủ thì báo và không mở hộp thoại. Không suy khoản nợ từ một trang lịch sử.
+- C2 bổ sung: test “trả thêm sau refinalize” — outstanding 100.000 → 50.000 sau chốt lại; hai intent hai request ID, đều không gửi `p_reference`.
+- Commit: `75aa95b` (test tái hiện — 2 FAIL đúng C3) → `5174e9d` (fix). `flutter analyze` 0 issue; `flutter test` **186/186 PASS**; không đổi DB nên runner DB không chạy lại. Chi tiết: [bh06c_review_round2.md](bh06c_review_round2.md).
+- Probe C3 của reviewer có hai kỳ vọng mâu thuẫn (vừa “100,000” vừa “0”) nên nguyên văn không thể PASS; test hồi quy của tác giả kiểm hành vi thay thế đúng hướng dẫn reviewer (không suy nợ; prefill từ RPC; chặn khi đã trả đủ).
+- Trạng thái: **Chờ review vòng 2** (vòng sửa 2/2). NOT RUN: refinalize ở mức RPC/DB, HTTP/JWT/Auth thật, thiết bị/browser, bank/VietQR thật, staging/production, backup/restore, concurrency HTTP.
 
 Đây là bằng chứng phía tác giả; reviewer cần tự chạy lại trên đúng SHA và tự kết luận. Người triển khai không tự ghi Đạt và không chuyển sang phần tích hợp khi chưa có kết luận Đạt C.

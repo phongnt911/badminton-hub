@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`, [ghi chú sửa vòng 1](reviews/bh06/bh06c_review_round1.md); analyze sạch, 183/183 Flutter. **C3 (P2) giữ mở, chưa sửa** (chưa có chỉ định của chủ dự án). A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
+> **Hiện hành BH-06C (20/10/2026): Chờ review vòng 2** trên nhánh `feat/bh06c-ui`. Vòng 1 sửa **C1/C2 (P1)** theo [review_af31e7b](reviews/bh06/review_af31e7b.md): code sửa `8e3cd83`, test tái hiện `498d4d8`. Vòng 2 sửa **C3 (P2)** theo chỉ định của chủ dự án: code `5174e9d`, test tái hiện `75aa95b`, [ghi chú vòng 2](reviews/bh06/bh06c_review_round2.md); analyze sạch, 186/186 Flutter. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy. Người triển khai không tự ghi Đạt.
 
 > **(Lịch sử) BH-06C (18/10/2026): Chưa đạt** tại `af31e7b` (cây code/test `b123db9`), theo [review độc lập](reviews/bh06/review_af31e7b.md). C1/C2 P1: sai ID đăng ký khi gửi thanh toán; reference cố định chặn gửi lại sau từ chối. C3 P2: tính khoản nợ từ trang payment thiếu lịch sử. Analyze sạch, 181 Flutter +84 DB PASS nhưng 2 probe widget và 1 probe RPC FAIL. A/B vẫn Đạt theo SHA trước; chưa nghiệm thu C/tích hợp hoặc deploy.
 
@@ -501,3 +501,12 @@ Chủ dự án yêu cầu merge bộ docs sau BH-05 vào main, để AI khác k�
 - Commit tách test-first: `498d4d8` (thêm/cập nhật test — 3 FAIL: C1, C2, ca người chơi), `8e3cd83` (fix). Ghi chú: [bh06c_review_round1.md](reviews/bh06/bh06c_review_round1.md).
 - Bằng chứng trên cây `8e3cd83` (sạch): `flutter analyze` **0 issue**; `flutter test` **183/183 PASS**. Không đổi DB nên runner DB BH-06 **không chạy lại**. Phát lại probe C1 của reviewer: nguyên văn chỉ FAIL tại matcher `reference` (probe viết trước khi C2 đổi contract); đổi đúng matcher đó sang `null` thì **PASS**. Probe C3 vẫn **FAIL** như dự kiến (P2 chưa sửa).
 - Trạng thái ghi **Chờ review vòng 2**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT/Auth thật, thiết bị/browser e2e, ảnh VietQR/bank thật, staging/production, backup/restore, concurrency HTTP, ca trả thêm sau refinalize ở mức RPC.
+
+### BH-06C — sửa theo review vòng 2 (20/10/2026)
+
+- Chủ dự án giao sửa **toàn bộ P còn lại**, gồm **C3 (P2)** và ca "trả thêm sau refinalize" mà review ghi NOT RUN; quy trình cập nhật để người triển khai sửa P0/P1/P2 (`AGENTS.md` trên nhánh; `docs/ai/IMPLEMENTER.md` trên `chore/ai-roles` tại `07b31d4`). Không đổi migration/RPC của A, không viết lại B, không merge `main`.
+- C3: chỉ hiển thị "Còn phải thu" theo người khi trang payments đã đầy đủ (`payments.length < limit`); nếu trang bị cắt thì hiển thị "Phải trả theo phí" theo revision hiện hành. Hộp thoại thu tiền mặt luôn đọc `outstandingVnd` của đúng người qua `get_payment_instructions` (tổng hợp phía server) trước khi prefill; người đã trả đủ thì báo và không mở hộp thoại. Không suy khoản nợ từ một trang lịch sử.
+- Thêm test C2 "trả thêm sau refinalize": outstanding đổi 100.000 → 50.000 sau chốt lại; hai intent dùng hai request ID khác nhau và đều không gửi `p_reference`.
+- Commit tách test-first: `75aa95b` (test tái hiện — 2 FAIL đúng C3), `5174e9d` (fix). Ghi chú: [bh06c_review_round2.md](reviews/bh06/bh06c_review_round2.md).
+- Bằng chứng trên cây `5174e9d`: `flutter analyze` **0 issue**; `flutter test` **186/186 PASS**. Không đổi DB nên runner DB BH-06 **không chạy lại**. Probe C3 của reviewer có hai kỳ vọng mâu thuẫn (vừa "100,000" vừa "0") nên nguyên văn không thể PASS; test hồi quy của tác giả kiểm đúng hành vi thay thế (không còn suy nợ; prefill từ RPC; đã trả đủ thì chặn).
+- Trạng thái **Chờ review vòng 2**; người triển khai không tự ghi Đạt. NOT RUN: HTTP/PostgREST/JWT/Auth thật, thiết bị/browser e2e, ảnh VietQR/bank thật, staging/production, backup/restore, concurrency HTTP, ca refinalize ở mức RPC/DB (chỉ kiểm ở UI/provider).
