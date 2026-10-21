@@ -52,9 +52,11 @@ python docs/reviews/bh07/run_bh07_tests.py
 # exit 0; TỔNG 23 | PASS 23 | FAIL 0
 ```
 
-Log tương ứng: `flutter_analyze.log`, `flutter_test.log`, `targeted_utc.log`,
-`targeted_vietnam.log`, `bh07_db_runner.log`.
+Log tương ứng: `red_targeted.log`, `flutter_analyze.log`, `flutter_test.log`,
+`targeted_utc.log`, `targeted_vietnam.log`, `bh07_db_runner.log`, `diff_check.log`.
 Kết quả DB: `bh07_test_results_20261021020900.json`.
+
+Bảy log gốc từng bị `.gitignore` bỏ qua nên không có trong commit `f63e5a4`; đã force-add nguyên bytes ngày 21/10/2026, không chạy lại để tạo log. Hash khớp `sha256.txt`; xem [raw_logs_note.md](raw_logs_note.md).
 
 ## 3. Phạm vi thay đổi
 
