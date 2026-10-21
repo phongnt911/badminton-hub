@@ -64,9 +64,9 @@ Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([revie
 | BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
 | BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
 | BH-06 | Phí/QR/thu tiền/quỹ | 84 PASS; tích hợp 7, nâng cấp 3 | **Đạt tích hợp local, đã merge main e7f7627** |
-| BH-07 | Complete/history/summary/pilot | 240 Flutter +10 D/50 C mỗi múi giờ +23 DB +6 probe PASS | **A/B/C giữ Đạt; D Đạt tích hợp local 3d590a8; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | Complete/history/summary/pilot | 240 Flutter +1 skip +65 HTTP/Auth +10 D/50 C mỗi múi giờ +23 DB +6 probe PASS | **A/B/C giữ Đạt; D Đạt tích hợp local 3d590a8; HTTP/Auth local 65/65 tại 3ad25a4 Chờ review; toàn BH-07/pilot chưa nghiệm thu** |
 
-BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A **Đạt local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md); B đã Đạt local tại `d7bac04`; C **Chờ review vòng 1/2 tại `02a9b85`** theo [bàn giao](reviews/bh07/bh07c_handoff.md); D và BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
+BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A **Đạt local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md); B đã Đạt local tại `d7bac04`; C **Đạt local tại `02a9b85`** theo [review](reviews/bh07/review_02a9b85.md); D **Đạt tích hợp local tại `3d590a8`**; HTTP/Auth local **Chờ review kiểm chứng tại `3ad25a4`** theo [bàn giao](reviews/bh07/http_auth_handoff.md); BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
 
 ## Checklist mỗi ticket
 
@@ -648,3 +648,7 @@ Không đổi migration/RPC/model/repository/provider/contract, không sửa A/B
 BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](reviews/bh07/review_3d590a8.md), không có P0/P1/P2 mở trong phạm vi được giao. Reviewer tự chạy analyze sạch, **240 Flutter**, **10 D +50 C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **6 probe reviewer** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`. HTTP/JWT/Auth thật, thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; toàn BH-07 chưa nghiệm thu. Không tự merge main, apply DB thật hoặc deploy.
 
 Checkout sạch ce4522d có nguồn trùng tested code3d590a8; DB metadata reviewer đúng ce4522d/worktree_dirty=false. Manifest tác giả đầy đủ/hash khớp trực tiếp hoặc CRLF. Test D mock repository, không chứng minh HTTP/Auth/ACL thật; cash sau complete trong test D chỉ kiểm nút, không gọi đó là luồng widget cash đã chạy. Chi tiết/bằng chứng/NOT RUN trong review.
+
+### BH-07 HTTP/Auth — bàn giao Chờ review kiểm chứng (21/10/2026)
+
+Ma trận HTTP/Auth local **65/65 PASS** tại tested source `3ad25a4`, base `593bea8`, nhánh `feat/bh07-http-verification`; `flutter analyze` sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**, `worktree_dirty_before_run=false`. Chỉ thêm script/test/evidence, không sửa migration/RPC/model/repository/provider/UI/contract. Trạng thái **Chờ review kiểm chứng HTTP/Auth BH-07**, không thay đổi kết luận D tại `3d590a8`; người triển khai không tự ghi Đạt. [Bàn giao](reviews/bh07/http_auth_handoff.md), [evidence](reviews/bh07/http_auth_evidence/). Còn NOT RUN: browser/device/offline, banking/webhook, staging/production/backup, concurrency HTTP, rehearsal/pilot và nghiệm thu toàn BH-07.

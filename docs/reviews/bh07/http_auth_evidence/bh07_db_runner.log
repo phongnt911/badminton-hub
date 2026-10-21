@@ -1,0 +1,32 @@
+Khß╗ƒi tß║ío DB BH-07: bh07_clean_20261021061453 v├á bh07_upgrade_20261021061453...
+CLEAN migrations: 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql, 20261020180000_bh07_reads.sql
+UPGRADE baseline: 20261020100000_bh06_integration_receiver.sql, 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql
+Suite DB bh07_clean_20261021061453: venue=5b4ceda8-038a-45e3-9fe5-6c9a874bab5d, club1=45b208a2-9e40-4937-9be6-7203d82b47c0, club2=9ab1de24-e085-476d-8b64-f26868178bf5
+PASS: Complete: ch╞░a chß╗æt ph├¡ bß╗ï BILLING_NOT_FINALIZED, kh├┤ng ─æß╗òi lifecycle/version/audit
+PASS: Complete: revision stale bß╗ï BILLING_STALE, kh├┤ng ─æß╗òi lifecycle/version/audit
+PASS: Complete: version c┼⌐ trß║ú VERSION_CONFLICT, kh├┤ng ─æß╗òi dß╗» liß╗çu
+PASS: Complete ACL: participant/finance-only/outsider/cross-club/anon bß╗ï chß║╖n; cohost ─æ╞░ß╗úc ph├⌐p
+PASS: Complete: owner CLB quß║ún l├╜ ─æ╞░ß╗úc buß╗òi cß╗ºa host kh├íc trong CLB
+PASS: Complete: buß╗òi miß╗àn ph├¡ vß║½n cß║ºn revision current charges 0 v├á complete ─æ╞░ß╗úc
+PASS: Complete + c├┤ng nß╗ú: c├▓n nß╗ú vß║½n complete; finance/summary/payment giß╗» ─æ├║ng c├┤ng nß╗ú
+PASS: Complete: replay c├╣ng request trß║ú c├╣ng kß║┐t quß║ú, kh├┤ng lß║╖p audit; payload kh├íc conflict
+PASS: Complete: buß╗òi ─æ├ú completed vß╗¢i request mß╗¢i bß╗ï INVALID_STATE, kh├┤ng lß║╖p audit
+PASS: History/detail: buß╗òi completed vß║½n ─æß╗ìc ─æ╞░ß╗úc ─æ├║ng quyß╗ün; player/outsider kh├┤ng thß║Ñy trong list_my
+PASS: History: list_my_session_history ph├ón trang desc, empty, finance staff, participant/outsider v├á filter ng├áy/CLB
+PASS: Summary: aggregate server-side sau complete, privacy, cohost kh├┤ng tiß╗ün, finance/treasurer thß║Ñy tiß╗ün, ACL
+PASS: Summary: present/no_show/confirmed v├á tß╗òng tiß╗ün ─æ├║ng sau complete
+PASS: Summary: not_finalized/stale c├│ nh├ún ─æ├║ng, kh├┤ng giß║ú current; anonymous bß╗ï chß║╖n
+PASS: Sau complete: submit/confirm hoß║ít ─æß╗Öng, replay kh├┤ng lß║╖p ledger, c├┤ng nß╗ú giß║úm ─æ├║ng
+PASS: Sau complete: cash tß║ío+confirm, retry c├╣ng request kh├┤ng lß║╖p ledger, kh├┤ng thu d╞░
+PASS: Sau complete: reject giß╗» payment kh├┤ng ledger; reverse mß╗Öt lß║ºn, giß╗» lß╗ïch sß╗¡/ledger ─æß║úo
+PASS: Sau complete: refinalize c├│ l├╜ do tß║ío revision mß╗¢i current, giß╗» payment/c├┤ng nß╗ú
+PASS: Sau complete: refinalize kh├┤ng ─æ╞░ß╗úc giß║úm due d╞░ß╗¢i paid; post expense th╞░ß╗¥ng bß╗ï chß║╖n
+PASS: ─Éß╗ông thß╗¥i: 2 complete c├╣ng version kh├íc request chß╗ë mß╗Öt th├ánh c├┤ng, audit mß╗Öt lß║ºn
+PASS: ACL: anon kh├┤ng gß╗ìi complete/summary/history/finance; helper nß╗Öi bß╗Ö vß║½n bß╗ï chß║╖n
+PASS: Upgrade: dß╗» liß╗çu completed tr╞░ß╗¢c BH-07 kh├┤ng bß╗ï ─æß╗òi lifecycle/version/payment/ledger/audit
+PASS: Upgrade: summary/history ─æß╗ìc ─æ╞░ß╗úc buß╗òi completed c┼⌐ sau migration BH-07
+
+==========================================
+Kß║╛T QUß║ó KIß╗éM THß╗¼ BH-07: Tß╗öNG 23 | PASS 23 | FAIL 0
+==========================================
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh07\bh07_test_results_20261021061453.json

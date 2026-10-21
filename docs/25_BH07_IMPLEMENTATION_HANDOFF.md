@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 21/10/2026:** BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](reviews/bh07/review_3d590a8.md), không có P0/P1/P2 mở trong phạm vi được giao. Reviewer tự chạy analyze sạch, **240 Flutter**, **10 D +50 C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **6 probe reviewer** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`. HTTP/JWT/Auth thật, thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; toàn BH-07 chưa nghiệm thu. Không tự merge main, apply DB thật hoặc deploy.
+> **Hiện hành 21/10/2026:** BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](reviews/bh07/review_3d590a8.md), không có P0/P1/P2 mở trong phạm vi được giao. Reviewer tự chạy analyze sạch, **240 Flutter**, **10 D +50 C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **6 probe reviewer** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`. **Bổ sung 21/10/2026:** ma trận HTTP/Auth local **65/65** tại `3ad25a4` ([bàn giao](reviews/bh07/http_auth_handoff.md)) đang **Chờ review kiểm chứng HTTP/Auth BH-07**, không thay đổi kết luận D. Thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; toàn BH-07 chưa nghiệm thu. Không tự merge main, apply DB thật hoặc deploy.
 
 ## 1. Nền bắt buộc
 
@@ -20,7 +20,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 | C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
 | D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
 
-**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã Đạt local tại `d7bac04`, tested code `a682007`, đóng B1/B2 vòng 1/2**; **C đang Chờ review vòng 1/2 tại `02a9b85`** theo mục 13. Chỉ bắt đầu D khi C được reviewer Đạt. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã Đạt local tại `d7bac04`, tested code `a682007`, đóng B1/B2 vòng 1/2**; **C đã Đạt local tại `02a9b85`**; **D đã Đạt tích hợp local tại `3d590a8`**; **HTTP/Auth local đang Chờ review tại `3ad25a4`** theo mục 16. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
 
 ## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
 
@@ -44,7 +44,7 @@ Bằng chứng mới đặt `docs/reviews/bh07/`: base/full tested SHA, diff, mi
 
 ## 5. Giới hạn môi trường và triển khai
 
-BH-06 mới Đạt trong phạm vi local/PostgreSQL cô lập. HTTP/PostgREST/JWT/Supabase Auth thật, thiết bị/browser/deep link, tải ảnh VietQR/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn chưa có nghiệm thu. BH-07D phải báo bằng chứng thực tế cho các cổng pilot được yêu cầu, không kết luận pilot Đạt từ 190 unit/widget test hoặc 335 DB fixture.
+BH-06 mới Đạt trong phạm vi local/PostgreSQL cô lập. **Cập nhật 21/10/2026:** HTTP/PostgREST/JWT/Supabase Auth đã được kiểm local bằng ma trận **65/65 tại `3ad25a4`** ([bàn giao](reviews/bh07/http_auth_handoff.md)), đang **Chờ review kiểm chứng HTTP/Auth BH-07**. Thiết bị/browser/deep link, tải ảnh VietQR/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn chưa có nghiệm thu. BH-07D phải báo bằng chứng thực tế cho các cổng pilot được yêu cầu, không kết luận pilot Đạt từ 190 unit/widget test hoặc 335 DB fixture.
 
 Viết tài liệu vận hành và chạy rehearsal trên môi trường cô lập được phép; không apply staging/production, thay Auth settings, chuyển tiền/ngân hàng hoặc deploy nếu chưa được giao. Không tự merge main hoặc chuyển phần tiếp theo.
 
@@ -120,3 +120,10 @@ Bàn giao/kết luận các vòng phía trên giữ làm lịch sử theo SHA; k
 BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](reviews/bh07/review_3d590a8.md), không có P0/P1/P2 mở trong phạm vi được giao. Reviewer tự chạy analyze sạch, **240 Flutter**, **10 D +50 C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **6 probe reviewer** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`. HTTP/JWT/Auth thật, thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; toàn BH-07 chưa nghiệm thu. Không tự merge main, apply DB thật hoặc deploy.
 
 Chỉ nghiệm thu tích hợp local trong phạm vi giao, không đóng cổng pilot/D môi trường thật bằng mock. Giữ các bàn giao/kết luận phía trên làm lịch sử theo SHA.
+
+## 16. Bàn giao kiểm chứng HTTP/Auth BH-07 — Chờ review (21/10/2026)
+
+- Nhánh `feat/bh07-http-verification`, base `593bea86ffb807675387dba6b0276b555fdc87a1`, **tested source `3ad25a4ac8c2ee1beaa76b3810860ecde514d86e`**. **Chờ review kiểm chứng HTTP/Auth BH-07**; người triển khai không tự ghi Đạt.
+- Chỉ thêm script/test/bằng chứng kiểm chứng; không sửa migration, RPC, model, repository, provider, UI hay contract. Không merge main, apply DB thật hoặc deploy.
+- Kết quả local: HTTP/Auth **65/65 PASS**, `flutter analyze` sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**, `worktree_dirty_before_run=false` tại tested source. [Bàn giao và phạm vi](reviews/bh07/http_auth_handoff.md); [evidence](reviews/bh07/http_auth_evidence/).
+- Còn NOT RUN: thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup, concurrency HTTP và rehearsal/pilot. Toàn BH-07 chưa nghiệm thu.
