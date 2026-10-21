@@ -1,5 +1,8 @@
 # Review BH-07C — 02a9b85 — vòng 1/2
 
+> **Bổ sung 21/10/2026:** bảy log gốc đã có tại `3d5583b`; reviewer kiểm hash khớp manifest cũ và count/exit, đóng giới hạn thiếu file. [Phụ lục kiểm chứng](review_02a9b85_logs_3d5583b.md). Nội dung dưới đây giữ làm snapshot lúc review, kết luận/NOT RUN môi trường thật không đổi.
+
+
 Ngày 21/10/2026 (Việt Nam). Nhánh `feat/bh07c-ui`, base review `9b978467316d66c458846ac68c5de8021401fa0c`, tested code `02a9b857724e9ba031323ad732c90355d7932a39`, docs/evidence và fetched HEAD `f63e5a4e58303a698017e8a46f91fcd3d79227f4`. Checkout ban đầu sạch; fetch trực tiếp ref nhánh, fast-forward, không có thay đổi local cần cất. Theo AGENTS, docs/ai/REVIEWER.md, docs/04/09/25, [review cũ](review_15ae1af.md), handoff và bằng chứng sửa. Chỉ review C1/C2/C3 và test/evidence liên quan; không review lại A/B. A giữ 4512c3a; B giữ d7bac04, code a682007.
 
 Đã chạy hai diff được yêu cầu: base..tested code có đúng sáu file (ba production, ba test); tested code..docs chỉ có docs/evidence. Cây lib/test/migration của f63e5a4 trùng 02a9b85, không đổi migration/RPC, model/repository/provider B hoặc contract. Không sửa triển khai, không apply DB thật.

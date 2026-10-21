@@ -1,0 +1,63 @@
+{
+  "checked_commit": "3d5583b",
+  "original_manifest_commit": "f63e5a4",
+  "all_seven_raw_logs_match_original_manifest": true,
+  "raw_logs": [
+    {
+      "file": "red_targeted.log",
+      "bytes": 20176,
+      "sha256": "b70f63b4e5242eb322e396a476f24445be339ba007b3f3d3d6fa6a2bbe14b0e6",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "flutter_analyze.log",
+      "bytes": 198,
+      "sha256": "ad05d978ab1854a7d1fba36eb70322ac0fb687fcd7cf956f56bf71e106c724f5",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "flutter_test.log",
+      "bytes": 77436,
+      "sha256": "d8fd6f4f84b9c22dad3b5903d2640e79210f9104d8428e96c9b9c51797d3095a",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "targeted_utc.log",
+      "bytes": 19704,
+      "sha256": "cf3eefe34dc6fa9bbaa1bf9179c2c99464deffc83d2c8dd748362355972e931f",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "targeted_vietnam.log",
+      "bytes": 19794,
+      "sha256": "e2b11dc5c7dd07d2b61ac53996605bbfa36103db5b8798d5bb6d2cb932a513a2",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "bh07_db_runner.log",
+      "bytes": 6342,
+      "sha256": "a71741baa4ecffd31cf3536e8f2779a0d95fd3d930aa04e93c36455852e419f7",
+      "matches_manifest_at_f63e5a4": true
+    },
+    {
+      "file": "diff_check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_manifest_at_f63e5a4": true
+    }
+  ],
+  "counts": {
+    "red": {
+      "passed": 18,
+      "failed": 3,
+      "exit_file": 1
+    },
+    "flutter": 230,
+    "targeted_utc": 57,
+    "targeted_vietnam": 57,
+    "bh07_db": 23,
+    "analyze_issues": 0
+  },
+  "new_tests_run": false,
+  "code_unchanged": true
+}
