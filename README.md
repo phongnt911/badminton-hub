@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 65 HTTP check +240 Flutter/1 skip +23 DB xanh; H1/H2 P2 verification còn mở | **A/B/C/D Đạt local; HTTP/Auth Chưa đạt3ad25a4; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 70 HTTP check +240 Flutter/1 skip +23 DB xanh; H1/H2 P2 đã sửa | **A/B/C/D Đạt local; HTTP/Auth Chờ review vòng 1/2 tại `f9159dd`; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-Kiểm chứng **HTTP/Auth BH-07 Chưa đạt tại `3ad25a4`**, docs/evidence `c54b004`, theo [review độc lập](docs/reviews/bh07/review_3ad25a4.md): H1/H2 P2 về fixture free-current thiếu charge0 và assertion privacy chưa bao phủ raw payload. Reviewer tự chạy **65/65 HTTP check** qua GoTrue/PostgREST/Kong/PostgreSQL17.11 thật trên stack Linux riêng; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB PASS**. Lệnh Windows/full Supabase CLI recipe chưa tái lập trên reviewer; khác biệt môi trường ghi rõ trong review. A/B/C/D local giữ kết luận trước; toàn BH-07/pilot chưa nghiệm thu. Chỉ sửa gói kiểm chứng vòng1/2; không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
+Gói kiểm chứng **HTTP/Auth BH-07 Chờ review vòng 1/2 tại tested source `f9159dd`**, base `593bea8`, theo [bàn giao](docs/reviews/bh07/http_auth_handoff.md). Đã sửa H1/H2 P2: fixture free-current có charge0 đúng player/revision và charge được giữ sau complete/retry; raw projection kiểm whitelist mọi row history, summary finance/cohost, cohost finance key null, negative control bank/account/receiver/nested/later-row, seed dữ liệu riêng tư giả. Người triển khai tự chạy **70/70 HTTP check**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, `worktree_dirty_before_run=false`; red run 67/70. Đây không phải kết luận Đạt; A/B/C/D local giữ nguyên, toàn BH-07/pilot chưa nghiệm thu. Không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
 
 ## Tài liệu để triển khai
 

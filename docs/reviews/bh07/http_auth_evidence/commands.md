@@ -1,8 +1,8 @@
 # BH-07 HTTP/Auth verification commands
 
-Generated (UTC): 2026-10-21T06:13:35Z
+Generated (UTC): 2026-10-21T08:34:12Z
 Base SHA: `593bea86ffb807675387dba6b0276b555fdc87a1`
-Tested checkout SHA: `3ad25a4ac8c2ee1beaa76b3810860ecde514d86e`
+Tested checkout SHA: `f9159dd483baf2dd219b2854fd8ab08d1e5f0330`
 
 ```powershell
 npx --yes supabase@2.121.0 start
@@ -29,16 +29,17 @@ flutter test
 python docs/reviews/bh07/run_bh07_tests.py
 ```
 
-Kết quả ngày 21/10/2026 trên tested source `3ad25a4ac8c2ee1beaa76b3810860ecde514d86e`:
+Kết quả ngày 21/10/2026 trên tested source `f9159dd483baf2dd219b2854fd8ab08d1e5f0330`:
 
-- HTTP/Auth: 65/65 PASS, exit 0, `worktree_dirty_before_run=false`.
+- HTTP/Auth: 70/70 PASS, exit 0, `worktree_dirty_before_run=false`.
 - `flutter analyze`: sạch, exit 0.
 - `flutter test`: 240 pass + 1 skip (HTTP matrix tự skip khi không đặt `BH07_HTTP_TEST=1`), exit 0.
-- BH-07 DB runner: 23/23 PASS, exit 0, `worktree_dirty=false`.
+- BH-07 DB runner: 23/23 PASS, exit 0, `worktree_dirty=false`, timestamp `20261021083531`.
+- Red run trước seed fix: 67/70, exit 1 (đúng 3 FAIL H1/H2).
 
 ## Hash cuối
 
-`hashes.sha256` trong thư mục này phủ source script/test, toàn bộ evidence và bản sao JSON DB runner:
+`hashes.sha256` trong thư mục này phủ source script/test, handoff, toàn bộ evidence và bản sao JSON DB runner:
 
 ```powershell
 Get-ChildItem docs/reviews/bh07/http_auth_evidence -File |

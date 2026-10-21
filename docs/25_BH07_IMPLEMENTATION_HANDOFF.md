@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 21/10/2026:** Kiểm chứng **HTTP/Auth BH-07 Chưa đạt tại `3ad25a4`**, docs/evidence `c54b004`, theo [review độc lập](reviews/bh07/review_3ad25a4.md): H1/H2 P2 về fixture free-current thiếu charge0 và assertion privacy chưa bao phủ raw payload. Reviewer tự chạy **65/65 HTTP check** qua GoTrue/PostgREST/Kong/PostgreSQL17.11 thật trên stack Linux riêng; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB PASS**. Lệnh Windows/full Supabase CLI recipe chưa tái lập trên reviewer; khác biệt môi trường ghi rõ trong review. A/B/C/D local giữ kết luận trước; toàn BH-07/pilot chưa nghiệm thu. Chỉ sửa gói kiểm chứng vòng1/2; không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
+> **Hiện hành 21/10/2026:** Gói kiểm chứng **HTTP/Auth BH-07 Chờ review vòng 1/2 tại tested source `f9159dd`**, base `593bea8`, theo [bàn giao](reviews/bh07/http_auth_handoff.md). Đã sửa H1/H2 P2: fixture free-current có charge0 đúng player/revision và charge được giữ sau complete/retry; raw projection kiểm whitelist mọi row history, summary finance/cohost, cohost finance key null, negative control bank/account/receiver/nested/later-row, seed dữ liệu riêng tư giả. Người triển khai tự chạy **70/70 HTTP check**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, `worktree_dirty_before_run=false`; red run 67/70. Đây không phải kết luận Đạt; A/B/C/D local giữ nguyên, toàn BH-07/pilot chưa nghiệm thu. Không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
 
 ## 1. Nền bắt buộc
 
@@ -121,13 +121,15 @@ BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](r
 
 Chỉ nghiệm thu tích hợp local trong phạm vi giao, không đóng cổng pilot/D môi trường thật bằng mock. Giữ các bàn giao/kết luận phía trên làm lịch sử theo SHA.
 
-## 16. Bàn giao kiểm chứng HTTP/Auth BH-07 — Chờ review (21/10/2026)
+## 16. Bàn giao kiểm chứng HTTP/Auth BH-07 — Chờ review vòng 1/2 (21/10/2026)
 
-- Nhánh `feat/bh07-http-verification`, base `593bea86ffb807675387dba6b0276b555fdc87a1`, **tested source `3ad25a4ac8c2ee1beaa76b3810860ecde514d86e`**. **Chờ review kiểm chứng HTTP/Auth BH-07**; người triển khai không tự ghi Đạt.
-- Chỉ thêm script/test/bằng chứng kiểm chứng; không sửa migration, RPC, model, repository, provider, UI hay contract. Không merge main, apply DB thật hoặc deploy.
-- Kết quả local: HTTP/Auth **65/65 PASS**, `flutter analyze` sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**, `worktree_dirty_before_run=false` tại tested source. [Bàn giao và phạm vi](reviews/bh07/http_auth_handoff.md); [evidence](reviews/bh07/http_auth_evidence/).
+- Nhánh `feat/bh07-http-verification`, base `593bea86ffb807675387dba6b0276b555fdc87a1`, **tested source `f9159dd483baf2dd219b2854fd8ab08d1e5f0330`**. **Chờ review HTTP/Auth BH-07 vòng 1/2**; người triển khai không tự ghi Đạt.
+- Chỉ thêm/sửa script, seed và test kiểm chứng; không sửa migration, RPC, model, repository, provider, UI hay contract. Không merge main, apply DB thật hoặc deploy.
+- H1: seed charge0 cho đúng free player/revision; precondition kiểm player exempt/present, revision, một charge 0; sau complete/retry kiểm finance và DB vẫn giữ charge/revision.
+- H2: whitelist chính xác mọi row history, summary finance/cohost; cohost có đủ finance key null; negative control top-level/nested/later-row cho bank/account/receiver; seed contact/bank/receiver giả để kiểm nguồn riêng tư thật.
+- Kết quả local: HTTP/Auth **70/70 PASS**, `flutter analyze` sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**, `worktree_dirty_before_run=false` tại tested source; red run trước sửa **67/70**. [Bàn giao và phạm vi](reviews/bh07/http_auth_handoff.md); [evidence](reviews/bh07/http_auth_evidence/).
 - Còn NOT RUN: thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup, concurrency HTTP và rehearsal/pilot. Toàn BH-07 chưa nghiệm thu.
 
-## Review HTTP/Auth — Chưa đạt3ad25a4 (21/10/2026)
+## Lịch sử review HTTP/Auth — Chưa đạt tại 3ad25a4 (21/10/2026)
 
 Kiểm chứng **HTTP/Auth BH-07 Chưa đạt tại `3ad25a4`**, docs/evidence `c54b004`, theo [review độc lập](reviews/bh07/review_3ad25a4.md): H1/H2 P2 về fixture free-current thiếu charge0 và assertion privacy chưa bao phủ raw payload. Reviewer tự chạy **65/65 HTTP check** qua GoTrue/PostgREST/Kong/PostgreSQL17.11 thật trên stack Linux riêng; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB PASS**. Lệnh Windows/full Supabase CLI recipe chưa tái lập trên reviewer; khác biệt môi trường ghi rõ trong review. A/B/C/D local giữ kết luận trước; toàn BH-07/pilot chưa nghiệm thu. Chỉ sửa gói kiểm chứng vòng1/2; không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.

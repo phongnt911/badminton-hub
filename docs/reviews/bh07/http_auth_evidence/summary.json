@@ -1,10 +1,10 @@
 {
   "ticket": "BH-07 HTTP/Auth verification",
-  "generated_at_utc": "2026-10-21T06:14:16.727942Z",
-  "started_at_utc": "2026-10-21T06:14:12.615647Z",
-  "duration_ms": 4112,
+  "generated_at_utc": "2026-10-21T09:26:21.450010Z",
+  "started_at_utc": "2026-10-21T09:26:17.007182Z",
+  "duration_ms": 4442,
   "base_sha": "593bea86ffb807675387dba6b0276b555fdc87a1",
-  "tested_sha": "3ad25a4ac8c2ee1beaa76b3810860ecde514d86e",
+  "tested_sha": "f9159dd483baf2dd219b2854fd8ab08d1e5f0330",
   "api_url": "http://127.0.0.1:54321",
   "runtime": {
     "dart": "3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
@@ -13,8 +13,8 @@
     "operating_system_version": "\"Windows 11 IoT Enterprise LTSC\" 10.0 (Build 26100)"
   },
   "counts": {
-    "total": 65,
-    "passed": 65,
+    "total": 70,
+    "passed": 70,
     "failed": 0
   },
   "checks": [
@@ -22,43 +22,43 @@
       "id": "auth.ownerA.jwt",
       "description": "ownerA signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=e5ee2a97-2c39-4e38-ab20-bc96989888c3 role=authenticated segments=3"
+      "detail": "user=33a36f77-9292-46f7-9950-c844d858dbd9 role=authenticated segments=3"
     },
     {
       "id": "auth.financeA.jwt",
       "description": "financeA signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=68e9e0e1-95ab-4fbe-b743-57c10770e958 role=authenticated segments=3"
+      "detail": "user=b9fa47a3-f72d-4549-a425-47afcd9becce role=authenticated segments=3"
     },
     {
       "id": "auth.cohostA.jwt",
       "description": "cohostA signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=989de756-fac7-49fa-bd35-af345f16e328 role=authenticated segments=3"
+      "detail": "user=d8729f2e-a161-4600-bc8e-2b3061ad428a role=authenticated segments=3"
     },
     {
       "id": "auth.memberA.jwt",
       "description": "memberA signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=c99fece9-a3c6-4022-9e8d-c53643f62e8c role=authenticated segments=3"
+      "detail": "user=4fc2c1bb-8fc5-43a9-8605-30731e0d77f6 role=authenticated segments=3"
     },
     {
       "id": "auth.guestA.jwt",
       "description": "guestA signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=69bc5c9b-4486-47d3-8d98-8b3862a94f57 role=authenticated segments=3"
+      "detail": "user=f845f5d2-5045-4732-86c7-214b5e64fb88 role=authenticated segments=3"
     },
     {
       "id": "auth.ownerB.jwt",
       "description": "ownerB signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=b44825c2-0c1f-4e09-99ee-a6ef850bb823 role=authenticated segments=3"
+      "detail": "user=40a292ba-279e-46d3-8940-5caf82df134d role=authenticated segments=3"
     },
     {
       "id": "auth.outsider.jwt",
       "description": "outsider signs in through GoTrue and receives an authenticated JWT",
       "status": "PASS",
-      "detail": "user=e04d5570-2de6-4840-9555-fc8da4716812 role=authenticated segments=3"
+      "detail": "user=8e2e8fd1-eea4-492d-9d27-1a5308010831 role=authenticated segments=3"
     },
     {
       "id": "auth.bad-password",
@@ -236,15 +236,39 @@
     },
     {
       "id": "summary.privacy",
-      "description": "summary payload has no contact, phone, bank or account fields",
+      "description": "finance summary has exactly the public projection and no private fields",
       "status": "PASS",
-      "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd"
+      "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd issues="
+    },
+    {
+      "id": "summary.management-raw-null",
+      "description": "management raw summary keeps every finance key present with null",
+      "status": "PASS",
+      "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd financePresentAndNull=true issues="
     },
     {
       "id": "history.privacy",
-      "description": "history payload has no contact or phone fields",
+      "description": "every history row has exactly the public projection and no private fields",
       "status": "PASS",
-      "detail": "rows=4 keys=id,title,club_id,ends_at,version,capacity,fee_mode,club_name,lifecycle,starts_at,venue_area,venue_name,visibility,court_count,guest_fee_vnd,member_fee_vnd,confirmed_count"
+      "detail": "rows=4 issues="
+    },
+    {
+      "id": "history.privacy.negative-controls",
+      "description": "history validator rejects top-level, nested and later-row private fields",
+      "status": "PASS",
+      "detail": "top=[extra=account_number, private-key] nested=[private-key] later=[row[1]: extra=receiver_snapshot;private-key]"
+    },
+    {
+      "id": "summary.privacy.negative-controls",
+      "description": "summary validator rejects top-level and nested bank/account/receiver fields",
+      "status": "PASS",
+      "detail": "top=[extra=bank_code, private-key] nested=[private-key]"
+    },
+    {
+      "id": "privacy.fixture-private-data",
+      "description": "fixture stores fake phone, bank, account and receiver markers outside projections",
+      "status": "PASS",
+      "detail": "memberContacts=1 playerContacts=4 clubBanks=1 hostBanks=1 privateReceivers=1"
     },
     {
       "id": "finance.post-expense-after-complete.rejected",
@@ -274,7 +298,7 @@
       "id": "finance.submit-payment-after-complete",
       "description": "participant submit is allowed after complete and request_id replays the same payment",
       "status": "PASS",
-      "detail": "status=submitted id=23466db2-be25-496d-b420-867705ffe9eb"
+      "detail": "status=submitted id=e607041e-5894-4f78-b227-59e904f68cf3"
     },
     {
       "id": "finance.confirm-payment-after-complete",
@@ -302,15 +326,21 @@
     },
     {
       "id": "complete.free-current.precondition",
-      "description": "free fixture has current zero allocation and zero outstanding",
+      "description": "free fixture has one exempt present player, current zero revision and one zero charge",
       "status": "PASS",
-      "detail": "lifecycle=in_progress version=3 allocation=0 outstanding=0"
+      "detail": "lifecycle=in_progress version=3 players=1 revision=40000000-0000-4000-8000-000000000002 revisionNo=1 allocation=0 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 outstanding=0"
     },
     {
       "id": "complete.free-current.success",
       "description": "free current session completes and retry does not duplicate audit",
       "status": "PASS",
       "detail": "lifecycle=completed version=4 audit=1 due=0 outstanding=0"
+    },
+    {
+      "id": "complete.free-current.charge-preserved",
+      "description": "zero charge keeps the same player/revision after complete and retry",
+      "status": "PASS",
+      "detail": "lifecycle=completed revision=40000000-0000-4000-8000-000000000002 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 revisionRows=1 chargeRows=1"
     },
     {
       "id": "history.owner-scope",

@@ -2,6 +2,10 @@
 
 Tám mục từ “Cập nhật sau review v1.1” đến “Mới nhất — sau BH-05” được chuyển nguyên văn từ cuối `docs/00_START_HERE.md` (đợt rà soát sau BH-05); các mục sau đó được bổ sung ngày 16/10/2026. Đây là nhật ký theo thời gian: nhiều chỉ dẫn trong đó đã hết hiệu lực. Trạng thái hiện hành nằm ở mục "Trạng thái hiện tại" của [00_START_HERE.md](00_START_HERE.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 
+## HTTP/Auth BH-07 sửa review vòng 1/2 — Chờ review (21/10/2026)
+
+Gói HTTP/Auth **Chờ review vòng 1/2 tại tested source `f9159dd`** trên `feat/bh07-http-verification`, base `593bea8`, sau khi sửa H1/H2 P2 theo [review](reviews/bh07/review_3ad25a4.md). Đã thêm charge0 cho free player/revision, kiểm charge được giữ sau complete/retry; raw projection whitelist mọi row history, summary finance/cohost và negative control bank/account/receiver/nested/later-row; seed contact/bank/receiver giả. Red run **67/70** trước seed fix; sau sửa HTTP **70/70**, analyze sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**. [Bàn giao](reviews/bh07/http_auth_handoff.md), [bằng chứng](reviews/bh07/http_auth_evidence/). Không tự ghi Đạt, merge hoặc deploy; các cổng môi trường thật và pilot vẫn NOT RUN.
+
 ## BH-07C sửa review vòng 1/2 — Chờ review (21/10/2026)
 
 BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`** trên `feat/bh07c-ui`, base `9b97846`, sau khi sửa C1/C2/C3 P2 theo [review](reviews/bh07/review_15ae1af.md). Test đỏ trước sửa 3 FAIL; sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. A/B giữ Đạt theo SHA trước. [Bàn giao](reviews/bh07/bh07c_handoff.md), [bằng chứng](reviews/bh07/bh07c_fix_evidence/commands.md). Chưa chuyển D, merge hoặc deploy; các cổng môi trường thật và pilot vẫn NOT RUN.
