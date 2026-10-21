@@ -2,6 +2,10 @@
 
 Tám mục từ “Cập nhật sau review v1.1” đến “Mới nhất — sau BH-05” được chuyển nguyên văn từ cuối `docs/00_START_HERE.md` (đợt rà soát sau BH-05); các mục sau đó được bổ sung ngày 16/10/2026. Đây là nhật ký theo thời gian: nhiều chỉ dẫn trong đó đã hết hiệu lực. Trạng thái hiện hành nằm ở mục "Trạng thái hiện tại" của [00_START_HERE.md](00_START_HERE.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md).
 
+## Concurrency HTTP/Auth BH-07 — Chờ review (21/10/2026)
+
+Gói Concurrency HTTP/Auth **Chờ review tại tested source** trên nhánh `feat/bh07-http-concurrency`, base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`. Bổ sung 6 check concurrency (idempotent replay, competing complete conflict, competing cash payment no-overcollect, transport drop response sau commit rồi retry). Ma trận HTTP local đạt **76/76 PASS**, analyze sạch (0 issues), **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**. Red run ghi nhận **70/76** (đúng 6 FAIL concurrency). Manifest 21/21 khớp LF, quét sạch secret. [Bàn giao](reviews/bh07/http_concurrency_handoff.md), [bằng chứng](reviews/bh07/http_concurrency_evidence/). Không tự ghi Đạt, merge hoặc deploy; các cổng môi trường thật và pilot vẫn NOT RUN.
+
 ## HTTP/Auth BH-07 sửa review vòng 1/2 — Chờ review (21/10/2026)
 
 Gói HTTP/Auth **Chờ review vòng 1/2 tại tested source `f9159dd`** trên `feat/bh07-http-verification`, base `593bea8`, sau khi sửa H1/H2 P2 theo [review](reviews/bh07/review_3ad25a4.md). Đã thêm charge0 cho free player/revision, kiểm charge được giữ sau complete/retry; raw projection whitelist mọi row history, summary finance/cohost và negative control bank/account/receiver/nested/later-row; seed contact/bank/receiver giả. Red run **67/70** trước seed fix; sau sửa HTTP **70/70**, analyze sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB**. [Bàn giao](reviews/bh07/http_auth_handoff.md), [bằng chứng](reviews/bh07/http_auth_evidence/). Không tự ghi Đạt, merge hoặc deploy; các cổng môi trường thật và pilot vẫn NOT RUN.

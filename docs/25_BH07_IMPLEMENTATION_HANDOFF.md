@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 21/10/2026:** Gói kiểm chứng **HTTP/Auth BH-07 Đạt local vòng1/2 tại `f9159dd`**, docs/evidence `0758b72`, theo [review độc lập](reviews/bh07/review_f9159dd.md): đóng H1/H2 P2, không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy **70/70 HTTP check** trên stack Linux GoTrue/PostgREST/Kong/PostgreSQL17.11 thật; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB**, **4 probe validator** PASS. Manifest tác giả21/21 khớp LF. A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
+> **Hiện hành 21/10/2026:** Gói kiểm chứng **Concurrency HTTP/Auth BH-07 đang Chờ review** trên nhánh `feat/bh07-http-concurrency` (base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`); ma trận **76/76 HTTP check local**, analyze sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**, manifest 21/21 khớp LF, quét sạch secret. Trước đó, HTTP/Auth vòng 1/2 đã Đạt local tại `f9159dd` theo [review độc lập](reviews/bh07/review_f9159dd.md). A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
 
 ## 1. Nền bắt buộc
 
@@ -139,3 +139,17 @@ Kiểm chứng **HTTP/Auth BH-07 Chưa đạt tại `3ad25a4`**, docs/evidence `
 Gói kiểm chứng **HTTP/Auth BH-07 Đạt local vòng1/2 tại `f9159dd`**, docs/evidence `0758b72`, theo [review độc lập](reviews/bh07/review_f9159dd.md): đóng H1/H2 P2, không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy **70/70 HTTP check** trên stack Linux GoTrue/PostgREST/Kong/PostgreSQL17.11 thật; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB**, **4 probe validator** PASS. Manifest tác giả21/21 khớp LF. A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
 
 Bàn giao và review cũ giữ làm lịch sử theo SHA. Đây là nghiệm thu riêng kiểm chứng HTTP/Auth local, không đóng cổng còn NOT RUN của toàn BH-07.
+
+## 17. Bàn giao kiểm chứng Concurrency HTTP/Auth BH-07 — Chờ review (21/10/2026)
+
+- Nhánh `feat/bh07-http-concurrency`, base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`. **Chờ review Concurrency HTTP/Auth BH-07**; người triển khai không tự ghi Đạt.
+- Bổ sung 6 check concurrency:
+  1. Idempotent replay cho complete session đồng thời cùng `request_id`: version tăng đúng 1 lần (v3→v4), `audit_events` và `operation_requests` chỉ tạo 1 bản ghi.
+  2. Idempotent replay cho cash payment đồng thời cùng `request_id`: cùng `payment_id`, 1 payment, 1 ledger, 1 operation request.
+  3. Idempotent replay cho confirm payment đồng thời cùng `request_id`: 1 ledger, 1 operation request, tất toán công nợ về 0.
+  4. Competing complete conflict: 2 request complete đồng thời khác `request_id`, 1 winner commit v4, 1 loser bị từ chối với conflict / invalid state.
+  5. Competing cash payments no-overcollect: 2 request thanh toán đồng thời khác `request_id` cạnh tranh trên số nợ còn lại, server từ chối bên vượt nợ (`PAYMENT_EXCEEDS_OUTSTANDING`), nợ được bảo toàn chính xác.
+  6. Transport drop response sau commit: client proxy `DropResponseAfterCommitClient` nhận response 200 từ server rồi ngắt kết nối mạng mô phỏng lỗi transport; retry lại qua client thường với cùng `request_id` nhận kết quả thành công mà không duplicate payment/ledger.
+- Kết quả kiểm chứng local: **76/76 PASS** HTTP checks, `flutter analyze` sạch (0 issues), **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**. Red run trước khi nạp fixture đạt **70/76** (đúng 6 FAIL concurrency). Manifest 21/21 khớp LF, quét sạch secret.
+- [Bàn giao và phạm vi](reviews/bh07/http_concurrency_handoff.md); [bằng chứng](reviews/bh07/http_concurrency_evidence/).
+- Còn NOT RUN: thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot. Toàn BH-07 chưa nghiệm thu.

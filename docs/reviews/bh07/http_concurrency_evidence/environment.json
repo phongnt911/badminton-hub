@@ -1,0 +1,38 @@
+﻿{
+    "generated_at_utc":  "2026-10-21T10:35:24Z",
+    "project_id":  "badminton-hub",
+    "api_url":  "http://127.0.0.1:54321",
+    "local_only_guard":  true,
+    "db_container":  "supabase_db_badminton-hub",
+    "docker":  "Docker version 29.8.2, build 7fc2dff",
+    "supabase_services":  [
+                              "supabase_analytics_badminton-hub|public.ecr.aws/supabase/logflare:1.53.0",
+                              "supabase_auth_badminton-hub|public.ecr.aws/supabase/gotrue:v2.197.0",
+                              "supabase_db_badminton-hub|public.ecr.aws/supabase/postgres:17.11.0.004",
+                              "supabase_edge_runtime_badminton-hub|public.ecr.aws/supabase/edge-runtime:v1.77.4",
+                              "supabase_inbucket_badminton-hub|public.ecr.aws/supabase/mailpit:v1.31.3",
+                              "supabase_kong_badminton-hub|public.ecr.aws/supabase/kong:2.8.1",
+                              "supabase_pg_meta_badminton-hub|public.ecr.aws/supabase/postgres-meta:v0.100.0",
+                              "supabase_realtime_badminton-hub|public.ecr.aws/supabase/realtime:v2.143.4",
+                              "supabase_rest_badminton-hub|public.ecr.aws/supabase/postgrest:v16.4",
+                              "supabase_storage_badminton-hub|public.ecr.aws/supabase/storage-api:v1.82.1",
+                              "supabase_studio_badminton-hub|public.ecr.aws/supabase/studio:2026.10.12-sha-3699278",
+                              "supabase_vector_badminton-hub|public.ecr.aws/supabase/vector:0.58.0-alpine"
+                          ],
+    "flutter":  [
+                    "Flutter 3.47.6 ΓÇó channel stable ΓÇó https://github.com/flutter/flutter.git",
+                    "Framework ΓÇó revision 5fc346839b (3 weeks ago) ΓÇó 2026-09-30 15:02:49 -0700",
+                    "Engine ΓÇó hash b8c8d3d8d5d0095127057f8a29ca8cc53da2167c (revision 692136cb65) (21 days ago) ΓÇó 2026-09-30 00:56:59.000Z"
+                ],
+    "base_sha":  "4da6339a1a92bcf27675f50ca4b785fbb45f1e78",
+    "tested_checkout_sha":  "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
+    "worktree_dirty_before_run":  false,
+    "worktree_status_before_run":  "",
+    "environment_variables":  [
+                                  "BH07_HTTP_TEST=1",
+                                  "BH07_HTTP_URL=\u003clocal\u003e",
+                                  "BH07_HTTP_ANON_KEY=\u003credacted\u003e",
+                                  "BH07_HTTP_SERVICE_ROLE_KEY=\u003credacted\u003e",
+                                  "TZ=UTC"
+                              ]
+}

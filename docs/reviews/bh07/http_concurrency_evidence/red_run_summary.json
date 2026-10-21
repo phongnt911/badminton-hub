@@ -1,0 +1,478 @@
+{
+  "ticket": "BH-07 HTTP/Auth verification",
+  "generated_at_utc": "2026-10-21T10:37:04.403604Z",
+  "started_at_utc": "2026-10-21T10:36:59.519377Z",
+  "duration_ms": 4884,
+  "base_sha": "4da6339a1a92bcf27675f50ca4b785fbb45f1e78",
+  "tested_sha": "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
+  "api_url": "http://127.0.0.1:54321",
+  "runtime": {
+    "dart": "3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
+    "executable": "C:\\src\\flutter\\bin\\cache\\artifacts\\engine\\windows-x64\\flutter_tester.exe",
+    "operating_system": "windows",
+    "operating_system_version": "\"Windows 11 IoT Enterprise LTSC\" 10.0 (Build 26100)"
+  },
+  "counts": {
+    "total": 76,
+    "passed": 70,
+    "failed": 6
+  },
+  "checks": [
+    {
+      "id": "auth.ownerA.jwt",
+      "description": "ownerA signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=7cab5246-ee0d-4477-8572-b537d2625ac2 role=authenticated segments=3"
+    },
+    {
+      "id": "auth.financeA.jwt",
+      "description": "financeA signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=9963995f-e95f-4ceb-b900-17f7bbc2d29a role=authenticated segments=3"
+    },
+    {
+      "id": "auth.cohostA.jwt",
+      "description": "cohostA signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=73962698-0f6c-498a-b667-142cc3d1d728 role=authenticated segments=3"
+    },
+    {
+      "id": "auth.memberA.jwt",
+      "description": "memberA signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=751d8903-0068-49fa-9dd8-5af59e7e164b role=authenticated segments=3"
+    },
+    {
+      "id": "auth.guestA.jwt",
+      "description": "guestA signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=3f02df60-7996-42b5-967a-c2d8b70d8c48 role=authenticated segments=3"
+    },
+    {
+      "id": "auth.ownerB.jwt",
+      "description": "ownerB signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=3eaa9bcc-2da0-4fb0-897d-73abdd978ec6 role=authenticated segments=3"
+    },
+    {
+      "id": "auth.outsider.jwt",
+      "description": "outsider signs in through GoTrue and receives an authenticated JWT",
+      "status": "PASS",
+      "detail": "user=1436e1be-0b75-4afc-8e82-cd766a8231ca role=authenticated segments=3"
+    },
+    {
+      "id": "auth.bad-password",
+      "description": "GoTrue rejects a wrong password",
+      "status": "PASS",
+      "detail": "Email hoặc mật khẩu không chính xác."
+    },
+    {
+      "id": "acl.cross-club.complete",
+      "description": "owner B cannot complete a club A session",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.participant.complete",
+      "description": "participant cannot complete a session",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.anonymous.complete",
+      "description": "anonymous request is denied at the function privilege boundary",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=permission denied for function complete_session details=Unauthorized hint=null"
+    },
+    {
+      "id": "acl.cross-club.finance",
+      "description": "owner B cannot read club A finance",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.cross-club.summary",
+      "description": "owner B cannot read club A summary",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.participant.summary",
+      "description": "participant cannot read summary",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.guest.summary",
+      "description": "guest cannot read summary",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.participant.finance",
+      "description": "participant cannot read session finance",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "acl.cohost.finance",
+      "description": "management-only cohost cannot read session finance",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+    },
+    {
+      "id": "privacy.cross-club.private-detail",
+      "description": "owner B cannot read a private club A session",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+    },
+    {
+      "id": "privacy.outsider.private-detail",
+      "description": "outsider cannot read a private session",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+    },
+    {
+      "id": "privacy.anonymous.private-detail",
+      "description": "anonymous cannot read a private session",
+      "status": "PASS",
+      "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: Cần đăng nhập để xem buổi chơi này details=Unauthorized hint=null"
+    },
+    {
+      "id": "privacy.club-member.private-detail",
+      "description": "active club member can read the private club session",
+      "status": "PASS",
+      "detail": "lifecycle=completed"
+    },
+    {
+      "id": "scope.participant.detail",
+      "description": "participant reads public detail with own registration",
+      "status": "PASS",
+      "detail": "registration=confirmed attendance=present"
+    },
+    {
+      "id": "scope.guest.public-detail",
+      "description": "signed-in non-participant reads public detail without management rights",
+      "status": "PASS",
+      "detail": "manage=false finance=false"
+    },
+    {
+      "id": "scope.anonymous.public-detail",
+      "description": "anonymous reads public detail without management rights",
+      "status": "PASS",
+      "detail": "manage=false finance=false"
+    },
+    {
+      "id": "complete.stale",
+      "description": "complete rejects a stale billing revision",
+      "status": "PASS",
+      "detail": "POSTGREST code=22023 message=BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước details=Bad Request hint=null"
+    },
+    {
+      "id": "complete.stale.unchanged",
+      "description": "stale rejection leaves lifecycle and version unchanged",
+      "status": "PASS",
+      "detail": "lifecycle=in_progress version=2"
+    },
+    {
+      "id": "complete.version-conflict",
+      "description": "complete rejects an outdated expected version",
+      "status": "PASS",
+      "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Buổi chơi đã thay đổi, cần tải lại details=Bad Request hint=null"
+    },
+    {
+      "id": "complete.version-conflict.unchanged",
+      "description": "version conflict leaves lifecycle and version unchanged",
+      "status": "PASS",
+      "detail": "lifecycle=in_progress version=5"
+    },
+    {
+      "id": "complete.current.precondition",
+      "description": "debt fixture starts in_progress at version 7 with current billing",
+      "status": "PASS",
+      "detail": "lifecycle=in_progress version=7"
+    },
+    {
+      "id": "finance.current.before-complete",
+      "description": "finance sees current revision, due total and remaining debt before complete",
+      "status": "PASS",
+      "detail": "state=current version=7 due=300000 outstanding=250000 charges=2 payments=1"
+    },
+    {
+      "id": "complete.players",
+      "description": "real list_session_players returns both confirmed participants",
+      "status": "PASS",
+      "detail": "players=2"
+    },
+    {
+      "id": "complete.current.success",
+      "description": "management completes current billing with outstanding debt",
+      "status": "PASS",
+      "detail": "lifecycle=completed version=8"
+    },
+    {
+      "id": "complete.retry-idempotent",
+      "description": "same complete request_id replays without a second lifecycle/audit side effect",
+      "status": "PASS",
+      "detail": "retryVersion=8 detailVersion=8 audit=1 operations=1"
+    },
+    {
+      "id": "finance.current.after-complete",
+      "description": "completed session keeps current revision, charges and outstanding debt",
+      "status": "PASS",
+      "detail": "lifecycle=completed state=current outstanding=250000"
+    },
+    {
+      "id": "summary.finance",
+      "description": "finance summary returns server aggregates and preserves outstanding debt",
+      "status": "PASS",
+      "detail": "manage=false finance=true present=2 due=300000 paid=50000 outstanding=250000"
+    },
+    {
+      "id": "summary.management-null-money",
+      "description": "management-only cohost sees counts but every finance field is null",
+      "status": "PASS",
+      "detail": "manage=true finance=false billing=null due=null"
+    },
+    {
+      "id": "summary.privacy",
+      "description": "finance summary has exactly the public projection and no private fields",
+      "status": "PASS",
+      "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd issues="
+    },
+    {
+      "id": "summary.management-raw-null",
+      "description": "management raw summary keeps every finance key present with null",
+      "status": "PASS",
+      "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd financePresentAndNull=true issues="
+    },
+    {
+      "id": "history.privacy",
+      "description": "every history row has exactly the public projection and no private fields",
+      "status": "PASS",
+      "detail": "rows=4 issues="
+    },
+    {
+      "id": "history.privacy.negative-controls",
+      "description": "history validator rejects top-level, nested and later-row private fields",
+      "status": "PASS",
+      "detail": "top=[extra=account_number, private-key] nested=[private-key] later=[row[1]: extra=receiver_snapshot;private-key]"
+    },
+    {
+      "id": "summary.privacy.negative-controls",
+      "description": "summary validator rejects top-level and nested bank/account/receiver fields",
+      "status": "PASS",
+      "detail": "top=[extra=bank_code, private-key] nested=[private-key]"
+    },
+    {
+      "id": "privacy.fixture-private-data",
+      "description": "fixture stores fake phone, bank, account and receiver markers outside projections",
+      "status": "PASS",
+      "detail": "memberContacts=1 playerContacts=4 clubBanks=1 hostBanks=1 privateReceivers=1"
+    },
+    {
+      "id": "finance.post-expense-after-complete.rejected",
+      "description": "new expense is rejected after complete",
+      "status": "PASS",
+      "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+    },
+    {
+      "id": "finance.post-expense-after-complete.no-side-effect",
+      "description": "rejected post-expense adds no expense and does not bump billing input",
+      "status": "PASS",
+      "detail": "expenses=1 billingInputVersion=2"
+    },
+    {
+      "id": "finance.reverse-payment-after-complete",
+      "description": "finance reverses a confirmed payment after complete; retry keeps one reversal and history",
+      "status": "PASS",
+      "detail": "status=reversed reversals=1 outstanding=300000"
+    },
+    {
+      "id": "finance.cash-after-complete",
+      "description": "cash payment is allowed after complete; retry produces one payment and one ledger entry",
+      "status": "PASS",
+      "detail": "status=confirmed guestPayments=1 ledger=1 outstanding=200000"
+    },
+    {
+      "id": "finance.submit-payment-after-complete",
+      "description": "participant submit is allowed after complete and request_id replays the same payment",
+      "status": "PASS",
+      "detail": "status=submitted id=6cec4a92-7223-4169-97e7-fdb7858e183b"
+    },
+    {
+      "id": "finance.confirm-payment-after-complete",
+      "description": "finance confirms participant payment after complete; retry adds no duplicate ledger",
+      "status": "PASS",
+      "detail": "status=confirmed payments=2 ledger=1 operations=1 outstanding=100000"
+    },
+    {
+      "id": "finance.instructions-after-complete",
+      "description": "participant payment instructions stay current after complete",
+      "status": "PASS",
+      "detail": "state=current due=150000 paid=100000 outstanding=50000"
+    },
+    {
+      "id": "finance.refinalize-after-complete",
+      "description": "refinalize is allowed after complete; retry reuses revision 2 with one active revision",
+      "status": "PASS",
+      "detail": "revision=2 retryRevision=2 revisions=2 active=1 outstanding=100000"
+    },
+    {
+      "id": "finance.reject-payment-after-complete",
+      "description": "finance rejects a submitted payment after complete; retry is idempotent and does not change paid total",
+      "status": "PASS",
+      "detail": "status=rejected paid=200000 outstanding=100000 revision=2"
+    },
+    {
+      "id": "complete.free-current.precondition",
+      "description": "free fixture has one exempt present player, current zero revision and one zero charge",
+      "status": "PASS",
+      "detail": "lifecycle=in_progress version=3 players=1 revision=40000000-0000-4000-8000-000000000002 revisionNo=1 allocation=0 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 outstanding=0"
+    },
+    {
+      "id": "complete.free-current.success",
+      "description": "free current session completes and retry does not duplicate audit",
+      "status": "PASS",
+      "detail": "lifecycle=completed version=4 audit=1 due=0 outstanding=0"
+    },
+    {
+      "id": "complete.free-current.charge-preserved",
+      "description": "zero charge keeps the same player/revision after complete and retry",
+      "status": "PASS",
+      "detail": "lifecycle=completed revision=40000000-0000-4000-8000-000000000002 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 revisionRows=1 chargeRows=1"
+    },
+    {
+      "id": "history.owner-scope",
+      "description": "owner history contains completed/cancelled sessions and excludes in-progress sessions",
+      "status": "PASS",
+      "detail": "ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+    },
+    {
+      "id": "history.order",
+      "description": "history is ordered newest first",
+      "status": "PASS",
+      "detail": "order=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+    },
+    {
+      "id": "history.club-filter",
+      "description": "history club filter returns only the requested club",
+      "status": "PASS",
+      "detail": "clubA=5 clubB=0"
+    },
+    {
+      "id": "history.date-filter",
+      "description": "history date bounds include only 19-20 October sessions",
+      "status": "PASS",
+      "detail": "ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002"
+    },
+    {
+      "id": "history.pagination",
+      "description": "history pagination does not duplicate or drop rows",
+      "status": "PASS",
+      "detail": "pages=2/2/1 ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+    },
+    {
+      "id": "history.cohost-scope",
+      "description": "cohost history includes only sessions with management access",
+      "status": "PASS",
+      "detail": "ids=10000000-0000-4000-8000-000000000001"
+    },
+    {
+      "id": "history.finance-scope",
+      "description": "club treasurer history includes club finance sessions",
+      "status": "PASS",
+      "detail": "count=5"
+    },
+    {
+      "id": "history.participant-and-guest-scope",
+      "description": "participant, outsider and cross-club histories do not leak managed sessions",
+      "status": "PASS",
+      "detail": "participant=0 outsider=0 ownerB=20000000-0000-4000-8000-000000000001"
+    },
+    {
+      "id": "history.invalid-range",
+      "description": "history rejects a reversed date range",
+      "status": "PASS",
+      "detail": "POSTGREST code=22023 message=INVALID_INPUT: Khoảng ngày không hợp lệ details=Bad Request hint=null"
+    },
+    {
+      "id": "list.after-complete",
+      "description": "completed sessions remain in management lists for owner and cohost",
+      "status": "PASS",
+      "detail": "owner=7 cohost=1"
+    },
+    {
+      "id": "scope.participant.detail-after-complete",
+      "description": "participant still reads completed detail with own registration",
+      "status": "PASS",
+      "detail": "lifecycle=completed version=8"
+    },
+    {
+      "id": "finance.completed.precondition",
+      "description": "finance fixture is completed with current 100000 allocation",
+      "status": "PASS",
+      "detail": "lifecycle=completed state=current outstanding=100000"
+    },
+    {
+      "id": "finance.reverse-expense-after-complete",
+      "description": "expense reversal is allowed after complete, is idempotent and makes billing stale",
+      "status": "PASS",
+      "detail": "status=reversed reversals=1 state=stale outstanding=100000"
+    },
+    {
+      "id": "finance.post-expense-fin-after-complete.rejected",
+      "description": "new expense remains rejected on a completed session",
+      "status": "PASS",
+      "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+    },
+    {
+      "id": "finance.post-expense-fin-after-complete.no-side-effect",
+      "description": "rejected completed-session expense leaves one historical expense row",
+      "status": "PASS",
+      "detail": "expenses=1"
+    },
+    {
+      "id": "finance.refinalize-fin-after-complete",
+      "description": "refinalize after complete and expense reversal creates one current zero revision",
+      "status": "PASS",
+      "detail": "revision=2 allocation=0 revisions=2 active=1 expenses=0"
+    },
+    {
+      "id": "concurrency.complete.replay-idempotent",
+      "description": "concurrent complete requests with same request_id replay identically without duplicating audit or version",
+      "status": "FAIL",
+      "detail": "POSTGREST code=P0002 message=NOT_FOUND: Buổi chơi không tồn tại details=Internal Server Error hint=null"
+    },
+    {
+      "id": "concurrency.complete.competing-conflict",
+      "description": "concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict",
+      "status": "FAIL",
+      "detail": "winnerVersion=null loserError=POSTGREST code=P0002 message=NOT_FOUND: Buổi chơi không tồn tại details=Internal Server Error hint=null audit=0"
+    },
+    {
+      "id": "concurrency.cash.replay-idempotent",
+      "description": "concurrent cash payments with same request_id produce one payment, one ledger entry and idempotent result",
+      "status": "FAIL",
+      "detail": "POSTGREST code=P0002 message=NOT_FOUND: Đăng ký không tồn tại details=Internal Server Error hint=null"
+    },
+    {
+      "id": "concurrency.cash.competing-no-overcollect",
+      "description": "concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt",
+      "status": "FAIL",
+      "detail": "POSTGREST code=P0002 message=NOT_FOUND: Buổi chơi không tồn tại details=Internal Server Error hint=null"
+    },
+    {
+      "id": "concurrency.confirm.replay-idempotent",
+      "description": "concurrent confirm_payment requests with same request_id produce one ledger entry and clear debt",
+      "status": "FAIL",
+      "detail": "POSTGREST code=P0002 message=NOT_FOUND: Đăng ký không tồn tại details=Internal Server Error hint=null"
+    },
+    {
+      "id": "concurrency.drop-response.retry-no-duplicate",
+      "description": "simulated network drop after server commit succeeds on retry without duplicate payment or ledger entries",
+      "status": "FAIL",
+      "detail": "POSTGREST code=P0002 message=NOT_FOUND: Đăng ký không tồn tại details=Internal Server Error hint=null"
+    }
+  ]
+}

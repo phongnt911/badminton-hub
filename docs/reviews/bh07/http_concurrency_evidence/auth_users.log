@@ -1,0 +1,8 @@
+﻿created ownera@example.test id=87586ec0-eb48-4468-8eaa-e72e06e5fa9f
+created financea@example.test id=7d432360-d1e3-4a07-a8fb-3689ccf9c153
+created cohosta@example.test id=a85ed4f4-b067-4661-a344-2a67c6572815
+created membera@example.test id=98d26755-c284-4010-8625-5f946ccac880
+created guesta@example.test id=7cfdad1d-1aad-4681-b634-9e0eff0de607
+created ownerb@example.test id=f9a6247b-1306-4739-aaac-961415e29055
+created outsider@example.test id=f62ef4f1-bc71-45c0-ac4e-8352bdb3f0ab
+GoTrue Admin API creates users; passwords are not written to evidence.
