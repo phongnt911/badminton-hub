@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 21/10/2026:** BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+> **Hiện hành 21/10/2026:** BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`** trên `feat/bh07c-ui`, base `9b97846`, sau khi sửa C1/C2/C3 P2 theo [review độc lập](reviews/bh07/review_15ae1af.md). Test đỏ trước sửa (3 FAIL); sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Người triển khai không tự ghi Đạt; không đổi A/B, chưa chuyển D, chưa merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 
 ## 1. Nền bắt buộc
 
@@ -20,7 +20,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 | C | UI start/complete/lịch sử/tổng kết/copy theo role | Reviewer Đạt C trước tích hợp |
 | D | Tích hợp, HTTP/JWT/Auth, mobile/web, offline/reopen, rehearsal vận hành | Review độc lập; thiếu cổng thì chưa nghiệm thu pilot |
 
-**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã Đạt local tại `d7bac04`, tested code `a682007`, đóng B1/B2 vòng 1/2**; **C đang Chờ review tại `15ae1af`** theo mục 11. Chỉ bắt đầu D khi C được reviewer Đạt. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
+**Phần A trên `feat/bh07a-db` đã Đạt local tại 4512c3a.** Không triển khai lại A chỉ vì đọc đầu bài; các yêu cầu A dưới đây giữ làm contract/tiêu chí đã kiểm. **B đã Đạt local tại `d7bac04`, tested code `a682007`, đóng B1/B2 vòng 1/2**; **C đang Chờ review vòng 1/2 tại `02a9b85`** theo mục 13. Chỉ bắt đầu D khi C được reviewer Đạt. Không tự làm hết A/B/C/D. Nếu A không cần đổi DB, chứng minh bằng test và contract audit; không tạo migration hoặc lớp trừu tượng chỉ để đủ tên phần.
 
 ## 3. BH-07A — kiểm code trước, chỉ bổ sung phần thiếu
 
@@ -92,3 +92,12 @@ Các bàn giao/kết luận vòng 0–1 của B phía trên giữ làm snapshot 
 ## 12. Review C — Chưa đạt tại 15ae1af (21/10/2026)
 
 BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+
+## 13. Bàn giao BH-07C sửa review vòng 1/2 — Chờ review (21/10/2026)
+
+- Nhánh `feat/bh07c-ui`, base `9b978467316d66c458846ac68c5de8021401fa0c`, **tested code `02a9b857724e9ba031323ad732c90355d7932a39`**. **Chờ review BH-07C vòng 1/2**, người triển khai không tự ghi Đạt.
+- C1: complete chỉ dùng `sessionVersion` từ DTO tài chính; thiếu DTO thì khoá nút và hướng dẫn tải lại, không fallback route. Fallback route vẫn giữ cho chốt phí BH-06.
+- C2: lỗi refresh với cache rỗng vẫn hiện inline error, giữ empty card và có nút `Tải lại`; không biến lỗi mạng thành empty thành công.
+- C3: ngày lọc là ngày lịch Việt Nam, đổi sang UTC+7 bằng helper; mốc cuối bao gồm hết ngày, độc lập múi giờ thiết bị.
+- Bằng chứng: test đỏ trước sửa exit 1 với 3 FAIL đúng C1/C2/C3; sau sửa analyze sạch, **230/230 Flutter**, **57/57 targeted C** dưới cả `TZ=UTC` và `TZ=Asia/Ho_Chi_Minh`, **23/23 BH-07 DB**. Chi tiết tại [evidence](reviews/bh07/bh07c_fix_evidence/commands.md) và [bàn giao](reviews/bh07/bh07c_handoff.md).
+- Không sửa A/B, migration hoặc backend. Không chuyển D, merge main hoặc deploy. HTTP/PostgREST/JWT/Auth thật, thiết bị/browser/offline, ngân hàng/VietQR/webhook, staging/production, backup/restore, concurrency HTTP và pilot vẫn NOT RUN.

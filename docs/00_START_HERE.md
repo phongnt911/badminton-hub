@@ -1,8 +1,8 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-> **Hiện hành 21/10/2026:** BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+> **Hiện hành 21/10/2026:** BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`** trên `feat/bh07c-ui`, base `9b97846`, sau khi sửa C1/C2/C3 P2 theo [review độc lập](reviews/bh07/review_15ae1af.md). Test đỏ trước sửa (3 FAIL); sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Người triển khai không tự ghi Đạt; không đổi A/B, chưa chuyển D, chưa merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 
-## Trạng thái hiện tại (cập nhật 20/10/2026)
+## Trạng thái hiện tại (cập nhật 21/10/2026)
 
 Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng bộ tiến độ, chuẩn bị BH-07. [Lịch sử xác nhận](23_DOC_AUDIT_FOLLOWUP.md); điểm tiếp tục hiện hành ở docs/25.
 
@@ -10,7 +10,7 @@ Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng b�
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục:** sửa toàn bộ C1/C2/C3 P2 theo [review C](reviews/bh07/review_15ae1af.md), vòng sửa 1/2; A/B giữ Đạt, không chuyển D.
+- **Điểm tiếp tục:** reviewer độc lập kiểm tra BH-07C vòng 1/2 tại `02a9b85` theo [review C](reviews/bh07/review_15ae1af.md) và [bàn giao](reviews/bh07/bh07c_handoff.md); A/B giữ Đạt, không chuyển D.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu

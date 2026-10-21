@@ -1,0 +1,11 @@
+Ngày chạy: 21/10/2026 (Asia/Ho_Chi_Minh)
+OS: Microsoft Windows 11 IoT Enterprise LTSC 10.0.26100
+PowerShell: 5.1.26100.9711
+Flutter: 3.47.6 stable, framework 5fc346839b
+Dart: 3.13.5 stable windows_x64
+Python: 3.12.7
+PostgreSQL test container: bh02-test-postgres (Up)
+Nhánh: feat/bh07c-ui
+Base: 9b978467316d66c458846ac68c5de8021401fa0c
+Tested code: 02a9b857724e9ba031323ad732c90355d7932a39
+Múi giờ kiểm thử targeted: UTC và Asia/Ho_Chi_Minh (đặt qua biến môi trường TZ)

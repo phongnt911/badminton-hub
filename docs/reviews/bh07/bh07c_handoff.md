@@ -1,6 +1,8 @@
-# Bàn giao BH-07C — Chờ review (20/10/2026)
+# Bàn giao BH-07C — Chờ review vòng 1/2 (21/10/2026)
 
-> **Reviewer 21/10/2026: Chưa đạt C tại `15ae1af`**, C1/C2/C3 P2 còn mở. [Review/bằng chứng](review_15ae1af.md). Sửa UI vòng 1/2 theo AGENTS, không đổi A/B hoặc chuyển D/merge/deploy. Bàn giao/kết quả tác giả dưới đây giữ làm lịch sử.
+> **Implementer 21/10/2026: Chờ review vòng 1/2 tại tested code `02a9b85`**, base `9b97846`. Đã sửa C1/C2/C3 P2 theo [review 15ae1af](review_15ae1af.md); test đỏ trước sửa 3 FAIL, sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. [Lệnh/bằng chứng](bh07c_fix_evidence/commands.md). Không đổi A/B, chưa chuyển D/merge/deploy; người triển khai không tự ghi Đạt.
+>
+> **Reviewer 21/10/2026 (lịch sử): Chưa đạt C tại `15ae1af`**, C1/C2/C3 P2 còn mở. Bàn giao/kết quả tác giả dưới đây giữ làm lịch sử.
 
 
 - Nhánh `feat/bh07c-ui`, base `cf95d76855acf1f394b1976ebab54087b4d7bba9`, tested code `15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba`.
@@ -75,3 +77,12 @@ Các kết quả trên chỉ là local/widget/PostgreSQL cô lập, không cho p
 2. Summary/copy không lộ tiền khi management-only, giữ `null` là `—`, không có contact/bank.
 3. History lọc/pagination/refresh đúng contract B, không tự lọc lại phía client.
 4. Sau complete, chi tiết tải lại và lịch sử (nếu đang mở) refresh; start không bị đổi hành vi.
+
+## 5. Sửa review vòng 1/2 — Chờ review (21/10/2026)
+
+- Nhánh `feat/bh07c-ui`, base `9b978467316d66c458846ac68c5de8021401fa0c`, **tested code `02a9b857724e9ba031323ad732c90355d7932a39`**. **Chờ review vòng 1/2**, không tự ghi Đạt.
+- C1: complete chỉ dùng `finance.sessionVersion`; thiếu DTO thì khoá nút kèm `Chưa xác định được phiên bản buổi để kết thúc. Hãy tải lại dữ liệu tài chính.` Fallback route chỉ còn cho chốt phí BH-06.
+- C2: cache rỗng không che lỗi refresh; hiện inline error + empty card + `Tải lại`, retry tải được dữ liệu mới.
+- C3: `_from/_to` là ngày lịch Việt Nam; `_filter` đổi sang UTC+7 bằng helper, mốc cuối `23:59:59.999999` giờ Việt Nam.
+- Test: red exit 1 với 3 FAIL (C1/C2/C3); green analyze sạch, **230/230 Flutter**, **57/57 targeted C** dưới `TZ=UTC` và `TZ=Asia/Ho_Chi_Minh`, **23/23 BH-07 DB**. Log/JSON/exit tại [bh07c_fix_evidence](bh07c_fix_evidence/commands.md).
+- Không sửa migration/RPC A, model/repository/provider B, contract, `main`, staging hoặc production. Không chuyển D, merge hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.

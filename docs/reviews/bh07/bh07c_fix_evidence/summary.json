@@ -1,0 +1,36 @@
+{
+  "ticket": "BH-07C",
+  "round": "fix 1/2",
+  "branch": "feat/bh07c-ui",
+  "base_sha": "9b978467316d66c458846ac68c5de8021401fa0c",
+  "tested_code_sha": "02a9b857724e9ba031323ad732c90355d7932a39",
+  "red": {
+    "command": "flutter test --no-pub test/screens/session_finance_screen_test.dart test/screens/session_history_screen_test.dart",
+    "exit": 1,
+    "failures": 3,
+    "finding_ids": ["C1", "C2", "C3"]
+  },
+  "green": {
+    "analyze": {"command": "flutter analyze --no-pub", "exit": 0, "result": "No issues found"},
+    "flutter": {"command": "flutter test --no-pub", "exit": 0, "passed": 230},
+    "targeted_utc": {"exit": 0, "passed": 57},
+    "targeted_vietnam": {"exit": 0, "passed": 57},
+    "bh07_db": {"exit": 0, "total": 23, "passed": 23, "failed": 0},
+    "diff_check": {"exit": 0}
+  },
+  "scope": [
+    "lib/core/time_utils.dart",
+    "lib/screens/session_finance_screen.dart",
+    "lib/screens/session_history_screen.dart",
+    "test/core/time_utils_test.dart",
+    "test/screens/session_finance_screen_test.dart",
+    "test/screens/session_history_screen_test.dart"
+  ],
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "thiết bị/browser thật, offline/reopen, deep link, QR ngân hàng/VietQR/webhook",
+    "staging/production, backup/restore, concurrency qua HTTP",
+    "pilot D và nghiệm thu toàn BH-07",
+    "hồi quy DB BH-02..06 (335 case) do không đổi DB/backend"
+  ]
+}
