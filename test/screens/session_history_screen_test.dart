@@ -214,4 +214,87 @@ void main() {
     ).called(1);
     expect(find.text('Xoá bộ lọc'), findsOneWidget);
   });
+
+  testWidgets('cache rỗng không che lỗi refresh; có retry', (tester) async {
+    stubClubs();
+    var failRefresh = false;
+    when(
+      () => sessionRepository.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async {
+      if (failRefresh) throw Exception('offline');
+      return const SessionHistoryPage(limit: 20, offset: 0);
+    });
+
+    await pumpScreen(tester);
+    await tester.pumpAndSettle();
+    expect(find.text('Chưa có buổi nào'), findsOneWidget);
+
+    failRefresh = true;
+    await tester.tap(find.byTooltip('Tải lại lịch sử'));
+    await tester.pumpAndSettle();
+
+    expect(sessionProvider.historyErrorMessage, isNotNull);
+    expect(find.byKey(const Key('bh07c-history-inline-error')), findsOneWidget);
+    expect(
+      find.textContaining(sessionProvider.historyErrorMessage!),
+      findsOneWidget,
+    );
+    expect(find.text('Tải lại'), findsOneWidget);
+    expect(find.byKey(const Key('bh07c-history-empty')), findsOneWidget);
+
+    failRefresh = false;
+    when(
+      () => sessionRepository.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer(
+      (_) async =>
+          const SessionHistoryPage(sessions: [completed], limit: 20, offset: 0),
+    );
+    await tester.tap(find.text('Tải lại'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-history-inline-error')), findsNothing);
+    expect(find.text('Buổi đã xong'), findsOneWidget);
+  });
+
+  testWidgets('ngày lọc là ngày Việt Nam và gửi mốc UTC+7', (tester) async {
+    stubClubs();
+    final filters = <SessionHistoryFilter>[];
+    when(
+      () => sessionRepository.listMySessionHistory(
+        filter: any(named: 'filter'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((invocation) async {
+      filters.add(invocation.namedArguments[#filter] as SessionHistoryFilter);
+      return const SessionHistoryPage(limit: 20, offset: 0);
+    });
+
+    await pumpScreen(tester);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('bh07c-history-date-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    final fields = find.byType(TextField);
+    expect(fields, findsNWidgets(2));
+    await tester.enterText(fields.at(0), '10/20/2026');
+    await tester.enterText(fields.at(1), '10/20/2026');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    final filter = filters.last;
+    expect(filter.from, DateTime.utc(2026, 10, 19, 17));
+    expect(filter.to, DateTime.utc(2026, 10, 20, 16, 59, 59, 999, 999));
+    expect(find.text('20/10/2026 - 20/10/2026'), findsOneWidget);
+  });
 }

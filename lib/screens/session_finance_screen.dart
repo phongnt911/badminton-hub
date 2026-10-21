@@ -532,6 +532,9 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
     // sẽ cập nhật version hiện hành. Chỉ fallback về Session của route khi
     // server cũ chưa trả `session_version`.
     final version = finance.sessionVersion ?? widget.session.version;
+    // Complete bắt buộc version từ DTO tài chính; không fallback route vì route
+    // có thể cũ. Fallback bên trên chỉ giữ cho chốt phí BH-06.
+    final completeVersion = finance.sessionVersion;
     final busy = provider.isSubmitting;
     return Card(
       child: Padding(
@@ -575,12 +578,18 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
                 _stateNote(
                   'Phí phải đang ở trạng thái hiện hành trước khi kết thúc buổi.',
                 ),
+              if (completeVersion == null)
+                _stateNote(
+                  'Chưa xác định được phiên bản buổi để kết thúc. Hãy tải lại '
+                  'dữ liệu tài chính.',
+                ),
               FilledButton.icon(
                 key: const Key('bh07c-complete-session'),
                 icon: const Icon(Icons.flag_outlined),
                 label: const Text('Kết thúc buổi chơi'),
-                onPressed: (finance.canCollect && version != null && !busy)
-                    ? () => _complete(finance, version)
+                onPressed:
+                    (finance.canCollect && completeVersion != null && !busy)
+                    ? () => _complete(finance, completeVersion)
                     : null,
               ),
             ],

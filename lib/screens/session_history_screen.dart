@@ -26,8 +26,11 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   DateTime? _from;
   DateTime? _to;
 
-  SessionHistoryFilter get _filter =>
-      SessionHistoryFilter(clubId: _clubId, from: _from, to: _to);
+  SessionHistoryFilter get _filter => SessionHistoryFilter(
+    clubId: _clubId,
+    from: _from == null ? null : vietnamDayStartUtc(_from!),
+    to: _to == null ? null : vietnamDayEndUtc(_to!),
+  );
 
   @override
   void initState() {
@@ -74,14 +77,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     if (picked == null || !mounted) return;
     setState(() {
       _from = DateTime(picked.start.year, picked.start.month, picked.start.day);
-      _to = DateTime(
-        picked.end.year,
-        picked.end.month,
-        picked.end.day,
-        23,
-        59,
-        59,
-      );
+      _to = DateTime(picked.end.year, picked.end.month, picked.end.day);
     });
     _reloadHistory();
   }
@@ -178,49 +174,53 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                 padding: EdgeInsets.all(32),
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (provider.isHistoryEmpty)
-              _HistoryMessageCard(
-                key: const Key('bh07c-history-empty'),
-                icon: Icons.history_toggle_off,
-                title: 'Chưa có buổi nào',
-                message: hasFilters
-                    ? 'Không có buổi đã kết thúc/huỷ khớp bộ lọc hiện tại.'
-                    : 'Các buổi đã kết thúc hoặc đã huỷ sẽ xuất hiện ở đây.',
-                actionLabel: hasFilters ? 'Xoá bộ lọc' : null,
-                onAction: hasFilters ? _clearFilters : null,
-              )
             else ...[
               if (provider.historyErrorMessage != null)
                 _HistoryMessageCard(
                   key: const Key('bh07c-history-inline-error'),
                   icon: Icons.cloud_off_outlined,
                   title: 'Chưa làm mới được lịch sử',
-                  message:
-                      '${provider.historyErrorMessage!} Danh sách đang hiển thị '
-                      'là lần tải trước.',
+                  message: provider.isHistoryEmpty
+                      ? '${provider.historyErrorMessage!} Lần tải trước không '
+                            'có buổi nào phù hợp; lần làm mới vừa rồi thất bại.'
+                      : '${provider.historyErrorMessage!} Danh sách đang '
+                            'hiển thị là lần tải trước.',
                   actionLabel: 'Tải lại',
                   onAction: _reloadHistory,
                 ),
-              ...provider.historyItems.map(
-                (session) => _HistorySessionCard(
-                  session: session,
-                  onTap: () => _openSession(session.id),
-                ),
-              ),
-              if (provider.hasMoreHistory)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Center(
-                    child: provider.isLoadingMoreHistory
-                        ? const CircularProgressIndicator()
-                        : OutlinedButton.icon(
-                            key: const Key('bh07c-history-load-more'),
-                            onPressed: provider.loadMoreHistory,
-                            icon: const Icon(Icons.expand_more),
-                            label: const Text('Tải thêm'),
-                          ),
+              if (provider.isHistoryEmpty)
+                _HistoryMessageCard(
+                  key: const Key('bh07c-history-empty'),
+                  icon: Icons.history_toggle_off,
+                  title: 'Chưa có buổi nào',
+                  message: hasFilters
+                      ? 'Không có buổi đã kết thúc/huỷ khớp bộ lọc hiện tại.'
+                      : 'Các buổi đã kết thúc hoặc đã huỷ sẽ xuất hiện ở đây.',
+                  actionLabel: hasFilters ? 'Xoá bộ lọc' : null,
+                  onAction: hasFilters ? _clearFilters : null,
+                )
+              else ...[
+                ...provider.historyItems.map(
+                  (session) => _HistorySessionCard(
+                    session: session,
+                    onTap: () => _openSession(session.id),
                   ),
                 ),
+                if (provider.hasMoreHistory)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: provider.isLoadingMoreHistory
+                          ? const CircularProgressIndicator()
+                          : OutlinedButton.icon(
+                              key: const Key('bh07c-history-load-more'),
+                              onPressed: provider.loadMoreHistory,
+                              icon: const Icon(Icons.expand_more),
+                              label: const Text('Tải thêm'),
+                            ),
+                    ),
+                  ),
+              ],
             ],
           ],
         ),
@@ -238,8 +238,8 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
         : _allClubs;
     final dateLabel = _from == null || _to == null
         ? 'Chọn khoảng ngày'
-        : '${formatVietnamDate(_from!.toUtc())} - '
-              '${formatVietnamDate(_to!.toUtc())}';
+        : '${formatVietnamDate(vietnamDayStartUtc(_from!))} - '
+              '${formatVietnamDate(vietnamDayStartUtc(_to!))}';
 
     return Card(
       child: Padding(

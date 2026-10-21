@@ -51,11 +51,13 @@ void main() {
     List<FinanceExpense> expenses = const [],
     List<FinanceCharge> charges = const [],
     List<FinancePayment> payments = const [],
+    int? sessionVersion,
   }) {
     return SessionFinance(
       sessionId: 's1',
       lifecycle: lifecycle,
       billingInputVersion: 5,
+      sessionVersion: sessionVersion,
       billingState: state,
       activeRevision: const FinanceRevision(
         revisionId: 'r1',
@@ -775,12 +777,12 @@ void main() {
           limit: any(named: 'limit'),
           offset: any(named: 'offset'),
         )).thenAnswer(
-      (_) async => financeFixture(lifecycle: 'in_progress'),
+      (_) async => financeFixture(lifecycle: 'in_progress', sessionVersion: 7),
     );
     when(() => repo.completeSession(
           requestId: any(named: 'requestId'),
           sessionId: 's1',
-          expectedVersion: 3,
+          expectedVersion: 7,
         )).thenAnswer(
       (_) async =>
           const Session(id: 's1', title: 'Buổi A', lifecycle: 'completed'),
@@ -831,12 +833,40 @@ void main() {
       () => repo.completeSession(
         requestId: any(named: 'requestId'),
         sessionId: 's1',
-        expectedVersion: 3,
+        expectedVersion: 7,
       ),
     ).called(1);
     expect(result, isTrue);
     expect(find.byType(SessionFinanceScreen), findsNothing);
   });
+
+  testWidgets(
+    'manager: thiếu sessionVersion DTO thì nút kết thúc bị khoá dù route có version',
+    (tester) async {
+      when(() => repo.getSessionFinance(
+            's1',
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer(
+        (_) async => financeFixture(lifecycle: 'in_progress'),
+      );
+
+      final instance = provider();
+      await pumpScreen(tester, managerSession, instance);
+      await tester.pumpAndSettle();
+
+      final button = tester.widget<FilledButton>(
+        find.byKey(const Key('bh07c-complete-session')),
+      );
+      expect(button.onPressed, isNull);
+      expect(
+        find.text(
+          'Chưa xác định được phiên bản buổi để kết thúc. Hãy tải lại dữ liệu tài chính.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets('manager: stale thì nút kết thúc bị khoá', (tester) async {
     when(() => repo.getSessionFinance(
