@@ -40,7 +40,7 @@ Hoàn chỉnh start → complete → lịch sử/tổng kết, giữ công nợ 
 - Viết test tái hiện trước khi sửa lỗi. Chạy analyze + toàn bộ Flutter test + runner BH-07 và hồi quy BH-02..06; giữ kiểm tra tích hợp/nâng cấp BH-06 phù hợp thay đổi. Nếu chỉ audit không đổi DB, nêu rõ những runner đã chạy, không dùng kết quả lịch sử làm kết quả mới.
 - SET ROLE/Auth stub và widget mock không thay HTTP/JWT/Auth thật. Thiếu môi trường vẫn chuẩn bị phần độc lập, ghi NOT RUN và tác động đến cổng nghiệm thu; không dùng production thay môi trường test.
 
-Bằng chứng mới đặt `docs/reviews/bh07/`: base/full tested SHA, diff, migration/RPC, lệnh/exit/count, JSON/log, môi trường, PASS/FAIL/NOT RUN, cấu hình ngoài code. Cập nhật docs/00, docs/09 và bàn giao thành **Chờ review BH-07A**, tạo prompt reviewer trong `docs/reviews/bh07/` và dẫn link từ handoff, rồi commit/push nhánh và dừng để Codex review. Không tự ghi Đạt/Done; sửa toàn bộ P0/P1/P2 theo review, tối đa hai vòng theo AGENTS.
+Bằng chứng mới đặt `docs/reviews/bh07/`: base/full tested SHA, diff, migration/RPC, lệnh/exit/count, JSON/log, môi trường, PASS/FAIL/NOT RUN, cấu hình ngoài code. Cập nhật docs/00, docs/09 và bàn giao thành **Chờ review BH-07A**, gửi prompt reviewer trực tiếp trong chat (không tạo file riêng), rồi commit/push nhánh và dừng để Codex review. Không tự ghi Đạt/Done; sửa toàn bộ P0/P1/P2 theo review, tối đa hai vòng theo AGENTS.
 
 ## 5. Giới hạn môi trường và triển khai
 
