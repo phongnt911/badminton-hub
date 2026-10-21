@@ -1,0 +1,95 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart
+00:00 +0: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: (setUpAll)
+00:00 +0: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review C1: missing finance DTO version must disable complete
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: null
+  Actual: <Closure: () => void>
+Route version=3 cannot substitute missing finance DTO sessionVersion
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart:873:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart line 873
+The test description was:
+  review C1: missing finance DTO version must disable complete
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review C1: missing finance DTO version must disable complete [E]
+  Test failed. See exception logs above.
+  The test description was: review C1: missing finance DTO version must disable complete
+  
+00:00 +0 -1: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review control: complete locks pending and VERSION_CONFLICT stays on screen
+00:01 +1 -1: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: (tearDownAll)
+00:01 +1 -1: loading /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart
+00:01 +1 -1: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: (setUpAll)
+00:01 +1 -1: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C2: refresh failure after empty page remains an error
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextContainingWidgetFinder:<Found 0 widgets with text containing Đã xảy ra lỗi. Vui lòng
+thử lại sau.: []>
+   Which: means none were found but one was expected
+Empty cached list must not suppress refresh error/retry
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/review_bh07c_history_probe_test.dart:228:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/review_bh07c_history_probe_test.dart line 228
+The test description was:
+  review C2: refresh failure after empty page remains an error
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +1 -2: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C2: refresh failure after empty page remains an error [E]
+  Test failed. See exception logs above.
+  The test description was: review C2: refresh failure after empty page remains an error
+  
+00:02 +1 -2: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C3: selected Vietnamese calendar day maps to UTC+7 bounds
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: DateTime:<2026-10-19 17:00:00.000Z>
+  Actual: DateTime:<2026-10-20 00:00:00.000Z>
+Vietnamese 20/10 starts at 19/10 17:00Z regardless of device timezone
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///workspace/badminton-hub/test/review_bh07c_history_probe_test.dart:245:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///workspace/badminton-hub/test/review_bh07c_history_probe_test.dart line 245
+The test description was:
+  review C3: selected Vietnamese calendar day maps to UTC+7 bounds
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +1 -3: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C3: selected Vietnamese calendar day maps to UTC+7 bounds [E]
+  Test failed. See exception logs above.
+  The test description was: review C3: selected Vietnamese calendar day maps to UTC+7 bounds
+  
+00:03 +1 -3: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: (tearDownAll)
+00:03 +1 -3: loading /workspace/badminton-hub/test/review_bh07c_summary_probe_test.dart
+00:04 +1 -3: /workspace/badminton-hub/test/review_bh07c_summary_probe_test.dart: review control: summary transport keeps cache and FORBIDDEN removes copy
+00:05 +2 -3: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review C1: missing finance DTO version must disable complete
+  /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C2: refresh failure after empty page remains an error
+  /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C3: selected Vietnamese calendar day maps to UTC+7 bounds

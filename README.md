@@ -2,7 +2,7 @@
 
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
-## Trạng thái hiện tại — 20/10/2026
+## Trạng thái hiện tại — 21/10/2026
 
 **BH-06 đã Đạt tích hợp local tại `318bc52` và merge vào main tại `e7f7627`.** [Review/bằng chứng](docs/reviews/bh06/review_318bc52.md), [xác minh merge main](docs/reviews/bh06/main_merge_e7f7627.md). Quy trình [người triển khai](docs/ai/IMPLEMENTER.md) và [reviewer](docs/ai/REVIEWER.md) cũng đã có trên main.
 
@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 23 BH-07 +225 Flutter; 335 DB hồi quy +7 tích hợp +3 upgrade +6 probe giữ baseline B | **A Đạt 4512c3a; B Đạt d7bac04; C Chờ review 15ae1af; D và toàn BH-07 chưa nghiệm thu** |
+| BH-07 | 225 Flutter +52 targeted C +23 DB PASS; probe UI 2 PASS/3 FAIL | **A/B Đạt local; C Chưa đạt 15ae1af: C1/C2/C3 P2; D/toàn BH-07 chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](docs/reviews/bh07/review_d7bac04.md). BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui` theo [bàn giao](docs/reviews/bh07/bh07c_handoff.md): analyze sạch, **225/225 Flutter**, **23/23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy. HTTP/JWT/Auth thật, UI/thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN. Nhật ký: [STATUS_HISTORY](docs/STATUS_HISTORY.md).
+BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](docs/reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 
 ## Tài liệu để triển khai
 

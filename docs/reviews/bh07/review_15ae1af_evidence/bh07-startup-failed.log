@@ -1,0 +1,13 @@
+Khởi tạo DB BH-07: bh07_clean_20261021014052 và bh07_upgrade_20261021014052...
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 1045, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 997, in main
+    create_db(CLEAN, 'clean')
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 152, in create_db
+    must('postgres', f'DROP DATABASE IF EXISTS {name};', f'drop {label}')
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 55, in must
+    raise RuntimeError(f"{label}: {r.stderr.strip()}")
+RuntimeError: drop clean: psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: Connection refused
+	Is the server running locally and accepting connections on that socket?

@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-Ngày 20/10/2026. BH-06 đã merge main `e7f7627`; BH-07A Đạt local tại `4512c3a`. BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui`; analyze sạch, **225 Flutter +23 BH-07 DB PASS**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. Xem [bàn giao C](reviews/bh07/bh07c_handoff.md). A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy.
+> **Hiện hành 21/10/2026:** BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 
 ## 1. Nền bắt buộc
 
@@ -81,10 +81,14 @@ BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng s
 
 Các bàn giao/kết luận vòng 0–1 của B phía trên giữ làm snapshot lịch sử. NOT RUN giữ theo review; C đã bàn giao chờ review tại mục 11, D chưa giao.
 
-## 11. Bàn giao BH-07C — Chờ review (20/10/2026)
+## 11. (Lịch sử) Bàn giao BH-07C — Chờ review (20/10/2026)
 
 - Nhánh `feat/bh07c-ui`, base `cf95d76855acf1f394b1976ebab54087b4d7bba9`, tested code `15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba`. **Chờ review BH-07C**, người triển khai không tự ghi Đạt.
 - Chỉ UI C: lịch sử có filter CLB/khoảng ngày, loading/empty/error/retry/pagination/refresh; tổng kết theo quyền và copy không lộ contact/bank, giữ tiền NULL là `—`; nút kết thúc buổi trong màn tài chính chỉ bật khi management + in_progress + billing current/canCollect + có version server; thành công tải lại chi tiết/lịch sử.
 - Không sửa migration/RPC A, model/repository/provider B hoặc contract. Start giữ hành vi hiện có. Không thêm provider mới.
 - Kết quả mới: analyze sạch, **225/225 Flutter**, **23/23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. [Bàn giao, lệnh/exit/bằng chứng/NOT RUN](reviews/bh07/bh07c_handoff.md).
 - Không chuyển D, không merge main, không deploy. HTTP/PostgREST/JWT/Auth thật, thiết bị/browser/offline, ngân hàng/VietQR/webhook thật, staging/production, backup/restore, concurrency HTTP và pilot vẫn NOT RUN.
+
+## 12. Review C — Chưa đạt tại 15ae1af (21/10/2026)
+
+BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.

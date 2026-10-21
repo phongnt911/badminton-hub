@@ -1,6 +1,6 @@
 # Luồng màn hình và nội dung UI
 
-> **Hiện hành 20/10/2026:** Các luồng tài chính/QR BH-06 đã có ở local; complete/history/summary/pilot được giao theo từng phần BH-07. BH-06 Đạt tích hợp local tại `318bc52` ([review](reviews/bh06/review_318bc52.md)), đã merge vào main tại `e7f7627`; docs/ai đã có trên main (`eaeb209`). BH-07A **Đạt DB/projection local tại `4512c3a`** ([review](reviews/bh07/review_4512c3a.md)); BH-07B **Đạt local tại `d7bac04`**; BH-07C **Chờ review UI tại `15ae1af`** ([bàn giao](reviews/bh07/bh07c_handoff.md)); D chưa nghiệm thu. Analyze sạch, **225 Flutter +23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. Chưa nghiệm thu HTTP/JWT/Auth thật, thiết bị/ngân hàng thật, staging/production, backup/restore hoặc concurrency HTTP; merge code không phải deploy.
+> **Hiện hành 21/10/2026:** BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 
 Đặc tả v1.1, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
 

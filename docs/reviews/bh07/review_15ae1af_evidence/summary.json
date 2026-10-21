@@ -1,0 +1,68 @@
+{
+  "tested_head": "1a886795f6dc52dfb8cf11d8b35dabcaf02c1b3c",
+  "tested_code": "15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba",
+  "docs_evidence_sha": "65ce0f45fe9782184717ac52ba09a992e960d920",
+  "base": "cf95d76855acf1f394b1976ebab54087b4d7bba9",
+  "branch": "feat/bh07c-ui",
+  "status": "Chưa đạt C",
+  "initial_worktree_clean": true,
+  "source_matches_tested_code": true,
+  "tracked_source_unchanged": true,
+  "A_migrations_and_B_models_data_providers_unchanged": true,
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_full_before_reviewer_probes": {
+      "exit": 0,
+      "passed": 225
+    },
+    "targeted_C_six_files": {
+      "exit": 0,
+      "passed": 52
+    },
+    "BH07_DB_after_ready": {
+      "exit": 0,
+      "passed": 23
+    },
+    "reviewer_UI_probes_TZ_UTC": {
+      "exit": 1,
+      "passed": 2,
+      "failed": 3,
+      "failures": [
+        "C1 missing DTO version",
+        "C2 empty-cache refresh error hidden",
+        "C3 device timezone filter"
+      ]
+    },
+    "date_probe_TZ_Asia_Ho_Chi_Minh": {
+      "exit": 0,
+      "passed": 1
+    },
+    "BH02_06_regression": "NOT RUN this review; unchanged backend, B baseline335"
+  },
+  "environment": {
+    "flutter": "3.47.7",
+    "dart": "3.13.5",
+    "postgres": "17 / bh02-review-bh06 / network none",
+    "auth": "stub + SET ROLE, no HTTP"
+  },
+  "run_notes": [
+    "Initial DB run exit1 because PostgreSQL was starting; kept startup log, retried only after pg_isready accepted connections.",
+    "Initial date probe selected Save in input mode; corrected harness selector to OK, no change to date expectation; initial harness log retained, not counted as product reproduction.",
+    "Probe files clone author widget-test setup and append reviewer cases; run --plain-name review to exclude copied author cases; removed from test/ after run.",
+    "Runner HEAD is 1a88679; lib/test/migration match15ae1af exactly. JSON/probe output may make worktree_dirty=true during runs.",
+    "Author raw logs referenced by handoff are absent from committed evidence; independently ran required checks rather than relying on claims."
+  ],
+  "not_run": [
+    "335 DB regressions and BH06 integration/upgrade rerun",
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "thiết bị/browser/deep link/offline/reopen thật",
+    "ngân hàng/VietQR/webhook thật",
+    "staging/production/apply DB thật",
+    "backup/restore",
+    "concurrency HTTP",
+    "pilot D"
+  ]
+}

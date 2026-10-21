@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành 20/10/2026:** BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui`, theo [bàn giao](reviews/bh07/bh07c_handoff.md). Analyze sạch, **225/225 Flutter**, **23/23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy.
+> **Hiện hành 21/10/2026:** BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
 >
 > **(Lịch sử) BH-07B (20/10/2026): Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
 
@@ -64,7 +64,7 @@ Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([revie
 | BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
 | BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
 | BH-06 | Phí/QR/thu tiền/quỹ | 84 PASS; tích hợp 7, nâng cấp 3 | **Đạt tích hợp local, đã merge main e7f7627** |
-| BH-07 | Complete/history/summary/pilot | 23 BH-07 +225 Flutter; 335 hồi quy +7 tích hợp +3 upgrade +6 probe giữ baseline B, chưa chạy lại | **A Đạt 4512c3a; B Đạt d7bac04; C Chờ review 15ae1af; D và toàn BH-07 chưa nghiệm thu** |
+| BH-07 | Complete/history/summary/pilot | 225 Flutter +52 targeted C +23 DB PASS; probe UI 2 PASS/3 FAIL | **A/B Đạt local; C Chưa đạt 15ae1af (C1/C2/C3 P2); D/toàn BH-07 chưa nghiệm thu** |
 
 BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A **Đạt local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md); B đã Đạt local tại `d7bac04`; C **Chờ review tại `15ae1af`** theo [bàn giao](reviews/bh07/bh07c_handoff.md); D và BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
 
@@ -618,3 +618,9 @@ Chủ dự án giao merge main, đồng bộ tiến độ và gửi prompt mới
 BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
 
 Bằng chứng/hash/exit/count và NOT RUN tại review. Cây lib/test/migration trùng `a682007`; không đổi A/UI. Giữ review vòng 0 làm lịch sử; chỉ publish docs/evidence/status trên feat/bh07b-data.
+
+### BH-07C — kết luận reviewer tại 15ae1af (21/10/2026)
+
+BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+
+Bằng chứng mới/exit/hash và NOT RUN trong review. 335 DB hồi quy và BH-06 integration/upgrade giữ baseline B, không chạy lại vì backend không đổi. Nguồn trùng tested code 15ae1af; chỉ publish báo cáo/bằng chứng/trạng thái.

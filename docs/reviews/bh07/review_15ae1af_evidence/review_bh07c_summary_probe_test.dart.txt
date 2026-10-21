@@ -1,0 +1,196 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthState, User;
+
+import 'package:badminton_hub/data/auth_repository.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/providers/auth_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'package:badminton_hub/screens/session_summary_screen.dart';
+
+class MockFinanceRepository extends Mock implements FinanceRepository {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
+
+void main() {
+  late MockFinanceRepository repo;
+  late MockAuthRepository authRepository;
+  late StreamController<AuthState> authStateController;
+  late AuthProvider authProvider;
+
+  User user() => User(
+    id: 'u1',
+    appMetadata: {},
+    userMetadata: {},
+    aud: 'authenticated',
+    createdAt: '2026-10-15',
+  );
+
+  final financeSummary = SessionSummary(
+    sessionId: 's1',
+    title: 'Buổi tối',
+    clubName: 'CLB A',
+    venueName: 'Sân B',
+    startsAt: DateTime.utc(2026, 10, 20, 10),
+    endsAt: DateTime.utc(2026, 10, 20, 12),
+    lifecycle: 'completed',
+    canManage: true,
+    canViewFinance: true,
+    presentCount: 6,
+    noShowCount: 1,
+    confirmedCount: 7,
+    billingState: 'current',
+    expensesTotalVnd: 1500000,
+    amountDueTotalVnd: 2000000,
+    totalPaidVnd: null,
+    outstandingTotalVnd: 300000,
+  );
+
+  setUp(() {
+    repo = MockFinanceRepository();
+    authRepository = MockAuthRepository();
+    authStateController = StreamController<AuthState>.broadcast();
+    when(() => authRepository.authStateChanges)
+        .thenAnswer((_) => authStateController.stream);
+    when(() => authRepository.currentUser).thenReturn(user());
+    authProvider = AuthProvider(repository: authRepository);
+  });
+
+  tearDown(() {
+    authProvider.dispose();
+    authStateController.close();
+  });
+
+  FinanceProvider provider() {
+    final instance = FinanceProvider(repository: repo, auth: authProvider);
+    addTearDown(instance.dispose);
+    return instance;
+  }
+
+  Future<void> pumpScreen(WidgetTester tester, FinanceProvider provider) async {
+    tester.view.physicalSize = const Size(1200, 3200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+          ChangeNotifierProvider<FinanceProvider>.value(value: provider),
+        ],
+        child: const MaterialApp(home: SessionSummaryScreen(sessionId: 's1')),
+      ),
+    );
+  }
+
+  testWidgets('finance thấy aggregate server và sao chép được', (tester) async {
+    when(() => repo.getSessionSummary('s1'))
+        .thenAnswer((_) async => financeSummary);
+    final instance = provider();
+
+    await pumpScreen(tester, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Buổi tối'), findsOneWidget);
+    expect(find.byKey(const Key('bh07c-summary-finance')), findsOneWidget);
+    expect(find.text('Tài chính tổng hợp'), findsOneWidget);
+    expect(find.text('1,500,000 VNĐ'), findsOneWidget);
+    expect(find.text('2,000,000 VNĐ'), findsOneWidget);
+    expect(find.text('300,000 VNĐ'), findsOneWidget);
+    expect(find.text('—'), findsOneWidget);
+    expect(find.text('0 VNĐ'), findsNothing);
+    expect(find.byKey(const Key('bh07c-copy-summary')), findsOneWidget);
+
+    String? copied;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied = (call.arguments as Map)['text'] as String?;
+          }
+          return null;
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('bh07c-copy-summary')));
+    await tester.tap(find.byKey(const Key('bh07c-copy-summary')));
+    await tester.pumpAndSettle();
+    expect(find.text('Đã sao chép tổng kết buổi.'), findsOneWidget);
+    expect(copied, contains('Còn phải thu: 300,000 VNĐ'));
+    expect(copied, contains('Đã thu: —'));
+    expect(copied, isNot(contains('Số điện thoại')));
+    expect(copied, isNot(contains('Ngân hàng')));
+  });
+
+  testWidgets('management-only không thấy hoặc sao chép tiền', (tester) async {
+    when(() => repo.getSessionSummary('s1')).thenAnswer(
+      (_) async => const SessionSummary(
+        sessionId: 's1',
+        title: 'Buổi của host',
+        lifecycle: 'completed',
+        canManage: true,
+        presentCount: 4,
+        confirmedCount: 4,
+      ),
+    );
+    final instance = provider();
+
+    await pumpScreen(tester, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-summary-finance')), findsNothing);
+    expect(find.text('Chỉ xem số lượng'), findsOneWidget);
+    expect(find.text('Tổng chi phí'), findsNothing);
+    expect(find.text('VNĐ'), findsNothing);
+    expect(find.byKey(const Key('bh07c-copy-summary')), findsOneWidget);
+  });
+
+  testWidgets('FORBIDDEN hiện lỗi và cho retry tải lại', (tester) async {
+    when(() => repo.getSessionSummary('s1'))
+        .thenThrow(Exception('PostgrestException(FORBIDDEN: raw)'));
+    final instance = provider();
+
+    await pumpScreen(tester, instance);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-summary-error')), findsOneWidget);
+    expect(
+      find.text('Bạn không có quyền thực hiện thao tác này.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('bh07c-copy-summary')), findsNothing);
+
+    when(() => repo.getSessionSummary('s1'))
+        .thenAnswer((_) async => financeSummary);
+    await tester.tap(find.byKey(const Key('bh07c-summary-retry')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('bh07c-summary-error')), findsNothing);
+    expect(find.text('Buổi tối'), findsOneWidget);
+    expect(find.byKey(const Key('bh07c-copy-summary')), findsOneWidget);
+  });
+
+  testWidgets('review control: summary transport keeps cache and FORBIDDEN removes copy', (tester) async {
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_)async=>financeSummary);
+    final instance=provider();await pumpScreen(tester,instance);await tester.pumpAndSettle();
+    when(() => repo.getSessionSummary('s1')).thenThrow(Exception('network disconnected'));
+    await tester.tap(find.byTooltip('Tải lại tổng kết'));await tester.pumpAndSettle();
+    expect(find.text('Buổi tối'),findsOneWidget);
+    expect(find.text('Chưa làm mới được tổng kết'),findsOneWidget);
+    expect(find.byKey(const Key('bh07c-copy-summary')),findsOneWidget);
+    when(() => repo.getSessionSummary('s1')).thenThrow(Exception('FORBIDDEN: role revoked'));
+    await tester.tap(find.byTooltip('Tải lại tổng kết'));await tester.pumpAndSettle();
+    expect(find.text('Buổi tối'),findsNothing);
+    expect(find.byKey(const Key('bh07c-copy-summary')),findsNothing);
+    expect(find.byKey(const Key('bh07c-summary-error')),findsOneWidget);
+    expect(find.byKey(const Key('bh07c-summary-retry')),findsOneWidget);
+  });
+}

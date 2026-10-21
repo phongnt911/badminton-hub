@@ -1,5 +1,8 @@
 # Bàn giao BH-07C — Chờ review (20/10/2026)
 
+> **Reviewer 21/10/2026: Chưa đạt C tại `15ae1af`**, C1/C2/C3 P2 còn mở. [Review/bằng chứng](review_15ae1af.md). Sửa UI vòng 1/2 theo AGENTS, không đổi A/B hoặc chuyển D/merge/deploy. Bàn giao/kết quả tác giả dưới đây giữ làm lịch sử.
+
+
 - Nhánh `feat/bh07c-ui`, base `cf95d76855acf1f394b1976ebab54087b4d7bba9`, tested code `15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba`.
 - Chỉ làm phần C (UI). Không sửa migration/RPC A, model/repository/provider B, contract complete/history/summary, `main`, staging hay production.
 - A và B giữ Đạt local theo `4512c3a` và `d7bac04`. **C đang Chờ review**, người triển khai không tự ghi Đạt.
