@@ -1,0 +1,78 @@
+{
+  "base": "b0478a72021a726530c4051b52239a0a22d7fb96",
+  "tested_code": "3d590a8418157cf91b00b9a5503d09be4df069f3",
+  "tested_head": "ce4522da5dc6785a0487acd1ae19d3ff80014a0c",
+  "branch": "feat/bh07-integration",
+  "status": "Đạt BH-07D tích hợp local; chưa nghiệm thu toàn BH-07/pilot",
+  "initial_worktree_clean": true,
+  "own_DB_worktree_dirty": false,
+  "own_DB_head_matches_checkout": true,
+  "source_matches_tested_code_and_unchanged_after_review": true,
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter": {
+      "exit": 0,
+      "passed": 240
+    },
+    "D_UTC": {
+      "exit": 0,
+      "passed": 10
+    },
+    "D_Vietnam": {
+      "exit": 0,
+      "passed": 10
+    },
+    "C_UTC": {
+      "exit": 0,
+      "passed": 50
+    },
+    "C_Vietnam": {
+      "exit": 0,
+      "passed": 50
+    },
+    "BH07_DB": {
+      "exit": 0,
+      "passed": 23
+    },
+    "reviewer_probes": {
+      "exit": 0,
+      "passed": 6
+    },
+    "diff_check": {
+      "exit": 0
+    }
+  },
+  "environment": {
+    "flutter": "3.47.7",
+    "dart": "3.13.5",
+    "postgres": "17, bh02-review-bh06 --network none",
+    "auth": "stub + SET ROLE"
+  },
+  "findings": [],
+  "author_evidence": {
+    "all_manifest_paths_present": true,
+    "all_hashes_match_direct_or_CRLF": true,
+    "DB_SHA": "3d590a8418157cf91b00b9a5503d09be4df069f3",
+    "DB_worktree_dirty": false,
+    "red": "0 PASS/1 FAIL, exit1; expense button present on completed",
+    "not_an_attestation_of_historical_execution": true
+  },
+  "scope_limits": [
+    "D uses actual UI/provider with repository mocks; not actual repository HTTP integration.",
+    "Cross-club reviewer probe injects FORBIDDEN; validates client response, not server ACL.",
+    "Post-complete cash in D asserts button presence; D itself does not execute cash submission.",
+    "No independent rerun of historical baseline/red; compared archived raw logs and source diff."
+  ],
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật/token ACL",
+    "browser/mobile/thiết bị/offline/reopen/deep link thật",
+    "ngân hàng/VietQR/webhook thật",
+    "staging/production/backup/restore",
+    "concurrency HTTP",
+    "pilot D/rehearsal/nghiệm thu toàn BH-07",
+    "335 DB regression BH02..06 rerun; BH06 integration/upgrade rerun"
+  ]
+}

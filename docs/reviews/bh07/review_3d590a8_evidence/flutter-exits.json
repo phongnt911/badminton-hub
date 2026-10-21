@@ -1,0 +1,66 @@
+[
+  {
+    "name": "analyze",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "analyze"
+    ],
+    "TZ": null,
+    "exit": 0
+  },
+  {
+    "name": "flutter",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test"
+    ],
+    "TZ": null,
+    "exit": 0
+  },
+  {
+    "name": "d_utc",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "test/integration/bh07_full_flow_test.dart"
+    ],
+    "TZ": "UTC",
+    "exit": 0
+  },
+  {
+    "name": "d_vietnam",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "test/integration/bh07_full_flow_test.dart"
+    ],
+    "TZ": "Asia/Ho_Chi_Minh",
+    "exit": 0
+  },
+  {
+    "name": "c_utc",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "test/screens/session_finance_screen_test.dart",
+      "test/screens/session_history_screen_test.dart",
+      "test/screens/session_summary_screen_test.dart",
+      "test/screens/session_detail_screen_test.dart"
+    ],
+    "TZ": "UTC",
+    "exit": 0
+  },
+  {
+    "name": "c_vietnam",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "test/screens/session_finance_screen_test.dart",
+      "test/screens/session_history_screen_test.dart",
+      "test/screens/session_summary_screen_test.dart",
+      "test/screens/session_detail_screen_test.dart"
+    ],
+    "TZ": "Asia/Ho_Chi_Minh",
+    "exit": 0
+  }
+]

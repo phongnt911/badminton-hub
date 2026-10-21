@@ -1,0 +1,106 @@
+[
+  {
+    "file": "analyze.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "analyze_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_analyze.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_analyze_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_bh07_db_runner.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_bh07_db_runner_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_flutter_test.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "baseline_flutter_test_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "bh07_db_results_3d590a8.json",
+    "status": "MATCH_CRLF"
+  },
+  {
+    "file": "bh07_db_runner.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "bh07_db_runner_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "c_regression_targeted_tz_asia_hcm.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "c_regression_targeted_tz_asia_hcm_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "c_regression_targeted_tz_utc.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "c_regression_targeted_tz_utc_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "commands.md",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_red_post_complete_add_expense.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_red_post_complete_add_expense_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_targeted_tz_asia_hcm.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_targeted_tz_asia_hcm_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_targeted_tz_utc.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "d_targeted_tz_utc_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "environment.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "flutter_test_full.log",
+    "status": "MATCH"
+  },
+  {
+    "file": "flutter_test_full_exit.txt",
+    "status": "MATCH"
+  },
+  {
+    "file": "summary.json",
+    "status": "MATCH"
+  }
+]

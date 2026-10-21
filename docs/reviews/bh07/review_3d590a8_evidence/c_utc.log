@@ -1,0 +1,78 @@
+Resolving dependencies...
+Downloading packages...
+  cupertino_icons 1.0.9 (2.0.0 available)
+  gotrue 2.27.2 (2.27.3 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  realtime_client 2.13.0 (2.13.2 available)
+  shared_preferences_android 2.4.28 (2.5.1 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
+  supabase 2.16.2 (2.16.5 available)
+  supabase_flutter 2.18.0 (2.18.3 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+Got dependencies!
+12 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /workspace/badminton-hub/test/screens/session_finance_screen_test.dart
+00:00 +0: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: (setUpAll)
+00:00 +0: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: hiện trạng thái phí và chốt phí gửi đúng version
+00:01 +1: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: stale: chặn thu mới nhưng vẫn cho từ chối/hoàn tác
+00:01 +2: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: người chơi: không thấy thao tác finance, gửi đúng registration ID và reference do RPC sinh
+00:01 +3: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C2: gửi lại sau từ chối dùng request ID mới và reference RPC sinh
+00:01 +4: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C1: thiếu registration ID thì không bật nút gửi
+00:01 +5: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C2: trả thêm sau refinalize tạo intent mới với số tiền mới
+00:02 +6: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C3: không suy khoản nợ từ một trang payment thiếu lịch sử
+00:02 +7: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:03 +8: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: người chơi: chưa chốt phí thì không có QR
+00:03 +9: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: lỗi đọc hiện Thử lại và tải lại, không hạ số về 0
+00:03 +10: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: đang tải thì hiện vòng xoay
+00:03 +11: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:04 +12: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: I2: refresh cập nhật session version hiện hành sau VERSION_CONFLICT
+00:04 +13: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: kết thúc buổi gửi đúng version và trả true
+00:04 +14: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: thiếu sessionVersion DTO thì nút kết thúc bị khoá dù route có version
+00:04 +15: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: manager: stale thì nút kết thúc bị khoá
+00:04 +16: /workspace/badminton-hub/test/screens/session_finance_screen_test.dart: (tearDownAll)
+00:04 +16: loading /workspace/badminton-hub/test/screens/session_history_screen_test.dart
+00:05 +16: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: (setUpAll)
+00:05 +16: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: hiện lịch sử, giữ lifecycle và nối trang kế
+00:05 +17: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: lỗi lịch sử có thông báo và retry
+00:05 +18: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: lọc theo CLB gửi đúng filter và empty có xoá lọc
+00:06 +19: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: cache rỗng không che lỗi refresh; có retry
+00:06 +20: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:07 +21: /workspace/badminton-hub/test/screens/session_history_screen_test.dart: (tearDownAll)
+00:07 +21: loading /workspace/badminton-hub/test/screens/session_summary_screen_test.dart
+00:07 +21: /workspace/badminton-hub/test/screens/session_summary_screen_test.dart: finance thấy aggregate server và sao chép được
+00:08 +22: /workspace/badminton-hub/test/screens/session_summary_screen_test.dart: management-only không thấy hoặc sao chép tiền
+00:08 +23: /workspace/badminton-hub/test/screens/session_summary_screen_test.dart: FORBIDDEN hiện lỗi và cho retry tải lại
+00:08 +24: loading /workspace/badminton-hub/test/screens/session_detail_screen_test.dart
+00:09 +24: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: (setUpAll)
+00:09 +24: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:10 +25: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: roster error is not empty state and retry recovers
+00:10 +26: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: guest mở link công khai, được mời đăng nhập và giữ đúng route quay lại
+00:10 +27: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: host thấy nút Công bố cho bản nháp và gọi publish
+00:11 +28: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi cần đăng nhập hiển thị nút Đăng nhập và Thử lại
+00:11 +29: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi khác chỉ hiển thị Thử lại
+00:11 +30: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player chưa đăng ký bấm Đăng ký tham gia gọi requestJoinSession
+00:11 +31: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player trong danh sách chờ có lời mời thấy nút Chấp nhận lời mời
+00:11 +32: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: player confirmed tự huỷ đăng ký sau khi xác nhận
+00:11 +33: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: host duyệt pending gọi decide_registration
+00:11 +34: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: lỗi mutation đăng ký hiển thị thông điệp và cho phép thử lại
+00:11 +35: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1 lỗi tải lời mời hiển thị lỗi và cho thử lại
+00:11 +36: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1 đang tải lời mời có chỉ báo, chưa cho chấp nhận
+00:11 +37: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C2 buổi đầy vẫn cho đăng ký; lỗi hiển thị và thử lại được
+00:11 +38: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C3 dialog thêm người tải roster CLB của buổi chưa mở màn CLB
+00:12 +39: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:12 +40: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: C1-R đang tải lại lời mời thì không cho chấp nhận bằng cache cũ
+00:12 +41: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I1 host có nút Bắt đầu buổi chơi và gọi start_session
+00:12 +42: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I1 người không quản lý không thấy nút Bắt đầu buổi chơi
+00:12 +43: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 người đã huỷ đăng ký bấm Đăng ký tham gia gọi lại RPC
+00:12 +44: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 đăng ký lại lỗi hiển thị và thử lại được
+00:12 +45: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: I2 buổi đã huỷ thì không có nút đăng ký lại
+00:12 +46: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: quyền finance thấy mục Tài chính & thu tiền
+00:13 +47: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: người chơi không có quyền finance chỉ thấy Phần phí của tôi
+00:13 +48: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: buổi đã kết thúc: quản lý/finance thấy lối vào tổng kết
+00:13 +49: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: người chơi không thấy lối vào tổng kết
+00:13 +50: /workspace/badminton-hub/test/screens/session_detail_screen_test.dart: (tearDownAll)
+00:13 +50: All tests passed!

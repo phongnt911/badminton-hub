@@ -1,0 +1,55 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+import 'package:badminton_hub/models/session.dart';
+import 'package:badminton_hub/models/finance.dart';
+import 'package:badminton_hub/providers/auth_provider.dart';
+import 'package:badminton_hub/providers/session_provider.dart';
+import 'package:badminton_hub/providers/finance_provider.dart';
+import 'package:badminton_hub/screens/session_detail_screen.dart';
+import 'package:badminton_hub/screens/session_finance_screen.dart';
+import 'providers/finance_provider_test.dart' as ft;
+import 'providers/session_provider_test.dart' as st;
+import 'integration/bh07_full_flow_test.dart' as dt;
+
+void main() {
+  for (final lifecycle in ['draft','published','in_progress','completed','cancelled']) {
+    testWidgets('review expense gate $lifecycle preserves server outstanding', (tester) async {
+      tester.view.physicalSize=const Size(1200,3600);tester.view.devicePixelRatio=1;
+      addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
+      final repo=ft.MockFinanceRepository();final auth=ft.FakeAuth()..changeUser('u1');
+      when(() => repo.getSessionFinance('s1',limit:any(named:'limit'),offset:any(named:'offset'))).thenAnswer((_)async=>SessionFinance(
+        sessionId:'s1',lifecycle:lifecycle,sessionVersion:8,billingState:'current',
+        activeRevision:const FinanceRevision(revisionId:'r1'),outstandingTotalVnd:60000,
+        charges:const [FinanceCharge(playerId:'p1',displayName:'A',amountDueVnd:100000)],
+        payments:const [FinancePayment(paymentId:'pay1',playerId:'p1',amountVnd:50000,status:'confirmed')],
+      ));
+      final finances=FinanceProvider(repository:repo,auth:auth);addTearDown(finances.dispose);
+      await tester.pumpWidget(ChangeNotifierProvider<FinanceProvider>.value(value:finances,child:MaterialApp(home:SessionFinanceScreen(session:Session(id:'s1',title:'Review',lifecycle:lifecycle,canManage:true,canViewFinance:true,version:8)))));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('bh06c-add-expense')), lifecycle=='completed'||lifecycle=='cancelled'?findsNothing:findsOneWidget);
+      expect(find.byKey(const Key('bh06c-finalize')),findsOneWidget);
+      expect(find.text('60,000 VNĐ'),findsOneWidget,reason:'Server outstanding differs from due100000-paid50000');
+    });
+  }
+  testWidgets('review cross-club denial is an error without management actions', (tester) async {
+    final fake=ft.FakeAuth()..changeUser('u1');final authRepo=dt.MockAuthRepository();
+    when(()=>authRepo.currentUser).thenReturn(fake.currentUser);
+    when(()=>authRepo.authStateChanges).thenAnswer((_)=>const Stream.empty());
+    final auth=AuthProvider(repository:authRepo);addTearDown(auth.dispose);
+    final sessionRepo=st.MockSessionRepository();
+    when(()=>sessionRepo.getSessionDetail('other-club-session')).thenThrow(const PostgrestException(message:'FORBIDDEN: cross club',code:'42501'));
+    final sessions=SessionProvider(repository:sessionRepo,auth:auth);addTearDown(sessions.dispose);
+    final finances=FinanceProvider(repository:ft.MockFinanceRepository(),auth:auth);addTearDown(finances.dispose);
+    await tester.pumpWidget(MultiProvider(providers:[ChangeNotifierProvider<AuthProvider>.value(value:auth),ChangeNotifierProvider<SessionProvider>.value(value:sessions),ChangeNotifierProvider<FinanceProvider>.value(value:finances)],child:const MaterialApp(home:SessionDetailScreen(sessionId:'other-club-session'))));
+    await tester.pumpAndSettle();
+    expect(find.text('Bạn không có quyền thực hiện thao tác này.'),findsOneWidget);
+    expect(find.byKey(const Key('bh07c-summary-entry')),findsNothing);
+    expect(find.text('Tài chính & thu tiền'),findsNothing);
+    expect(find.text('Bắt đầu buổi chơi'),findsNothing);
+    verifyNever(()=>sessionRepo.startSession(requestId:any(named:'requestId'),sessionId:any(named:'sessionId')));
+  });
+}

@@ -108,10 +108,16 @@ Kết quả người triển khai tự chạy: analyze sạch, **225/225 Flutter
 
 BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độc lập](reviews/bh07/review_15ae1af.md): C1/C2/C3 P2 (complete thiếu DTO version, lỗi refresh cache rỗng bị che, lọc ngày phụ thuộc múi giờ). Reviewer tự chạy analyze sạch, **225 Flutter +52 targeted C +23 BH-07 DB PASS**; probe UI **2 PASS/3 FAIL**, control ngày UTC+7 **1 PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Chỉ sửa C vòng 1/2, test đỏ trước sửa; không đổi A/B, chuyển D, merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN. Đã được thay bằng mục sửa vòng 1/2 ở đầu tài liệu.
 
-## Hiện hành — BH-07C Đạt local vòng 1/2 tại 02a9b85 (21/10/2026)
+## (Lịch sử) — BH-07C Đạt local vòng 1/2 tại 02a9b85 (21/10/2026)
 
 BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Bảy log gốc đã bổ sung tại `3d5583b`, reviewer kiểm hash/count khớp; xem phụ lục review_02a9b85_logs_3d5583b.md.
 
 ## Bổ sung log gốc BH-07C — 3d5583b (21/10/2026)
 
 Reviewer xác nhận đủ bảy log, hash nguyên bytes khớp manifest f63e5a4, count/exit khớp tự báo. [Phụ lục](reviews/bh07/review_02a9b85_logs_3d5583b.md). Đóng ghi chú thiếu log; C giữ Đạt local02a9b85. Không chạy test mới, không đổi code hoặc các cổng NOT RUN.
+
+## Hiện hành — BH-07D Đạt tích hợp local tại 3d590a8 (21/10/2026)
+
+BH-07D **Đạt tích hợp local tại `3d590a8`** theo [review độc lập](reviews/bh07/review_3d590a8.md), không có P0/P1/P2 mở trong phạm vi được giao. Reviewer tự chạy analyze sạch, **240 Flutter**, **10 D +50 C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **6 probe reviewer** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`. HTTP/JWT/Auth thật, thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; toàn BH-07 chưa nghiệm thu. Không tự merge main, apply DB thật hoặc deploy.
+
+Chỉ publish báo cáo/bằng chứng/trạng thái trên feat/bh07-integration; không đổi nguồn triển khai.
