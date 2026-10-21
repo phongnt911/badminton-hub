@@ -1,6 +1,6 @@
 # Luồng màn hình và nội dung UI
 
-> **Hiện hành 21/10/2026:** BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`** trên `feat/bh07c-ui`, base `9b97846`, sau khi sửa C1/C2/C3 P2 theo [review độc lập](reviews/bh07/review_15ae1af.md). Test đỏ trước sửa (3 FAIL); sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Người triển khai không tự ghi Đạt; không đổi A/B, chưa chuyển D, chưa merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+> **Hiện hành 21/10/2026:** BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Giới hạn log gốc tác giả ghi rõ trong review.
 
 Đặc tả v1.1, ưu tiên mobile. Màu/theme hiện tại có thể giữ; tập trung rõ trạng thái và hành động.
 

@@ -1,6 +1,6 @@
 # Backlog triển khai và nghiệm thu
 
-> **Hiện hành 21/10/2026:** BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`** trên `feat/bh07c-ui`, base `9b97846`, sau khi sửa C1/C2/C3 P2 theo [review độc lập](reviews/bh07/review_15ae1af.md). Test đỏ trước sửa (3 FAIL); sau sửa analyze sạch, **230 Flutter +57 targeted C (UTC và Asia/Ho_Chi_Minh) +23 BH-07 DB PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Người triển khai không tự ghi Đạt; không đổi A/B, chưa chuyển D, chưa merge main hoặc deploy. Các cổng môi trường thật và pilot vẫn NOT RUN.
+> **Hiện hành 21/10/2026:** BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Giới hạn log gốc tác giả ghi rõ trong review.
 >
 > **(Lịch sử) BH-07B (20/10/2026): Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
 
@@ -64,7 +64,7 @@ Cập nhật 16/10/2026: BH-05 đạt review tích hợp tại `d769531` ([revie
 | BH-04 | Buổi chơi, lịch, chia sẻ link | 44 PASS | Đã triển khai |
 | BH-05 | Đăng ký, duyệt, huỷ, điểm danh, lời mời danh sách chờ, bắt đầu buổi | 90 PASS (45 kịch bản × CLEAN/LEGACY) | **Đạt review tích hợp và hồi quy main**, chưa production |
 | BH-06 | Phí/QR/thu tiền/quỹ | 84 PASS; tích hợp 7, nâng cấp 3 | **Đạt tích hợp local, đã merge main e7f7627** |
-| BH-07 | Complete/history/summary/pilot | 230 Flutter +57 targeted C +23 DB PASS | **A/B Đạt local; C Chờ review vòng 1/2 tại 02a9b85; D/toàn BH-07 chưa nghiệm thu** |
+| BH-07 | Complete/history/summary/pilot | 230 Flutter +57 targeted C/múi giờ +23 DB +5 probe/múi giờ PASS | **A/B giữ Đạt; C Đạt local 02a9b85, đóng C1/C2/C3 vòng 1/2; D/toàn BH-07 chưa nghiệm thu** |
 
 BH-06 A/B/C và tích hợp đã **Đạt local**, merge main `e7f7627`, theo [review](reviews/bh06/review_318bc52.md). BH-07A **Đạt local tại `4512c3a`** theo [review](reviews/bh07/review_4512c3a.md); B đã Đạt local tại `d7bac04`; C **Chờ review vòng 1/2 tại `02a9b85`** theo [bàn giao](reviews/bh07/bh07c_handoff.md); D và BH-08/BH-09 chưa giao. Những bảng/phát hiện bên dưới có ngày cũ là lịch sử, không thay trạng thái hiện hành đầu tài liệu.
 
@@ -628,3 +628,9 @@ Bằng chứng mới/exit/hash và NOT RUN trong review. 335 DB hồi quy và BH
 ### BH-07C — bàn giao sửa vòng 1/2 tại 02a9b85 (21/10/2026)
 
 BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`**, base `9b97846`, sau khi sửa C1/C2/C3 P2. Test đỏ trước sửa exit 1 với 3 FAIL đúng phạm vi; sau sửa analyze sạch, **230 Flutter +57 targeted C dưới UTC và Asia/Ho_Chi_Minh +23 BH-07 DB PASS**. A giữ Đạt `4512c3a`; B giữ Đạt `d7bac04` (code `a682007`). Người triển khai không tự ghi Đạt; không đổi A/B, chưa chuyển D, merge main hoặc deploy. [Bàn giao](reviews/bh07/bh07c_handoff.md), [bằng chứng](reviews/bh07/bh07c_fix_evidence/commands.md). Các cổng môi trường thật và pilot vẫn NOT RUN.
+
+### BH-07C — kết luận reviewer vòng 1/2 tại 02a9b85 (21/10/2026)
+
+BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Giới hạn log gốc tác giả ghi rõ trong review.
+
+Báo cáo có PASS từng C1/C2/C3, lệnh/exit/count, hash, giới hạn log gốc tác giả và NOT RUN. Nguồn trùng tested code, chỉ publish docs/evidence/status. Không chạy lại 335 DB hồi quy hoặc BH-06 integration/upgrade vì backend không đổi.

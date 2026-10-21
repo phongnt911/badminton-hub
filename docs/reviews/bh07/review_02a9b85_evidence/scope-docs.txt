@@ -1,0 +1,23 @@
+ AGENTS.md                                          |   2 +-
+ README.md                                          |   4 +-
+ docs/00_START_HERE.md                              |   6 +-
+ docs/09_IMPLEMENTATION_PLAN.md                     |  10 +-
+ docs/10_SCREEN_FLOWS.md                            |   2 +-
+ docs/25_BH07_IMPLEMENTATION_HANDOFF.md             |  13 ++-
+ docs/STATUS_HISTORY.md                             |   8 +-
+ .../bh07c_fix_evidence/bh07_db_runner_exit.txt     |   1 +
+ .../bh07_test_results_20261021020900.json          | 126 +++++++++++++++++++++
+ .../bh07/bh07c_fix_evidence/changed_files.txt      | Bin 0 -> 494 bytes
+ docs/reviews/bh07/bh07c_fix_evidence/commands.md   |  78 +++++++++++++
+ .../bh07/bh07c_fix_evidence/diff_check_exit.txt    |   1 +
+ docs/reviews/bh07/bh07c_fix_evidence/diff_stat.txt | Bin 0 -> 924 bytes
+ .../bh07/bh07c_fix_evidence/environment.txt        |  11 ++
+ .../bh07c_fix_evidence/flutter_analyze_exit.txt    |   1 +
+ .../bh07/bh07c_fix_evidence/flutter_test_exit.txt  |   1 +
+ .../bh07/bh07c_fix_evidence/red_targeted_exit.txt  |   1 +
+ docs/reviews/bh07/bh07c_fix_evidence/sha256.txt    |  20 ++++
+ docs/reviews/bh07/bh07c_fix_evidence/summary.json  |  36 ++++++
+ .../bh07/bh07c_fix_evidence/targeted_utc_exit.txt  |   1 +
+ .../bh07c_fix_evidence/targeted_vietnam_exit.txt   |   1 +
+ docs/reviews/bh07/bh07c_handoff.md                 |  15 ++-
+ 22 files changed, 322 insertions(+), 16 deletions(-)

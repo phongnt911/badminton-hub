@@ -1,0 +1,68 @@
+{
+  "branch": "feat/bh07c-ui",
+  "base": "9b978467316d66c458846ac68c5de8021401fa0c",
+  "tested_code": "02a9b857724e9ba031323ad732c90355d7932a39",
+  "tested_head_docs": "f63e5a4e58303a698017e8a46f91fcd3d79227f4",
+  "round": "1/2",
+  "status": "Đạt C1/C2/C3 local",
+  "initial_worktree_clean": true,
+  "source_matches_tested_code": true,
+  "source_unchanged_after_review": true,
+  "checks": {
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter": {
+      "exit": 0,
+      "passed": 230
+    },
+    "targeted_UTC": {
+      "exit": 0,
+      "passed": 57
+    },
+    "targeted_Asia_Ho_Chi_Minh": {
+      "exit": 0,
+      "passed": 57
+    },
+    "BH07_DB": {
+      "exit": 0,
+      "passed": 23
+    },
+    "reviewer_probes_UTC": {
+      "exit": 0,
+      "passed": 5
+    },
+    "reviewer_probes_Asia_Ho_Chi_Minh": {
+      "exit": 0,
+      "passed": 5
+    }
+  },
+  "closed_findings": [
+    "C1 P2",
+    "C2 P2",
+    "C3 P2"
+  ],
+  "open_findings": [],
+  "environment": {
+    "flutter": "3.47.7",
+    "dart": "3.13.5",
+    "postgres": "17, bh02-review-bh06 network none",
+    "auth": "stub + SET ROLE"
+  },
+  "author_evidence_notes": [
+    "Seven referenced raw logs absent; original red log/run chronology not independently verified. Prior reviewer red probes retained in review_15ae1af_evidence.",
+    "All existing sha256.txt entries match as bytes or after LF->CRLF reconstruction; no unexplained hash mismatch. See author-hash-check.json.",
+    "Author DB JSON base_sha=9b97846 and worktree_dirty=true; do not claim that metadata identifies tested code02a9b85. Own run at f63e5a4 with lib/test/migrations matching02a9b85."
+  ],
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "thiết bị/browser/offline/deep link",
+    "ngân hàng/VietQR/webhook",
+    "staging/production/backup/restore",
+    "concurrency HTTP",
+    "pilot D",
+    "335 DB BH02..06 regression rerun; BH06 integration/upgrade rerun",
+    "original author raw logs/red run chronology"
+  ]
+}

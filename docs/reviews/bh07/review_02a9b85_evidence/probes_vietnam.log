@@ -1,0 +1,12 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart
+00:00 +0: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: (setUpAll)
+00:00 +0: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review C1: missing finance DTO version must disable complete
+00:00 +1: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: review control: complete locks pending and VERSION_CONFLICT stays on screen
+00:01 +2: /workspace/badminton-hub/test/review_bh07c_finance_probe_test.dart: (tearDownAll)
+00:01 +2: loading /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart
+00:01 +2: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: (setUpAll)
+00:01 +2: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C2: refresh failure after empty page remains an error
+00:02 +3: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review C3: selected Vietnamese calendar day maps to UTC+7 bounds
+00:03 +4: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: review control: nonempty cache survives refresh error and retry
+00:03 +5: /workspace/badminton-hub/test/review_bh07c_history_probe_test.dart: (tearDownAll)
+00:03 +5: All tests passed!

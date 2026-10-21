@@ -1,0 +1,56 @@
+[
+  {
+    "name": "analyze",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "analyze",
+      "--no-pub"
+    ],
+    "TZ": null,
+    "exit": 0
+  },
+  {
+    "name": "flutter",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "--no-pub"
+    ],
+    "TZ": null,
+    "exit": 0
+  },
+  {
+    "name": "targeted_utc",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "--no-pub",
+      "test/core/session_summary_text_test.dart",
+      "test/core/time_utils_test.dart",
+      "test/screens/session_summary_screen_test.dart",
+      "test/screens/session_history_screen_test.dart",
+      "test/screens/session_finance_screen_test.dart",
+      "test/screens/session_detail_screen_test.dart",
+      "test/screens/sessions_screen_test.dart"
+    ],
+    "TZ": "UTC",
+    "exit": 0
+  },
+  {
+    "name": "targeted_vietnam",
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test",
+      "--no-pub",
+      "test/core/session_summary_text_test.dart",
+      "test/core/time_utils_test.dart",
+      "test/screens/session_summary_screen_test.dart",
+      "test/screens/session_history_screen_test.dart",
+      "test/screens/session_finance_screen_test.dart",
+      "test/screens/session_detail_screen_test.dart",
+      "test/screens/sessions_screen_test.dart"
+    ],
+    "TZ": "Asia/Ho_Chi_Minh",
+    "exit": 0
+  }
+]
