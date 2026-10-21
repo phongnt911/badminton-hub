@@ -1,0 +1,12 @@
+# BH-07D integration evidence environment
+
+date_utc=2026-10-21T04:54:30Z
+branch=feat/bh07-integration
+base_sha=b0478a72021a726530c4051b52239a0a22d7fb96
+tested_sha=3d590a8418157cf91b00b9a5503d09be4df069f3
+os=Microsoft Windows NT 10.0.26100.0 (Windows x64)
+flutter=3.47.6 (stable), framework revision 5fc346839b
+dart=3.13.5 (stable)
+python=3.12.7
+db_container=bh02-test-postgres (PostgreSQL local, image id b0f9560a2de0)
+git_status_before_docs=clean (only integration_evidence untracked)

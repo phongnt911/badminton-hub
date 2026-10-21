@@ -107,3 +107,10 @@ BH-07C **Chưa đạt tại `15ae1af`** trên `feat/bh07c-ui` theo [review độ
 BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Bảy log gốc đã bổ sung tại `3d5583b`, reviewer kiểm hash/count khớp; xem phụ lục review_02a9b85_logs_3d5583b.md.
 
 Bàn giao/kết luận các vòng phía trên giữ làm lịch sử theo SHA; không tự coi phần C Đạt local là pilot/deploy.
+
+## 15. Bàn giao BH-07D — Chờ review tích hợp BH-07 (21/10/2026)
+
+- Nhánh `feat/bh07-integration`, base D `b0478a72021a726530c4051b52239a0a22d7fb96`, **tested code `3d590a8418157cf91b00b9a5503d09be4df069f3`**. **Chờ review tích hợp BH-07**; người triển khai không tự ghi Đạt. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`); C giữ `02a9b85`.
+- Chỉ thêm 10 test tích hợp D và sửa tối thiểu `session_finance_screen.dart`: ẩn `Thêm chi phí` sau `completed/cancelled` vì RPC `post_session_expense` từ chối; giữ chốt lại phí, thu tiền mặt, xác nhận/từ chối thanh toán và hoàn tác.
+- Test đỏ trước sửa exit 1 đúng 1 FAIL (`bh06c-add-expense` vẫn hiện sau complete). Sau sửa: analyze sạch, **240/240 Flutter**, **10/10 D mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **50/50 targeted C mỗi múi giờ**, **23/23 BH-07 DB** (`worktree_dirty=false`). [Bàn giao](reviews/bh07/bh07_integration_handoff.md), [lệnh/bằng chứng](reviews/bh07/integration_evidence/commands.md).
+- Không sửa migration/RPC/model/repository/provider/contract, không sửa A/B/C, không merge main hoặc deploy. HTTP/PostgREST/JWT/Auth thật, browser/mobile/offline/deep link, concurrency HTTP, banking/webhook, staging/production, backup/restore, rehearsal/pilot và nghiệm thu toàn BH-07: NOT RUN.

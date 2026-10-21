@@ -1,0 +1,54 @@
+{
+  "ticket": "BH-07D",
+  "status": "pending_integration_review",
+  "branch": "feat/bh07-integration",
+  "base_sha": "b0478a72021a726530c4051b52239a0a22d7fb96",
+  "tested_code_sha": "3d590a8418157cf91b00b9a5503d09be4df069f3",
+  "baseline": {
+    "analyze": {"exit": 0, "result": "No issues found"},
+    "flutter": {"exit": 0, "passed": 230},
+    "bh07_db": {"exit": 0, "total": 23, "passed": 23, "failed": 0}
+  },
+  "red": {
+    "command": "git checkout HEAD^ -- lib/screens/session_finance_screen.dart; flutter test test/integration/bh07_full_flow_test.dart --plain-name \"sau complete\"",
+    "exit": 1,
+    "failures": 1,
+    "finding": "Sau complete, UI vẫn hiện bh06c-add-expense dù RPC post_session_expense từ chối completed/cancelled",
+    "log": "d_red_post_complete_add_expense.log"
+  },
+  "green": {
+    "analyze": {"command": "flutter analyze", "exit": 0, "result": "No issues found"},
+    "flutter": {"command": "flutter test", "exit": 0, "passed": 240},
+    "d_targeted_utc": {"command": "TZ=UTC flutter test test/integration/bh07_full_flow_test.dart", "exit": 0, "passed": 10},
+    "d_targeted_vietnam": {"command": "TZ=Asia/Ho_Chi_Minh flutter test test/integration/bh07_full_flow_test.dart", "exit": 0, "passed": 10},
+    "c_regression_utc": {"exit": 0, "passed": 50, "files": 4},
+    "c_regression_vietnam": {"exit": 0, "passed": 50, "files": 4},
+    "bh07_db": {
+      "command": "python docs/reviews/bh07/run_bh07_tests.py",
+      "exit": 0,
+      "total": 23,
+      "passed": 23,
+      "failed": 0,
+      "worktree_dirty": false,
+      "result_file": "bh07_db_results_3d590a8.json"
+    }
+  },
+  "scope": [
+    "test/integration/bh07_full_flow_test.dart",
+    "lib/screens/session_finance_screen.dart"
+  ],
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "thiết bị/browser thật, offline/reopen, deep link",
+    "concurrency qua HTTP thật",
+    "ngân hàng/VietQR/webhook thật",
+    "staging/production, backup/restore",
+    "rehearsal/pilot và nghiệm thu toàn BH-07",
+    "hồi quy DB BH-02..06 (335 case) do không đổi DB/backend"
+  ],
+  "limitations": [
+    "Test D dùng repository/provider/UI thật nhưng backend được mock ở ranh giới repository; không chứng minh HTTP/PostgREST/JWT/Auth thật.",
+    "DB runner chỉ là PostgreSQL local + Auth stub, không phải Supabase thật.",
+    "Người triển khai không tự ghi Đạt; reviewer phải tự chạy lại lệnh và quyết định."
+  ]
+}

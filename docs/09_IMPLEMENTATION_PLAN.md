@@ -634,3 +634,11 @@ BH-07C **Chờ review vòng 1/2 tại tested code `02a9b85`**, base `9b97846`, s
 BH-07C **Đạt local vòng 1/2 tại `02a9b85`** theo [review độc lập](reviews/bh07/review_02a9b85.md), đóng C1/C2/C3 P2; không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy analyze sạch, **230 Flutter**, **57 targeted C mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **23 BH-07 DB**, **5 probe UI mỗi múi giờ** PASS. A giữ `4512c3a`; B giữ `d7bac04` (code `a682007`). D, toàn BH-07/pilot và các cổng môi trường thật chưa nghiệm thu; không tự chuyển D, merge main hoặc deploy. Bảy log gốc đã bổ sung tại `3d5583b`, reviewer kiểm hash/count khớp; xem phụ lục review_02a9b85_logs_3d5583b.md.
 
 Báo cáo có PASS từng C1/C2/C3, lệnh/exit/count, hash, giới hạn log gốc tác giả và NOT RUN. Nguồn trùng tested code, chỉ publish docs/evidence/status. Không chạy lại 335 DB hồi quy hoặc BH-06 integration/upgrade vì backend không đổi.
+
+### BH-07D — bàn giao tích hợp, Chờ review BH-07 (21/10/2026)
+
+BH-07D **Chờ review tích hợp BH-07 tại tested code `3d590a8`**, base D `b0478a7`, nhánh `feat/bh07-integration`. Chỉ thêm `test/integration/bh07_full_flow_test.dart` (10 ca) và sửa tối thiểu UI: ẩn `Thêm chi phí` sau `completed/cancelled` vì RPC `post_session_expense` từ chối; giữ chốt lại phí, thu/xác nhận/từ chối/hoàn tác được phép.
+
+Test đỏ trước sửa exit 1 đúng 1 FAIL: sau complete vẫn thấy `bh06c-add-expense`. Sau sửa: analyze sạch, **240/240 Flutter**, **10/10 D mỗi múi giờ UTC/Asia_Ho_Chi_Minh**, **50/50 targeted C mỗi múi giờ**, **23/23 BH-07 DB** (`worktree_dirty=false`). Bao phủ start→điểm danh→chốt phí→complete→history, complete current/free-current/outstanding, stale/version conflict, submitting + retry cùng intent giữ `request_id`, history offset/filter UTC+7/detail-back, summary/copy theo quyền và tiền NULL `—`, participant/guest, finance sau complete, logout/đổi actor.
+
+Không đổi migration/RPC/model/repository/provider/contract, không sửa A/B/C, không merge main/deploy. Người triển khai không tự ghi Đạt. [Bàn giao](reviews/bh07/bh07_integration_handoff.md), [bằng chứng](reviews/bh07/integration_evidence/commands.md). HTTP/PostgREST/JWT/Auth thật, browser/mobile/offline/deep link, concurrency HTTP, banking/webhook, staging/production, backup/restore, rehearsal/pilot và nghiệm thu toàn BH-07: NOT RUN.
