@@ -1,0 +1,12 @@
+{
+  "old_checks_retained": 65,
+  "new_checks_total": 70,
+  "added_checks": [
+    "complete.free-current.charge-preserved",
+    "history.privacy.negative-controls",
+    "privacy.fixture-private-data",
+    "summary.management-raw-null",
+    "summary.privacy.negative-controls"
+  ],
+  "removed_checks": []
+}

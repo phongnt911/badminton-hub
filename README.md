@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 70 HTTP check +240 Flutter/1 skip +23 DB xanh; H1/H2 P2 đã sửa | **A/B/C/D Đạt local; HTTP/Auth Chờ review vòng 1/2 tại `f9159dd`; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 70 HTTP check +240 Flutter/1 skip +23 DB +4 validator probe PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Đạt local f9159dd; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-Gói kiểm chứng **HTTP/Auth BH-07 Chờ review vòng 1/2 tại tested source `f9159dd`**, base `593bea8`, theo [bàn giao](docs/reviews/bh07/http_auth_handoff.md). Đã sửa H1/H2 P2: fixture free-current có charge0 đúng player/revision và charge được giữ sau complete/retry; raw projection kiểm whitelist mọi row history, summary finance/cohost, cohost finance key null, negative control bank/account/receiver/nested/later-row, seed dữ liệu riêng tư giả. Người triển khai tự chạy **70/70 HTTP check**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, `worktree_dirty_before_run=false`; red run 67/70. Đây không phải kết luận Đạt; A/B/C/D local giữ nguyên, toàn BH-07/pilot chưa nghiệm thu. Không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
+Gói kiểm chứng **HTTP/Auth BH-07 Đạt local vòng1/2 tại `f9159dd`**, docs/evidence `0758b72`, theo [review độc lập](docs/reviews/bh07/review_f9159dd.md): đóng H1/H2 P2, không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy **70/70 HTTP check** trên stack Linux GoTrue/PostgREST/Kong/PostgreSQL17.11 thật; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB**, **4 probe validator** PASS. Manifest tác giả21/21 khớp LF. A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
 
 ## Tài liệu để triển khai
 

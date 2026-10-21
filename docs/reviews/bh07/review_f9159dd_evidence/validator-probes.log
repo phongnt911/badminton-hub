@@ -1,0 +1,6 @@
+00:00 +0: loading /workspace/badminton-hub/test/review_bh07_http_validator_probe_test.dart
+00:00 +0: review control: valid whitelist payload remains accepted
+00:00 +1: review H2: original bank_account counterexample is rejected
+00:00 +2: review H2: original phone on later row is rejected
+00:00 +3: review H2: receiver snapshot and private nested under allowed key rejected
+00:00 +4: All tests passed!

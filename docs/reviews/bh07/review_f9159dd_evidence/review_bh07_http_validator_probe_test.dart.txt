@@ -1,0 +1,225 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthException, PostgrestException, SupabaseClient, User;
+
+import 'package:badminton_hub/data/auth_repository.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'package:badminton_hub/data/session_repository.dart';
+import 'package:badminton_hub/models/session.dart';
+
+/// BH-07 HTTP/Auth verification.
+///
+/// This test deliberately uses:
+///   * a real local Supabase stack (Kong -> GoTrue + PostgREST);
+///   * GoTrue password sign-in and the resulting JWT access token;
+///   * the real AuthRepository, SessionRepository and FinanceRepository;
+///   * real RPC calls for every mutation.
+///
+/// It is disabled unless `BH07_HTTP_TEST=1` so the normal Flutter suite does
+/// not require a running local Supabase. The runner
+/// `scripts/bh07_http/run.ps1` resets the isolated local database, creates Auth
+/// users through GoTrue Admin API, applies `seed.sql`, then runs this file.
+///
+/// No repository mock, SET ROLE, Auth stub or direct RPC replacement is used
+/// for the functional assertions. The service-role client is used only to read
+/// side-effect counters after the real HTTP calls.
+const _password = 'bh07-http-pass-123456';
+
+const clubA = 'aaaaaaaa-1111-4111-8111-111111111111';
+const clubB = 'bbbbbbbb-2222-4222-8222-222222222222';
+const venue = 'cccccccc-3333-4333-8333-333333333333';
+
+const sessionDebt = '10000000-0000-4000-8000-000000000001';
+const sessionFree = '10000000-0000-4000-8000-000000000002';
+const sessionStale = '10000000-0000-4000-8000-000000000003';
+const sessionVersion = '10000000-0000-4000-8000-000000000004';
+const sessionFin = '10000000-0000-4000-8000-000000000005';
+const sessionCancelled = '10000000-0000-4000-8000-000000000006';
+const sessionPrivate = '10000000-0000-4000-8000-000000000007';
+const sessionClubB = '20000000-0000-4000-8000-000000000001';
+
+const expenseDebt = '50000000-0000-4000-8000-000000000001';
+const expenseFin = '50000000-0000-4000-8000-000000000002';
+const seededDebtPayment = '60000000-0000-4000-8000-000000000001';
+
+const freePlayer = '30000000-0000-4000-8000-000000000003';
+const freeRevision = '40000000-0000-4000-8000-000000000002';
+const memberAContactRow = 'a0000004-0000-4000-8000-000000000004';
+
+const privateMemberPhone = '+84900000004';
+const privateContactNote = 'BH07-PRIVATE-MEMBER-CONTACT';
+const privatePlayerPhone = '+84900000003';
+const privateBankCode = 'BH07BANK';
+const privateAccountNumber = '0000000007';
+const privateAccountName = 'BH07 PRIVATE RECEIVER';
+
+const historyProjectionKeys = <String>{
+  'id',
+  'club_id',
+  'club_name',
+  'title',
+  'starts_at',
+  'ends_at',
+  'capacity',
+  'court_count',
+  'visibility',
+  'lifecycle',
+  'fee_mode',
+  'member_fee_vnd',
+  'guest_fee_vnd',
+  'venue_name',
+  'venue_area',
+  'confirmed_count',
+  'version',
+};
+
+const summaryProjectionKeys = <String>{
+  'session_id',
+  'title',
+  'club_id',
+  'club_name',
+  'venue_name',
+  'starts_at',
+  'ends_at',
+  'lifecycle',
+  'fee_mode',
+  'session_version',
+  'can_manage',
+  'can_view_finance',
+  'present_count',
+  'no_show_count',
+  'confirmed_count',
+  'billing_state',
+  'active_revision_id',
+  'revision_no',
+  'source_version',
+  'expenses_total_vnd',
+  'amount_due_total_vnd',
+  'total_paid_vnd',
+  'outstanding_total_vnd',
+};
+
+const summaryFinanceProjectionKeys = <String>{
+  'billing_state',
+  'active_revision_id',
+  'revision_no',
+  'source_version',
+  'expenses_total_vnd',
+  'amount_due_total_vnd',
+  'total_paid_vnd',
+  'outstanding_total_vnd',
+};
+
+const privateProjectionTokens = <String>[
+  'contact',
+  'phone',
+  'bank',
+  'account',
+  'receiver',
+];
+
+Set<String> _normalizedKeys(Map value) =>
+    value.keys.map((key) => key.toString().toLowerCase()).toSet();
+
+bool _hasPrivateProjectionField(Object? value) {
+  if (value is Map) {
+    for (final entry in value.entries) {
+      final key = entry.key.toString().toLowerCase();
+      if (privateProjectionTokens.any(key.contains)) return true;
+      if (_hasPrivateProjectionField(entry.value)) return true;
+    }
+  } else if (value is List) {
+    for (final item in value) {
+      if (_hasPrivateProjectionField(item)) return true;
+    }
+  }
+  return false;
+}
+
+List<String> _projectionIssues(Object? value, Set<String> allowedKeys) {
+  if (value is! Map) return const ['payload is not an object'];
+  final keys = _normalizedKeys(value);
+  final issues = <String>[];
+  final missing = allowedKeys.difference(keys).toList()..sort();
+  final extra = keys.difference(allowedKeys).toList()..sort();
+  if (missing.isNotEmpty) issues.add('missing=${missing.join(',')}');
+  if (extra.isNotEmpty) issues.add('extra=${extra.join(',')}');
+  if (_hasPrivateProjectionField(value)) issues.add('private-key');
+  return issues;
+}
+
+List<String> _historyProjectionIssues(Object? value) {
+  if (value is! List) return const ['payload is not an array'];
+  final issues = <String>[];
+  if (value.isEmpty) issues.add('empty-history');
+  for (var index = 0; index < value.length; index++) {
+    final rowIssues = _projectionIssues(value[index], historyProjectionKeys);
+    if (rowIssues.isNotEmpty) {
+      issues.add('row[$index]: ${rowIssues.join(';')}');
+    }
+  }
+  return issues;
+}
+
+const completeDebtRequest = 'c0000000-0000-4000-8000-000000000001';
+const completeFreeRequest = 'c0000000-0000-4000-8000-000000000002';
+const reversePaymentRequest = 'c0000000-0000-4000-8000-000000000003';
+const cashRequest = 'c0000000-0000-4000-8000-000000000004';
+const submitMemberRequest = 'c0000000-0000-4000-8000-000000000005';
+const confirmMemberRequest = 'c0000000-0000-4000-8000-000000000006';
+const refinalizeDebtRequest = 'c0000000-0000-4000-8000-000000000007';
+const reverseExpenseRequest = 'c0000000-0000-4000-8000-000000000008';
+const refinalizeFinRequest = 'c0000000-0000-4000-8000-000000000009';
+const submitRejectRequest = 'c0000000-0000-4000-8000-000000000010';
+const rejectRequest = 'c0000000-0000-4000-8000-000000000011';
+const postExpenseAttemptRequest = 'c0000000-0000-4000-8000-000000000012';
+const versionAttemptRequest = 'c0000000-0000-4000-8000-000000000013';
+const crossClubCompleteRequest = 'c0000000-0000-4000-8000-000000000014';
+const participantCompleteRequest = 'c0000000-0000-4000-8000-000000000015';
+const staleCompleteRequest = 'c0000000-0000-4000-8000-000000000016';
+const anonymousCompleteRequest = 'c0000000-0000-4000-8000-000000000017';
+
+class HttpActor {
+  final String name;
+  final User user;
+  final SupabaseClient client;
+  final AuthRepository auth;
+  final SessionRepository sessions;
+  final FinanceRepository finance;
+
+  HttpActor({
+    required this.name,
+    required this.user,
+    required this.client,
+    required this.auth,
+    required this.sessions,
+    required this.finance,
+  });
+}
+
+
+void main() {
+  Map<String,dynamic> history() => {for(final key in historyProjectionKeys) key:null};
+  Map<String,dynamic> summary() => {for(final key in summaryProjectionKeys) key:null};
+  test('review control: valid whitelist payload remains accepted', () {
+    expect(_projectionIssues(summary(),summaryProjectionKeys),isEmpty);
+    expect(_historyProjectionIssues([history(),history()]),isEmpty);
+  });
+  test('review H2: original bank_account counterexample is rejected', () {
+    final row=history()..['bank_account']='REVIEW-SENTINEL';
+    expect(_historyProjectionIssues([row]),isNotEmpty);
+  });
+  test('review H2: original phone on later row is rejected', () {
+    final row=history()..['phone']='REVIEW-SENTINEL';
+    expect(_historyProjectionIssues([history(),row]).any((issue)=>issue.contains('row[1]')),isTrue);
+  });
+  test('review H2: receiver snapshot and private nested under allowed key rejected', () {
+    final a=summary()..['receiver_snapshot']={'account_number':'REVIEW-SENTINEL'};
+    final b=summary()..['club_name']={'safe_label':'A','receiver_snapshot':{'account_number':'REVIEW-SENTINEL'}};
+    expect(_projectionIssues(a,summaryProjectionKeys),isNotEmpty);
+    expect(_projectionIssues(b,summaryProjectionKeys),contains('private-key'));
+  });
+}

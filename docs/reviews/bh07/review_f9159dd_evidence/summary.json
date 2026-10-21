@@ -1,0 +1,72 @@
+{
+  "branch": "feat/bh07-http-verification",
+  "base": "593bea86ffb807675387dba6b0276b555fdc87a1",
+  "tested_source": "f9159dd483baf2dd219b2854fd8ab08d1e5f0330",
+  "docs_evidence_HEAD": "0758b72197a4626bd02189c0402deda978fc69fe",
+  "round": "1/2",
+  "status": "Đạt H1/H2 HTTP/Auth local; toàn BH07/pilot chưa nghiệm thu",
+  "initial_worktree_clean": true,
+  "source_unchanged": true,
+  "application_logic_unchanged_from_base": true,
+  "closed_findings": [
+    "H1 P2",
+    "H2 P2"
+  ],
+  "open_findings": [],
+  "checks": {
+    "HTTP_matrix": {
+      "exit": 0,
+      "total": 70,
+      "passed": 70
+    },
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "full_flutter": {
+      "exit": 0,
+      "passed": 240,
+      "skipped": 1
+    },
+    "BH07_DB": {
+      "exit": 0,
+      "passed": 23
+    },
+    "reviewer_validator_probes": {
+      "exit": 0,
+      "passed": 4
+    },
+    "raw_HTTP_marker_probe": {
+      "passed": true,
+      "private_marker_values_in_source_and_absent_from_projection": 12
+    }
+  },
+  "author_evidence": {
+    "all_21_manifest_entries_match_LF": true,
+    "secret_pattern_matches": 0,
+    "red_run_counts": {
+      "total": 70,
+      "passed": 67,
+      "failed": 3
+    },
+    "red_failures": [
+      "privacy.fixture-private-data",
+      "complete.free-current.precondition",
+      "complete.free-current.charge-preserved"
+    ],
+    "author_environment_SHA": "f9159dd483baf2dd219b2854fd8ab08d1e5f0330",
+    "author_environment_dirty": false,
+    "author_DB_SHA": "f9159dd483baf2dd219b2854fd8ab08d1e5f0330",
+    "author_DB_dirty": false
+  },
+  "environment": "Linux manual minimal real GoTrue v2.197.0/PostgREST v16.4/Kong2.8.1/stock PostgreSQL17.11; same bootstrap as reviewer round0; repositories/Auth unmocked, PostgREST verifies real JWT. Original Windows run.ps1/full CLI image recipe not run on reviewer.",
+  "not_run": [
+    "Windows PowerShell run.ps1/full CLI image recipe on reviewer",
+    "HTTP concurrency/timeout after commit",
+    "browser/device/offline/reopen/deep link",
+    "real banking/VietQR/webhook",
+    "staging/production/backup/restore",
+    "rehearsal/pilot/full BH07 acceptance",
+    "335 DB BH02..06 and BH06 integration/upgrade rerun"
+  ]
+}

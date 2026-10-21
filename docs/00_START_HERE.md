@@ -1,6 +1,6 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-> **Hiện hành 21/10/2026:** Gói kiểm chứng **HTTP/Auth BH-07 Chờ review vòng 1/2 tại tested source `f9159dd`**, base `593bea8`, theo [bàn giao](reviews/bh07/http_auth_handoff.md). Đã sửa H1/H2 P2: fixture free-current có charge0 đúng player/revision và charge được giữ sau complete/retry; raw projection kiểm whitelist mọi row history, summary finance/cohost, cohost finance key null, negative control bank/account/receiver/nested/later-row, seed dữ liệu riêng tư giả. Người triển khai tự chạy **70/70 HTTP check**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, `worktree_dirty_before_run=false`; red run 67/70. Đây không phải kết luận Đạt; A/B/C/D local giữ nguyên, toàn BH-07/pilot chưa nghiệm thu. Không đổi contract/backend/UI, merge main, apply DB thật hoặc deploy.
+> **Hiện hành 21/10/2026:** Gói kiểm chứng **HTTP/Auth BH-07 Đạt local vòng1/2 tại `f9159dd`**, docs/evidence `0758b72`, theo [review độc lập](reviews/bh07/review_f9159dd.md): đóng H1/H2 P2, không có P0/P1/P2 mới trong phạm vi sửa. Reviewer tự chạy **70/70 HTTP check** trên stack Linux GoTrue/PostgREST/Kong/PostgreSQL17.11 thật; analyze sạch, **240 Flutter +1 skip**, **23 BH-07 DB**, **4 probe validator** PASS. Manifest tác giả21/21 khớp LF. A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, concurrency HTTP và rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
 
 ## Trạng thái hiện tại (cập nhật 21/10/2026)
 
@@ -10,7 +10,7 @@ Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng b�
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Đã kiểm chứng local (21/10/2026): PostgREST HTTP/JWT thật với Supabase Auth local, ma trận **70/70 tại `f9159dd`** sau khi sửa H1/H2, đang **Chờ review HTTP/Auth BH-07 vòng 1/2**. Chưa kiểm chứng (NOT RUN): thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục:** gửi reviewer độc lập chạy lại gói HTTP/Auth vòng 1/2 tại `f9159dd`; không tự ghi Đạt. Giữ A/B/C/D local; không tự mở pilot/merge/deploy.
+- **Điểm tiếp tục:** HTTP/Auth local đã Đạt riêng vòng1/2 tại `f9159dd`; các cổng còn NOT RUN theo [review](reviews/bh07/review_f9159dd.md). Chờ giao phạm vi kiểm chứng tiếp; toàn BH-07 chưa hoàn thành, không tự merge/deploy.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu

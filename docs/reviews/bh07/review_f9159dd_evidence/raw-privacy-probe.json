@@ -1,0 +1,6 @@
+{
+  "cohost_all_8_finance_fields_explicit_null": true,
+  "all_12_private_fixture_markers_present_in_source": true,
+  "all_12_private_fixture_markers_absent_as_scalars_in_projection": true,
+  "history_rows": 5
+}
