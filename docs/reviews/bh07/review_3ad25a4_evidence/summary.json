@@ -1,0 +1,74 @@
+{
+  "branch": "feat/bh07-http-verification",
+  "base": "593bea86ffb807675387dba6b0276b555fdc87a1",
+  "tested_source": "3ad25a4ac8c2ee1beaa76b3810860ecde514d86e",
+  "tested_docs_HEAD": "c54b004d881ecf408447d2f1f4385d4a3b49f233",
+  "status": "Chưa đạt HTTP/Auth verification local: H1/H2 P2",
+  "initial_worktree_clean": true,
+  "source_unchanged_after_review": true,
+  "functional_HTTP_checks": {
+    "exit": 0,
+    "total": 65,
+    "passed": 65,
+    "failed": 0,
+    "groups": {
+      "auth": 8,
+      "acl": 9,
+      "privacy": 4,
+      "scope": 4,
+      "complete": 10,
+      "finance": 16,
+      "summary": 3,
+      "history": 10,
+      "list": 1
+    }
+  },
+  "regressions": {
+    "analyze": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter": {
+      "exit": 0,
+      "passed": 240,
+      "skipped": 1
+    },
+    "BH07_DB": {
+      "exit": 0,
+      "passed": 23
+    }
+  },
+  "environment_difference": "Linux minimal real GoTrue v2.197.0 + PostgREST v16.4 + Kong2.8.1 + stock PostgreSQL17.11; original Windows run.ps1/Supabase CLI DB image path could not complete (no PowerShell; CLI image layer no-space). No repository/Auth mocks; auth.uid bootstrap reads real PostgREST JWT claims.",
+  "author_evidence": {
+    "all_paths_present": true,
+    "hash_note": "All LF entries match except historical root DB JSON hash represents CRLF; CRLF reconstruction matches and semantically equals LF evidence copy.",
+    "JWT_key_PEM_scan_matches": 0,
+    "environment_tested_source": "3ad25a4ac8c2ee1beaa76b3810860ecde514d86e",
+    "environment_dirty": false,
+    "DB_JSON_base_SHA": "3ad25a4ac8c2ee1beaa76b3810860ecde514d86e",
+    "DB_JSON_dirty": false
+  },
+  "findings": [
+    {
+      "id": "H1",
+      "severity": "P2",
+      "file_line": "scripts/bh07_http/seed.sql:170",
+      "issue": "Free fixture has 1 present player but 0 zero-charge rows; precondition assertion can pass absent charges."
+    },
+    {
+      "id": "H2",
+      "severity": "P2",
+      "file_line": "test/integration/bh07_http_auth_test.dart:643",
+      "issue": "History examines only first row and contact/phone keys; summary top-level blacklist accepts nested private payload. Current raw server payload safe, counterexamples expose test blind spots."
+    }
+  ],
+  "not_run": [
+    "Exact Windows powershell run.ps1 / full Supabase CLI stock image path",
+    "HTTP/PostgREST concurrency and committed-timeout scenario",
+    "browser/device/offline/deep link",
+    "real bank/webhook",
+    "staging/production/backup/restore",
+    "rehearsal/pilot/full BH07 acceptance",
+    "335 DB BH02..06 and BH06 integration/upgrade rerun"
+  ]
+}

@@ -1,0 +1,75 @@
+[
+  {
+    "file": "scripts/bh07_http/run.ps1",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "scripts/bh07_http/seed.sql",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "test/integration/bh07_http_auth_test.dart",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_handoff.md",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/bh07_test_results_20261021061453.json",
+    "status": "MATCH_AFTER_LF_TO_CRLF",
+    "note": "Original manifest hashes this duplicate JSON as CRLF; semantic content equals evidence copy, all other entries match LF."
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/auth_users.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/bh07_db_runner.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/bh07_db_runner_results.json",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/commands.md",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/environment.json",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/exits.json",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/flutter_analyze.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/flutter_test.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/flutter_test_full.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/reset.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/seed.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/start.log",
+    "status": "MATCH_LF"
+  },
+  {
+    "file": "docs/reviews/bh07/http_auth_evidence/summary.json",
+    "status": "MATCH_LF"
+  }
+]

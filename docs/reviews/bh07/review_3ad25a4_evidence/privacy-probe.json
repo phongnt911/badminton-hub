@@ -1,0 +1,45 @@
+{
+  "real_HTTP_cohost_summary_all_finance_fields_explicit_null": true,
+  "real_HTTP_summary_recursive_key_check": true,
+  "real_HTTP_all_history_rows_recursive_key_check": true,
+  "history_rows": 5,
+  "summary_keys": [
+    "active_revision_id",
+    "amount_due_total_vnd",
+    "billing_state",
+    "can_manage",
+    "can_view_finance",
+    "club_id",
+    "club_name",
+    "confirmed_count",
+    "ends_at",
+    "expenses_total_vnd",
+    "fee_mode",
+    "lifecycle",
+    "no_show_count",
+    "outstanding_total_vnd",
+    "present_count",
+    "revision_no",
+    "session_id",
+    "session_version",
+    "source_version",
+    "starts_at",
+    "title",
+    "total_paid_vnd",
+    "venue_name"
+  ],
+  "synthetic_counterexamples": [
+    {
+      "case": "bank/account nested under receiver_snapshot",
+      "current_assertion_accepts": true
+    },
+    {
+      "case": "bank_account directly on first history row",
+      "current_assertion_accepts": true
+    },
+    {
+      "case": "phone on second history row",
+      "current_assertion_accepts": true
+    }
+  ]
+}
