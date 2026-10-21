@@ -88,8 +88,14 @@ Reviewer kiểm độc lập đúng tip 1298490, source trùng 89e1d8f và mở 
 
 Người triển khai đã sửa B1/B2 P2 trên `feat/bh07b-data`, tested code **`a682007f6cd85931b410ec2930fd40cdd3fc73f4`**, theo [bàn giao sửa](reviews/bh07/bh07b_fix_handoff.md). Test-first `prefix.log` exit 1 với đúng 2 FAIL; sau sửa targeted 58/58, probe reviewer phát lại 6/6. Final: analyze sạch, **212/212 Flutter**, **23/23 BH-07**, **335/335 DB hồi quy**, **7/7 tích hợp**, **3/3 nâng cấp**; reviewer chưa chạy lại vòng 1. **Chờ review BH-07B vòng 1**; chưa Đạt, chưa chuyển C/D, chưa merge main/deploy/apply staging/production.
 
-## Hiện hành — BH-07B Đạt local vòng 1/2 (20/10/2026)
+## (Lịch sử) — BH-07B Đạt local vòng 1/2 (20/10/2026)
 
 BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
 
 Checkout ban đầu sạch, nguồn trùng a682007 và không đổi sau kiểm thử; mọi runner exit 0. Chỉ commit/push báo cáo, bằng chứng, trạng thái trên feat/bh07b-data. Giữ NOT RUN theo review.
+
+## Hiện hành — BH-07C Chờ review (21/10/2026)
+
+BH-07C **Chờ review** tại tested code `15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba` trên `feat/bh07c-ui`, base `cf95d76`, theo [bàn giao](reviews/bh07/bh07c_handoff.md). Phạm vi chỉ UI: lịch sử có filter/pagination/refresh, tổng kết theo quyền, copy không lộ contact/bank và giữ tiền NULL là `—`, nút kết thúc buổi đúng gate management + in_progress + billing current + version server. Không sửa migration/RPC A, model/repository/provider B hoặc contract; start giữ hành vi cũ.
+
+Kết quả người triển khai tự chạy: analyze sạch, **225/225 Flutter**, **23/23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. A/B giữ Đạt; C chưa được reviewer kết luận, D và toàn BH-07/pilot chưa nghiệm thu. Không tự ghi Đạt, không chuyển D, không merge main/deploy. HTTP/PostgREST/JWT/Auth thật, thiết bị/browser/offline, ngân hàng/VietQR/webhook thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN.

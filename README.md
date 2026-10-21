@@ -14,11 +14,11 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 23 BH-07 +212 Flutter +335 DB +7 tích hợp +3 upgrade +6 probe PASS | **A Đạt local 4512c3a; B Đạt local d7bac04; C/D và toàn BH-07 chưa nghiệm thu** |
+| BH-07 | 23 BH-07 +225 Flutter; 335 DB hồi quy +7 tích hợp +3 upgrade +6 probe giữ baseline B | **A Đạt 4512c3a; B Đạt d7bac04; C Chờ review 15ae1af; D và toàn BH-07 chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](docs/reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy. HTTP/JWT/Auth thật, UI/thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN. Nhật ký: [STATUS_HISTORY](docs/STATUS_HISTORY.md).
+BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](docs/reviews/bh07/review_d7bac04.md). BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui` theo [bàn giao](docs/reviews/bh07/bh07c_handoff.md): analyze sạch, **225/225 Flutter**, **23/23 BH-07 DB**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy. HTTP/JWT/Auth thật, UI/thiết bị/ngân hàng thật, staging/production, backup/restore và concurrency HTTP vẫn NOT RUN. Nhật ký: [STATUS_HISTORY](docs/STATUS_HISTORY.md).
 
 ## Tài liệu để triển khai
 
@@ -30,7 +30,7 @@ Bắt đầu tại **[docs/00_START_HERE.md](docs/00_START_HERE.md)**. Bộ đ�
 - [Quy tắc cho Antigravity/AI](docs/04_LLM_RULES.md).
 - [Hợp đồng thao tác nghiệp vụ](docs/08_DOMAIN_CONTRACTS.md).
 - [Backlog và nghiệm thu](docs/09_IMPLEMENTATION_PLAN.md).
-- [Đầu bài BH-07A và cổng A/B/C/D](docs/25_BH07_IMPLEMENTATION_HANDOFF.md).
+- [Đầu bài BH-07 và cổng A/B/C/D](docs/25_BH07_IMPLEMENTATION_HANDOFF.md).
 - [Luồng màn hình](docs/10_SCREEN_FLOWS.md).
 - [Rà soát code và tham khảo Vmito](docs/07_HOST_FIRST_REVIEW.md).
 

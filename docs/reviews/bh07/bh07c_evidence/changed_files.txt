@@ -1,0 +1,12 @@
+﻿A	lib/core/session_summary_text.dart
+M	lib/screens/home_screen.dart
+M	lib/screens/session_detail_screen.dart
+M	lib/screens/session_finance_screen.dart
+A	lib/screens/session_history_screen.dart
+A	lib/screens/session_summary_screen.dart
+A	test/core/session_summary_text_test.dart
+M	test/screens/session_detail_screen_test.dart
+M	test/screens/session_finance_screen_test.dart
+A	test/screens/session_history_screen_test.dart
+A	test/screens/session_summary_screen_test.dart
+M	test/screens/sessions_screen_test.dart

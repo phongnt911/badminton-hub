@@ -1,0 +1,21 @@
+{
+  "ticket": "BH-07C",
+  "status": "cho_review",
+  "branch": "feat/bh07c-ui",
+  "base": "cf95d76855acf1f394b1976ebab54087b4d7bba9",
+  "tested_code": "15ae1af0d9d39678f4b9d99fabc9e9e22cb860ba",
+  "flutter_analyze": {"exit": 0, "issues": 0},
+  "flutter_test": {"exit": 0, "passed": 225, "failed": 0},
+  "bh07_db_runner": {"exit": 0, "passed": 23, "failed": 0, "clean": 21, "upgrade": 2},
+  "targeted_c": {"passed": 52, "failed": 0},
+  "db_regression_bh02_06": "NOT RUN - no DB/backend changes in C; baseline B 335/335",
+  "not_run": [
+    "HTTP/PostgREST/JWT/Supabase Auth thật",
+    "thiết bị/browser/deep link/offline/reopen",
+    "ngân hàng/VietQR/webhook thật",
+    "staging/production",
+    "backup/restore",
+    "concurrency HTTP",
+    "pilot D"
+  ]
+}

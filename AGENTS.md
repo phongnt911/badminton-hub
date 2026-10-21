@@ -23,6 +23,6 @@ Vai trò làm việc: xem docs/ai/IMPLEMENTER.md (người triển khai) và doc
 
 ## Trạng thái và xác nhận hiện hành
 
-Ngày 20/10/2026: BH-06 Đạt tích hợp local tại 318bc52, đã merge main e7f7627; docs/ai có trên main eaeb209. BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](docs/reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
+Ngày 20/10/2026: BH-06 Đạt tích hợp local tại 318bc52, đã merge main e7f7627; docs/ai có trên main eaeb209. BH-07A Đạt `4512c3a`; BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](docs/reviews/bh07/review_d7bac04.md). BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui` theo [bàn giao](docs/reviews/bh07/bh07c_handoff.md): analyze sạch, **225 Flutter +23 BH-07 DB PASS**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy.
 
 Sau khi chủ dự án xác nhận thay đổi, ghi quyết định/phạm vi vào tài liệu và bảng trạng thái liên quan trong cùng lượt, đối chiếu bằng chứng, rồi commit/push theo ủy quyền. Không để mục đã được duyệt tiếp tục mang trạng thái chờ quyết định; không biến duyệt tài liệu thành nghiệm thu code hoặc deploy.

@@ -1,0 +1,13 @@
+﻿ lib/core/session_summary_text.dart            |  54 ++++
+ lib/screens/home_screen.dart                  |  37 +++
+ lib/screens/session_detail_screen.dart        |  36 ++-
+ lib/screens/session_finance_screen.dart       |  40 +++
+ lib/screens/session_history_screen.dart       | 439 ++++++++++++++++++++++++++
+ lib/screens/session_summary_screen.dart       | 383 ++++++++++++++++++++++
+ test/core/session_summary_text_test.dart      |  72 +++++
+ test/screens/session_detail_screen_test.dart  |  45 +++
+ test/screens/session_finance_screen_test.dart |  98 ++++++
+ test/screens/session_history_screen_test.dart | 217 +++++++++++++
+ test/screens/session_summary_screen_test.dart | 180 +++++++++++
+ test/screens/sessions_screen_test.dart        |   3 +
+ 12 files changed, 1602 insertions(+), 2 deletions(-)

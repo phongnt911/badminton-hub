@@ -1,6 +1,6 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-Phiên bản đặc tả 1.1 · hiện hành 20/10/2026: BH-01..06 đã triển khai local; BH-06 Đạt tại `318bc52`, đã merge main `e7f7627`. BH-07A Đạt tại `4512c3a`. BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). Tự chạy analyze sạch, **212 Flutter +335 DB hồi quy +23 BH-07**, **7 tích hợp +3 nâng cấp BH-06**, **6/6 probe gốc PASS**. A giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Không tự chuyển phần, merge main hoặc deploy.
+Phiên bản đặc tả 1.1 · hiện hành 20/10/2026: BH-01..06 đã triển khai local; BH-06 Đạt tại `318bc52`, đã merge main `e7f7627`. BH-07A Đạt tại `4512c3a`. BH-07B **Đạt phần B local tại `d7bac04`**, tested code `a682007`, vòng sửa 1/2; reviewer đóng B1/B2 P2 theo [review độc lập](reviews/bh07/review_d7bac04.md). BH-07C **Chờ review** tại tested code `15ae1af` trên `feat/bh07c-ui`; analyze sạch, **225 Flutter +23 BH-07 DB PASS**; 335 DB hồi quy giữ baseline B, không chạy lại vì C không đổi DB/backend. Xem [bàn giao C](reviews/bh07/bh07c_handoff.md). A/B giữ Đạt; C/D, toàn BH-07 và pilot chưa nghiệm thu. Người triển khai không tự ghi Đạt; không tự chuyển D, merge main hoặc deploy.
 
 ## Trạng thái hiện tại (cập nhật 20/10/2026)
 
@@ -10,7 +10,7 @@ Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng b�
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Chưa kiểm chứng (NOT RUN): PostgREST HTTP/JWT thật với Supabase Auth, thiết bị/browser e2e, apply staging/production, backup/restore, kiểm thử đồng thời qua HTTP thật. Các kết quả trên **không** cho phép deploy production.
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục:** B đã Đạt local tại `d7bac04` theo [review](reviews/bh07/review_d7bac04.md); chờ chủ dự án giao phạm vi tiếp theo. Giữ cổng C/D và các NOT RUN; không tự merge main/deploy.
+- **Điểm tiếp tục:** B đã Đạt local tại `d7bac04` theo [review](reviews/bh07/review_d7bac04.md). C đã bàn giao **Chờ review** tại `15ae1af` theo [bàn giao](reviews/bh07/bh07c_handoff.md); D chưa giao. Giữ cổng C/D và các NOT RUN; không tự merge main/deploy.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu
@@ -28,7 +28,7 @@ Xây công cụ cho host quản lý CLB và buổi cầu lông tại Nha Trang. 
 7. [Luồng màn hình](10_SCREEN_FLOWS.md).
 8. [Quyết định ADR](11_ARCHITECTURE_DECISIONS.md).
 9. [Prompt và cổng nghiệm thu cho Antigravity](12_ANTIGRAVITY_PROMPTS.md).
-10. [Đầu bài hiện hành BH-07A](25_BH07_IMPLEMENTATION_HANDOFF.md); [bàn giao BH-06](24_BH06_IMPLEMENTATION_HANDOFF.md) và [lịch sử BH-05](22_BH05_HANDOFF.md).
+10. [Đầu bài và bàn giao BH-07](25_BH07_IMPLEMENTATION_HANDOFF.md); [bàn giao BH-06](24_BH06_IMPLEMENTATION_HANDOFF.md) và [lịch sử BH-05](22_BH05_HANDOFF.md).
 
 [07_HOST_FIRST_REVIEW.md](07_HOST_FIRST_REVIEW.md) là bằng chứng rà soát và tham khảo Vmito, không thay thế các đặc tả trên. `05_DB_V2_UPDATE.sql` và `06_SEED_VENUES.sql` là tài liệu SQL cũ; không chạy làm schema mới. Các migration trong `supabase/migrations/` mới chỉ được kiểm thử trên PostgreSQL cô lập, chưa apply production.
 

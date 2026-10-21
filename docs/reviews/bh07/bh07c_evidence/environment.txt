@@ -1,0 +1,7 @@
+Date: 2026-10-20
+Platform: Windows, PowerShell
+Flutter: 3.47.6 stable, framework 5fc346839b
+Dart: 3.13.5
+Python: 3.12.7
+PostgreSQL test container: bh02-test-postgres (running)
+DB runner creates isolated bh07_clean_* and bh07_upgrade_* databases.
