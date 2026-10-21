@@ -45,6 +45,125 @@ const expenseDebt = '50000000-0000-4000-8000-000000000001';
 const expenseFin = '50000000-0000-4000-8000-000000000002';
 const seededDebtPayment = '60000000-0000-4000-8000-000000000001';
 
+const freePlayer = '30000000-0000-4000-8000-000000000003';
+const freeRevision = '40000000-0000-4000-8000-000000000002';
+const memberAContactRow = 'a0000004-0000-4000-8000-000000000004';
+
+const privateMemberPhone = '+84900000004';
+const privateContactNote = 'BH07-PRIVATE-MEMBER-CONTACT';
+const privatePlayerPhone = '+84900000003';
+const privateBankCode = 'BH07BANK';
+const privateAccountNumber = '0000000007';
+const privateAccountName = 'BH07 PRIVATE RECEIVER';
+
+const historyProjectionKeys = <String>{
+  'id',
+  'club_id',
+  'club_name',
+  'title',
+  'starts_at',
+  'ends_at',
+  'capacity',
+  'court_count',
+  'visibility',
+  'lifecycle',
+  'fee_mode',
+  'member_fee_vnd',
+  'guest_fee_vnd',
+  'venue_name',
+  'venue_area',
+  'confirmed_count',
+  'version',
+};
+
+const summaryProjectionKeys = <String>{
+  'session_id',
+  'title',
+  'club_id',
+  'club_name',
+  'venue_name',
+  'starts_at',
+  'ends_at',
+  'lifecycle',
+  'fee_mode',
+  'session_version',
+  'can_manage',
+  'can_view_finance',
+  'present_count',
+  'no_show_count',
+  'confirmed_count',
+  'billing_state',
+  'active_revision_id',
+  'revision_no',
+  'source_version',
+  'expenses_total_vnd',
+  'amount_due_total_vnd',
+  'total_paid_vnd',
+  'outstanding_total_vnd',
+};
+
+const summaryFinanceProjectionKeys = <String>{
+  'billing_state',
+  'active_revision_id',
+  'revision_no',
+  'source_version',
+  'expenses_total_vnd',
+  'amount_due_total_vnd',
+  'total_paid_vnd',
+  'outstanding_total_vnd',
+};
+
+const privateProjectionTokens = <String>[
+  'contact',
+  'phone',
+  'bank',
+  'account',
+  'receiver',
+];
+
+Set<String> _normalizedKeys(Map value) =>
+    value.keys.map((key) => key.toString().toLowerCase()).toSet();
+
+bool _hasPrivateProjectionField(Object? value) {
+  if (value is Map) {
+    for (final entry in value.entries) {
+      final key = entry.key.toString().toLowerCase();
+      if (privateProjectionTokens.any(key.contains)) return true;
+      if (_hasPrivateProjectionField(entry.value)) return true;
+    }
+  } else if (value is List) {
+    for (final item in value) {
+      if (_hasPrivateProjectionField(item)) return true;
+    }
+  }
+  return false;
+}
+
+List<String> _projectionIssues(Object? value, Set<String> allowedKeys) {
+  if (value is! Map) return const ['payload is not an object'];
+  final keys = _normalizedKeys(value);
+  final issues = <String>[];
+  final missing = allowedKeys.difference(keys).toList()..sort();
+  final extra = keys.difference(allowedKeys).toList()..sort();
+  if (missing.isNotEmpty) issues.add('missing=${missing.join(',')}');
+  if (extra.isNotEmpty) issues.add('extra=${extra.join(',')}');
+  if (_hasPrivateProjectionField(value)) issues.add('private-key');
+  return issues;
+}
+
+List<String> _historyProjectionIssues(Object? value) {
+  if (value is! List) return const ['payload is not an array'];
+  final issues = <String>[];
+  if (value.isEmpty) issues.add('empty-history');
+  for (var index = 0; index < value.length; index++) {
+    final rowIssues = _projectionIssues(value[index], historyProjectionKeys);
+    if (rowIssues.isNotEmpty) {
+      issues.add('row[$index]: ${rowIssues.join(';')}');
+    }
+  }
+  return issues;
+}
+
 const completeDebtRequest = 'c0000000-0000-4000-8000-000000000001';
 const completeFreeRequest = 'c0000000-0000-4000-8000-000000000002';
 const reversePaymentRequest = 'c0000000-0000-4000-8000-000000000003';
@@ -612,18 +731,43 @@ void main() {
       params: {'p_session_id': sessionDebt},
     );
     final rawSummaryMap = Map<String, dynamic>.from(rawSummary as Map);
-    final rawSummaryKeys = rawSummaryMap.keys.map((key) => key.toLowerCase());
+    final summaryProjectionProblems = _projectionIssues(
+      rawSummaryMap,
+      summaryProjectionKeys,
+    );
     check(
       'summary.privacy',
-      'summary payload has no contact, phone, bank or account fields',
-      !rawSummaryKeys.any(
-        (key) =>
-            key.contains('contact') ||
-            key.contains('phone') ||
-            key.contains('bank') ||
-            key.contains('account'),
-      ),
-      'keys=${rawSummaryMap.keys.join(',')}',
+      'finance summary has exactly the public projection and no private fields',
+      summaryProjectionProblems.isEmpty,
+      'keys=${rawSummaryMap.keys.join(',')} '
+          'issues=${summaryProjectionProblems.join(';')}',
+    );
+
+    final rawManagementSummary = await cohostA.client.rpc(
+      'get_session_summary',
+      params: {'p_session_id': sessionDebt},
+    );
+    final rawManagementSummaryMap = Map<String, dynamic>.from(
+      rawManagementSummary as Map,
+    );
+    final managementProjectionProblems = _projectionIssues(
+      rawManagementSummaryMap,
+      summaryProjectionKeys,
+    );
+    final managementFinanceKeysPresentAndNull = summaryFinanceProjectionKeys
+        .every(
+          (key) =>
+              rawManagementSummaryMap.containsKey(key) &&
+              rawManagementSummaryMap[key] == null,
+        );
+    check(
+      'summary.management-raw-null',
+      'management raw summary keeps every finance key present with null',
+      managementProjectionProblems.isEmpty &&
+          managementFinanceKeysPresentAndNull,
+      'keys=${rawManagementSummaryMap.keys.join(',')} '
+          'financePresentAndNull=$managementFinanceKeysPresentAndNull '
+          'issues=${managementProjectionProblems.join(';')}',
     );
 
     final rawHistory = await financeA.client.rpc(
@@ -640,17 +784,147 @@ void main() {
         .whereType<Map>()
         .map((row) => Map<String, dynamic>.from(row))
         .toList();
-    final rawHistoryKeys = rawHistoryRows.isEmpty
-        ? <String>[]
-        : rawHistoryRows.first.keys.map((key) => key.toLowerCase()).toList();
+    final historyProjectionProblems = _historyProjectionIssues(rawHistory);
     check(
       'history.privacy',
-      'history payload has no contact or phone fields',
-      rawHistoryRows.isNotEmpty &&
-          !rawHistoryKeys.any(
-            (key) => key.contains('contact') || key.contains('phone'),
-          ),
-      'rows=${rawHistoryRows.length} keys=${rawHistoryKeys.join(',')}',
+      'every history row has exactly the public projection and no private fields',
+      rawHistoryRows.isNotEmpty && historyProjectionProblems.isEmpty,
+      'rows=${rawHistoryRows.length} '
+          'issues=${historyProjectionProblems.join(';')}',
+    );
+
+    final cleanHistoryRow = rawHistoryRows.isEmpty
+        ? <String, dynamic>{}
+        : Map<String, dynamic>.from(rawHistoryRows.first);
+    final laterRowPrivatePayload = <Map<String, dynamic>>[
+      cleanHistoryRow,
+      <String, dynamic>{
+        ...cleanHistoryRow,
+        'receiver_snapshot': <String, dynamic>{
+          'bank_code': privateBankCode,
+          'account_number': privateAccountNumber,
+        },
+      },
+    ];
+    final topLevelPrivateHistory = <String, dynamic>{
+      ...cleanHistoryRow,
+      'account_number': privateAccountNumber,
+    };
+    final nestedPrivateHistory = <String, dynamic>{
+      ...cleanHistoryRow,
+      'club_name': <String, dynamic>{
+        'ordinary_label': 'HTTP Club A',
+        'receiver_snapshot': <String, dynamic>{
+          'account_number': privateAccountNumber,
+        },
+      },
+    };
+    final laterRowProblems = _historyProjectionIssues(laterRowPrivatePayload);
+    check(
+      'history.privacy.negative-controls',
+      'history validator rejects top-level, nested and later-row private fields',
+      _projectionIssues(
+            topLevelPrivateHistory,
+            historyProjectionKeys,
+          ).isNotEmpty &&
+          _projectionIssues(
+            nestedPrivateHistory,
+            historyProjectionKeys,
+          ).isNotEmpty &&
+          laterRowProblems.any((issue) => issue.contains('row[1]')),
+      'top=${_projectionIssues(topLevelPrivateHistory, historyProjectionKeys)} '
+          'nested=${_projectionIssues(nestedPrivateHistory, historyProjectionKeys)} '
+          'later=$laterRowProblems',
+    );
+
+    final topLevelPrivateSummary = <String, dynamic>{
+      ...rawSummaryMap,
+      'bank_code': privateBankCode,
+    };
+    final nestedPrivateSummary = <String, dynamic>{
+      ...rawSummaryMap,
+      'club_name': <String, dynamic>{
+        'ordinary_label': 'HTTP Club A',
+        'receiver_snapshot': <String, dynamic>{
+          'bank_code': privateBankCode,
+          'account_number': privateAccountNumber,
+        },
+      },
+    };
+    check(
+      'summary.privacy.negative-controls',
+      'summary validator rejects top-level and nested bank/account/receiver fields',
+      _projectionIssues(
+            topLevelPrivateSummary,
+            summaryProjectionKeys,
+          ).isNotEmpty &&
+          _projectionIssues(
+            nestedPrivateSummary,
+            summaryProjectionKeys,
+          ).isNotEmpty,
+      'top=${_projectionIssues(topLevelPrivateSummary, summaryProjectionKeys)} '
+          'nested=${_projectionIssues(nestedPrivateSummary, summaryProjectionKeys)}',
+    );
+
+    final sourceMemberContacts = await rows(
+      admin,
+      'member_contacts',
+      columns: 'member_id,phone_number,contact_note',
+    );
+    final sourcePlayerContacts = await rows(
+      admin,
+      'session_player_contacts',
+      columns: 'player_id,phone_number',
+    );
+    final sourceClubBanks = await rows(
+      admin,
+      'club_bank_accounts',
+      columns: 'bank_code,account_number,account_name',
+    );
+    final sourceHostBanks = await rows(
+      admin,
+      'host_bank_accounts',
+      columns: 'bank_code,account_number,account_name',
+    );
+    final sourceReceivers = await rows(
+      admin,
+      'sessions',
+      columns: 'id,receiver_snapshot',
+      column: 'id',
+      value: sessionPrivate,
+    );
+    final privateFixtureRowsPresent =
+        sourceMemberContacts.any(
+          (row) =>
+              row['member_id'] == memberAContactRow &&
+              row['phone_number'] == privateMemberPhone &&
+              row['contact_note'] == privateContactNote,
+        ) &&
+        sourcePlayerContacts.any(
+          (row) => row['phone_number'] == privatePlayerPhone,
+        ) &&
+        sourceClubBanks.any(
+          (row) =>
+              row['bank_code'] == privateBankCode &&
+              row['account_number'] == privateAccountNumber &&
+              row['account_name'] == privateAccountName,
+        ) &&
+        sourceHostBanks.isNotEmpty &&
+        sourceReceivers.any((row) {
+          final snapshot = row['receiver_snapshot'];
+          return snapshot is Map &&
+              snapshot['bank_code'] == privateBankCode &&
+              snapshot['account_number'] == privateAccountNumber;
+        });
+    check(
+      'privacy.fixture-private-data',
+      'fixture stores fake phone, bank, account and receiver markers outside projections',
+      privateFixtureRowsPresent,
+      'memberContacts=${sourceMemberContacts.length} '
+          'playerContacts=${sourcePlayerContacts.length} '
+          'clubBanks=${sourceClubBanks.length} '
+          'hostBanks=${sourceHostBanks.length} '
+          'privateReceivers=${sourceReceivers.length}',
     );
 
     // --- Finance actions allowed after complete ---
@@ -925,21 +1199,45 @@ void main() {
           'revision=${debtFinalSummary.revisionNo}',
     );
 
-    // --- Free current session completes with zero allocation ---
+    // --- Free current session completes with zero allocation and one zero charge ---
     final freeBefore = await ownerA.sessions.getSessionDetail(sessionFree);
     final freeFinanceBefore = await financeA.finance.getSessionFinance(
       sessionFree,
     );
+    final freePlayersBefore = await ownerA.sessions.listSessionPlayers(
+      sessionFree,
+    );
+    final freeChargeBefore = freeFinanceBefore.charges.length == 1
+        ? freeFinanceBefore.charges.single
+        : null;
     check(
       'complete.free-current.precondition',
-      'free fixture has current zero allocation and zero outstanding',
+      'free fixture has one exempt present player, current zero revision and one zero charge',
       freeBefore.lifecycle == 'in_progress' &&
           freeBefore.version == 3 &&
+          freePlayersBefore.length == 1 &&
+          freePlayersBefore.single.id == freePlayer &&
+          freePlayersBefore.single.registrationStatus == 'confirmed' &&
+          freePlayersBefore.single.attendanceStatus == 'present' &&
+          freePlayersBefore.single.feeExempt &&
           freeFinanceBefore.isCurrent &&
+          freeFinanceBefore.sessionVersion == 3 &&
+          freeFinanceBefore.activeRevision?.revisionId == freeRevision &&
+          freeFinanceBefore.activeRevision?.revisionNo == 1 &&
+          freeFinanceBefore.activeRevision?.sourceVersion == 1 &&
           freeFinanceBefore.activeRevision?.allocationTotalVnd == 0 &&
+          freeFinanceBefore.charges.length == 1 &&
+          freeChargeBefore?.playerId == freePlayer &&
+          freeChargeBefore?.amountDueVnd == 0 &&
           freeFinanceBefore.outstandingTotalVnd == 0,
       'lifecycle=${freeBefore.lifecycle} version=${freeBefore.version} '
+          'players=${freePlayersBefore.length} '
+          'revision=${freeFinanceBefore.activeRevision?.revisionId} '
+          'revisionNo=${freeFinanceBefore.activeRevision?.revisionNo} '
           'allocation=${freeFinanceBefore.activeRevision?.allocationTotalVnd} '
+          'charges=${freeFinanceBefore.charges.length} '
+          'chargePlayer=${freeChargeBefore?.playerId} '
+          'chargeDue=${freeChargeBefore?.amountDueVnd} '
           'outstanding=${freeFinanceBefore.outstandingTotalVnd}',
     );
     final completedFree = await ownerA.finance.completeSession(
@@ -977,6 +1275,56 @@ void main() {
       'lifecycle=${completedFree.lifecycle} version=${completedFree.version} '
           'audit=$freeAuditCount due=${freeSummary.amountDueTotalVnd} '
           'outstanding=${freeSummary.outstandingTotalVnd}',
+    );
+
+    final freeFinanceAfter = await financeA.finance.getSessionFinance(
+      sessionFree,
+    );
+    final freeChargeAfter = freeFinanceAfter.charges.length == 1
+        ? freeFinanceAfter.charges.single
+        : null;
+    final freeRevisionRows = await rows(
+      admin,
+      'charge_revisions',
+      columns: 'id,status,source_version',
+      column: 'session_id',
+      value: sessionFree,
+    );
+    final freeChargeRows = await rows(
+      admin,
+      'session_charges',
+      columns: 'id,revision_id,session_player_id,amount_due_vnd',
+      column: 'revision_id',
+      value: freeRevision,
+    );
+    check(
+      'complete.free-current.charge-preserved',
+      'zero charge keeps the same player/revision after complete and retry',
+      freeFinanceAfter.lifecycle == 'completed' &&
+          freeFinanceAfter.isCurrent &&
+          freeFinanceAfter.sessionVersion == 4 &&
+          freeFinanceAfter.activeRevision?.revisionId == freeRevision &&
+          freeFinanceAfter.activeRevision?.revisionNo == 1 &&
+          freeFinanceAfter.activeRevision?.allocationTotalVnd == 0 &&
+          freeFinanceAfter.charges.length == 1 &&
+          freeChargeAfter?.playerId == freePlayer &&
+          freeChargeAfter?.amountDueVnd == 0 &&
+          freeFinanceAfter.outstandingTotalVnd == 0 &&
+          freeRevisionRows.length == 1 &&
+          freeRevisionRows.single['id'] == freeRevision &&
+          freeRevisionRows.single['status'] == 'active' &&
+          freeRevisionRows.single['source_version'] == 1 &&
+          freeChargeRows.length == 1 &&
+          freeChargeRows.single['revision_id'] == freeRevision &&
+          freeChargeRows.single['session_player_id'] == freePlayer &&
+          freeChargeRows.single['amount_due_vnd'] == 0,
+      'lifecycle=${freeFinanceAfter.lifecycle} '
+          'revision=${freeFinanceAfter.activeRevision?.revisionId} '
+          'charges=${freeFinanceAfter.charges.length} '
+          'chargePlayer=${freeChargeAfter?.playerId} '
+          'chargeDue=${freeChargeAfter?.amountDueVnd} '
+          'revisionRows=${freeRevisionRows.length} '
+          'chargeRows=${freeChargeRows.length}',
     );
 
     // --- History scope, filters, pagination and participant privacy ---

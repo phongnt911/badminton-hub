@@ -151,6 +151,36 @@ BEGIN
      'confirmed', 'present', 'self', 'guest', false,
      '2026-10-15 10:00:00+00', '2026-10-15 10:01:00+00', '2026-10-17 10:05:00+00', v_owner_a, v_guest_a);
 
+  -- Fake private contact markers. They must stay out of history/summary JSON
+  -- projections; the HTTP test asserts the source rows exist and are absent
+  -- from raw RPC payloads.
+  INSERT INTO public.member_contacts (member_id, phone_number, contact_note)
+  VALUES (v_member_a_row, '+84900000004', 'BH07-PRIVATE-MEMBER-CONTACT');
+
+  INSERT INTO public.session_player_contacts (player_id, phone_number)
+  VALUES
+    (v_player_debt_member, '+84900000001'),
+    (v_player_debt_guest, '+84900000002'),
+    (v_player_free_guest, '+84900000003'),
+    (v_player_fin, '+84900000005');
+
+  -- Fake bank/account markers. Inserting an active bank also makes the
+  -- receiver trigger freeze a private receiver_snapshot on completed/current
+  -- sessions, so projections are checked against real private source rows.
+  INSERT INTO public.club_bank_accounts (
+    id, club_id, bank_code, account_number, account_name, status
+  ) VALUES (
+    '90000000-0000-4000-8000-000000000001',
+    v_club_a, 'BH07BANK', '0000000007', 'BH07 PRIVATE RECEIVER', 'active'
+  );
+
+  INSERT INTO public.host_bank_accounts (
+    id, user_id, bank_code, account_number, account_name, status
+  ) VALUES (
+    '91000000-0000-4000-8000-000000000001',
+    v_owner_b, 'BH07HOSTBANK', '0000000008', 'BH07 PRIVATE HOST', 'active'
+  );
+
   INSERT INTO public.session_expenses (
     id, session_id, category, title, amount_vnd, status, created_by, posted_at
   ) VALUES
@@ -171,6 +201,7 @@ BEGIN
   VALUES
     ('80000000-0000-4000-8000-000000000001', v_rev_debt, v_player_debt_member, 150000),
     ('80000000-0000-4000-8000-000000000002', v_rev_debt, v_player_debt_guest, 150000),
+    ('80000000-0000-4000-8000-000000000006', v_rev_free, v_player_free_guest, 0),
     ('80000000-0000-4000-8000-000000000003', v_rev_stale, v_player_stale, 100000),
     ('80000000-0000-4000-8000-000000000004', v_rev_version, v_player_version, 100000),
     ('80000000-0000-4000-8000-000000000005', v_rev_fin, v_player_fin, 100000);
