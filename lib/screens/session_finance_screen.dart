@@ -550,15 +550,20 @@ class _SessionFinanceScreenState extends State<SessionFinanceScreen> {
               _stateNote('Chưa xác định được phiên bản buổi để chốt phí.'),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    key: const Key('bh06c-add-expense'),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Thêm chi phí'),
-                    onPressed: busy ? null : () => _postExpense(finance),
+                // RPC post_session_expense từ chối completed/cancelled; sau khi
+                // kết thúc chỉ điều chỉnh qua hoàn tác/chốt lại có audit.
+                if (finance.lifecycle != 'completed' &&
+                    finance.lifecycle != 'cancelled') ...[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      key: const Key('bh06c-add-expense'),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Thêm chi phí'),
+                      onPressed: busy ? null : () => _postExpense(finance),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: FilledButton.icon(
                     key: const Key('bh06c-finalize'),
