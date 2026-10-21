@@ -7,7 +7,8 @@
 2. Triển khai chỉ phần được giao. Phần đã viết sẵn thì giữ, không viết lại.
 3. Chạy flutter analyze, flutter test và runner DB (nếu đổi DB). Phải xanh.
 4. Ghi "Chờ review" vào docs/09 kèm lệnh đã chạy, kết quả thật, phần NOT RUN. Không ghi Done.
-5. Báo cáo ngắn bằng tiếng Việt rồi DỪNG.
+5. Tạo prompt reviewer trong `docs/reviews/<ticket>/<ticket>_reviewer_prompt.md` (hoặc tên tương ứng của phần) và dẫn link từ handoff. Prompt phải ghi base/tested SHA, docs SHA nếu khác, phạm vi cần review, file/luồng rủi ro, lệnh reviewer phải tự chạy, đường dẫn báo cáo `review_<sha>.md`, mẫu phát hiện P0/P1/P2 và yêu cầu NOT RUN. Không giao reviewer bằng lời nhắn miệng hoặc chỉ link handoff.
+6. Báo cáo ngắn bằng tiếng Việt rồi DỪNG.
 
 ## Sửa theo review
 1. Đọc review mới nhất trong docs/reviews/<ticket>/.
