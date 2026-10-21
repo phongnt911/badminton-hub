@@ -49,6 +49,21 @@ DECLARE
   v_rev_version constant uuid := '40000000-0000-4000-8000-000000000004';
   v_rev_fin constant uuid := '40000000-0000-4000-8000-000000000005';
 
+  v_session_cc_complete constant uuid := '20000000-0000-4000-8000-000000000002';
+  v_session_cc_competing constant uuid := '20000000-0000-4000-8000-000000000003';
+  v_session_cc_pay constant uuid := '20000000-0000-4000-8000-000000000004';
+  v_session_cc_drop constant uuid := '20000000-0000-4000-8000-000000000005';
+
+  v_player_cc_complete constant uuid := '30000000-0000-4000-8000-000000000021';
+  v_player_cc_competing constant uuid := '30000000-0000-4000-8000-000000000022';
+  v_player_cc_pay constant uuid := '30000000-0000-4000-8000-000000000023';
+  v_player_cc_drop constant uuid := '30000000-0000-4000-8000-000000000024';
+
+  v_rev_cc_complete constant uuid := '40000000-0000-4000-8000-000000000021';
+  v_rev_cc_competing constant uuid := '40000000-0000-4000-8000-000000000022';
+  v_rev_cc_pay constant uuid := '40000000-0000-4000-8000-000000000023';
+  v_rev_cc_drop constant uuid := '40000000-0000-4000-8000-000000000024';
+
   v_expense_debt constant uuid := '50000000-0000-4000-8000-000000000001';
   v_expense_fin constant uuid := '50000000-0000-4000-8000-000000000002';
   v_payment_debt constant uuid := '60000000-0000-4000-8000-000000000001';
@@ -122,7 +137,23 @@ BEGIN
     (v_session_club_b, v_club_b, v_owner_b, v_venue, 'HTTP club B history',
      'Completed session owned by club B',
      '2026-10-15 10:00:00+00', '2026-10-15 12:00:00+00', 8, 1,
-     'public', 'completed', 'auto_confirm', 'split_actual', 2, 1);
+     'public', 'completed', 'auto_confirm', 'split_actual', 2, 1),
+    (v_session_cc_complete, v_club_b, v_owner_b, v_venue, 'HTTP concurrency complete replay',
+     'In-progress session for concurrent complete replay idempotency',
+     '2026-10-25 10:00:00+00', '2026-10-25 12:00:00+00', 8, 1,
+     'public', 'in_progress', 'auto_confirm', 'split_actual', 3, 1),
+    (v_session_cc_competing, v_club_b, v_owner_b, v_venue, 'HTTP concurrency complete competing',
+     'In-progress session for concurrent competing complete conflict',
+     '2026-10-25 14:00:00+00', '2026-10-25 16:00:00+00', 8, 1,
+     'public', 'in_progress', 'auto_confirm', 'split_actual', 3, 1),
+    (v_session_cc_pay, v_club_b, v_owner_b, v_venue, 'HTTP concurrency payments',
+     'In-progress session for concurrent cash replay and competing overcollect checks',
+     '2026-10-26 10:00:00+00', '2026-10-26 12:00:00+00', 8, 1,
+     'public', 'in_progress', 'auto_confirm', 'split_actual', 3, 1),
+    (v_session_cc_drop, v_club_b, v_owner_b, v_venue, 'HTTP concurrency transport drop',
+     'In-progress session for transport drop response simulation and retry',
+     '2026-10-26 14:00:00+00', '2026-10-26 16:00:00+00', 8, 1,
+     'public', 'in_progress', 'auto_confirm', 'split_actual', 3, 1);
 
   INSERT INTO public.session_staff (session_id, user_id, role, status)
   VALUES (v_session_debt, v_cohost_a, 'cohost', 'active');
@@ -149,7 +180,19 @@ BEGIN
      '2026-10-20 10:00:00+00', '2026-10-20 10:01:00+00', '2026-10-22 10:05:00+00', v_owner_a, v_member_a),
     (v_player_fin, v_session_fin, v_guest_a, NULL, 'Guest A',
      'confirmed', 'present', 'self', 'guest', false,
-     '2026-10-15 10:00:00+00', '2026-10-15 10:01:00+00', '2026-10-17 10:05:00+00', v_owner_a, v_guest_a);
+     '2026-10-15 10:00:00+00', '2026-10-15 10:01:00+00', '2026-10-17 10:05:00+00', v_owner_a, v_guest_a),
+    (v_player_cc_complete, v_session_cc_complete, v_guest_a, NULL, 'Guest A',
+     'confirmed', 'present', 'self', 'guest', false,
+     '2026-10-24 10:00:00+00', '2026-10-24 10:01:00+00', '2026-10-25 10:05:00+00', v_owner_b, v_guest_a),
+    (v_player_cc_competing, v_session_cc_competing, v_guest_a, NULL, 'Guest A',
+     'confirmed', 'present', 'self', 'guest', false,
+     '2026-10-24 10:00:00+00', '2026-10-24 10:01:00+00', '2026-10-25 14:05:00+00', v_owner_b, v_guest_a),
+    (v_player_cc_pay, v_session_cc_pay, v_member_a, NULL, 'Member A',
+     'confirmed', 'present', 'self', 'guest', false,
+     '2026-10-24 10:00:00+00', '2026-10-24 10:01:00+00', '2026-10-26 10:05:00+00', v_owner_b, v_member_a),
+    (v_player_cc_drop, v_session_cc_drop, v_guest_a, NULL, 'Guest A',
+     'confirmed', 'present', 'self', 'guest', false,
+     '2026-10-24 10:00:00+00', '2026-10-24 10:01:00+00', '2026-10-26 14:05:00+00', v_owner_b, v_guest_a);
 
   -- Fake private contact markers. They must stay out of history/summary JSON
   -- projections; the HTTP test asserts the source rows exist and are absent
@@ -195,7 +238,11 @@ BEGIN
     (v_rev_free, v_session_free, 1, 1, 'active', 0, 'split_actual', 'seed free current', v_owner_a, '2026-10-19 09:05:00+00'),
     (v_rev_stale, v_session_stale, 1, 2, 'active', 100000, 'split_actual', 'seed stale', v_owner_a, '2026-10-21 09:05:00+00'),
     (v_rev_version, v_session_version, 1, 1, 'active', 100000, 'split_actual', 'seed version', v_owner_a, '2026-10-22 09:05:00+00'),
-    (v_rev_fin, v_session_fin, 1, 4, 'active', 100000, 'split_actual', 'seed finance completed', v_owner_a, '2026-10-17 09:05:00+00');
+    (v_rev_fin, v_session_fin, 1, 4, 'active', 100000, 'split_actual', 'seed finance completed', v_owner_a, '2026-10-17 09:05:00+00'),
+    (v_rev_cc_complete, v_session_cc_complete, 1, 1, 'active', 100000, 'split_actual', 'seed cc complete', v_owner_b, '2026-10-25 09:05:00+00'),
+    (v_rev_cc_competing, v_session_cc_competing, 1, 1, 'active', 100000, 'split_actual', 'seed cc competing', v_owner_b, '2026-10-25 13:05:00+00'),
+    (v_rev_cc_pay, v_session_cc_pay, 1, 1, 'active', 150000, 'split_actual', 'seed cc pay', v_owner_b, '2026-10-26 09:05:00+00'),
+    (v_rev_cc_drop, v_session_cc_drop, 1, 1, 'active', 100000, 'split_actual', 'seed cc drop', v_owner_b, '2026-10-26 13:05:00+00');
 
   INSERT INTO public.session_charges (id, revision_id, session_player_id, amount_due_vnd)
   VALUES
@@ -204,7 +251,11 @@ BEGIN
     ('80000000-0000-4000-8000-000000000006', v_rev_free, v_player_free_guest, 0),
     ('80000000-0000-4000-8000-000000000003', v_rev_stale, v_player_stale, 100000),
     ('80000000-0000-4000-8000-000000000004', v_rev_version, v_player_version, 100000),
-    ('80000000-0000-4000-8000-000000000005', v_rev_fin, v_player_fin, 100000);
+    ('80000000-0000-4000-8000-000000000005', v_rev_fin, v_player_fin, 100000),
+    ('80000000-0000-4000-8000-000000000021', v_rev_cc_complete, v_player_cc_complete, 100000),
+    ('80000000-0000-4000-8000-000000000022', v_rev_cc_competing, v_player_cc_competing, 100000),
+    ('80000000-0000-4000-8000-000000000023', v_rev_cc_pay, v_player_cc_pay, 150000),
+    ('80000000-0000-4000-8000-000000000024', v_rev_cc_drop, v_player_cc_drop, 100000);
 
   INSERT INTO public.payments (
     id, session_player_id, amount_vnd, method, status, reference,
@@ -230,7 +281,11 @@ BEGIN
      OR public.session_billing_state(v_session_free) <> 'current'
      OR public.session_billing_state(v_session_stale) <> 'stale'
      OR public.session_billing_state(v_session_version) <> 'current'
-     OR public.session_billing_state(v_session_fin) <> 'current' THEN
+     OR public.session_billing_state(v_session_fin) <> 'current'
+     OR public.session_billing_state(v_session_cc_complete) <> 'current'
+     OR public.session_billing_state(v_session_cc_competing) <> 'current'
+     OR public.session_billing_state(v_session_cc_pay) <> 'current'
+     OR public.session_billing_state(v_session_cc_drop) <> 'current' THEN
     RAISE EXCEPTION 'BH-07 HTTP seed billing state guard failed';
   END IF;
 END $$;

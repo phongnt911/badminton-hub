@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, PostgrestException, SupabaseClient, User;
 
 import 'package:badminton_hub/data/auth_repository.dart';
 import 'package:badminton_hub/data/finance_repository.dart';
 import 'package:badminton_hub/data/session_repository.dart';
+import 'package:badminton_hub/models/finance.dart';
 import 'package:badminton_hub/models/session.dart';
 
 /// BH-07 HTTP/Auth verification.
@@ -40,6 +43,26 @@ const sessionFin = '10000000-0000-4000-8000-000000000005';
 const sessionCancelled = '10000000-0000-4000-8000-000000000006';
 const sessionPrivate = '10000000-0000-4000-8000-000000000007';
 const sessionClubB = '20000000-0000-4000-8000-000000000001';
+
+const sessionCcComplete = '20000000-0000-4000-8000-000000000002';
+const sessionCcCompeting = '20000000-0000-4000-8000-000000000003';
+const sessionCcPay = '20000000-0000-4000-8000-000000000004';
+const sessionCcDrop = '20000000-0000-4000-8000-000000000005';
+
+const playerCcComplete = '30000000-0000-4000-8000-000000000021';
+const playerCcCompeting = '30000000-0000-4000-8000-000000000022';
+const playerCcPay = '30000000-0000-4000-8000-000000000023';
+const playerCcDrop = '30000000-0000-4000-8000-000000000024';
+
+const completeCcReplayReq = 'c0000000-0000-4000-8000-000000000021';
+const completeCcCompA = 'c0000000-0000-4000-8000-000000000022';
+const completeCcCompB = 'c0000000-0000-4000-8000-000000000023';
+const cashCcReplayReq = 'c0000000-0000-4000-8000-000000000024';
+const cashCcCompA = 'c0000000-0000-4000-8000-000000000025';
+const cashCcCompB = 'c0000000-0000-4000-8000-000000000026';
+const submitMemberCcReq = 'c0000000-0000-4000-8000-000000000028';
+const confirmCcReq = 'c0000000-0000-4000-8000-000000000029';
+const dropResponseReq = 'c0000000-0000-4000-8000-000000000027';
 
 const expenseDebt = '50000000-0000-4000-8000-000000000001';
 const expenseFin = '50000000-0000-4000-8000-000000000002';
@@ -182,6 +205,30 @@ const participantCompleteRequest = 'c0000000-0000-4000-8000-000000000015';
 const staleCompleteRequest = 'c0000000-0000-4000-8000-000000000016';
 const anonymousCompleteRequest = 'c0000000-0000-4000-8000-000000000017';
 
+class DropResponseAfterCommitClient extends http.BaseClient {
+  final http.Client _inner;
+  final String targetPath;
+  bool shouldDrop = true;
+  bool dropped = false;
+
+  DropResponseAfterCommitClient(this._inner, {required this.targetPath});
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final response = await _inner.send(request);
+    if (shouldDrop && request.url.path.contains(targetPath)) {
+      shouldDrop = false;
+      dropped = true;
+      await response.stream.drain();
+      throw http.ClientException(
+        'Simulated transport drop: connection closed by peer after server commit',
+        request.url,
+      );
+    }
+    return response;
+  }
+}
+
 class HttpActor {
   final String name;
   final User user;
@@ -268,8 +315,13 @@ void main() {
     );
   }
 
-  Future<HttpActor> login(String name, String email) async {
-    final client = SupabaseClient(baseUrl, anonKey);
+  Future<HttpActor> login(
+    String name,
+    String email, {
+    http.Client? httpClient,
+    bool recordAuthCheck = true,
+  }) async {
+    final client = SupabaseClient(baseUrl, anonKey, httpClient: httpClient);
     final auth = AuthRepository(client: client);
     final response = await auth.signInWithEmail(
       email: email,
@@ -289,12 +341,14 @@ void main() {
           (payload['exp'] as num).toInt() >
               DateTime.now().millisecondsSinceEpoch ~/ 1000;
     }
-    check(
-      'auth.$name.jwt',
-      '$name signs in through GoTrue and receives an authenticated JWT',
-      tokenOk,
-      'user=${user?.id} role=$jwtRole segments=${token?.split('.').length}',
-    );
+    if (recordAuthCheck) {
+      check(
+        'auth.$name.jwt',
+        '$name signs in through GoTrue and receives an authenticated JWT',
+        tokenOk,
+        'user=${user?.id} role=$jwtRole segments=${token?.split('.').length}',
+      );
+    }
     if (!tokenOk || user == null) {
       throw StateError('GoTrue sign-in failed for $name');
     }
@@ -1637,6 +1691,403 @@ void main() {
           'allocation=${refinalizedFin.allocationTotalVnd} '
           'revisions=$finRevisionCount active=$finActiveRevisionCount '
           'expenses=${finSummary.expensesTotalVnd}',
+    );
+
+    // --- Concurrency HTTP / Auth verification (competing clients & idempotency) ---
+    final ownerB1 = ownerB;
+    final ownerB2 = await login(
+      'ownerB-client2',
+      'ownerb@example.test',
+      recordAuthCheck: false,
+    );
+
+    // 1. Concurrent complete with same request_id (idempotent replay)
+    List<Session>? ccCompleteResults;
+    Object? ccCompleteErr;
+    try {
+      ccCompleteResults = await Future.wait([
+        ownerB1.finance.completeSession(
+          requestId: completeCcReplayReq,
+          sessionId: sessionCcComplete,
+          expectedVersion: 3,
+        ),
+        ownerB2.finance.completeSession(
+          requestId: completeCcReplayReq,
+          sessionId: sessionCcComplete,
+          expectedVersion: 3,
+        ),
+      ]);
+    } catch (e) {
+      ccCompleteErr = e;
+    }
+    final ccCompleteAuditCount = await countRows(
+      admin,
+      'audit_events',
+      column: 'session_id',
+      value: sessionCcComplete,
+      secondColumn: 'action',
+      secondValue: 'SESSION_COMPLETED',
+    );
+    final ccCompleteOpCount = await countRows(
+      admin,
+      'operation_requests',
+      column: 'operation',
+      value: 'complete_session',
+      secondColumn: 'request_id',
+      secondValue: completeCcReplayReq,
+    );
+    check(
+      'concurrency.complete.replay-idempotent',
+      'concurrent complete requests with same request_id replay identically without duplicating audit or version',
+      ccCompleteResults != null &&
+          ccCompleteResults.length == 2 &&
+          ccCompleteResults[0].lifecycle == 'completed' &&
+          ccCompleteResults[0].version == 4 &&
+          ccCompleteResults[1].lifecycle == 'completed' &&
+          ccCompleteResults[1].version == 4 &&
+          ccCompleteAuditCount == 1 &&
+          ccCompleteOpCount == 1,
+      ccCompleteErr != null
+          ? errorText(ccCompleteErr)
+          : 'v1=${ccCompleteResults?[0].version} v2=${ccCompleteResults?[1].version} '
+              'audit=$ccCompleteAuditCount ops=$ccCompleteOpCount',
+    );
+
+    // 2. Concurrent complete with different request_ids (competing version conflict)
+    Session? ccCompWinner;
+    Object? ccCompLoserError;
+    Object? ccCompGeneralErr;
+    try {
+      Future<void> runCompleteA() async {
+        try {
+          final res = await ownerB1.finance.completeSession(
+            requestId: completeCcCompA,
+            sessionId: sessionCcCompeting,
+            expectedVersion: 3,
+          );
+          ccCompWinner = res;
+        } catch (e) {
+          ccCompLoserError = e;
+        }
+      }
+
+      Future<void> runCompleteB() async {
+        try {
+          final res = await ownerB2.finance.completeSession(
+            requestId: completeCcCompB,
+            sessionId: sessionCcCompeting,
+            expectedVersion: 3,
+          );
+          ccCompWinner = res;
+        } catch (e) {
+          ccCompLoserError = e;
+        }
+      }
+
+      await Future.wait([runCompleteA(), runCompleteB()]);
+    } catch (e) {
+      ccCompGeneralErr = e;
+    }
+    final ccCompAuditCount = await countRows(
+      admin,
+      'audit_events',
+      column: 'session_id',
+      value: sessionCcCompeting,
+      secondColumn: 'action',
+      secondValue: 'SESSION_COMPLETED',
+    );
+    final loserErrStr = ccCompLoserError != null ? errorText(ccCompLoserError!) : '';
+    check(
+      'concurrency.complete.competing-conflict',
+      'concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict',
+      ccCompGeneralErr == null &&
+          ccCompWinner != null &&
+          ccCompWinner!.lifecycle == 'completed' &&
+          ccCompWinner!.version == 4 &&
+          ccCompLoserError != null &&
+          (loserErrStr.contains('VERSION_CONFLICT') || loserErrStr.contains('INVALID_STATE') || loserErrStr.contains('409') || loserErrStr.contains('P0001')) &&
+          ccCompAuditCount == 1,
+      ccCompGeneralErr != null
+          ? errorText(ccCompGeneralErr)
+          : 'winnerVersion=${ccCompWinner?.version} loserError=$loserErrStr audit=$ccCompAuditCount',
+    );
+
+    // 3. Concurrent cash payment with same request_id (idempotent replay)
+    List<PaymentResult>? ccCashResults;
+    Object? ccCashErr;
+    try {
+      ccCashResults = await Future.wait([
+        ownerB1.finance.recordCashPayment(
+          requestId: cashCcReplayReq,
+          playerId: playerCcPay,
+          amountVnd: 50000,
+        ),
+        ownerB2.finance.recordCashPayment(
+          requestId: cashCcReplayReq,
+          playerId: playerCcPay,
+          amountVnd: 50000,
+        ),
+      ]);
+    } catch (e) {
+      ccCashErr = e;
+    }
+    final ccCashPaymentsCount = await countRows(
+      admin,
+      'payments',
+      column: 'session_player_id',
+      value: playerCcPay,
+      secondColumn: 'amount_vnd',
+      secondValue: 50000,
+    );
+    final ccCashLedgerCount = ccCashResults != null && ccCashResults.isNotEmpty
+        ? await countRows(
+            admin,
+            'club_transactions',
+            column: 'source_payment_id',
+            value: ccCashResults[0].paymentId,
+          )
+        : 0;
+    final ccCashOpCount = await countRows(
+      admin,
+      'operation_requests',
+      column: 'operation',
+      value: 'record_cash_payment',
+      secondColumn: 'request_id',
+      secondValue: cashCcReplayReq,
+    );
+    check(
+      'concurrency.cash.replay-idempotent',
+      'concurrent cash payments with same request_id produce one payment, one ledger entry and idempotent result',
+      ccCashResults != null &&
+          ccCashResults.length == 2 &&
+          ccCashResults[0].paymentId == ccCashResults[1].paymentId &&
+          ccCashResults[0].status == 'confirmed' &&
+          ccCashResults[1].status == 'confirmed' &&
+          ccCashPaymentsCount == 1 &&
+          ccCashLedgerCount == 1 &&
+          ccCashOpCount == 1,
+      ccCashErr != null
+          ? errorText(ccCashErr)
+          : 'p1=${ccCashResults?[0].paymentId} p2=${ccCashResults?[1].paymentId} '
+              'payments=$ccCashPaymentsCount ledger=$ccCashLedgerCount ops=$ccCashOpCount',
+    );
+
+    // 4. Concurrent competing cash payments with different request_ids (no over-collect)
+    PaymentResult? ccPayWinner;
+    Object? ccPayLoserError;
+    Object? ccPayGeneralErr;
+    try {
+      Future<void> runPayA() async {
+        try {
+          final res = await ownerB1.finance.recordCashPayment(
+            requestId: cashCcCompA,
+            playerId: playerCcPay,
+            amountVnd: 70000,
+          );
+          ccPayWinner = res;
+        } catch (e) {
+          ccPayLoserError = e;
+        }
+      }
+
+      Future<void> runPayB() async {
+        try {
+          final res = await ownerB2.finance.recordCashPayment(
+            requestId: cashCcCompB,
+            playerId: playerCcPay,
+            amountVnd: 70000,
+          );
+          ccPayWinner = res;
+        } catch (e) {
+          ccPayLoserError = e;
+        }
+      }
+
+      await Future.wait([runPayA(), runPayB()]);
+    } catch (e) {
+      ccPayGeneralErr = e;
+    }
+    final totalConfirmedPayRows = await countRows(
+      admin,
+      'payments',
+      column: 'session_player_id',
+      value: playerCcPay,
+      secondColumn: 'status',
+      secondValue: 'confirmed',
+    );
+    SessionSummary? summaryAfterComp;
+    try {
+      summaryAfterComp = await ownerB1.finance.getSessionSummary(sessionCcPay);
+    } catch (e) {
+      ccPayGeneralErr ??= e;
+    }
+    final payLoserErrStr = ccPayLoserError != null ? errorText(ccPayLoserError!) : '';
+    check(
+      'concurrency.cash.competing-no-overcollect',
+      'concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt',
+      ccPayGeneralErr == null &&
+          ccPayWinner != null &&
+          ccPayWinner!.status == 'confirmed' &&
+          ccPayLoserError != null &&
+          (payLoserErrStr.contains('INVALID_AMOUNT') ||
+              payLoserErrStr.contains('vượt') ||
+              payLoserErrStr.contains('amount') ||
+              payLoserErrStr.contains('22023') ||
+              payLoserErrStr.contains('P0001')) &&
+          totalConfirmedPayRows == 2 &&
+          summaryAfterComp != null &&
+          summaryAfterComp.totalPaidVnd == 120000 &&
+          summaryAfterComp.outstandingTotalVnd == 30000,
+      ccPayGeneralErr != null
+          ? errorText(ccPayGeneralErr)
+          : 'winnerPay=${ccPayWinner?.paymentId} loserErr=$payLoserErrStr '
+              'totalPays=$totalConfirmedPayRows paid=${summaryAfterComp?.totalPaidVnd} '
+              'outstanding=${summaryAfterComp?.outstandingTotalVnd}',
+    );
+
+    // 5. Concurrent confirm payment with same request_id (idempotent replay)
+    PaymentResult? submittedMemberPay;
+    List<PaymentResult>? ccConfirmResults;
+    Object? ccConfirmErr;
+    try {
+      submittedMemberPay = await memberA.finance.submitPayment(
+        requestId: submitMemberCcReq,
+        playerId: playerCcPay,
+        amountVnd: 30000,
+        reference: 'MEMBER-A-CLEAR-DEBT',
+      );
+      ccConfirmResults = await Future.wait([
+        ownerB1.finance.confirmPayment(
+          requestId: confirmCcReq,
+          paymentId: submittedMemberPay.paymentId,
+        ),
+        ownerB2.finance.confirmPayment(
+          requestId: confirmCcReq,
+          paymentId: submittedMemberPay.paymentId,
+        ),
+      ]);
+    } catch (e) {
+      ccConfirmErr = e;
+    }
+    final confirmLedgerCount = submittedMemberPay != null
+        ? await countRows(
+            admin,
+            'club_transactions',
+            column: 'source_payment_id',
+            value: submittedMemberPay.paymentId,
+          )
+        : 0;
+    final confirmOpCount = await countRows(
+      admin,
+      'operation_requests',
+      column: 'operation',
+      value: 'confirm_payment',
+      secondColumn: 'request_id',
+      secondValue: confirmCcReq,
+    );
+    SessionSummary? finalCcPaySummary;
+    try {
+      finalCcPaySummary = await ownerB1.finance.getSessionSummary(sessionCcPay);
+    } catch (e) {
+      ccConfirmErr ??= e;
+    }
+    check(
+      'concurrency.confirm.replay-idempotent',
+      'concurrent confirm_payment requests with same request_id produce one ledger entry and clear debt',
+      ccConfirmErr == null &&
+          ccConfirmResults != null &&
+          ccConfirmResults.length == 2 &&
+          ccConfirmResults[0].status == 'confirmed' &&
+          ccConfirmResults[1].status == 'confirmed' &&
+          confirmLedgerCount == 1 &&
+          confirmOpCount == 1 &&
+          finalCcPaySummary != null &&
+          finalCcPaySummary.outstandingTotalVnd == 0,
+      ccConfirmErr != null
+          ? errorText(ccConfirmErr)
+          : 'status1=${ccConfirmResults?[0].status} status2=${ccConfirmResults?[1].status} '
+              'ledger=$confirmLedgerCount ops=$confirmOpCount outstanding=${finalCcPaySummary?.outstandingTotalVnd}',
+    );
+
+    // 6. Transport drop response after server commit, then retry
+    final dropProxy = DropResponseAfterCommitClient(
+      http.Client(),
+      targetPath: 'record_cash_payment',
+    );
+    final dropActor = await login(
+      'ownerB-drop',
+      'ownerb@example.test',
+      httpClient: dropProxy,
+      recordAuthCheck: false,
+    );
+    var simulatedDropCaught = false;
+    try {
+      await dropActor.finance.recordCashPayment(
+        requestId: dropResponseReq,
+        playerId: playerCcDrop,
+        amountVnd: 60000,
+      );
+    } catch (e) {
+      simulatedDropCaught = e is http.ClientException && dropProxy.dropped;
+    }
+    PaymentResult? dropRetryResult;
+    Object? dropRetryErr;
+    try {
+      dropRetryResult = await ownerB1.finance.recordCashPayment(
+        requestId: dropResponseReq,
+        playerId: playerCcDrop,
+        amountVnd: 60000,
+      );
+    } catch (e) {
+      dropRetryErr = e;
+    }
+    final dropPaymentRows = await countRows(
+      admin,
+      'payments',
+      column: 'session_player_id',
+      value: playerCcDrop,
+      secondColumn: 'amount_vnd',
+      secondValue: 60000,
+    );
+    final dropLedgerRows = dropRetryResult != null
+        ? await countRows(
+            admin,
+            'club_transactions',
+            column: 'source_payment_id',
+            value: dropRetryResult.paymentId,
+          )
+        : 0;
+    final dropOpRows = await countRows(
+      admin,
+      'operation_requests',
+      column: 'operation',
+      value: 'record_cash_payment',
+      secondColumn: 'request_id',
+      secondValue: dropResponseReq,
+    );
+    SessionSummary? dropSummary;
+    try {
+      dropSummary = await ownerB1.finance.getSessionSummary(sessionCcDrop);
+    } catch (e) {
+      dropRetryErr ??= e;
+    }
+    check(
+      'concurrency.drop-response.retry-no-duplicate',
+      'simulated network drop after server commit succeeds on retry without duplicate payment or ledger entries',
+      dropRetryErr == null &&
+          simulatedDropCaught &&
+          dropRetryResult != null &&
+          dropRetryResult.status == 'confirmed' &&
+          dropPaymentRows == 1 &&
+          dropLedgerRows == 1 &&
+          dropOpRows == 1 &&
+          dropSummary != null &&
+          dropSummary.outstandingTotalVnd == 40000,
+      dropRetryErr != null
+          ? errorText(dropRetryErr)
+          : 'dropCaught=$simulatedDropCaught dropped=${dropProxy.dropped} '
+              'payments=$dropPaymentRows ledger=$dropLedgerRows ops=$dropOpRows '
+              'outstanding=${dropSummary?.outstandingTotalVnd}',
     );
 
     final passed = checks.where((item) => item['status'] == 'PASS').length;

@@ -8,7 +8,7 @@
 [CmdletBinding()]
 param(
     [string]$EvidenceDir = '',
-    [string]$BaseSha = '593bea86ffb807675387dba6b0276b555fdc87a1'
+    [string]$BaseSha = '4da6339a1a92bcf27675f50ca4b785fbb45f1e78'
 )
 
 # Native tools such as `supabase status` write warnings to stderr. Keep those as
@@ -25,7 +25,7 @@ $testedSha = (& git rev-parse HEAD).Trim()
 $dirtyBefore = ((& git status --porcelain) -join "`n").Trim()
 
 if ([string]::IsNullOrWhiteSpace($EvidenceDir)) {
-    $EvidenceDir = Join-Path $projectRoot 'docs\reviews\bh07\http_auth_evidence'
+    $EvidenceDir = Join-Path $projectRoot 'docs\reviews\bh07\http_concurrency_evidence'
 }
 $EvidenceDir = [System.IO.Path]::GetFullPath($EvidenceDir)
 New-Item -ItemType Directory -Force -Path $EvidenceDir | Out-Null
@@ -259,20 +259,27 @@ $exits | ConvertTo-Json | Set-Content -Path $exitsPath -Encoding utf8
 
 $commands | Set-Content -Path $commandsPath -Encoding utf8
 
-$hashTargets = @(
-    'scripts\bh07_http\run.ps1',
-    'scripts\bh07_http\seed.sql',
-    'test\integration\bh07_http_auth_test.dart',
-    'docs\reviews\bh07\http_auth_evidence\start.log',
-    'docs\reviews\bh07\http_auth_evidence\reset.log',
-    'docs\reviews\bh07\http_auth_evidence\auth_users.log',
-    'docs\reviews\bh07\http_auth_evidence\seed.log',
-    'docs\reviews\bh07\http_auth_evidence\flutter_test.log',
-    'docs\reviews\bh07\http_auth_evidence\summary.json',
-    'docs\reviews\bh07\http_auth_evidence\environment.json',
-    'docs\reviews\bh07\http_auth_evidence\exits.json',
-    'docs\reviews\bh07\http_auth_evidence\commands.md'
-)
+$evidenceRel = $EvidenceDir.Substring($projectRoot.Length).TrimStart('\', '/')
+$hashTargets = [System.Collections.Generic.List[string]]::new()
+$hashTargets.Add('scripts\bh07_http\run.ps1')
+$hashTargets.Add('scripts\bh07_http\seed.sql')
+$hashTargets.Add('test\integration\bh07_http_auth_test.dart')
+$hashTargets.Add((Join-Path $evidenceRel 'start.log'))
+$hashTargets.Add((Join-Path $evidenceRel 'reset.log'))
+$hashTargets.Add((Join-Path $evidenceRel 'auth_users.log'))
+$hashTargets.Add((Join-Path $evidenceRel 'seed.log'))
+$hashTargets.Add((Join-Path $evidenceRel 'flutter_test.log'))
+$hashTargets.Add((Join-Path $evidenceRel 'summary.json'))
+$hashTargets.Add((Join-Path $evidenceRel 'environment.json'))
+$hashTargets.Add((Join-Path $evidenceRel 'exits.json'))
+$hashTargets.Add((Join-Path $evidenceRel 'commands.md'))
+if (Test-Path (Join-Path $projectRoot (Join-Path $evidenceRel 'red_run_summary.json'))) {
+    $hashTargets.Add((Join-Path $evidenceRel 'red_run_summary.json'))
+}
+if (Test-Path (Join-Path $projectRoot (Join-Path $evidenceRel 'red_run_flutter_test.log'))) {
+    $hashTargets.Add((Join-Path $evidenceRel 'red_run_flutter_test.log'))
+}
+
 $hashLines = foreach ($relative in $hashTargets) {
     $full = Join-Path $projectRoot $relative
     if (Test-Path $full) {
@@ -280,7 +287,8 @@ $hashLines = foreach ($relative in $hashTargets) {
         "$hash  $relative"
     }
 }
-$hashLines | Set-Content -Path $hashPath -Encoding utf8
+$hashText = ($hashLines -join "`n") + "`n"
+[System.IO.File]::WriteAllText($hashPath, $hashText, [System.Text.Encoding]::UTF8)
 
 if ($testExit -ne 0) {
     Write-Error "BH-07 HTTP/Auth test failed with exit $testExit; see $testLog"
