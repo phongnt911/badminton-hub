@@ -1,6 +1,6 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-> **Hiện hành 22/10/2026:** Gói kiểm chứng **Browser / Offline / Reopen BH-07 đang ở trạng thái Chờ review** trên nhánh `feat/bh07-browser-verification` từ base `8f9259e8dabf9b79088f9bb1eb9c9049d660eff5`. Đã kiểm chứng Flutter Web trên Google Chrome 155 thật qua CDP với Supabase local/Auth thật: luồng Start → điểm danh → chốt phí → complete → history/summary; phân quyền 4 actor (Owner, Finance, Cohost null finance, Member cô lập); mất mạng bắt lỗi transport không báo thành công giả, online phục hồi retry cùng intent giữ `request_id`, F5/reopen bảo toàn session từ `localStorage`, logout làm sạch cache. Kết quả: **11/11 ma trận browser PASS (0 FAIL)**, **17 ảnh screenshot PNG**, analyze sạch, 240 Flutter +1 skip, 23 DB PASS. Giữ nguyên source đã nghiệm thu; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị di động thật, ngân hàng/webhook thật, staging/production và rehearsal/pilot vẫn NOT RUN; không merge main/apply DB thật/deploy.
+> **Hiện hành 22/10/2026:** Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e7f`** theo [review độc lập](reviews/bh07/review_c8a8e7f.md). Mở **BR1/BR2 P1, BR3–BR5 P2**: runner bỏ qua UI, không kiểm mutation offline/request_id, copy/privacy/ACL và auth/cache chưa đủ, thiếu log/provenance. Reviewer tự chạy analyze sạch, **240 Flutter +1 skip**, **23 DB**, build Web thành công. Runner trên Chromium thật tự báo11/11 nhưng UI trắng; 17 ảnh tác giả giống nhau và chỉ là guest screen, nên **không nghiệm thu browser UI**. Manifest chỉ22/23, thiếu browser_runner.log. Chỉ sửa gói kiểm chứng vòng1/2; giữ app/backend và các kết luận A/B/C/D, HTTP/Auth/concurrency đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser UI đúng luồng, banking/webhook, staging/production/backup, rehearsal/pilot vẫn NOT RUN/chưa đạt. Không merge/apply DB thật/deploy.
 
 ## Trạng thái hiện tại (cập nhật 22/10/2026)
 
@@ -10,7 +10,7 @@ Chủ dự án đã duyệt audit B1–B9/C1/C2 và giao merge BH-06, đồng b�
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](reviews/bh07/review_cbcc46c_r2.md).
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục:** Gói kiểm chứng Browser/Offline/Reopen đang ở trạng thái **Chờ review độc lập** trên nhánh `feat/bh07-browser-verification`. Không tự chạy pilot, merge main hoặc deploy.
+- **Điểm tiếp tục:** Sửa BR1–BR5 gói Browser/Offline/Reopen vòng1/2 theo [review_c8a8e7f.md](reviews/bh07/review_c8a8e7f.md). Không tự sửa app/backend, merge/deploy/pilot.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu

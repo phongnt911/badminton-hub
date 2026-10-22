@@ -1,0 +1,29 @@
+{
+  "base_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
+  "tested_source_docs_sha": "c8a8e7f672fcf9f27bdac22d48fbcdac74446b1b",
+  "verdict": "Chưa đạt",
+  "findings": {
+    "BR1": "P1 UI flow false-positive",
+    "BR2": "P1 offline mutation/request_id not tested",
+    "BR3": "P2 copy/privacy/ACL weak assertions",
+    "BR4": "P2 auth/cache lifecycle bypassed",
+    "BR5": "P2 missing log/provenance/recipe"
+  },
+  "independent_results": {
+    "analyze_issues": 0,
+    "flutter_pass": 240,
+    "flutter_skip": 1,
+    "db_pass": 23,
+    "web_build_exit": 0,
+    "browser_runner_reported_pass": 11,
+    "browser_UI_accepted": false,
+    "author_manifest_matches": 22,
+    "author_manifest_total": 23,
+    "author_screenshots": 17,
+    "author_screenshot_unique_hashes": 1,
+    "reviewer_screenshots": 17,
+    "reviewer_screenshot_unique_hashes": 1
+  },
+  "application_source_changed": false,
+  "clean_before_setup": true
+}

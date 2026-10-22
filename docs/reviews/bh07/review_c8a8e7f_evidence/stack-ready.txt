@@ -1,0 +1,1 @@
+GoTrue v2.197.0; PostgREST v16.4; PostgreSQL17.11; Kong2.8.1; local only.

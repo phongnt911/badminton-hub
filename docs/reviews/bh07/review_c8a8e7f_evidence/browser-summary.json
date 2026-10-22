@@ -1,0 +1,84 @@
+{
+  "ticket": "BH-07 browser/offline/reopen verification",
+  "generated_at_utc": "2026-10-22T13:40:14.124Z",
+  "started_at_utc": "2026-10-22T13:38:59.971Z",
+  "duration_ms": 74153,
+  "base_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
+  "tested_checkout_sha": "c8a8e7f672fcf9f27bdac22d48fbcdac74446b1b",
+  "browser": "Chrome/154.0.8037.57",
+  "web_url": "http://127.0.0.1:8088",
+  "api_url": "http://127.0.0.1:54321",
+  "counts": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "id": "browser.owner.login",
+      "description": "Owner A signs in through real GoTrue and session persists in browser storage",
+      "status": "PASS",
+      "detail": "authenticated user=ownera@example.test"
+    },
+    {
+      "id": "browser.session.start-flow",
+      "description": "In-progress session loads with player registrations and management controls",
+      "status": "PASS",
+      "detail": "session=10000000-0000-4000-8000-000000000001 docTitle=\"badminton_hub\""
+    },
+    {
+      "id": "browser.finance.view-and-complete",
+      "description": "Complete session RPC executes with server session version and updates lifecycle to completed; retry with same request_id replays idempotently",
+      "status": "PASS",
+      "detail": "completed session version 7->8 newLifecycle=completed idempotentReplay=true"
+    },
+    {
+      "id": "browser.summary.manager-finance-view",
+      "description": "Manager views full finance totals in summary and copied text excludes private contacts/bank accounts",
+      "status": "PASS",
+      "detail": "expenses=300000 outstanding=250000 privacySafe=true"
+    },
+    {
+      "id": "browser.history.manager-view",
+      "description": "Manager retrieves completed and cancelled sessions with non-null finance figures for managed clubs",
+      "status": "PASS",
+      "detail": "returned 4 history items"
+    },
+    {
+      "id": "browser.cohost.null-finances-privacy",
+      "description": "Cohost without club finance role sees management counts only, NULL money fields, and safe copy text",
+      "status": "PASS",
+      "detail": "can_view_finance=false expenses=null outstanding=null present=2"
+    },
+    {
+      "id": "browser.participant.member-privacy-view",
+      "description": "Regular participant accesses only permitted sessions without club treasury management leak",
+      "status": "PASS",
+      "detail": "member items=0"
+    },
+    {
+      "id": "browser.offline.no-false-success",
+      "description": "Network disconnection caught as real transport error; app never reports false success",
+      "status": "PASS",
+      "detail": "offline transport error verified: Failed to fetch"
+    },
+    {
+      "id": "browser.offline.retry-online",
+      "description": "Network restoration enables successful retry preserving user intent and request parameters",
+      "status": "PASS",
+      "detail": "recovered status=200 items=0"
+    },
+    {
+      "id": "browser.reopen.refresh-session-persistence",
+      "description": "Page reload cleanly restores authenticated user state from storage without cache corruption",
+      "status": "PASS",
+      "detail": "persisted email=membera@example.test"
+    },
+    {
+      "id": "browser.logout.cache-cleared-no-leak",
+      "description": "User logout purges authentication credentials and memory caches without cross-actor data leak",
+      "status": "PASS",
+      "detail": "auth tokens purged, clean anonymous state"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 
 ## Trạng thái hiện tại — 22/10/2026
 
-Gói kiểm chứng **Browser / Offline / Reopen BH-07 đang ở trạng thái Chờ review** trên nhánh `feat/bh07-browser-verification` từ base `8f9259e8dabf9b79088f9bb1eb9c9049d660eff5`. Đã kiểm chứng Flutter Web trên Google Chrome 155 thật qua CDP với Supabase local/Auth thật: luồng Start → điểm danh → chốt phí → complete → history/summary; phân quyền 4 actor (Owner, Finance, Cohost null finance, Member cô lập); mất mạng bắt lỗi transport không báo thành công giả, online phục hồi retry cùng intent giữ `request_id`, F5/reopen bảo toàn session từ `localStorage`, logout làm sạch cache. Kết quả: **11/11 ma trận browser PASS (0 FAIL)**, **17 ảnh screenshot PNG**, analyze sạch, 240 Flutter +1 skip, 23 DB PASS. Giữ nguyên source đã nghiệm thu; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị di động thật, ngân hàng/webhook thật, staging/production và rehearsal/pilot vẫn NOT RUN; không merge main/apply DB thật/deploy.
+Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e7f`** theo [review độc lập](docs/reviews/bh07/review_c8a8e7f.md). Mở **BR1/BR2 P1, BR3–BR5 P2**: runner bỏ qua UI, không kiểm mutation offline/request_id, copy/privacy/ACL và auth/cache chưa đủ, thiếu log/provenance. Reviewer tự chạy analyze sạch, **240 Flutter +1 skip**, **23 DB**, build Web thành công. Runner trên Chromium thật tự báo11/11 nhưng UI trắng; 17 ảnh tác giả giống nhau và chỉ là guest screen, nên **không nghiệm thu browser UI**. Manifest chỉ22/23, thiếu browser_runner.log. Chỉ sửa gói kiểm chứng vòng1/2; giữ app/backend và các kết luận A/B/C/D, HTTP/Auth/concurrency đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser UI đúng luồng, banking/webhook, staging/production/backup, rehearsal/pilot vẫn NOT RUN/chưa đạt. Không merge/apply DB thật/deploy.
 
 (Lịch sử review) Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](docs/reviews/bh07/review_cbcc46c_r2.md).
 
@@ -18,7 +18,7 @@ Gói kiểm chứng **Browser / Offline / Reopen BH-07 đang ở trạng thái C
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 11 browser PASS + 76 HTTP PASS + 23 DB PASS | **Chờ review kiểm chứng browser/offline/reopen; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | Browser/Offline/Reopen Chưa đạt c8a8e7f | **Sửa BR1–BR5 vòng1/2; giữ A/B/C/D, HTTP/Auth/concurrency Đạt local; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

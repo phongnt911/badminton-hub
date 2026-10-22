@@ -1,0 +1,117 @@
+[
+  {
+    "file": "docs/reviews/bh07/browser_evidence/bh07_db_results.json",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/browser_runner.log",
+    "exists": false,
+    "matches": false
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/commands.md",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/environment.json",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/exits.json",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/01_owner_logged_in.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/02_session_detail_owner.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/03_players_attendance.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/04_session_finance_manager.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/05_session_completed.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/06_summary_manager_full_finances.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/07_history_manager_view.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/08_history_filter_club.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/09_cohost_logged_in.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/10_summary_cohost_management_only.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/11_history_cohost_view.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/12_participant_logged_in.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/13_history_participant_view.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/14_network_offline_error.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/15_retry_online_success.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/16_refresh_reopen_state.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/screenshots/17_logout_cache_cleared.png",
+    "exists": true,
+    "matches": true
+  },
+  {
+    "file": "docs/reviews/bh07/browser_evidence/summary.json",
+    "exists": true,
+    "matches": true
+  }
+]

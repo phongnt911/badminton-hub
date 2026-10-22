@@ -1,0 +1,21 @@
+{
+  "fbc41b96af5970bb285e75a025f6c31e3fc6eef075f98ea9266e7679881e5ba8": [
+    "14_network_offline_error.png",
+    "02_session_detail_owner.png",
+    "12_participant_logged_in.png",
+    "17_logout_cache_cleared.png",
+    "04_session_finance_manager.png",
+    "08_history_filter_club.png",
+    "05_session_completed.png",
+    "11_history_cohost_view.png",
+    "06_summary_manager_full_finances.png",
+    "03_players_attendance.png",
+    "13_history_participant_view.png",
+    "10_summary_cohost_management_only.png",
+    "15_retry_online_success.png",
+    "09_cohost_logged_in.png",
+    "01_owner_logged_in.png",
+    "07_history_manager_view.png",
+    "16_refresh_reopen_state.png"
+  ]
+}
