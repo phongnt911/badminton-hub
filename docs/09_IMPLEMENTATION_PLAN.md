@@ -679,3 +679,19 @@ Kết quả: **76/76 PASS** HTTP/Auth local, `flutter analyze` sạch, **240 Flu
 Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt tại `2f0aa59`** theo [review độc lập](reviews/bh07/review_2f0aa59.md): H1/H2 P2 về tiền đề drop sau commit và validator lỗi cạnh tranh quá rộng. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**; hai probe tái hiện xanh giả. Manifest tác giả21/21 khớp LF, không thấy secret theo scan. Chỉ sửa gói kiểm chứng vòng1/2, giữ HTTP/Auth `f9159dd` và A/B/C/D đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser/offline, ngân hàng, staging/production/backup và rehearsal/pilot vẫn NOT RUN. Không merge main/apply DB thật/deploy.
 
 Chủ dự án xác nhận ngày 22/10/2026 dùng docs/evidence `7aee525c10aa5aa4cc94611350e8b9f614028537` để chốt review, đính chính full SHA trong yêu cầu ban đầu. Kết luận Chưa đạt H1/H2 P2 giữ nguyên. Xem báo cáo cho khác biệt Linux và NOT RUN.
+
+### BH-07 Concurrency HTTP/Auth — Bàn giao sửa vòng 1/2, Chờ review (22/10/2026)
+
+Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chờ review vòng 1/2** trên nhánh `feat/bh07-http-concurrency` tại tested source `cbcc46c` từ base `a0f831a`. Đã sửa toàn bộ phát hiện H1/H2 P2 trong [review_2f0aa59.md](reviews/bh07/review_2f0aa59.md):
+- **H1:** `DropResponseAfterCommitClient` chỉ drop sau response HTTP 200 (đúng contract thành công), non-2xx trả về nguyên trạng mà không đánh dấu drop. Trước khi retry, xác nhận trực tiếp bằng service-role trong DB: đúng 1 operation request (`actor_user_id`), đúng 1 payment confirmed, đúng 1 ledger entry, lưu `baselinePaymentId`. Sau retry so sánh `paymentId == baselinePaymentId` và các số đếm không đổi. Bổ sung negative control với client mock HTTP 400 xác nhận không bị tính là drop sau commit.
+- **H2:** Sử dụng các predicate kiểm tra có cấu trúc `isCompleteConflictError` và `isCashOvercollectError` yêu cầu chặt chẽ domain code (`VERSION_CONFLICT`, `INVALID_STATE`, `PAYMENT_EXCEEDS_OUTSTANDING`) và SQLSTATE `22023` / HTTP `409`, loại bỏ hoàn toàn các chuỗi SQLSTATE chung (`P0001`) hoặc từ khoá chung (`amount`). Bổ sung `verifyH2NegativeControls()` xác nhận loại bỏ các lỗi không liên quan (`FORBIDDEN` 42501, `NOT_FOUND` P0002, `INVALID_INPUT`, probe `FORBIDDEN` P0001, transport error).
+
+Đã chạy test probe tái hiện đỏ trước sửa (`red_probe.log` với 3 FAIL), sau sửa chuyển sang 5/5 PASS (`green_probe.log`).
+Kết quả độc lập:
+- **76/76 PASS** HTTP/Auth local Concurrency matrix (`summary.json`, `flutter_test.log`).
+- `flutter analyze` sạch (0 issues).
+- Full Flutter suite **240 pass + 1 skip**.
+- BH-07 DB runner **23/23 PASS** (`bh07_test_results_20261022122614.json`).
+- Manifest 19/19 files khớp LF (`hashes.sha256`), quét sạch secret.
+
+Không sửa migration, RPC, model, repository, provider, UI hay contract. Toàn BH-07/pilot vẫn chưa nghiệm thu; các cổng thiết bị/browser/offline, ngân hàng/webhook, staging/production và rehearsal/pilot vẫn NOT RUN; không tự merge main/apply DB thật/deploy. [Bàn giao](reviews/bh07/http_concurrency_handoff.md), [bằng chứng](reviews/bh07/http_concurrency_evidence/).

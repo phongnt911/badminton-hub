@@ -1,8 +1,8 @@
 ﻿# BH-07 HTTP/Auth verification commands
 
-Generated (UTC): 2026-10-21T10:34:37Z
-Base SHA: `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`
-Tested checkout SHA: `2f0aa5930d8d1d982ced3bcda82b22b899e5881a`
+Generated (UTC): 2026-10-22T12:25:14Z
+Base SHA: `a0f831ae3f47e305608bfa0dff19ae035b31f798`
+Tested checkout SHA: `cbcc46c2e125b156b53f4297ef864cf658855d37`
 
 ```powershell
 npx --yes supabase@2.121.0 start

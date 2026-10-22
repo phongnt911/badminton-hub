@@ -1,10 +1,10 @@
 {
-  "timestamp": "20261021103824",
-  "base_sha": "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
+  "timestamp": "20261022122614",
+  "base_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
   "worktree_dirty": true,
   "container": "bh02-test-postgres",
-  "clean_db": "bh07_clean_20261021103824",
-  "upgrade_db": "bh07_upgrade_20261021103824",
+  "clean_db": "bh07_clean_20261022122614",
+  "upgrade_db": "bh07_upgrade_20261022122614",
   "bh07_migration": "20261020180000_bh07_reads.sql",
   "migration_sha256": {
     "20261015051808_init_schema_v1_1.sql": "91680c9b32fc438057293db0e4df29f4b979f50ee6e00a5ea08c6603e3967e50",

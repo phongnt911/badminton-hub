@@ -1,12 +1,12 @@
-00:00 +0: loading c:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_http_auth_test.dart
+﻿00:00 +0: loading C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_http_auth_test.dart
 00:00 +0: BH-07 HTTP/Auth matrix
 Shell: BH07_HTTP_SUMMARY {
 Shell:   "ticket": "BH-07 HTTP/Auth verification",
-Shell:   "generated_at_utc": "2026-10-21T10:37:42.736914Z",
-Shell:   "started_at_utc": "2026-10-21T10:37:37.784072Z",
-Shell:   "duration_ms": 4952,
-Shell:   "base_sha": "4da6339a1a92bcf27675f50ca4b785fbb45f1e78",
-Shell:   "tested_sha": "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
+Shell:   "generated_at_utc": "2026-10-22T12:25:56.637405Z",
+Shell:   "started_at_utc": "2026-10-22T12:25:51.654095Z",
+Shell:   "duration_ms": 4983,
+Shell:   "base_sha": "a0f831ae3f47e305608bfa0dff19ae035b31f798",
+Shell:   "tested_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
 Shell:   "api_url": "http://127.0.0.1:54321",
 Shell:   "runtime": {
 Shell:     "dart": "3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
@@ -24,61 +24,61 @@ Shell:     {
 Shell:       "id": "auth.ownerA.jwt",
 Shell:       "description": "ownerA signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=c6dac24d-1ff7-407b-b09b-b195690f168b role=authenticated segments=3"
+Shell:       "detail": "user=144ab657-dabc-4417-881d-73c3a5be16e4 role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.financeA.jwt",
 Shell:       "description": "financeA signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=90435005-6751-4c52-81ca-a0139a9ec27a role=authenticated segments=3"
+Shell:       "detail": "user=8ef19c0c-4f7b-4293-bbc1-67d7baa46625 role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.cohostA.jwt",
 Shell:       "description": "cohostA signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=9eba5c25-175c-451d-b266-0769e8d7bb4d role=authenticated segments=3"
+Shell:       "detail": "user=9be49ea1-7cf4-41ba-8a4e-342e3ef379e1 role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.memberA.jwt",
 Shell:       "description": "memberA signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=4cfefdb1-8cb3-44de-9e9a-47efc0d8f7d8 role=authenticated segments=3"
+Shell:       "detail": "user=82963af5-02ed-406b-8552-3d3c589c79df role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.guestA.jwt",
 Shell:       "description": "guestA signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=9104d5db-b6e0-4b2b-969d-b3c4c0a89038 role=authenticated segments=3"
+Shell:       "detail": "user=162a3cd1-b6d0-40da-a8cb-a6aa6605ae9b role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.ownerB.jwt",
 Shell:       "description": "ownerB signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=98b4ec08-a7d6-453f-b0d2-ef78e4b4e87e role=authenticated segments=3"
+Shell:       "detail": "user=c405c2f3-f493-43c7-8559-b4b1906be36a role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.outsider.jwt",
 Shell:       "description": "outsider signs in through GoTrue and receives an authenticated JWT",
 Shell:       "status": "PASS",
-Shell:       "detail": "user=748c8822-8a7d-4e3d-8445-5fdfa0f242a6 role=authenticated segments=3"
+Shell:       "detail": "user=0b0183f2-7e40-4c03-9e88-a74a9567689a role=authenticated segments=3"
 Shell:     },
 Shell:     {
 Shell:       "id": "auth.bad-password",
 Shell:       "description": "GoTrue rejects a wrong password",
 Shell:       "status": "PASS",
-Shell:       "detail": "Email hoặc mật khẩu không chính xác."
+Shell:       "detail": "Email hoß║╖c mß║¡t khß║⌐u kh├┤ng ch├¡nh x├íc."
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.cross-club.complete",
 Shell:       "description": "owner B cannot complete a club A session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chß╗ë host/quß║ún l├╜ buß╗òi mß╗¢i kß║┐t th├║c buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.participant.complete",
 Shell:       "description": "participant cannot complete a session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chß╗ë host/quß║ún l├╜ buß╗òi mß╗¢i kß║┐t th├║c buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.anonymous.complete",
@@ -90,55 +90,55 @@ Shell:     {
 Shell:       "id": "acl.cross-club.finance",
 Shell:       "description": "owner B cannot read club A finance",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cß║ºn quyß╗ün t├ái ch├¡nh ─æß╗â xem t├ái ch├¡nh buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.cross-club.summary",
 Shell:       "description": "owner B cannot read club A summary",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chß╗ë host/quß║ún l├╜ hoß║╖c finance xem ─æ╞░ß╗úc tß╗òng kß║┐t buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.participant.summary",
 Shell:       "description": "participant cannot read summary",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chß╗ë host/quß║ún l├╜ hoß║╖c finance xem ─æ╞░ß╗úc tß╗òng kß║┐t buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.guest.summary",
 Shell:       "description": "guest cannot read summary",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chß╗ë host/quß║ún l├╜ hoß║╖c finance xem ─æ╞░ß╗úc tß╗òng kß║┐t buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.participant.finance",
 Shell:       "description": "participant cannot read session finance",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cß║ºn quyß╗ün t├ái ch├¡nh ─æß╗â xem t├ái ch├¡nh buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "acl.cohost.finance",
 Shell:       "description": "management-only cohost cannot read session finance",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cß║ºn quyß╗ün t├ái ch├¡nh ─æß╗â xem t├ái ch├¡nh buß╗òi details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "privacy.cross-club.private-detail",
 Shell:       "description": "owner B cannot read a private club A session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Kh├┤ng c├│ quyß╗ün xem buß╗òi ch╞íi n├áy details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "privacy.outsider.private-detail",
 Shell:       "description": "outsider cannot read a private session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Kh├┤ng c├│ quyß╗ün xem buß╗òi ch╞íi n├áy details=Forbidden hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "privacy.anonymous.private-detail",
 Shell:       "description": "anonymous cannot read a private session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: Cần đăng nhập để xem buổi chơi này details=Unauthorized hint=null"
+Shell:       "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: Cß║ºn ─æ─âng nhß║¡p ─æß╗â xem buß╗òi ch╞íi n├áy details=Unauthorized hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "privacy.club-member.private-detail",
@@ -168,7 +168,7 @@ Shell:     {
 Shell:       "id": "complete.stale",
 Shell:       "description": "complete rejects a stale billing revision",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=22023 message=BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước details=Bad Request hint=null"
+Shell:       "detail": "POSTGREST code=22023 message=BILLING_STALE: Bß║ún chß╗æt ph├¡ ─æ├ú lß╗ùi thß╗¥i, cß║ºn chß╗æt lß║íi tr╞░ß╗¢c details=Bad Request hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "complete.stale.unchanged",
@@ -180,7 +180,7 @@ Shell:     {
 Shell:       "id": "complete.version-conflict",
 Shell:       "description": "complete rejects an outdated expected version",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Buổi chơi đã thay đổi, cần tải lại details=Bad Request hint=null"
+Shell:       "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Buß╗òi ch╞íi ─æ├ú thay ─æß╗òi, cß║ºn tß║úi lß║íi details=Bad Request hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "complete.version-conflict.unchanged",
@@ -276,7 +276,7 @@ Shell:     {
 Shell:       "id": "finance.post-expense-after-complete.rejected",
 Shell:       "description": "new expense is rejected after complete",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buß╗òi ─æ├ú kß║┐t th├║c/huß╗╖, chß╗ë ─æiß╗üu chß╗ënh qua h├ánh ─æß╗Öng t├ái ch├¡nh details=Bad Request hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "finance.post-expense-after-complete.no-side-effect",
@@ -300,7 +300,7 @@ Shell:     {
 Shell:       "id": "finance.submit-payment-after-complete",
 Shell:       "description": "participant submit is allowed after complete and request_id replays the same payment",
 Shell:       "status": "PASS",
-Shell:       "detail": "status=submitted id=0e925cda-4e38-40b1-8ac9-b1e4da323ef3"
+Shell:       "detail": "status=submitted id=1db1aa7f-4c62-4d99-b04a-59eccedd2f0c"
 Shell:     },
 Shell:     {
 Shell:       "id": "finance.confirm-payment-after-complete",
@@ -396,7 +396,7 @@ Shell:     {
 Shell:       "id": "history.invalid-range",
 Shell:       "description": "history rejects a reversed date range",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=22023 message=INVALID_INPUT: Khoảng ngày không hợp lệ details=Bad Request hint=null"
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_INPUT: Khoß║úng ng├áy kh├┤ng hß╗úp lß╗ç details=Bad Request hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "list.after-complete",
@@ -426,7 +426,7 @@ Shell:     {
 Shell:       "id": "finance.post-expense-fin-after-complete.rejected",
 Shell:       "description": "new expense remains rejected on a completed session",
 Shell:       "status": "PASS",
-Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buß╗òi ─æ├ú kß║┐t th├║c/huß╗╖, chß╗ë ─æiß╗üu chß╗ënh qua h├ánh ─æß╗Öng t├ái ch├¡nh details=Bad Request hint=null"
 Shell:     },
 Shell:     {
 Shell:       "id": "finance.post-expense-fin-after-complete.no-side-effect",
@@ -450,19 +450,19 @@ Shell:     {
 Shell:       "id": "concurrency.complete.competing-conflict",
 Shell:       "description": "concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict",
 Shell:       "status": "PASS",
-Shell:       "detail": "winnerVersion=4 loserError=POSTGREST code=22023 message=INVALID_STATE: Chỉ kết thúc buổi đang diễn ra details=Bad Request hint=null audit=1"
+Shell:       "detail": "winnerVersion=4 loserError=POSTGREST code=22023 message=INVALID_STATE: Chß╗ë kß║┐t th├║c buß╗òi ─æang diß╗àn ra details=Bad Request hint=null isConflictDomain=true negControls=true audit=1"
 Shell:     },
 Shell:     {
 Shell:       "id": "concurrency.cash.replay-idempotent",
 Shell:       "description": "concurrent cash payments with same request_id produce one payment, one ledger entry and idempotent result",
 Shell:       "status": "PASS",
-Shell:       "detail": "p1=61fbf8d8-b36d-4f62-82fb-0619516d5a09 p2=61fbf8d8-b36d-4f62-82fb-0619516d5a09 payments=1 ledger=1 ops=1"
+Shell:       "detail": "p1=e1dd206c-41d6-4558-841b-690e07801f3a p2=e1dd206c-41d6-4558-841b-690e07801f3a payments=1 ledger=1 ops=1"
 Shell:     },
 Shell:     {
 Shell:       "id": "concurrency.cash.competing-no-overcollect",
 Shell:       "description": "concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt",
 Shell:       "status": "PASS",
-Shell:       "detail": "winnerPay=379040a6-1f84-4ee5-9826-fe1b4d755447 loserErr=POSTGREST code=22023 message=PAYMENT_EXCEEDS_OUTSTANDING: Số tiền vượt quá khoản còn phải thu (30000) details=Bad Request hint=null totalPays=2 paid=120000 outstanding=30000"
+Shell:       "detail": "winnerPay=87e7bbc1-6a4f-40b3-bbfb-267df0a7780a loserErr=POSTGREST code=22023 message=PAYMENT_EXCEEDS_OUTSTANDING: Sß╗æ tiß╗ün v╞░ß╗út qu├í khoß║ún c├▓n phß║úi thu (30000) details=Bad Request hint=null isOvercollectDomain=true negControls=true totalPays=2 paid=120000 outstanding=30000"
 Shell:     },
 Shell:     {
 Shell:       "id": "concurrency.confirm.replay-idempotent",
@@ -474,7 +474,7 @@ Shell:     {
 Shell:       "id": "concurrency.drop-response.retry-no-duplicate",
 Shell:       "description": "simulated network drop after server commit succeeds on retry without duplicate payment or ledger entries",
 Shell:       "status": "PASS",
-Shell:       "detail": "dropCaught=true dropped=true payments=1 ledger=1 ops=1 outstanding=40000"
+Shell:       "detail": "dropCaught=true preCommitted=true negControl=true baselineId=3e6cc4c0-9b26-42d6-9803-a868d3756303 retryId=3e6cc4c0-9b26-42d6-9803-a868d3756303 payments=1 ledger=1 ops=1 outstanding=40000"
 Shell:     }
 Shell:   ]
 Shell: }

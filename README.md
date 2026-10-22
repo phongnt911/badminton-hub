@@ -16,7 +16,7 @@ Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt tại `2f0aa59`**
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chưa đạt tại 2f0aa59; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chờ review vòng 1/2 tại cbcc46c; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
