@@ -4,7 +4,7 @@
 
 ## Trạng thái hiện tại — 22/10/2026
 
-Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt vòng1/2 tại `cbcc46c`**, docs/evidence `b23df5e`, theo [review độc lập](docs/reviews/bh07/review_cbcc46c.md). **Đóng H1/H2 P2** sau kiểm chứng độc lập; còn **H3/H4 P2 về log UTF-16/CRLF trái công bố LF và full base SHA sai**. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, **4/4 probe** PASS. Manifest19/19 khớp raw bytes, chưa đạt chuẩn LF; scan đã decode không thấy secret theo mẫu kiểm. Chỉ sửa tài liệu/bằng chứng vòng2/2, không đổi logic test/app/backend. Giữ HTTP/Auth `f9159dd` và A/B/C/D local; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot vẫn NOT RUN; không merge/apply DB thật/deploy.
+Gói kiểm chứng **Concurrency HTTP/Auth BH-07 ở trạng thái Chờ review vòng 2/2 tại `cbcc46c`** trên nhánh `feat/bh07-http-concurrency` từ base thực tế `a0f831af47f98c7649e0c80dce4d5f13004a0db2` (tested source `cbcc46c`). Đã xử lý triệt để phát hiện H3/H4 P2 trong [review cbcc46c](docs/reviews/bh07/review_cbcc46c.md): H3 giải mã đúng encoding nguồn cho 6 log, chuẩn hóa 100% UTF-8 không BOM và newline LF (CRLF=0 ở cả cấp raw bytes và decoded text), quét secret sau decode sạch (0 secret), manifest 19/19 forward-slash khớp tuyệt đối; H4 đính chính full base SHA thực tế `a0f831af47f98c7649e0c80dce4d5f13004a0db2` (commit cha trực tiếp của `cbcc46c`), lưu vết tham số ban đầu `a0f831ae3f47e305608bfa0dff19ae035b31f798` trong metadata và commands. Bảo toàn nguyên vẹn tested source `cbcc46c` và kết luận H1/H2 đã đóng; không sửa test/app/migration/RPC/contract. Giữ kết quả độc lập 76/76 HTTP checks PASS, analyze sạch, 240 Flutter +1 skip, 23/23 BH-07 DB PASS. Giữ HTTP/Auth `f9159dd` và A/B/C/D đã Đạt local; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot vẫn NOT RUN; không merge main/apply DB thật/deploy.
 
 **BH-06 đã Đạt tích hợp local tại `318bc52` và merge vào main tại `e7f7627`.** [Review/bằng chứng](docs/reviews/bh06/review_318bc52.md), [xác minh merge main](docs/reviews/bh06/main_merge_e7f7627.md). Quy trình [người triển khai](docs/ai/IMPLEMENTER.md) và [reviewer](docs/ai/REVIEWER.md) cũng đã có trên main.
 
@@ -16,7 +16,7 @@ Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt vòng1/2 tại `c
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chưa đạt cbcc46c; H1/H2 đóng, sửa evidence H3/H4 tại cbcc46c; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chờ review vòng 2/2 cbcc46c; H1/H2 đóng, đã sửa H3/H4; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

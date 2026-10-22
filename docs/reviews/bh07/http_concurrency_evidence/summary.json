@@ -3,7 +3,7 @@
   "generated_at_utc": "2026-10-22T12:25:56.637405Z",
   "started_at_utc": "2026-10-22T12:25:51.654095Z",
   "duration_ms": 4983,
-  "base_sha": "a0f831ae3f47e305608bfa0dff19ae035b31f798",
+  "base_sha": "a0f831af47f98c7649e0c80dce4d5f13004a0db2",
   "tested_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
   "api_url": "http://127.0.0.1:54321",
   "runtime": {
@@ -64,19 +64,19 @@
       "id": "auth.bad-password",
       "description": "GoTrue rejects a wrong password",
       "status": "PASS",
-      "detail": "Email hoặc mật khẩu không chính xác."
+      "detail": "Email ho\u1eb7c m\u1eadt kh\u1ea9u kh\u00f4ng ch\u00ednh x\u00e1c."
     },
     {
       "id": "acl.cross-club.complete",
       "description": "owner B cannot complete a club A session",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Ch\u1ec9 host/qu\u1ea3n l\u00fd bu\u1ed5i m\u1edbi k\u1ebft th\u00fac bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.participant.complete",
       "description": "participant cannot complete a session",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Ch\u1ec9 host/qu\u1ea3n l\u00fd bu\u1ed5i m\u1edbi k\u1ebft th\u00fac bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.anonymous.complete",
@@ -88,55 +88,55 @@
       "id": "acl.cross-club.finance",
       "description": "owner B cannot read club A finance",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: C\u1ea7n quy\u1ec1n t\u00e0i ch\u00ednh \u0111\u1ec3 xem t\u00e0i ch\u00ednh bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.cross-club.summary",
       "description": "owner B cannot read club A summary",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Ch\u1ec9 host/qu\u1ea3n l\u00fd ho\u1eb7c finance xem \u0111\u01b0\u1ee3c t\u1ed5ng k\u1ebft bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.participant.summary",
       "description": "participant cannot read summary",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Ch\u1ec9 host/qu\u1ea3n l\u00fd ho\u1eb7c finance xem \u0111\u01b0\u1ee3c t\u1ed5ng k\u1ebft bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.guest.summary",
       "description": "guest cannot read summary",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Ch\u1ec9 host/qu\u1ea3n l\u00fd ho\u1eb7c finance xem \u0111\u01b0\u1ee3c t\u1ed5ng k\u1ebft bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.participant.finance",
       "description": "participant cannot read session finance",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: C\u1ea7n quy\u1ec1n t\u00e0i ch\u00ednh \u0111\u1ec3 xem t\u00e0i ch\u00ednh bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "acl.cohost.finance",
       "description": "management-only cohost cannot read session finance",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: C\u1ea7n quy\u1ec1n t\u00e0i ch\u00ednh \u0111\u1ec3 xem t\u00e0i ch\u00ednh bu\u1ed5i details=Forbidden hint=null"
     },
     {
       "id": "privacy.cross-club.private-detail",
       "description": "owner B cannot read a private club A session",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Kh\u00f4ng c\u00f3 quy\u1ec1n xem bu\u1ed5i ch\u01a1i n\u00e0y details=Forbidden hint=null"
     },
     {
       "id": "privacy.outsider.private-detail",
       "description": "outsider cannot read a private session",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+      "detail": "POSTGREST code=42501 message=FORBIDDEN: Kh\u00f4ng c\u00f3 quy\u1ec1n xem bu\u1ed5i ch\u01a1i n\u00e0y details=Forbidden hint=null"
     },
     {
       "id": "privacy.anonymous.private-detail",
       "description": "anonymous cannot read a private session",
       "status": "PASS",
-      "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: Cần đăng nhập để xem buổi chơi này details=Unauthorized hint=null"
+      "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: C\u1ea7n \u0111\u0103ng nh\u1eadp \u0111\u1ec3 xem bu\u1ed5i ch\u01a1i n\u00e0y details=Unauthorized hint=null"
     },
     {
       "id": "privacy.club-member.private-detail",
@@ -166,7 +166,7 @@
       "id": "complete.stale",
       "description": "complete rejects a stale billing revision",
       "status": "PASS",
-      "detail": "POSTGREST code=22023 message=BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước details=Bad Request hint=null"
+      "detail": "POSTGREST code=22023 message=BILLING_STALE: B\u1ea3n ch\u1ed1t ph\u00ed \u0111\u00e3 l\u1ed7i th\u1eddi, c\u1ea7n ch\u1ed1t l\u1ea1i tr\u01b0\u1edbc details=Bad Request hint=null"
     },
     {
       "id": "complete.stale.unchanged",
@@ -178,7 +178,7 @@
       "id": "complete.version-conflict",
       "description": "complete rejects an outdated expected version",
       "status": "PASS",
-      "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Buổi chơi đã thay đổi, cần tải lại details=Bad Request hint=null"
+      "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Bu\u1ed5i ch\u01a1i \u0111\u00e3 thay \u0111\u1ed5i, c\u1ea7n t\u1ea3i l\u1ea1i details=Bad Request hint=null"
     },
     {
       "id": "complete.version-conflict.unchanged",
@@ -274,7 +274,7 @@
       "id": "finance.post-expense-after-complete.rejected",
       "description": "new expense is rejected after complete",
       "status": "PASS",
-      "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+      "detail": "POSTGREST code=22023 message=INVALID_STATE: Bu\u1ed5i \u0111\u00e3 k\u1ebft th\u00fac/hu\u1ef7, ch\u1ec9 \u0111i\u1ec1u ch\u1ec9nh qua h\u00e0nh \u0111\u1ed9ng t\u00e0i ch\u00ednh details=Bad Request hint=null"
     },
     {
       "id": "finance.post-expense-after-complete.no-side-effect",
@@ -394,7 +394,7 @@
       "id": "history.invalid-range",
       "description": "history rejects a reversed date range",
       "status": "PASS",
-      "detail": "POSTGREST code=22023 message=INVALID_INPUT: Khoảng ngày không hợp lệ details=Bad Request hint=null"
+      "detail": "POSTGREST code=22023 message=INVALID_INPUT: Kho\u1ea3ng ng\u00e0y kh\u00f4ng h\u1ee3p l\u1ec7 details=Bad Request hint=null"
     },
     {
       "id": "list.after-complete",
@@ -424,7 +424,7 @@
       "id": "finance.post-expense-fin-after-complete.rejected",
       "description": "new expense remains rejected on a completed session",
       "status": "PASS",
-      "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+      "detail": "POSTGREST code=22023 message=INVALID_STATE: Bu\u1ed5i \u0111\u00e3 k\u1ebft th\u00fac/hu\u1ef7, ch\u1ec9 \u0111i\u1ec1u ch\u1ec9nh qua h\u00e0nh \u0111\u1ed9ng t\u00e0i ch\u00ednh details=Bad Request hint=null"
     },
     {
       "id": "finance.post-expense-fin-after-complete.no-side-effect",
@@ -448,7 +448,7 @@
       "id": "concurrency.complete.competing-conflict",
       "description": "concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict",
       "status": "PASS",
-      "detail": "winnerVersion=4 loserError=POSTGREST code=22023 message=INVALID_STATE: Chỉ kết thúc buổi đang diễn ra details=Bad Request hint=null isConflictDomain=true negControls=true audit=1"
+      "detail": "winnerVersion=4 loserError=POSTGREST code=22023 message=INVALID_STATE: Ch\u1ec9 k\u1ebft th\u00fac bu\u1ed5i \u0111ang di\u1ec5n ra details=Bad Request hint=null isConflictDomain=true negControls=true audit=1"
     },
     {
       "id": "concurrency.cash.replay-idempotent",
@@ -460,7 +460,7 @@
       "id": "concurrency.cash.competing-no-overcollect",
       "description": "concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt",
       "status": "PASS",
-      "detail": "winnerPay=87e7bbc1-6a4f-40b3-bbfb-267df0a7780a loserErr=POSTGREST code=22023 message=PAYMENT_EXCEEDS_OUTSTANDING: Số tiền vượt quá khoản còn phải thu (30000) details=Bad Request hint=null isOvercollectDomain=true negControls=true totalPays=2 paid=120000 outstanding=30000"
+      "detail": "winnerPay=87e7bbc1-6a4f-40b3-bbfb-267df0a7780a loserErr=POSTGREST code=22023 message=PAYMENT_EXCEEDS_OUTSTANDING: S\u1ed1 ti\u1ec1n v\u01b0\u1ee3t qu\u00e1 kho\u1ea3n c\u00f2n ph\u1ea3i thu (30000) details=Bad Request hint=null isOvercollectDomain=true negControls=true totalPays=2 paid=120000 outstanding=30000"
     },
     {
       "id": "concurrency.confirm.replay-idempotent",
@@ -474,5 +474,7 @@
       "status": "PASS",
       "detail": "dropCaught=true preCommitted=true negControl=true baselineId=3e6cc4c0-9b26-42d6-9803-a868d3756303 retryId=3e6cc4c0-9b26-42d6-9803-a868d3756303 payments=1 ledger=1 ops=1 outstanding=40000"
     }
-  ]
+  ],
+  "base_sha_initial_parameter": "a0f831ae3f47e305608bfa0dff19ae035b31f798",
+  "base_sha_note": "Dinh chinh base thuc te theo commit cha cbcc46c^; tham so ban dau la a0f831ae3f47e305608bfa0dff19ae035b31f798."
 }

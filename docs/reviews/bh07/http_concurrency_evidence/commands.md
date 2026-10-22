@@ -1,7 +1,7 @@
-﻿# BH-07 HTTP/Auth verification commands
+# BH-07 HTTP/Auth verification commands
 
 Generated (UTC): 2026-10-22T12:25:14Z
-Base SHA: `a0f831ae3f47e305608bfa0dff19ae035b31f798`
+Base SHA: `a0f831af47f98c7649e0c80dce4d5f13004a0db2` (thực tế commit cha của cbcc46c; tham số ban đầu: `a0f831ae3f47e305608bfa0dff19ae035b31f798`)
 Tested checkout SHA: `cbcc46c2e125b156b53f4297ef864cf658855d37`
 
 ```powershell
