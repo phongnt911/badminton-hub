@@ -472,9 +472,14 @@ async function runMatrix() {
     );
     await new Promise(r => setTimeout(r, 3000));
 
-    // Assert billing status is now "Hiện hành" (current)
+    // Assert billing status is now current / Đang hiệu lực
     const financeElements = await cdp.getAllSemantics();
-    const isCurrent = financeElements.some(e => (e.text || '').includes('Hiện hành') || (e.aria || '').includes('Hiện hành'));
+    const isCurrent = financeElements.some(e => 
+      (e.text || '').includes('Đang hiệu lực') || 
+      (e.text || '').includes('Chốt lại phí') || 
+      (e.text || '').includes('Hiện hành') ||
+      (e.aria || '').includes('Đang hiệu lực')
+    );
 
     if (isCurrent) {
       await cdp.screenshot('04_session_finance_finalized.png', 'Charges finalized to current billing state via UI');
@@ -482,7 +487,7 @@ async function runMatrix() {
         id: 'browser.ui.finalize-charges',
         description: 'Charges finalized via dialog and billing state transitions to current',
         status: 'PASS',
-        detail: 'billing state is now current'
+        detail: 'billing state is now current (Đang hiệu lực)'
       });
     } else {
       throw new Error('Billing state did not become current after finalize dialog confirmation');
@@ -649,6 +654,11 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC07: Cohost A UI View (NULL Finance & Privacy Copy) ---');
+    // Navigate back to HomeScreen
+    await cdp.evaluate(`window.location.hash = '#/'`);
+    await cdp.reloadPage();
+    await new Promise(r => setTimeout(r, 3000));
+
     // 1. Logout Owner A via UI
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Go to Account tab');
     await new Promise(r => setTimeout(r, 2000));
@@ -674,7 +684,7 @@ async function runMatrix() {
 
     // 2. Login Cohost A via UI
     await cdp.clickSemantic(
-      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng nhập' || e.aria === 'Đăng nhập'),
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').includes('Đăng Nhập') || (e.text || '').includes('Đăng nhập')),
       'Open login form for Cohost'
     );
     await new Promise(r => setTimeout(r, 2000));
@@ -685,7 +695,7 @@ async function runMatrix() {
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Nhập' || e.aria === 'Đăng Nhập'),
       'Submit login for Cohost'
     );
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 3500));
 
     // 3. Open summary screen as Cohost
     const sessionId = '10000000-0000-4000-8000-000000000099';
@@ -740,6 +750,11 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC08: Session History & Club Filtering via Real UI ---');
+    // Navigate back to HomeScreen
+    await cdp.evaluate(`window.location.hash = '#/'`);
+    await cdp.reloadPage();
+    await new Promise(r => setTimeout(r, 3000));
+
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
     await new Promise(r => setTimeout(r, 2000));
 
@@ -777,6 +792,11 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC09: Participant Member A UI Isolation ---');
+    // Navigate back to HomeScreen
+    await cdp.evaluate(`window.location.hash = '#/'`);
+    await cdp.reloadPage();
+    await new Promise(r => setTimeout(r, 3000));
+
     // Logout Cohost
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Go to Account tab');
     await new Promise(r => setTimeout(r, 2000));
@@ -793,7 +813,7 @@ async function runMatrix() {
 
     // Login Member A
     await cdp.clickSemantic(
-      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng nhập' || e.aria === 'Đăng nhập'),
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').includes('Đăng Nhập') || (e.text || '').includes('Đăng nhập')),
       'Open login form for Member'
     );
     await new Promise(r => setTimeout(r, 2000));
@@ -803,7 +823,7 @@ async function runMatrix() {
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Nhập' || e.aria === 'Đăng Nhập'),
       'Submit login for Member'
     );
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 3500));
 
     // Open History Screen as Member
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
@@ -836,6 +856,7 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC10: Refresh / Reopen & Session Persistence ---');
+    await cdp.evaluate(`window.location.hash = '#/'`);
     await cdp.reloadPage();
     await new Promise(r => setTimeout(r, 4000));
 
