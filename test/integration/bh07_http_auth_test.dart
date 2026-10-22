@@ -205,11 +205,27 @@ const participantCompleteRequest = 'c0000000-0000-4000-8000-000000000015';
 const staleCompleteRequest = 'c0000000-0000-4000-8000-000000000016';
 const anonymousCompleteRequest = 'c0000000-0000-4000-8000-000000000017';
 
+class StaticStatusClient extends http.BaseClient {
+  final int statusCode;
+  StaticStatusClient(this.statusCode);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    return http.StreamedResponse(
+      Stream.fromIterable([<int>[]]),
+      statusCode,
+      request: request,
+    );
+  }
+}
+
 class DropResponseAfterCommitClient extends http.BaseClient {
   final http.Client _inner;
   final String targetPath;
   bool shouldDrop = true;
   bool dropped = false;
+  int? droppedStatusCode;
+  bool drained = false;
 
   DropResponseAfterCommitClient(this._inner, {required this.targetPath});
 
@@ -217,16 +233,68 @@ class DropResponseAfterCommitClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     final response = await _inner.send(request);
     if (shouldDrop && request.url.path.contains(targetPath)) {
-      shouldDrop = false;
-      dropped = true;
-      await response.stream.drain();
-      throw http.ClientException(
-        'Simulated transport drop: connection closed by peer after server commit',
-        request.url,
-      );
+      if (response.statusCode == 200) {
+        shouldDrop = false;
+        dropped = true;
+        droppedStatusCode = response.statusCode;
+        await response.stream.drain();
+        drained = true;
+        throw http.ClientException(
+          'Simulated transport drop: connection closed by peer after server commit (HTTP 200)',
+          request.url,
+        );
+      }
     }
     return response;
   }
+}
+
+bool isCompleteConflictError(Object? error) {
+  if (error is! PostgrestException) return false;
+  final code = error.code ?? '';
+  final msg = error.message;
+  final isConflictDomain = msg.contains('VERSION_CONFLICT') || msg.contains('INVALID_STATE');
+  final isExpectedCode = code == '22023' || code == '409';
+  return isConflictDomain && isExpectedCode;
+}
+
+bool isCashOvercollectError(Object? error) {
+  if (error is! PostgrestException) return false;
+  final code = error.code ?? '';
+  final msg = error.message;
+  final isOvercollectDomain = msg.contains('PAYMENT_EXCEEDS_OUTSTANDING');
+  final isExpectedCode = code == '22023';
+  return isOvercollectDomain && isExpectedCode;
+}
+
+bool verifyH2NegativeControls() {
+  final unrelatedP0001 = PostgrestException(message: 'FORBIDDEN', code: 'P0001');
+  final forbidden42501 = PostgrestException(
+    message: 'FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi',
+    code: '42501',
+  );
+  final notFoundP0002 = PostgrestException(
+    message: 'NOT_FOUND: Buổi chơi không tồn tại',
+    code: 'P0002',
+  );
+  final invalidInputAmount = PostgrestException(
+    message: 'INVALID_INPUT: Số tiền phải là số nguyên dương VNĐ',
+    code: '22023',
+  );
+  final genericClientErr = http.ClientException('Simulated network timeout');
+
+  if (isCompleteConflictError(unrelatedP0001)) return false;
+  if (isCompleteConflictError(forbidden42501)) return false;
+  if (isCompleteConflictError(notFoundP0002)) return false;
+  if (isCompleteConflictError(genericClientErr)) return false;
+
+  if (isCashOvercollectError(unrelatedP0001)) return false;
+  if (isCashOvercollectError(forbidden42501)) return false;
+  if (isCashOvercollectError(notFoundP0002)) return false;
+  if (isCashOvercollectError(invalidInputAmount)) return false;
+  if (isCashOvercollectError(genericClientErr)) return false;
+
+  return true;
 }
 
 class HttpActor {
@@ -1797,6 +1865,7 @@ void main() {
       secondValue: 'SESSION_COMPLETED',
     );
     final loserErrStr = ccCompLoserError != null ? errorText(ccCompLoserError!) : '';
+    final h2CompleteNegativeControlsOk = verifyH2NegativeControls();
     check(
       'concurrency.complete.competing-conflict',
       'concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict',
@@ -1805,11 +1874,14 @@ void main() {
           ccCompWinner!.lifecycle == 'completed' &&
           ccCompWinner!.version == 4 &&
           ccCompLoserError != null &&
-          (loserErrStr.contains('VERSION_CONFLICT') || loserErrStr.contains('INVALID_STATE') || loserErrStr.contains('409') || loserErrStr.contains('P0001')) &&
+          isCompleteConflictError(ccCompLoserError) &&
+          h2CompleteNegativeControlsOk &&
           ccCompAuditCount == 1,
       ccCompGeneralErr != null
           ? errorText(ccCompGeneralErr)
-          : 'winnerVersion=${ccCompWinner?.version} loserError=$loserErrStr audit=$ccCompAuditCount',
+          : 'winnerVersion=${ccCompWinner?.version} loserError=$loserErrStr '
+              'isConflictDomain=${isCompleteConflictError(ccCompLoserError)} '
+              'negControls=$h2CompleteNegativeControlsOk audit=$ccCompAuditCount',
     );
 
     // 3. Concurrent cash payment with same request_id (idempotent replay)
@@ -1922,6 +1994,7 @@ void main() {
       ccPayGeneralErr ??= e;
     }
     final payLoserErrStr = ccPayLoserError != null ? errorText(ccPayLoserError!) : '';
+    final h2CashNegativeControlsOk = verifyH2NegativeControls();
     check(
       'concurrency.cash.competing-no-overcollect',
       'concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt',
@@ -1929,11 +2002,8 @@ void main() {
           ccPayWinner != null &&
           ccPayWinner!.status == 'confirmed' &&
           ccPayLoserError != null &&
-          (payLoserErrStr.contains('INVALID_AMOUNT') ||
-              payLoserErrStr.contains('vượt') ||
-              payLoserErrStr.contains('amount') ||
-              payLoserErrStr.contains('22023') ||
-              payLoserErrStr.contains('P0001')) &&
+          isCashOvercollectError(ccPayLoserError) &&
+          h2CashNegativeControlsOk &&
           totalConfirmedPayRows == 2 &&
           summaryAfterComp != null &&
           summaryAfterComp.totalPaidVnd == 120000 &&
@@ -1941,6 +2011,8 @@ void main() {
       ccPayGeneralErr != null
           ? errorText(ccPayGeneralErr)
           : 'winnerPay=${ccPayWinner?.paymentId} loserErr=$payLoserErrStr '
+              'isOvercollectDomain=${isCashOvercollectError(ccPayLoserError)} '
+              'negControls=$h2CashNegativeControlsOk '
               'totalPays=$totalConfirmedPayRows paid=${summaryAfterComp?.totalPaidVnd} '
               'outstanding=${summaryAfterComp?.outstandingTotalVnd}',
     );
@@ -2028,8 +2100,60 @@ void main() {
         amountVnd: 60000,
       );
     } catch (e) {
-      simulatedDropCaught = e is http.ClientException && dropProxy.dropped;
+      simulatedDropCaught = e is http.ClientException &&
+          dropProxy.dropped &&
+          dropProxy.droppedStatusCode == 200 &&
+          dropProxy.drained;
     }
+
+    // H1 Pre-retry verification: prove server committed BEFORE retry
+    final preRetryOps = await admin
+        .from('operation_requests')
+        .select()
+        .eq('request_id', dropResponseReq);
+    final preRetryPayments = await admin
+        .from('payments')
+        .select()
+        .eq('session_player_id', playerCcDrop)
+        .eq('amount_vnd', 60000)
+        .eq('status', 'confirmed');
+    final String? baselinePaymentId = preRetryPayments.isNotEmpty
+        ? preRetryPayments[0]['id'] as String?
+        : null;
+    final preRetryLedger = baselinePaymentId != null
+        ? await admin
+            .from('club_transactions')
+            .select()
+            .eq('source_payment_id', baselinePaymentId)
+        : <Map<String, dynamic>>[];
+    final preRetrySummary = await ownerB1.finance.getSessionSummary(sessionCcDrop);
+    final preRetryCommitted = preRetryOps.length == 1 &&
+        preRetryOps[0]['operation'] == 'record_cash_payment' &&
+        preRetryOps[0]['actor_user_id'] == dropActor.user.id &&
+        preRetryPayments.length == 1 &&
+        baselinePaymentId != null &&
+        preRetryLedger.length == 1 &&
+        preRetrySummary.outstandingTotalVnd == 40000;
+
+    // H1 Negative control: mock client with non-200 (HTTP 400) must NOT be dropped as post-commit
+    var h1NegativeControlPassed = false;
+    final non200Proxy = DropResponseAfterCommitClient(
+      StaticStatusClient(400),
+      targetPath: 'record_cash_payment',
+    );
+    try {
+      final dummyReq = http.Request(
+        'POST',
+        Uri.parse('http://127.0.0.1:54321/rest/v1/rpc/record_cash_payment'),
+      );
+      final non200Resp = await non200Proxy.send(dummyReq);
+      h1NegativeControlPassed = !non200Proxy.dropped &&
+          non200Proxy.droppedStatusCode == null &&
+          non200Resp.statusCode == 400;
+    } catch (_) {
+      h1NegativeControlPassed = false;
+    }
+
     PaymentResult? dropRetryResult;
     Object? dropRetryErr;
     try {
@@ -2076,8 +2200,11 @@ void main() {
       'simulated network drop after server commit succeeds on retry without duplicate payment or ledger entries',
       dropRetryErr == null &&
           simulatedDropCaught &&
+          preRetryCommitted &&
+          h1NegativeControlPassed &&
           dropRetryResult != null &&
           dropRetryResult.status == 'confirmed' &&
+          dropRetryResult.paymentId == baselinePaymentId &&
           dropPaymentRows == 1 &&
           dropLedgerRows == 1 &&
           dropOpRows == 1 &&
@@ -2085,8 +2212,10 @@ void main() {
           dropSummary.outstandingTotalVnd == 40000,
       dropRetryErr != null
           ? errorText(dropRetryErr)
-          : 'dropCaught=$simulatedDropCaught dropped=${dropProxy.dropped} '
-              'payments=$dropPaymentRows ledger=$dropLedgerRows ops=$dropOpRows '
+          : 'dropCaught=$simulatedDropCaught preCommitted=$preRetryCommitted '
+              'negControl=$h1NegativeControlPassed baselineId=$baselinePaymentId '
+              'retryId=${dropRetryResult?.paymentId} payments=$dropPaymentRows '
+              'ledger=$dropLedgerRows ops=$dropOpRows '
               'outstanding=${dropSummary?.outstandingTotalVnd}',
     );
 
