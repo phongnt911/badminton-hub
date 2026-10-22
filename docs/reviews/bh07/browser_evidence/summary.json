@@ -1,10 +1,16 @@
 {
-  "ticket": "BH-07 browser/offline/reopen verification (Round 1/2)",
-  "generated_at_utc": "2026-10-22T14:28:18.266Z",
-  "started_at_utc": "2026-10-22T14:24:31.860Z",
-  "duration_ms": 226361,
-  "base_sha": "86c464293f796d5f3b0890acc8bb33a85f7d4897",
-  "tested_checkout_sha": "b00b58062b7ccc4b8051165d763bcd016e158e4e",
+  "ticket": "BH-07 browser/offline/reopen verification (Round 2/2)",
+  "generated_at_utc": "2026-10-22T15:44:57.873Z",
+  "started_at_utc": "2026-10-22T15:40:53.087Z",
+  "duration_ms": 244735,
+  "base_sha": "465b46607c8fd5d1566e7eca8688af09fc557e34",
+  "tested_checkout_sha": "51cb3b124533ecc4abce00609a5f0bbbd6309221",
+  "is_dirty": false,
+  "source_hashes": {
+    "scripts/bh07_browser/run_browser_verification.js": "2113b0869fd9a2c7aff190a75d40ff68392b1f7320b68a961c1b140f89c3bb33",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
+    "scripts/bh07_browser/clean_and_manifest.py": "8d25c23b5a253f542532d42534dfef52a0cc059ee8d7859e0db6750c2cc87b9c"
+  },
   "browser": "Chrome/155.0.8059.85",
   "web_url": "http://127.0.0.1:8088",
   "api_url": "http://127.0.0.1:54321",
@@ -30,7 +36,7 @@
       "id": "browser.ui.attendance-checkin",
       "description": "Attendance check-in executed via UI and updates attendance status badge",
       "status": "PASS",
-      "detail": "attendance recorded via UI"
+      "detail": "Member A attendance status successfully updated from not_checked_in to present"
     },
     {
       "id": "browser.ui.finalize-charges",
@@ -42,31 +48,31 @@
       "id": "browser.mutation.offline-retry-intent",
       "description": "Offline mutation catches transport error without false success, retry preserves request_id and payload",
       "status": "PASS",
-      "detail": "captured=4 reqIdMatch=false payloadMatch=false"
+      "detail": "captured=2 reqIdMatch=true payloadMatch=true exactly_once_verified"
     },
     {
       "id": "browser.clipboard.manager-privacy",
       "description": "Manager summary text copied to real clipboard includes aggregate finances but excludes private contacts and bank accounts",
       "status": "PASS",
-      "detail": "real clipboard read successfully, privacy clean (no phone/bank), finance totals present"
+      "detail": "real clipboard read successfully, privacy clean (no phone/bank), finance totals present and verified >0"
     },
     {
       "id": "browser.cohost.null-finance-ui",
       "description": "Cohost without club finance role sees management counts only, NULL money fields on UI, and clipboard excludes all finance totals",
       "status": "PASS",
-      "detail": "management only card verified, finance card hidden, clipboard money fields clean"
+      "detail": "management only card verified, finance card hidden, clipboard money fields clean in same document instance"
     },
     {
       "id": "browser.history.ui-filter-club",
       "description": "Session history screen renders and filters completed/cancelled sessions by club",
       "status": "PASS",
-      "detail": "history screen rendered with club filter controls"
+      "detail": "history screen filtered by HTTP Club A: Club A sessions present, Club B sessions excluded"
     },
     {
       "id": "browser.participant.member-isolation-ui",
       "description": "Regular participant accesses only permitted sessions without club treasury management leak",
       "status": "PASS",
-      "detail": "member history rendered in isolation"
+      "detail": "member history rendered in isolation, no club treasury leak"
     },
     {
       "id": "browser.reopen.session-persistence-ui",

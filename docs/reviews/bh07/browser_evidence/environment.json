@@ -7,7 +7,14 @@
   "supabase_cli": "2.121.0",
   "supabase_local_api": "http://127.0.0.1:54321",
   "web_server_url": "http://127.0.0.1:8088",
-  "base_sha": "86c464293f796d5f3b0890acc8bb33a85f7d4897",
-  "tested_checkout_sha": "b00b58062b7ccc4b8051165d763bcd016e158e4e",
-  "branch": "feat/bh07-browser-verification"
+  "base_sha": "465b46607c8fd5d1566e7eca8688af09fc557e34",
+  "tested_checkout_sha": "51cb3b124533ecc4abce00609a5f0bbbd6309221",
+  "is_dirty": false,
+  "branch": "feat/bh07-browser-verification",
+  "source_hashes": {
+    "scripts/bh07_browser/run_browser_verification.js": "2113b0869fd9a2c7aff190a75d40ff68392b1f7320b68a961c1b140f89c3bb33",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
+    "scripts/bh07_browser/clean_and_manifest.py": "8d25c23b5a253f542532d42534dfef52a0cc059ee8d7859e0db6750c2cc87b9c",
+    "scripts/bh07_browser/run_negative_controls.js": "f5ed6ec925f7df829956005e474dad29b921fc4c8a1be7e01f83656a85e700e7"
+  }
 }
