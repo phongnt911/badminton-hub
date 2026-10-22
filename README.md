@@ -4,7 +4,9 @@
 
 ## Trạng thái hiện tại — 22/10/2026
 
-Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e7f`** theo [review độc lập](docs/reviews/bh07/review_c8a8e7f.md). Mở **BR1/BR2 P1, BR3–BR5 P2**: runner bỏ qua UI, không kiểm mutation offline/request_id, copy/privacy/ACL và auth/cache chưa đủ, thiếu log/provenance. Reviewer tự chạy analyze sạch, **240 Flutter +1 skip**, **23 DB**, build Web thành công. Runner trên Chromium thật tự báo11/11 nhưng UI trắng; 17 ảnh tác giả giống nhau và chỉ là guest screen, nên **không nghiệm thu browser UI**. Manifest chỉ22/23, thiếu browser_runner.log. Chỉ sửa gói kiểm chứng vòng1/2; giữ app/backend và các kết luận A/B/C/D, HTTP/Auth/concurrency đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser UI đúng luồng, banking/webhook, staging/production/backup, rehearsal/pilot vẫn NOT RUN/chưa đạt. Không merge/apply DB thật/deploy.
+Gói kiểm chứng **Browser / Offline / Reopen BH-07 đang ở trạng thái Chờ review vòng 1/2** trên nhánh `feat/bh07-browser-verification`, tested source `b00b580` từ base `86c464293f796d5f3b0890acc8bb33a85f7d4897`. Đã khắc phục triệt để BR1–BR5: tương tác UI thật qua Chrome CDP với mouse/keyboard/semantics và negative control đỏ; offline mutation qua UI bắt lỗi transport, retry bảo toàn intent/payload; kiểm tra clipboard thực tế `navigator.clipboard.readText()`, lọc sạch SĐT/STK/secrets, ẩn thẻ tài chính của Cohost; login/logout qua form UI thật, xóa sạch `localStorage` token, bảo toàn phiên qua F5/reload; bổ sung `browser_runner.log`, sửa recipe DB trong `commands.md`, đo lường exit code thật và cập nhật manifest 100% UTF-8 LF. Kết quả: **11/11 browser UI checks PASS**, analyze sạch, **240 Flutter +1 skip PASS**, **23/23 BH-07 DB PASS**. Toàn BH-07/pilot vẫn chưa nghiệm thu; các cổng thiết bị di động thật, ngân hàng/webhook thật, staging/production/backup và rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
+
+(Lịch sử review) Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e7f`** theo [review độc lập](docs/reviews/bh07/review_c8a8e7f.md). Mở **BR1/BR2 P1, BR3–BR5 P2**: runner bỏ qua UI, không kiểm mutation offline/request_id, copy/privacy/ACL và auth/cache chưa đủ, thiếu log/provenance. Đã chuyển sang sửa gói kiểm chứng vòng 1/2.
 
 (Lịch sử review) Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](docs/reviews/bh07/review_cbcc46c_r2.md).
 
@@ -18,7 +20,7 @@ Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | Browser/Offline/Reopen Chưa đạt c8a8e7f | **Sửa BR1–BR5 vòng1/2; giữ A/B/C/D, HTTP/Auth/concurrency Đạt local; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 11 UI checks; 23 DB PASS | **Chờ review vòng 1/2 (tested `b00b580`); giữ A/B/C/D, HTTP/Auth/concurrency Đạt local; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

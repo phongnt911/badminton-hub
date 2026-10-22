@@ -21,7 +21,7 @@ python -m http.server 8088 --directory build/web
 
 ## 3. Chạy ma trận kiểm chứng browser tự động
 
-Script sẽ tự động seed fixtures, khởi chạy Google Chrome headless độc lập qua CDP, thực thi 11/11 kịch bản và xuất 17 ảnh screenshot cùng log:
+Script sẽ tự động seed fixtures, khởi chạy Google Chrome headless độc lập qua CDP, thực thi 11/11 kịch bản tương tác UI thực tế và xuất 12 ảnh screenshot cùng log:
 
 ```bash
 node scripts/bh07_browser/run_browser_verification.js
@@ -37,5 +37,5 @@ flutter analyze
 flutter test
 
 # Chạy test suite DB BH-07 (23 tests)
-node scripts/bh07_db_runner.js
+python -u docs/reviews/bh07/run_bh07_tests.py
 ```

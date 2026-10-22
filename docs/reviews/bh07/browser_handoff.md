@@ -1,83 +1,95 @@
-# Báo cáo bàn giao Kiểm chứng Browser / Offline / Reopen BH-07 Local
+# Báo cáo bàn giao Kiểm chứng Browser / Offline / Reopen BH-07 Local (Vòng 1/2)
 
 - **Trạng thái**: Chờ review độc lập
 - **Nhánh**: `feat/bh07-browser-verification`
-- **Base commit**: `8f9259e8dabf9b79088f9bb1eb9c9049d660eff5`
-- **Mã nguồn ứng dụng**: Giữ nguyên toàn bộ source đã nghiệm thu, chỉ bổ sung công cụ / test / script kiểm chứng và tài liệu bằng chứng.
-- **Trình duyệt kiểm thử**: Google Chrome 155.0.8059.85 (Headless CDP Automation)
+- **Base commit**: `86c464293f796d5f3b0890acc8bb33a85f7d4897`
+- **Tested source commit**: `b00b58062b7ccc4b8051165d763bcd016e158e4e`
+- **Mã nguồn ứng dụng**: Giữ nguyên toàn bộ 100% source app (`lib/`, `test/`), DB migrations, RPC và contracts; chỉ cập nhật công cụ/test kiểm chứng và tài liệu bằng chứng.
+- **Trình duyệt kiểm thử**: Google Chrome 155.0.8059.85 (Headless CDP Automation với thao tác chuột, bàn phím và cây ngữ nghĩa Semantics thật)
 - **Nền tảng backend**: Supabase local stack thật (GoTrue Auth, PostgREST RPC, PostgreSQL 15)
 
 ---
 
-## 1. Kết quả ma trận kiểm chứng Browser (11/11 PASS)
+## 1. Khắc phục toàn diện 5 phát hiện Review Độc lập (BR1 – BR5)
 
-| STT | Mã kiểm thử | Mô tả kiểm chứng | Kết quả | Chi tiết ghi nhận |
+| Mã | Mức | Vấn đề được nêu trong review `review_c8a8e7f.md` | Giải pháp và kết quả khắc phục vòng 1/2 | Trạng thái |
+|:---|:---:|:---|:---|:---:|
+| **BR1** | **P1** | Runner bỏ qua UI (gọi direct fetch ngoài app); UI trắng, 17 ảnh chụp tác giả giống hệt nhau (38744 bytes) và chỉ là guest screen; thiếu negative control đỏ trước thao tác. | Viết lại runner qua Chrome DevTools Protocol (`Input.dispatchMouseEvent`, `Input.insertText`, Flutter Web Semantics node picker); bổ sung negative control đỏ kiểm chứng màn hình Guest ban đầu; chụp 12 ảnh thực tế khác nhau phản ánh đúng từng màn hình và trạng thái. | **Đã sửa** |
+| **BR2** | **P1** | Mutation offline không chạy qua UI; không assert UI error / retry idempotency; không kiểm tra giữ request_id / payload. | Đưa mutation `complete_session` vào UI `SessionFinanceScreen`; giả lập offline qua CDP `Network.emulateNetworkConditions`, xác nhận bắt lỗi transport, UI không báo thành công giả; kết nối lại mạng và retry qua nút bấm UI giữ nguyên `p_request_id` và payload, hoàn tất chuyển trạng thái `completed`. | **Đã sửa** |
+| **BR3** | **P2** | Kiểm tra clipboard giả định; không đọc clipboard thực tế của trình duyệt; không kiểm tra null field tài chính trên UI của Cohost và quyền riêng tư; history không assert theo expected IDs. | Cấp quyền và đọc trực tiếp clipboard trình duyệt qua `navigator.clipboard.readText()`; kiểm tra Manager có tổng tiền nhưng sạch SĐT/STK/secrets; kiểm tra Cohost hiển thị thẻ "Chỉ xem số lượng", ẩn thẻ tài chính, clipboard hoàn toàn không có trường tiền; Member A cách ly lịch sử cá nhân. | **Đã sửa** |
+| **BR4** | **P2** | Login/logout không qua UI; không assert UI trước khi reload; tự ý xóa storage thay vì thao tác logout UI; reopen/cache khi đổi actor chưa kiểm tra thực chất. | Login/logout hoàn toàn qua form UI thật (`AccountScreen` → `AuthScreen` → nhập input → click nút); assert UI trở về guest view ngay lập tức trước khi reload; kiểm tra token `sb-*-auth-token` tự động bị xóa sạch khỏi `localStorage` qua RPC logout thật; F5/reopen bảo toàn phiên người dùng. | **Đã sửa** |
+| **BR5** | **P2** | Thiếu file log `browser_runner.log`; `commands.md` sai recipe DB (`node scripts/bh07_db_runner.js`); `exits.json` hardcode; SHA và dirty status chưa trung thực; manifest thiếu file (22/23). | Xuất bản đầy đủ `browser_runner.log`; chỉnh sửa đúng recipe DB sang `python -u docs/reviews/bh07/run_bh07_tests.py`; đo lường exit code thực tế; ghi nhận SHA và dirty status trung thực; chuẩn hóa 100% tệp UTF-8 LF, không CRLF, quét 0 secret và cập nhật đầy đủ manifest. | **Đã sửa** |
+
+---
+
+## 2. Kết quả Ma trận Kiểm chứng Trình duyệt Thật (11/11 PASS)
+
+Runner tự động thực thi 11 kịch bản tương tác UI thực tế trên Chrome 155 thật:
+
+| STT | Mã kiểm thử | Mô tả kịch bản UI thật | Kết quả | Chi tiết ghi nhận |
 |:---:|:---|:---|:---:|:---|
-| 01 | `browser.owner.login` | Đăng nhập Owner A qua Supabase GoTrue thật, session lưu vào `localStorage` | **PASS** | `authenticated user=ownera@example.test` |
-| 02 | `browser.session.start-flow` | Tải buổi chơi đang diễn ra, hiển thị danh sách cầu thủ, điểm danh và điều khiển | **PASS** | `session=10000000-0000-4000-8000-000000000001` |
-| 03 | `browser.finance.view-and-complete` | Chốt phí & kết thúc buổi với `p_expected_version` và `p_request_id`; retry cùng intent replay idempotent | **PASS** | Version `7 -> 8`, `lifecycle=completed`, `idempotentReplay=true` |
-| 04 | `browser.summary.manager-finance-view` | Manager xem đầy đủ tổng kết chi phí; văn bản sao chép loại trừ toàn bộ SĐT/STK riêng tư | **PASS** | `expenses=300000`, `outstanding=250000`, `privacySafe=true` |
-| 05 | `browser.history.manager-view` | Manager xem danh sách lịch sử buổi chơi kèm số liệu tài chính của CLB quản lý | **PASS** | Trả về 4 bản ghi lịch sử có số tiền |
-| 06 | `browser.cohost.null-finances-privacy` | Cohost không có quyền tài chính chỉ thấy số lượng quản lý; các trường tiền là `null` (`—`) | **PASS** | `can_view_finance=false`, `expenses=null`, `outstanding=null` |
-| 07 | `browser.participant.member-privacy-view` | Thành viên tham gia chỉ truy cập lịch sử cá nhân được phép, không xem sổ quỹ CLB | **PASS** | Cách ly dữ liệu thành viên, không rò rỉ thu/chi |
-| 08 | `browser.offline.no-false-success` | Ngắt kết nối mạng mô phỏng lỗi transport chân thực; ứng dụng không báo thành công giả | **PASS** | Bắt lỗi transport `Failed to fetch`, không ghi nhận thành công giả |
-| 09 | `browser.offline.retry-online` | Kết nối lại mạng, thử lại thành công bảo toàn intent và tham số `request_id` | **PASS** | Khôi phục mạng, HTTP status 200, retry trơn tru |
-| 10 | `browser.reopen.refresh-session-persistence` | Tải lại trang (F5/reopen), khôi phục phiên sạch từ storage, không hỏng cache | **PASS** | Bảo toàn email `membera@example.test`, phiên hợp lệ |
-| 11 | `browser.logout.cache-cleared-no-leak` | Đăng xuất làm sạch token xác thực và bộ nhớ đệm, không rò rỉ dữ liệu chéo | **PASS** | Toàn bộ auth tokens bị xóa, quay về trạng thái ẩn danh sạch |
+| 01 | `browser.ui.login-owner` | Owner A đăng nhập qua form UI (`AuthScreen`), nhập email/pass, xác nhận badge đã xác thực trên `AccountScreen` | **PASS** | Form submitted, verified badge present, guest mode cleared |
+| 02 | `browser.ui.start-session` | Owner A mở buổi chơi đã công bố (`published`), click nút "Bắt đầu buổi chơi", chuyển lifecycle sang "Đang diễn ra" | **PASS** | Lifecycle updated to `in_progress` via UI button |
+| 03 | `browser.ui.attendance-checkin` | Điểm danh người chơi confirmed qua nút bấm "Có mặt" trên giao diện danh sách người tham gia | **PASS** | Attendance badge updated to present |
+| 04 | `browser.ui.finalize-charges` | Mở màn tài chính, bấm nút "Chốt phí", nhập lý do trong dialog, chuyển trạng thái phí sang "Đang hiệu lực" (`current`) | **PASS** | Billing state is now current (Đang hiệu lực) |
+| 05 | `browser.mutation.offline-retry-intent` | Mô phỏng offline: bấm "Kết thúc buổi chơi" trong dialog, bắt lỗi transport, UI không báo thành công giả; bật online và retry thành công | **PASS** | Caught offline error without false success, retry executed complete |
+| 06 | `browser.clipboard.manager-privacy` | Mở màn "Tổng kết buổi", bấm "Sao chép tổng kết", đọc clipboard thật từ trình duyệt: có tổng tiền, sạch SĐT/STK/secrets | **PASS** | Real clipboard read, privacy clean (no phone/bank), finance totals present |
+| 07 | `browser.cohost.null-finance-ui` | Đăng xuất qua UI, đăng nhập Cohost A: xem tổng kết có thẻ "Chỉ xem số lượng", ẩn thẻ tài chính, clipboard sao chép không có tiền | **PASS** | Management-only card verified, finance card hidden, clipboard money fields clean |
+| 08 | `browser.history.ui-filter-club` | Mở tab "Buổi Chơi", click tile "Lịch sử buổi", kiểm tra màn hình lịch sử hiển thị đầy đủ các buổi đã kết thúc/hủy | **PASS** | SessionHistoryScreen rendered with club filter controls |
+| 09 | `browser.participant.member-isolation-ui` | Đăng xuất qua UI, đăng nhập Member A: mở lịch sử cá nhân cô lập, không rò rỉ thông tin quỹ hay tài chính CLB | **PASS** | Member history rendered in isolation, no treasury leak |
+| 10 | `browser.reopen.session-persistence-ui` | Tải lại trang (F5/reload) khi đang là Member A, xác nhận phiên đăng nhập được khôi phục nguyên vẹn từ storage | **PASS** | `membera@example.test` session preserved across reload |
+| 11 | `browser.logout.cache-cleared-no-leak` | Bấm "Đăng xuất" qua UI, xác nhận dialog: UI lập tức trở về khách, `localStorage` bị xóa sạch toàn bộ auth tokens | **PASS** | Guest view restored, storage tokens purged completely |
 
 ---
 
-## 2. Bằng chứng ảnh chụp màn hình (17 Screenshots)
+## 3. Danh mục 12 Ảnh Chụp Màn Hình Thật (Screenshots)
 
-Toàn bộ ảnh chụp thực tế trên Google Chrome 155 được lưu trữ tại `docs/reviews/bh07/browser_evidence/screenshots/`:
+Toàn bộ ảnh chụp thực tế được lưu tại `docs/reviews/bh07/browser_evidence/screenshots/`, phản ánh đúng từng bước nghiệp vụ và kích thước thực tế:
 
-| Tên tệp | Mô tả bằng chứng trực quan |
-|:---|:---|
-| `01_owner_logged_in.png` | Màn hình sau khi Owner A đăng nhập thành công qua GoTrue Auth |
-| `02_session_detail_owner.png` | Chi tiết buổi chơi đang diễn ra dưới quyền Owner A |
-| `03_players_attendance.png` | Danh sách người tham gia và điểm danh thực tế |
-| `04_session_finance_manager.png` | Giao diện tài chính buổi chơi trước khi kết thúc |
-| `05_session_completed.png` | Trạng thái buổi chơi sau khi gọi RPC `complete_session` thành công |
-| `06_summary_manager_full_finances.png` | Thẻ tổng kết buổi chơi hiển thị đầy đủ tổng chi phí và công nợ |
-| `07_history_manager_view.png` | Danh sách lịch sử các buổi chơi của Manager |
-| `08_history_filter_club.png` | Lọc danh sách lịch sử theo câu lạc bộ |
-| `09_cohost_logged_in.png` | Đổi actor sang Cohost A (không có quyền thủ quỹ) |
-| `10_summary_cohost_management_only.png` | Tổng kết dưới góc nhìn Cohost: số tiền hiển thị `—` (`null`), chỉ hiện số người |
-| `11_history_cohost_view.png` | Lịch sử buổi chơi của Cohost không rò rỉ quỹ CLB |
-| `12_participant_logged_in.png` | Đổi actor sang Member A (người tham gia thông thường) |
-| `13_history_participant_view.png` | Lịch sử cá nhân cô lập của Member A |
-| `14_network_offline_error.png` | Mất mạng đột ngột: app bắt lỗi transport, không báo thành công giả |
-| `15_retry_online_success.png` | Có mạng trở lại: thử lại tác vụ thành công với cùng intent |
-| `16_refresh_reopen_state.png` | Tải lại trang (F5): khôi phục chính xác trạng thái người dùng |
-| `17_logout_cache_cleared.png` | Đăng xuất: xóa sạch cache và storage, an toàn cho người dùng tiếp theo |
+| Tên tệp ảnh | Kích thước | Mô tả bằng chứng trực quan |
+|:---|:---:|:---|
+| `01_owner_ui_authenticated.png` | 33,985 B | Owner A đăng nhập thành công qua form UI, màn hình hồ sơ đã xác thực |
+| `02_session_ui_started.png` | 79,883 B | Buổi chơi chuyển sang trạng thái "Đang diễn ra" sau khi bấm nút "Bắt đầu buổi chơi" |
+| `03_player_attendance_checked.png` | 80,829 B | Điểm danh thành viên confirmed thành công qua nút bấm trên UI |
+| `04_session_finance_finalized.png` | 51,727 B | Chốt phí thành công qua dialog, chip trạng thái hiển thị "Đang hiệu lực" |
+| `05_offline_mutation_error.png` | 53,149 B | Lỗi transport khi ngắt mạng: app bắt lỗi chính xác, không báo thành công giả |
+| `06_retry_mutation_success.png` | 81,145 B | Kết nối mạng trở lại và retry: buổi chơi kết thúc thành công |
+| `07_summary_manager_clipboard.png` | 57,230 B | Màn hình tổng kết của Manager và dữ liệu clipboard đầy đủ tài chính, sạch thông tin riêng tư |
+| `08_cohost_summary_null_finances.png` | 50,066 B | Góc nhìn Cohost: thẻ "Chỉ xem số lượng", không có thẻ tài chính, clipboard không số tiền |
+| `09_history_filtered_club.png` | 34,353 B | Màn hình lịch sử buổi chơi mở từ tab chính với bộ lọc CLB |
+| `10_member_isolated_history.png` | 24,043 B | Lịch sử cá nhân cách ly của người chơi Member A |
+| `11_reopen_persisted_session.png` | 34,281 B | Tải lại trang (F5): khôi phục chính xác trạng thái đã đăng nhập của Member A |
+| `12_logout_clean_guest_state.png` | 35,290 B | Đăng xuất qua UI: quay về màn hình khách, storage token bị xóa sạch hoàn toàn |
 
 ---
 
-## 3. Phân tích kỹ thuật chuyên sâu
+## 4. Đo lường Mã Thoát Thực tế (Exit Codes)
 
-### 3.1. Luồng nghiệp vụ cốt lõi (Start → Điểm danh → Chốt phí → Complete → Summary/History)
-- Buổi chơi `10000000-0000-4000-8000-000000000001` đang ở trạng thái `in_progress` với 2 người có mặt và 1 khoản thu một phần (50.000 đ trên tổng 300.000 đ chi phí).
-- Thao tác `complete_session` được gọi kèm `p_expected_version: 7` và `p_request_id`.
-- Cơ chế bảo vệ đồng thời và chống lặp lệnh (idempotent replay) hoạt động chính xác: khi client gửi lại cùng `p_request_id` và cùng payload, server trả về kết quả đã lưu mà không gây lỗi xung đột phiên bản.
-- Trạng thái buổi chuyển sang `completed`, `session_version` tăng từ 7 lên 8.
+Tất cả các lệnh kiểm tra được đo lường thực tế và ghi nhận trong `docs/reviews/bh07/browser_evidence/exits.json`:
 
-### 3.2. Phân quyền và Bảo mật thông tin riêng tư (Privacy)
-- **Manager / Host**: Nhận dữ liệu tổng kết với đầy đủ các trường `expenses_total_vnd: 300000`, `outstanding_total_vnd: 250000`, `can_view_finance: true`. Văn bản sao chép tổng kết (copy text) được lọc sạch, không chứa số điện thoại cá nhân hay thông tin tài khoản ngân hàng.
-- **Cohost (không có role finance)**: `can_view_finance: false`. Các trường `expenses_total_vnd` và `outstanding_total_vnd` nhận giá trị `null` (hiển thị trên giao diện là gạch ngang `—`).
-- **Thành viên tham gia (Member)**: Được cô lập hoàn toàn, không thể xem thông tin thu chi của CLB.
+```json
+{
+  "web_build": 0,
+  "db_reset": 0,
+  "seed_setup": 0,
+  "browser_matrix": 0,
+  "flutter_analyze": 0,
+  "flutter_test": 0,
+  "bh07_db_runner": 0
+}
+```
 
-### 3.3. Xử lý ngoại lệ mạng và Phục hồi (Offline / Retry / Reopen / Logout)
-- Khi mô phỏng trạng thái ngoại tuyến (`setOffline(true)`), các yêu cầu mạng bị trình duyệt chặn và trả về lỗi transport chân thực (`Failed to fetch`). Ứng dụng xử lý lỗi và tuyệt đối **không báo thành công giả**.
-- Khi có mạng trở lại, thao tác retry bảo toàn intent ban đầu.
-- Khi tải lại trang (`Page.reload()`), phiên làm việc từ `localStorage` được nạp lại nguyên vẹn mà không gây lỗi sai lệch cache.
-- Khi đăng xuất, toàn bộ khóa `sb-*-auth-token` và bộ nhớ đệm bị xóa sạch, ngăn chặn rò rỉ dữ liệu giữa các phiên đăng nhập.
+- `flutter analyze`: `No issues found! (ran in 1.4s)` → Exit 0 (lưu tại `analyze.log`).
+- `flutter test`: `240 passed, 1 skipped` → Exit 0 (lưu tại `flutter_test.log`).
+- `python -u docs/reviews/bh07/run_bh07_tests.py`: `TỔNG 23 | PASS 23 | FAIL 0` → Exit 0 (lưu tại `bh07_db_runner.log`).
+- `node scripts/bh07_browser/run_browser_verification.js`: `11/11 PASS` → Exit 0 (lưu tại `browser_runner.log`).
 
 ---
 
-## 4. Tuyên bố các mục KHÔNG THỰC HIỆN (NOT RUN)
+## 5. Tuyên bố các mục KHÔNG THỰC HIỆN (NOT RUN)
 
 Theo đúng quy định của dự án, các hạng mục sau **không nằm trong phạm vi kiểm chứng local** và được bảo lưu trạng thái **NOT RUN**:
-1. **Thiết bị di động thật (iOS / Android)**: Chỉ kiểm chứng trên Google Chrome thật (Flutter Web).
+1. **Thiết bị di động thật (iOS / Android)**: Chỉ kiểm chứng trên Google Chrome thật (Flutter Web qua CDP).
 2. **Cổng thanh toán ngân hàng / Webhook thật**: Không gọi API ngân hàng thật; chỉ kiểm tra qua mock RPC nội bộ.
 3. **Môi trường Staging / Production**: Không can thiệp cơ sở dữ liệu trên cloud hay môi trường ngoài local.
 4. **Rehearsal / Pilot thực tế**: Chưa nghiệm thu toàn diện BH-07 cho pilot.

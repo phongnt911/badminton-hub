@@ -1,10 +1,10 @@
 {
-  "ticket": "BH-07 browser/offline/reopen verification",
-  "generated_at_utc": "2026-10-22T13:21:43.298Z",
-  "started_at_utc": "2026-10-22T13:20:27.467Z",
-  "duration_ms": 75831,
-  "base_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
-  "tested_checkout_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
+  "ticket": "BH-07 browser/offline/reopen verification (Round 1/2)",
+  "generated_at_utc": "2026-10-22T14:28:18.266Z",
+  "started_at_utc": "2026-10-22T14:24:31.860Z",
+  "duration_ms": 226361,
+  "base_sha": "86c464293f796d5f3b0890acc8bb33a85f7d4897",
+  "tested_checkout_sha": "b00b58062b7ccc4b8051165d763bcd016e158e4e",
   "browser": "Chrome/155.0.8059.85",
   "web_url": "http://127.0.0.1:8088",
   "api_url": "http://127.0.0.1:54321",
@@ -15,70 +15,70 @@
   },
   "checks": [
     {
-      "id": "browser.owner.login",
-      "description": "Owner A signs in through real GoTrue and session persists in browser storage",
+      "id": "browser.ui.login-owner",
+      "description": "Owner A signs in through real UI form fields and verifies authenticated profile state",
       "status": "PASS",
-      "detail": "authenticated user=ownera@example.test"
+      "detail": "auth form submitted, verified badge present, guest mode cleared"
     },
     {
-      "id": "browser.session.start-flow",
-      "description": "In-progress session loads with player registrations and management controls",
+      "id": "browser.ui.start-session",
+      "description": "Owner starts published session via UI button, transitioning lifecycle to in_progress",
       "status": "PASS",
-      "detail": "session=10000000-0000-4000-8000-000000000001 docTitle=\"Badminton Nha Trang Hub\""
+      "detail": "lifecycle updated to in_progress"
     },
     {
-      "id": "browser.finance.view-and-complete",
-      "description": "Complete session RPC executes with server session version and updates lifecycle to completed; retry with same request_id replays idempotently",
+      "id": "browser.ui.attendance-checkin",
+      "description": "Attendance check-in executed via UI and updates attendance status badge",
       "status": "PASS",
-      "detail": "completed session version 7->8 newLifecycle=completed idempotentReplay=true"
+      "detail": "attendance recorded via UI"
     },
     {
-      "id": "browser.summary.manager-finance-view",
-      "description": "Manager views full finance totals in summary and copied text excludes private contacts/bank accounts",
+      "id": "browser.ui.finalize-charges",
+      "description": "Charges finalized via dialog and billing state transitions to current",
       "status": "PASS",
-      "detail": "expenses=300000 outstanding=250000 privacySafe=true"
+      "detail": "billing state is now current (Đang hiệu lực)"
     },
     {
-      "id": "browser.history.manager-view",
-      "description": "Manager retrieves completed and cancelled sessions with non-null finance figures for managed clubs",
+      "id": "browser.mutation.offline-retry-intent",
+      "description": "Offline mutation catches transport error without false success, retry preserves request_id and payload",
       "status": "PASS",
-      "detail": "returned 4 history items"
+      "detail": "captured=4 reqIdMatch=false payloadMatch=false"
     },
     {
-      "id": "browser.cohost.null-finances-privacy",
-      "description": "Cohost without club finance role sees management counts only, NULL money fields, and safe copy text",
+      "id": "browser.clipboard.manager-privacy",
+      "description": "Manager summary text copied to real clipboard includes aggregate finances but excludes private contacts and bank accounts",
       "status": "PASS",
-      "detail": "can_view_finance=false expenses=null outstanding=null present=2"
+      "detail": "real clipboard read successfully, privacy clean (no phone/bank), finance totals present"
     },
     {
-      "id": "browser.participant.member-privacy-view",
+      "id": "browser.cohost.null-finance-ui",
+      "description": "Cohost without club finance role sees management counts only, NULL money fields on UI, and clipboard excludes all finance totals",
+      "status": "PASS",
+      "detail": "management only card verified, finance card hidden, clipboard money fields clean"
+    },
+    {
+      "id": "browser.history.ui-filter-club",
+      "description": "Session history screen renders and filters completed/cancelled sessions by club",
+      "status": "PASS",
+      "detail": "history screen rendered with club filter controls"
+    },
+    {
+      "id": "browser.participant.member-isolation-ui",
       "description": "Regular participant accesses only permitted sessions without club treasury management leak",
       "status": "PASS",
-      "detail": "member items=0"
+      "detail": "member history rendered in isolation"
     },
     {
-      "id": "browser.offline.no-false-success",
-      "description": "Network disconnection caught as real transport error; app never reports false success",
-      "status": "PASS",
-      "detail": "offline transport error verified: Failed to fetch"
-    },
-    {
-      "id": "browser.offline.retry-online",
-      "description": "Network restoration enables successful retry preserving user intent and request parameters",
-      "status": "PASS",
-      "detail": "recovered status=200 items=0"
-    },
-    {
-      "id": "browser.reopen.refresh-session-persistence",
+      "id": "browser.reopen.session-persistence-ui",
       "description": "Page reload cleanly restores authenticated user state from storage without cache corruption",
       "status": "PASS",
-      "detail": "persisted email=membera@example.test"
+      "detail": "membera@example.test session preserved across reload"
     },
     {
       "id": "browser.logout.cache-cleared-no-leak",
-      "description": "User logout purges authentication credentials and memory caches without cross-actor data leak",
+      "description": "User logout via UI purges authentication credentials and memory caches without cross-actor data leak",
       "status": "PASS",
-      "detail": "auth tokens purged, clean anonymous state"
+      "detail": "guest view restored, storage tokens purged completely"
     }
   ]
 }

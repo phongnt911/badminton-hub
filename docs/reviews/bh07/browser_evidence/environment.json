@@ -7,6 +7,7 @@
   "supabase_cli": "2.121.0",
   "supabase_local_api": "http://127.0.0.1:54321",
   "web_server_url": "http://127.0.0.1:8088",
-  "base_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
+  "base_sha": "86c464293f796d5f3b0890acc8bb33a85f7d4897",
+  "tested_checkout_sha": "b00b58062b7ccc4b8051165d763bcd016e158e4e",
   "branch": "feat/bh07-browser-verification"
 }
