@@ -117,6 +117,21 @@ async function main() {
          now() - interval '2 hours', now() - interval '2 hours', v_guest_a)
       ON CONFLICT (id) DO UPDATE SET
         attendance_status = 'not_checked_in';
+
+      -- Seed non-zero court expense so totals reflect actual numbers > 0 (BR3)
+      INSERT INTO public.session_expenses (
+        id, session_id, category, title, amount_vnd, status, created_by
+      ) VALUES (
+        '50000000-0000-4000-8000-000000000099',
+        v_session_ui,
+        'court',
+        'Tiền thuê sân 2h',
+        200000,
+        'posted',
+        v_owner_a
+      ) ON CONFLICT (id) DO UPDATE SET
+        amount_vnd = 200000,
+        status = 'posted';
     END $$;
   `;
   execSync(`docker exec -i ${dbContainer} psql -U postgres -d postgres -v ON_ERROR_STOP=1`, {
