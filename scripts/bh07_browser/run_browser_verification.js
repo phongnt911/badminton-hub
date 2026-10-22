@@ -157,8 +157,15 @@ class CdpClient {
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
       const elements = await this.getAllSemantics();
-      const match = elements.find(predicate);
-      if (match) return match;
+      const matches = elements.filter(predicate);
+      if (matches.length > 0) {
+        // Prioritize exact button / role='button'
+        const buttonMatch = matches.find(m => m.role === 'button' || m.tag === 'BUTTON');
+        if (buttonMatch) return buttonMatch;
+        // Otherwise pick the smallest area element to avoid selecting giant parent containers
+        matches.sort((a, b) => (a.w * a.h) - (b.w * b.h));
+        return matches[0];
+      }
       await new Promise(r => setTimeout(r, 400));
     }
     return null;
@@ -169,10 +176,10 @@ class CdpClient {
     if (!el) {
       throw new Error(`Could not find semantic element to click for: ${stepName}`);
     }
-    log(`Clicking semantic element [${el.tag} aria="${el.aria}" role="${el.role}" text="${el.text}"] at (${el.x}, ${el.y})`);
+    log(`Clicking semantic element [${el.tag} aria="${el.aria}" role="${el.role}" text="${(el.text||'').slice(0, 30)}"] at (${el.x}, ${el.y}) for: ${stepName}`);
     await this.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: el.x, y: el.y, button: 'left', clickCount: 1 });
     await this.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: el.x, y: el.y, button: 'left', clickCount: 1 });
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 1000));
   }
 
   async typeIntoInput(predicate, text) {
@@ -375,8 +382,11 @@ async function runMatrix() {
     if (!isPublished) throw new Error('Precondition failed: session should be in published state before start');
 
     // Click "Bắt đầu buổi chơi" button
-    await cdp.clickSemantic(e => (e.text || '').includes('Bắt đầu buổi chơi') || (e.aria || '').includes('Bắt đầu buổi chơi'), 'Click Bắt đầu buổi chơi');
-    await new Promise(r => setTimeout(r, 2500));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Bắt đầu buổi chơi' || e.aria === 'Bắt đầu buổi chơi'),
+      'Click Bắt đầu buổi chơi'
+    );
+    await new Promise(r => setTimeout(r, 3000));
 
     // Assert lifecycle updated to in_progress
     const inProgressElements = await cdp.getAllSemantics();
@@ -407,9 +417,12 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC03: Real Attendance Check-in ---');
-    // Scroll and find attendance button for Member A
-    await cdp.clickSemantic(e => (e.text || '').includes('Có mặt') || (e.aria || '').includes('Có mặt'), 'Click Có mặt for player');
-    await new Promise(r => setTimeout(r, 2000));
+    // Find and click "Có mặt" button for Member A
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Có mặt' || e.aria === 'Có mặt'),
+      'Click Có mặt for player'
+    );
+    await new Promise(r => setTimeout(r, 2500));
 
     await cdp.screenshot('03_player_attendance_checked.png', 'Attendance recorded via UI');
     checks.push({
@@ -433,19 +446,28 @@ async function runMatrix() {
   try {
     log('--- TC04: Real UI Finalize Charges ---');
     // Click "Tài chính & thu tiền" tile
-    await cdp.clickSemantic(e => (e.text || '').includes('Tài chính & thu tiền') || (e.aria || '').includes('Tài chính & thu tiền'), 'Open Finance Screen');
-    await new Promise(r => setTimeout(r, 2500));
+    await cdp.clickSemantic(
+      e => (e.text || '').includes('Tài chính & thu tiền'),
+      'Open Finance Screen'
+    );
+    await new Promise(r => setTimeout(r, 3000));
 
     // Click "Chốt phí" button
-    await cdp.clickSemantic(e => (e.text || '').includes('Chốt phí') || (e.aria || '').includes('Chốt phí'), 'Click Chốt phí button');
-    await new Promise(r => setTimeout(r, 1000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Chốt phí' || e.aria === 'Chốt phí'),
+      'Click Chốt phí button'
+    );
+    await new Promise(r => setTimeout(r, 1200));
 
     // Type reason in dialog
     await cdp.typeIntoInput(e => e.tag === 'INPUT' || e.tag === 'TEXTAREA', 'Chốt phí kiểm thử UI');
 
     // Click "Xác nhận"
-    await cdp.clickSemantic(e => (e.text || '').includes('Xác nhận') || (e.aria || '').includes('Xác nhận'), 'Confirm finalize dialog');
-    await new Promise(r => setTimeout(r, 2500));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Xác nhận' || e.aria === 'Xác nhận'),
+      'Confirm finalize dialog'
+    );
+    await new Promise(r => setTimeout(r, 3000));
 
     // Assert billing status is now "Hiện hành" (current)
     const financeElements = await cdp.getAllSemantics();
@@ -489,12 +511,18 @@ async function runMatrix() {
     // 1. Emulate offline
     await cdp.setOffline(true);
 
-    // 2. Click "Kết thúc buổi chơi" button
-    await cdp.clickSemantic(e => (e.text || '').includes('Kết thúc buổi chơi') || (e.aria || '').includes('Kết thúc buổi chơi'), 'Click Kết thúc buổi chơi while offline');
-    await new Promise(r => setTimeout(r, 800));
+    // 2. Click "Kết thúc buổi chơi" button while in SessionFinanceScreen
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Kết thúc buổi chơi' || e.aria === 'Kết thúc buổi chơi'),
+      'Click Kết thúc buổi chơi while offline'
+    );
+    await new Promise(r => setTimeout(r, 1200));
 
     // Click "Đồng ý" in confirmation dialog
-    await cdp.clickSemantic(e => (e.text || '').includes('Đồng ý') || (e.aria || '').includes('Đồng ý'), 'Confirm complete dialog while offline');
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đồng ý' || e.aria === 'Đồng ý'),
+      'Confirm complete dialog while offline'
+    );
     await new Promise(r => setTimeout(r, 2000));
 
     // Assert UI shows error snackbar and did NOT report false success
@@ -508,13 +536,19 @@ async function runMatrix() {
 
     // 3. Restore network
     await cdp.setOffline(false);
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 1500));
 
     // 4. Retry mutation via UI
-    await cdp.clickSemantic(e => (e.text || '').includes('Kết thúc buổi chơi') || (e.aria || '').includes('Kết thúc buổi chơi'), 'Retry Kết thúc buổi chơi online');
-    await new Promise(r => setTimeout(r, 800));
-    await cdp.clickSemantic(e => (e.text || '').includes('Đồng ý') || (e.aria || '').includes('Đồng ý'), 'Confirm complete dialog online');
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Kết thúc buổi chơi' || e.aria === 'Kết thúc buổi chơi'),
+      'Retry Kết thúc buổi chơi online'
+    );
+    await new Promise(r => setTimeout(r, 1200));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đồng ý' || e.aria === 'Đồng ý'),
+      'Confirm complete dialog online'
+    );
+    await new Promise(r => setTimeout(r, 3500));
 
     await cdp.screenshot('06_retry_mutation_success.png', 'Mutation completed successfully after network restoration');
 
@@ -533,7 +567,6 @@ async function runMatrix() {
         detail: `captured=${capturedRequests.length} reqIdMatch=${reqIdMatch} payloadMatch=${payloadMatch}`
       });
     } else {
-      // Direct complete verified
       checks.push({
         id: 'browser.mutation.offline-retry-intent',
         description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
@@ -555,15 +588,17 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC06: Real Clipboard Copy & Privacy Inspection ---');
-    // Navigate to SessionSummaryScreen
     const sessionId = '10000000-0000-4000-8000-000000000099';
     await cdp.evaluate(`window.location.hash = '#/sessions/${sessionId}'`);
     await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 2500));
+    await new Promise(r => setTimeout(r, 3000));
 
     // Click "Tổng kết buổi" tile
-    await cdp.clickSemantic(e => (e.text || '').includes('Tổng kết buổi') || (e.aria || '').includes('Tổng kết buổi'), 'Open Summary Screen');
-    await new Promise(r => setTimeout(r, 2500));
+    await cdp.clickSemantic(
+      e => (e.text || '').includes('Tổng kết buổi'),
+      'Open Summary Screen'
+    );
+    await new Promise(r => setTimeout(r, 3000));
 
     // Assert summary screen opened
     const summaryElements = await cdp.getAllSemantics();
@@ -571,8 +606,11 @@ async function runMatrix() {
     if (!hasSummaryTitle) throw new Error('SessionSummaryScreen did not render!');
 
     // Click "Sao chép tổng kết" button
-    await cdp.clickSemantic(e => (e.text || '').includes('Sao chép tổng kết') || (e.aria || '').includes('Sao chép tổng kết'), 'Click Sao chép tổng kết');
-    await new Promise(r => setTimeout(r, 1000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Sao chép tổng kết' || e.aria === 'Sao chép tổng kết'),
+      'Click Sao chép tổng kết'
+    );
+    await new Promise(r => setTimeout(r, 1200));
 
     // Read real clipboard text from browser
     const clipboardText = await cdp.readClipboard();
@@ -613,12 +651,18 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 2000));
 
     // Click "Đăng xuất"
-    await cdp.clickSemantic(e => (e.text || '').includes('Đăng xuất') || (e.aria || '').includes('Đăng xuất'), 'Click Đăng xuất');
-    await new Promise(r => setTimeout(r, 800));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && (e.text || '').includes('Đăng xuất'),
+      'Click Đăng xuất'
+    );
+    await new Promise(r => setTimeout(r, 1000));
 
     // Click "Đăng Xuất" in confirmation dialog
-    await cdp.clickSemantic(e => (e.text === 'Đăng Xuất' || e.aria === 'Đăng Xuất') && e.role === 'button', 'Confirm logout dialog');
-    await new Promise(r => setTimeout(r, 2000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Xuất' || e.aria === 'Đăng Xuất'),
+      'Confirm logout dialog'
+    );
+    await new Promise(r => setTimeout(r, 2500));
 
     // Assert UI returned to guest BEFORE any reload
     const guestCheck = await cdp.getAllSemantics();
@@ -626,12 +670,18 @@ async function runMatrix() {
     if (!isBackToGuest) throw new Error('UI did not return to guest view after logout!');
 
     // 2. Login Cohost A via UI
-    await cdp.clickSemantic(e => e.role === 'button' && (e.text === 'Đăng Nhập / Đăng Ký' || (e.text || '').includes('Đăng Nhập')), 'Open login form for Cohost');
-    await new Promise(r => setTimeout(r, 1500));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng nhập' || e.aria === 'Đăng nhập'),
+      'Open login form for Cohost'
+    );
+    await new Promise(r => setTimeout(r, 2000));
 
     await cdp.typeIntoInput(e => e.tag === 'INPUT' && (e.aria || '').includes('Email'), 'cohosta@example.test');
     await cdp.typeIntoInput(e => e.tag === 'INPUT' && (e.aria || '').includes('Mật khẩu'), 'bh07-http-pass-123456');
-    await cdp.clickSemantic(e => e.role === 'button' && (e.text === 'Đăng Nhập' || e.aria === 'Đăng Nhập'), 'Submit login for Cohost');
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Nhập' || e.aria === 'Đăng Nhập'),
+      'Submit login for Cohost'
+    );
     await new Promise(r => setTimeout(r, 3000));
 
     // 3. Open summary screen as Cohost
@@ -640,8 +690,11 @@ async function runMatrix() {
     await cdp.reloadPage();
     await new Promise(r => setTimeout(r, 3000));
 
-    await cdp.clickSemantic(e => (e.text || '').includes('Tổng kết buổi') || (e.aria || '').includes('Tổng kết buổi'), 'Open Summary Screen as Cohost');
-    await new Promise(r => setTimeout(r, 2500));
+    await cdp.clickSemantic(
+      e => (e.text || '').includes('Tổng kết buổi'),
+      'Open Summary Screen as Cohost'
+    );
+    await new Promise(r => setTimeout(r, 3000));
 
     // Assert "Chỉ xem số lượng" message is visible and NO finance card
     const cohostElements = await cdp.getAllSemantics();
@@ -649,8 +702,11 @@ async function runMatrix() {
     const hasFinanceCard = cohostElements.some(e => (e.text || '').includes('Tài chính tổng hợp'));
 
     // Copy summary as Cohost
-    await cdp.clickSemantic(e => (e.text || '').includes('Sao chép tổng kết') || (e.aria || '').includes('Sao chép tổng kết'), 'Click Sao chép tổng kết as Cohost');
-    await new Promise(r => setTimeout(r, 1000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Sao chép tổng kết' || e.aria === 'Sao chép tổng kết'),
+      'Click Sao chép tổng kết as Cohost'
+    );
+    await new Promise(r => setTimeout(r, 1200));
     const cohostClipboard = await cdp.readClipboard();
     log(`Cohost real clipboard text:\n${cohostClipboard}`);
 
@@ -685,8 +741,11 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 2000));
 
     // Click "Lịch sử buổi" tile
-    await cdp.clickSemantic(e => (e.text || '').includes('Lịch sử buổi') || (e.aria || '').includes('Lịch sử buổi'), 'Open Session History');
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.clickSemantic(
+      e => (e.text || '').includes('Lịch sử buổi'),
+      'Open Session History'
+    );
+    await new Promise(r => setTimeout(r, 3500));
 
     // Assert history screen loaded
     const historyElements = await cdp.getAllSemantics();
@@ -718,24 +777,39 @@ async function runMatrix() {
     // Logout Cohost
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Go to Account tab');
     await new Promise(r => setTimeout(r, 2000));
-    await cdp.clickSemantic(e => (e.text || '').includes('Đăng xuất'), 'Click Logout');
-    await new Promise(r => setTimeout(r, 800));
-    await cdp.clickSemantic(e => (e.text === 'Đăng Xuất' || e.aria === 'Đăng Xuất') && e.role === 'button', 'Confirm Logout');
-    await new Promise(r => setTimeout(r, 2000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && (e.text || '').includes('Đăng xuất'),
+      'Click Logout'
+    );
+    await new Promise(r => setTimeout(r, 1000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Xuất' || e.aria === 'Đăng Xuất'),
+      'Confirm Logout'
+    );
+    await new Promise(r => setTimeout(r, 2500));
 
     // Login Member A
-    await cdp.clickSemantic(e => e.role === 'button' && (e.text === 'Đăng Nhập / Đăng Ký' || (e.text || '').includes('Đăng Nhập')), 'Open login form for Member');
-    await new Promise(r => setTimeout(r, 1500));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng nhập' || e.aria === 'Đăng nhập'),
+      'Open login form for Member'
+    );
+    await new Promise(r => setTimeout(r, 2000));
     await cdp.typeIntoInput(e => e.tag === 'INPUT' && (e.aria || '').includes('Email'), 'membera@example.test');
     await cdp.typeIntoInput(e => e.tag === 'INPUT' && (e.aria || '').includes('Mật khẩu'), 'bh07-http-pass-123456');
-    await cdp.clickSemantic(e => e.role === 'button' && (e.text === 'Đăng Nhập' || e.aria === 'Đăng Nhập'), 'Submit login for Member');
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Nhập' || e.aria === 'Đăng Nhập'),
+      'Submit login for Member'
+    );
     await new Promise(r => setTimeout(r, 3000));
 
     // Open History Screen as Member
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
     await new Promise(r => setTimeout(r, 2000));
-    await cdp.clickSemantic(e => (e.text || '').includes('Lịch sử buổi'), 'Open History Screen as Member');
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.clickSemantic(
+      e => (e.text || '').includes('Lịch sử buổi'),
+      'Open History Screen as Member'
+    );
+    await new Promise(r => setTimeout(r, 3500));
 
     await cdp.screenshot('10_member_isolated_history.png', 'Participant personal history view with no treasury leak');
 
@@ -764,7 +838,7 @@ async function runMatrix() {
 
     // Check AccountScreen preserves Member A authenticated state
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Navigate to Account tab after reload');
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 2500));
 
     const accountElements = await cdp.getAllSemantics();
     const isMemberPreserved = accountElements.some(e => (e.text || '').includes('Member A') || (e.text || '').includes('membera@example.test'));
@@ -796,12 +870,18 @@ async function runMatrix() {
   try {
     log('--- TC11: Real UI Logout & Complete Cache Purge ---');
     // Click "Đăng xuất"
-    await cdp.clickSemantic(e => (e.text || '').includes('Đăng xuất'), 'Click Logout via UI');
-    await new Promise(r => setTimeout(r, 800));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && (e.text || '').includes('Đăng xuất'),
+      'Click Logout via UI'
+    );
+    await new Promise(r => setTimeout(r, 1000));
 
     // Click "Đăng Xuất" confirmation
-    await cdp.clickSemantic(e => (e.text === 'Đăng Xuất' || e.aria === 'Đăng Xuất') && e.role === 'button', 'Confirm Logout Dialog');
-    await new Promise(r => setTimeout(r, 2000));
+    await cdp.clickSemantic(
+      e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đăng Xuất' || e.aria === 'Đăng Xuất'),
+      'Confirm Logout Dialog'
+    );
+    await new Promise(r => setTimeout(r, 2500));
 
     // Assert UI returned to guest state
     const postLogoutElements = await cdp.getAllSemantics();
