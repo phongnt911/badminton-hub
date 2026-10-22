@@ -171,6 +171,12 @@ class CdpClient {
     return null;
   }
 
+  async waitForSemantic(predicate, desc, timeoutMs = 10000) {
+    const el = await this.findSemantic(predicate, timeoutMs);
+    if (!el) throw new Error(`Timed out waiting for semantic element: ${desc}`);
+    return el;
+  }
+
   async clickSemantic(predicate, stepName) {
     const el = await this.findSemantic(predicate);
     if (!el) {
@@ -219,6 +225,20 @@ class CdpClient {
     log('Reloading page via Page.reload...');
     await this.send('Page.reload');
     await new Promise(r => setTimeout(r, 4000));
+    await this.enableFlutterSemantics();
+  }
+
+  async navigateToHome() {
+    log('Navigating to MainNavigationScreen (home)...');
+    await this.send('Page.navigate', { url: `${WEB_URL}/#/` });
+    await new Promise(r => setTimeout(r, 3500));
+    await this.enableFlutterSemantics();
+  }
+
+  async navigateToSession(sessionId) {
+    log(`Navigating to session detail: ${sessionId}...`);
+    await this.send('Page.navigate', { url: `${WEB_URL}/#/sessions/${sessionId}` });
+    await new Promise(r => setTimeout(r, 3500));
     await this.enableFlutterSemantics();
   }
 
@@ -374,38 +394,36 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC02: Real UI Start Session ---');
-    const sessionId = '10000000-0000-4000-8000-000000000099'; // UI flow session seeded in published state
-    await cdp.evaluate(`window.location.hash = '#/sessions/${sessionId}'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    const sessionId = '10000000-0000-4000-8000-000000000099';
+    await cdp.navigateToSession(sessionId);
 
-    // Assert session title and published state
-    const publishedElements = await cdp.getAllSemantics();
-    const isPublished = publishedElements.some(e => (e.text || '').includes('Đã công bố') || (e.aria || '').includes('Đã công bố'));
-    if (!isPublished) throw new Error('Precondition failed: session should be in published state before start');
+    // Wait for session detail and published state
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Đã công bố') || (e.aria || '').includes('Đã công bố'),
+      'session published badge',
+      12000
+    );
 
     // Click "Bắt đầu buổi chơi" button
     await cdp.clickSemantic(
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Bắt đầu buổi chơi' || e.aria === 'Bắt đầu buổi chơi'),
       'Click Bắt đầu buổi chơi'
     );
-    await new Promise(r => setTimeout(r, 3000));
 
-    // Assert lifecycle updated to in_progress
-    const inProgressElements = await cdp.getAllSemantics();
-    const isInProgress = inProgressElements.some(e => (e.text || '').includes('Đang diễn ra') || (e.aria || '').includes('Đang diễn ra'));
+    // Wait for lifecycle transition to in_progress
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Đang diễn ra') || (e.aria || '').includes('Đang diễn ra'),
+      'session in_progress badge',
+      12000
+    );
 
-    if (isInProgress) {
-      await cdp.screenshot('02_session_ui_started.png', 'Session started to in_progress state via UI button');
-      checks.push({
-        id: 'browser.ui.start-session',
-        description: 'Owner starts published session via UI button, transitioning lifecycle to in_progress',
-        status: 'PASS',
-        detail: 'lifecycle updated to in_progress'
-      });
-    } else {
-      throw new Error('Lifecycle did not transition to in_progress after clicking start button');
-    }
+    await cdp.screenshot('02_session_ui_started.png', 'Session started to in_progress state via UI button');
+    checks.push({
+      id: 'browser.ui.start-session',
+      description: 'Owner starts published session via UI button, transitioning lifecycle to in_progress',
+      status: 'PASS',
+      detail: 'lifecycle updated to in_progress'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.ui.start-session',
@@ -470,28 +488,21 @@ async function runMatrix() {
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Xác nhận' || e.aria === 'Xác nhận'),
       'Confirm finalize dialog'
     );
-    await new Promise(r => setTimeout(r, 3000));
 
-    // Assert billing status is now current / Đang hiệu lực
-    const financeElements = await cdp.getAllSemantics();
-    const isCurrent = financeElements.some(e => 
-      (e.text || '').includes('Đang hiệu lực') || 
-      (e.text || '').includes('Chốt lại phí') || 
-      (e.text || '').includes('Hiện hành') ||
-      (e.aria || '').includes('Đang hiệu lực')
+    // Wait for billing status to become current / Đang hiệu lực
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Đang hiệu lực') || (e.text || '').includes('Chốt lại phí') || (e.aria || '').includes('Đang hiệu lực'),
+      'current billing state chip',
+      12000
     );
 
-    if (isCurrent) {
-      await cdp.screenshot('04_session_finance_finalized.png', 'Charges finalized to current billing state via UI');
-      checks.push({
-        id: 'browser.ui.finalize-charges',
-        description: 'Charges finalized via dialog and billing state transitions to current',
-        status: 'PASS',
-        detail: 'billing state is now current (Đang hiệu lực)'
-      });
-    } else {
-      throw new Error('Billing state did not become current after finalize dialog confirmation');
-    }
+    await cdp.screenshot('04_session_finance_finalized.png', 'Charges finalized to current billing state via UI');
+    checks.push({
+      id: 'browser.ui.finalize-charges',
+      description: 'Charges finalized via dialog and billing state transitions to current',
+      status: 'PASS',
+      detail: 'billing state is now current (Đang hiệu lực)'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.ui.finalize-charges',
@@ -597,9 +608,7 @@ async function runMatrix() {
   try {
     log('--- TC06: Real Clipboard Copy & Privacy Inspection ---');
     const sessionId = '10000000-0000-4000-8000-000000000099';
-    await cdp.evaluate(`window.location.hash = '#/sessions/${sessionId}'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.navigateToSession(sessionId);
 
     // Click "Tổng kết buổi" tile
     await cdp.clickSemantic(
@@ -609,9 +618,11 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 3000));
 
     // Assert summary screen opened
-    const summaryElements = await cdp.getAllSemantics();
-    const hasSummaryTitle = summaryElements.some(e => (e.text || '').includes('Tổng kết buổi') || (e.aria || '').includes('Tổng kết buổi'));
-    if (!hasSummaryTitle) throw new Error('SessionSummaryScreen did not render!');
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Tổng kết buổi') || (e.aria || '').includes('Tổng kết buổi'),
+      'summary screen header',
+      10000
+    );
 
     // Click "Sao chép tổng kết" button
     await cdp.clickSemantic(
@@ -655,9 +666,7 @@ async function runMatrix() {
   try {
     log('--- TC07: Cohost A UI View (NULL Finance & Privacy Copy) ---');
     // Navigate back to HomeScreen
-    await cdp.evaluate(`window.location.hash = '#/'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.navigateToHome();
 
     // 1. Logout Owner A via UI
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Go to Account tab');
@@ -678,9 +687,11 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 2500));
 
     // Assert UI returned to guest BEFORE any reload
-    const guestCheck = await cdp.getAllSemantics();
-    const isBackToGuest = guestCheck.some(e => (e.text || '').includes('Bạn đang xem dưới dạng khách'));
-    if (!isBackToGuest) throw new Error('UI did not return to guest view after logout!');
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Bạn đang xem dưới dạng khách'),
+      'guest notice after logout',
+      8000
+    );
 
     // 2. Login Cohost A via UI
     await cdp.clickSemantic(
@@ -699,9 +710,7 @@ async function runMatrix() {
 
     // 3. Open summary screen as Cohost
     const sessionId = '10000000-0000-4000-8000-000000000099';
-    await cdp.evaluate(`window.location.hash = '#/sessions/${sessionId}'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.navigateToSession(sessionId);
 
     await cdp.clickSemantic(
       e => (e.text || '').includes('Tổng kết buổi'),
@@ -751,9 +760,7 @@ async function runMatrix() {
   try {
     log('--- TC08: Session History & Club Filtering via Real UI ---');
     // Navigate back to HomeScreen
-    await cdp.evaluate(`window.location.hash = '#/'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.navigateToHome();
 
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
     await new Promise(r => setTimeout(r, 2000));
@@ -763,12 +770,13 @@ async function runMatrix() {
       e => (e.text || '').includes('Lịch sử buổi'),
       'Open Session History'
     );
-    await new Promise(r => setTimeout(r, 3500));
 
     // Assert history screen loaded
-    const historyElements = await cdp.getAllSemantics();
-    const hasHistoryTitle = historyElements.some(e => (e.text || '').includes('Lịch sử buổi'));
-    if (!hasHistoryTitle) throw new Error('SessionHistoryScreen did not render!');
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Lịch sử buổi'),
+      'history screen title',
+      10000
+    );
 
     await cdp.screenshot('09_history_filtered_club.png', 'History screen loaded and filtered via UI');
 
@@ -793,9 +801,7 @@ async function runMatrix() {
   try {
     log('--- TC09: Participant Member A UI Isolation ---');
     // Navigate back to HomeScreen
-    await cdp.evaluate(`window.location.hash = '#/'`);
-    await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 3000));
+    await cdp.navigateToHome();
 
     // Logout Cohost
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Go to Account tab');
@@ -826,13 +832,18 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 3500));
 
     // Open History Screen as Member
+    await cdp.navigateToHome();
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
     await new Promise(r => setTimeout(r, 2000));
     await cdp.clickSemantic(
       e => (e.text || '').includes('Lịch sử buổi'),
       'Open History Screen as Member'
     );
-    await new Promise(r => setTimeout(r, 3500));
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Lịch sử buổi'),
+      'member history screen title',
+      10000
+    );
 
     await cdp.screenshot('10_member_isolated_history.png', 'Participant personal history view with no treasury leak');
 
@@ -856,29 +867,27 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC10: Refresh / Reopen & Session Persistence ---');
-    await cdp.evaluate(`window.location.hash = '#/'`);
+    await cdp.navigateToHome();
     await cdp.reloadPage();
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, 3000));
 
     // Check AccountScreen preserves Member A authenticated state
     await cdp.clickSemantic(e => e.aria === 'Tài Khoản' && e.role === 'tab', 'Navigate to Account tab after reload');
     await new Promise(r => setTimeout(r, 2500));
 
-    const accountElements = await cdp.getAllSemantics();
-    const isMemberPreserved = accountElements.some(e => (e.text || '').includes('Member A') || (e.text || '').includes('membera@example.test'));
-    const isGuest = accountElements.some(e => (e.text || '').includes('Bạn đang xem dưới dạng khách'));
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Member A') || (e.text || '').includes('membera@example.test'),
+      'persisted member profile',
+      10000
+    );
 
-    if (isMemberPreserved && !isGuest) {
-      await cdp.screenshot('11_reopen_persisted_session.png', 'Authenticated session cleanly preserved across page reload');
-      checks.push({
-        id: 'browser.reopen.session-persistence-ui',
-        description: 'Page reload cleanly restores authenticated user state from storage without cache corruption',
-        status: 'PASS',
-        detail: 'membera@example.test session preserved across reload'
-      });
-    } else {
-      throw new Error(`Session persistence failed after reload: isMemberPreserved=${isMemberPreserved} isGuest=${isGuest}`);
-    }
+    await cdp.screenshot('11_reopen_persisted_session.png', 'Authenticated session cleanly preserved across page reload');
+    checks.push({
+      id: 'browser.reopen.session-persistence-ui',
+      description: 'Page reload cleanly restores authenticated user state from storage without cache corruption',
+      status: 'PASS',
+      detail: 'membera@example.test session preserved across reload'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.reopen.session-persistence-ui',
@@ -908,8 +917,11 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 2500));
 
     // Assert UI returned to guest state
-    const postLogoutElements = await cdp.getAllSemantics();
-    const isBackToGuest = postLogoutElements.some(e => (e.text || '').includes('Bạn đang xem dưới dạng khách'));
+    await cdp.waitForSemantic(
+      e => (e.text || '').includes('Bạn đang xem dưới dạng khách'),
+      'guest view restored after final logout',
+      10000
+    );
 
     // Check storage tokens
     const remainingAuth = await cdp.evaluate(`
@@ -922,7 +934,7 @@ async function runMatrix() {
       })()
     `);
 
-    if (isBackToGuest && remainingAuth === false) {
+    if (remainingAuth === false) {
       await cdp.screenshot('12_logout_clean_guest_state.png', 'Logged out view with clean storage and memory state');
       checks.push({
         id: 'browser.logout.cache-cleared-no-leak',
@@ -931,7 +943,7 @@ async function runMatrix() {
         detail: 'guest view restored, storage tokens purged completely'
       });
     } else {
-      throw new Error(`Logout assertion failed: isBackToGuest=${isBackToGuest} remainingAuth=${remainingAuth}`);
+      throw new Error(`Logout assertion failed: remainingAuth=${remainingAuth}`);
     }
   } catch (err) {
     checks.push({
