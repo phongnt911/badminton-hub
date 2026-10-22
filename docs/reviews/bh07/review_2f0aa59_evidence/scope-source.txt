@@ -1,0 +1,3 @@
+M	scripts/bh07_http/run.ps1
+M	scripts/bh07_http/seed.sql
+M	test/integration/bh07_http_auth_test.dart

@@ -1,0 +1,30 @@
+{
+  "base_sha": "4da6339a1a92bcf27675f50ca4b785fbb45f1e78",
+  "tested_source_sha": "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
+  "docs_evidence_actual_sha": "7aee525c10aa5aa4cc94611350e8b9f614028537",
+  "docs_evidence_requested_sha_not_found": "7aee5257545b7966779357d6052be1bb3eef46c2",
+  "verdict": "Chưa đạt",
+  "open_findings": [
+    "H1 P2: postcommit premise not enforced",
+    "H2 P2: unrelated competitor error accepted"
+  ],
+  "independent_results": {
+    "analyze_issues": 0,
+    "flutter_pass": 240,
+    "flutter_skip": 1,
+    "bh07_db_pass": 23,
+    "http_pass": 76,
+    "http_total": 76,
+    "reviewer_counterexamples": 2,
+    "author_manifest_matched": 21
+  },
+  "exit_codes": {
+    "analyze": 0,
+    "flutter_test": 0,
+    "bh07_db": 0,
+    "http_matrix": 0,
+    "reviewer_probes": 0
+  },
+  "worktree_clean_before_HTTP_setup": true,
+  "application_source_changed": false
+}

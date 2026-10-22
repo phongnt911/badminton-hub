@@ -1,0 +1,12 @@
+{
+  "retained": 70,
+  "removed": [],
+  "added": [
+    "concurrency.cash.competing-no-overcollect",
+    "concurrency.cash.replay-idempotent",
+    "concurrency.complete.competing-conflict",
+    "concurrency.complete.replay-idempotent",
+    "concurrency.confirm.replay-idempotent",
+    "concurrency.drop-response.retry-no-duplicate"
+  ]
+}

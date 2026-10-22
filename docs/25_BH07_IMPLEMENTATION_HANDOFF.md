@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 21/10/2026:** Gói kiểm chứng **Concurrency HTTP/Auth BH-07 đang Chờ review** trên nhánh `feat/bh07-http-concurrency` (base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`); ma trận **76/76 HTTP check local**, analyze sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**, manifest 21/21 khớp LF, quét sạch secret. Trước đó, HTTP/Auth vòng 1/2 đã Đạt local tại `f9159dd` theo [review độc lập](reviews/bh07/review_f9159dd.md). A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
+> **Hiện hành 22/10/2026:** Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt tại `2f0aa59`** theo [review độc lập](reviews/bh07/review_2f0aa59.md): H1/H2 P2 về tiền đề drop sau commit và validator lỗi cạnh tranh quá rộng. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**; hai probe tái hiện xanh giả. Manifest tác giả21/21 khớp LF, không thấy secret theo scan. Chỉ sửa gói kiểm chứng vòng1/2, giữ HTTP/Auth `f9159dd` và A/B/C/D đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser/offline, ngân hàng, staging/production/backup và rehearsal/pilot vẫn NOT RUN. Không merge main/apply DB thật/deploy.
 
 ## 1. Nền bắt buộc
 
@@ -140,7 +140,7 @@ Gói kiểm chứng **HTTP/Auth BH-07 Đạt local vòng1/2 tại `f9159dd`**, d
 
 Bàn giao và review cũ giữ làm lịch sử theo SHA. Đây là nghiệm thu riêng kiểm chứng HTTP/Auth local, không đóng cổng còn NOT RUN của toàn BH-07.
 
-## 17. Bàn giao kiểm chứng Concurrency HTTP/Auth BH-07 — Chờ review (21/10/2026)
+## 17. (Lịch sử) Bàn giao kiểm chứng Concurrency HTTP/Auth BH-07 — Chờ review (21/10/2026)
 
 - Nhánh `feat/bh07-http-concurrency`, base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`. **Chờ review Concurrency HTTP/Auth BH-07**; người triển khai không tự ghi Đạt.
 - Bổ sung 6 check concurrency:
@@ -153,3 +153,7 @@ Bàn giao và review cũ giữ làm lịch sử theo SHA. Đây là nghiệm thu
 - Kết quả kiểm chứng local: **76/76 PASS** HTTP checks, `flutter analyze` sạch (0 issues), **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**. Red run trước khi nạp fixture đạt **70/76** (đúng 6 FAIL concurrency). Manifest 21/21 khớp LF, quét sạch secret.
 - [Bàn giao và phạm vi](reviews/bh07/http_concurrency_handoff.md); [bằng chứng](reviews/bh07/http_concurrency_evidence/).
 - Còn NOT RUN: thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot. Toàn BH-07 chưa nghiệm thu.
+
+## 18. Review Concurrency HTTP/Auth tại 2f0aa59 (22/10/2026)
+
+**Chưa đạt**, H1/H2 P2; xem [báo cáo độc lập](reviews/bh07/review_2f0aa59.md). Chỉ sửa gói test kiểm chứng vòng1/2: chứng minh commit trước retry và kiểm đúng lỗi domain competitor, giữ 70 check cũ. Không sửa backend/app, không chuyển pilot/merge/deploy.

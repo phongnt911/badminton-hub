@@ -1,0 +1,6 @@
+00:00 +0: loading /workspace/badminton-hub/test/integration/reviewer_concurrency_probe_test.dart
+00:00 +0: real rejected first response is misclassified as post-commit drop
+REVIEW_PROBE first_http_status=400 transport_caught=true operation_before_retry=0 operation_after_retry=1 retry_confirmed=confirmed
+00:00 +1: unrelated SQLSTATE passes original competing error predicates
+REVIEW_PROBE unrelated_FORBIDDEN_P0001 accepted_complete=true accepted_cash=true
+00:00 +2: All tests passed!

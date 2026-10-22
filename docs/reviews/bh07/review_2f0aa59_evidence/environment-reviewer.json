@@ -1,0 +1,13 @@
+{
+  "OS": "Linux",
+  "checkout": "7aee525c10aa5aa4cc94611350e8b9f614028537",
+  "GoTrue": "v2.197.0",
+  "PostgREST": "v16.4",
+  "PostgreSQL": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "gateway": "Kong2.8.1",
+  "isolated_network": "internal Docker network; only Kong bound 127.0.0.1:54321",
+  "differences": "Linux manual minimal stack, stock PostgreSQL17.11 vs Supabase custom postgres image; standard auth.uid reads real PostgREST JWT claims. Original PowerShell/CLI start NOT RUN successfully.",
+  "repository_auth_mocks": false,
+  "worktree_dirty_before_HTTP_setup": false,
+  "worktree_status_before_HTTP_setup": ""
+}

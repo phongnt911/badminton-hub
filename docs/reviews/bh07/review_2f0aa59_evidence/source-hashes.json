@@ -1,0 +1,20 @@
+[
+  {
+    "path": "scripts/bh07_http/run.ps1",
+    "tested_blob_sha256": "710b6e43392964ccbf57d51e767776751b81451d7ca50ff31a16e92b38f76c09",
+    "checkout_sha256": "710b6e43392964ccbf57d51e767776751b81451d7ca50ff31a16e92b38f76c09",
+    "matches": true
+  },
+  {
+    "path": "scripts/bh07_http/seed.sql",
+    "tested_blob_sha256": "01af54851629982ce3e2a5d8a3de11210168b670c71157f93026345b78bdad24",
+    "checkout_sha256": "01af54851629982ce3e2a5d8a3de11210168b670c71157f93026345b78bdad24",
+    "matches": true
+  },
+  {
+    "path": "test/integration/bh07_http_auth_test.dart",
+    "tested_blob_sha256": "d9a34d726b1589ae1c24a59e79f125651aee97134a3423c5227d8d0c35818c6b",
+    "checkout_sha256": "d9a34d726b1589ae1c24a59e79f125651aee97134a3423c5227d8d0c35818c6b",
+    "matches": true
+  }
+]

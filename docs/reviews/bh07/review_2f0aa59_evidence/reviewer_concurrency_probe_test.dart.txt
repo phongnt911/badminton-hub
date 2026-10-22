@@ -1,0 +1,53 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_test/flutter_test.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'bh07_http_auth_test.dart' as source;
+
+class RejectFirstRequest extends http.BaseClient {
+  final inner = http.Client();
+  int? status;
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    if (request.url.path.endsWith('/record_cash_payment')) {
+      final payload = jsonDecode((request as http.Request).body) as Map<String,dynamic>;
+      payload['p_amount_vnd'] = 50000; // outstanding is 40000 after original matrix
+      final changed = http.Request(request.method, request.url)..headers.addAll(request.headers)..body=jsonEncode(payload);
+      final response=await inner.send(changed);status=response.statusCode;return response;
+    }
+    return inner.send(request);
+  }
+}
+void main() {
+  test('real rejected first response is misclassified as post-commit drop', () async {
+    final env=Platform.environment;
+    final rejecting=RejectFirstRequest();
+    final drop=source.DropResponseAfterCommitClient(rejecting,targetPath:'record_cash_payment');
+    final client=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_ANON_KEY']!,httpClient:drop);
+    final admin=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_SERVICE_ROLE_KEY']!);
+    await client.auth.signInWithPassword(email:'ownerb@example.test',password:'bh07-http-pass-123456');
+    final finance=FinanceRepository(client:client);
+    const req='c0000000-0000-4000-8000-000000000099';
+    Future<int> ops() async => (await admin.from('operation_requests').select('request_id').eq('request_id',req)).length;
+    var transport=false;
+    try {await finance.recordCashPayment(requestId:req,playerId:source.playerCcDrop,amountVnd:10000);} catch(e) {transport=e is http.ClientException && drop.dropped;}
+    final before=await ops();
+    expect(rejecting.status,400);expect(transport,true);expect(before,0);
+    final normal=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_ANON_KEY']!);
+    await normal.auth.signInWithPassword(email:'ownerb@example.test',password:'bh07-http-pass-123456');
+    final result=await FinanceRepository(client:normal).recordCashPayment(requestId:req,playerId:source.playerCcDrop,amountVnd:10000);
+    final after=await ops();expect(after,1);expect(result.status,'confirmed');
+    print('REVIEW_PROBE first_http_status=${rejecting.status} transport_caught=$transport operation_before_retry=$before operation_after_retry=$after retry_confirmed=${result.status}');
+    await client.dispose();await normal.dispose();await admin.dispose();
+  });
+  test('unrelated SQLSTATE passes original competing error predicates', () {
+    const unrelated='POSTGREST code=P0001 message=FORBIDDEN details=null hint=null';
+    final complete=unrelated.contains('VERSION_CONFLICT') || unrelated.contains('INVALID_STATE') || unrelated.contains('409') || unrelated.contains('P0001');
+    final cash=unrelated.contains('INVALID_AMOUNT') || unrelated.contains('vượt') || unrelated.contains('amount') || unrelated.contains('22023') || unrelated.contains('P0001');
+    expect(complete,true);expect(cash,true);
+    print('REVIEW_PROBE unrelated_FORBIDDEN_P0001 accepted_complete=$complete accepted_cash=$cash');
+  });
+}

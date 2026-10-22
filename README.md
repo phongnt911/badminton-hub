@@ -2,7 +2,9 @@
 
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
-## Trạng thái hiện tại — 21/10/2026
+## Trạng thái hiện tại — 22/10/2026
+
+Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt tại `2f0aa59`** theo [review độc lập](docs/reviews/bh07/review_2f0aa59.md): H1/H2 P2 về tiền đề drop sau commit và validator lỗi cạnh tranh quá rộng. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**; hai probe tái hiện xanh giả. Manifest tác giả21/21 khớp LF, không thấy secret theo scan. Chỉ sửa gói kiểm chứng vòng1/2, giữ HTTP/Auth `f9159dd` và A/B/C/D đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser/offline, ngân hàng, staging/production/backup và rehearsal/pilot vẫn NOT RUN. Không merge main/apply DB thật/deploy.
 
 **BH-06 đã Đạt tích hợp local tại `318bc52` và merge vào main tại `e7f7627`.** [Review/bằng chứng](docs/reviews/bh06/review_318bc52.md), [xác minh merge main](docs/reviews/bh06/main_merge_e7f7627.md). Quy trình [người triển khai](docs/ai/IMPLEMENTER.md) và [reviewer](docs/ai/REVIEWER.md) cũng đã có trên main.
 
@@ -14,11 +16,10 @@
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chờ review; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 76 HTTP check +240 Flutter/1 skip +23 DB PASS | **A/B/C/D giữ Đạt local; HTTP/Auth Concurrency Chưa đạt tại 2f0aa59; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
-Gói kiểm chứng **Concurrency HTTP/Auth BH-07 đang ở trạng thái Chờ review** trên nhánh `feat/bh07-http-concurrency` từ base `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`: bổ sung 6 check concurrency (idempotent replay, competing complete conflict, competing cash payment no-overcollect, transport drop response sau commit rồi retry). Ma trận HTTP đạt **76/76 check local**, analyze sạch, **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**. Manifest 21/21 khớp LF, quét sạch secret. Trước đó, HTTP/Auth vòng 1/2 đã Đạt local tại `f9159dd` theo [review độc lập](docs/reviews/bh07/review_f9159dd.md). A/B/C/D local giữ kết luận trước; **toàn BH-07/pilot chưa nghiệm thu**, không chuyển ticket sang hoàn thành. Các cổng thiết bị/browser/offline, ngân hàng, staging/production/backup, rehearsal/pilot vẫn NOT RUN; không tự merge/apply DB thật/deploy.
 
 ## Tài liệu để triển khai
 
