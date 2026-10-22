@@ -2,7 +2,6 @@
   "base_sha": "4da6339a1a92bcf27675f50ca4b785fbb45f1e78",
   "tested_source_sha": "2f0aa5930d8d1d982ced3bcda82b22b899e5881a",
   "docs_evidence_actual_sha": "7aee525c10aa5aa4cc94611350e8b9f614028537",
-  "docs_evidence_requested_sha_not_found": "7aee5257545b7966779357d6052be1bb3eef46c2",
   "verdict": "Chưa đạt",
   "open_findings": [
     "H1 P2: postcommit premise not enforced",
@@ -26,5 +25,8 @@
     "reviewer_probes": 0
   },
   "worktree_clean_before_HTTP_setup": true,
-  "application_source_changed": false
+  "application_source_changed": false,
+  "docs_evidence_original_request_sha_corrected": "7aee5257545b7966779357d6052be1bb3eef46c2",
+  "docs_evidence_owner_confirmed": true,
+  "confirmation_date": "2026-10-22"
 }

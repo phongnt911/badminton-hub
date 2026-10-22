@@ -4,7 +4,7 @@ Ngày 22/10/2026; nhánh `feat/bh07-http-concurrency`; review ban đầu, chuy�
 
 - Base: `4da6339a1a92bcf27675f50ca4b785fbb45f1e78`.
 - Tested source: `2f0aa5930d8d1d982ced3bcda82b22b899e5881a`.
-- Docs/evidence thực tế trên origin khi fetch: **`7aee525c10aa5aa4cc94611350e8b9f614028537`**, con trực tiếp của tested source. SHA `7aee5257545b7966779357d6052be1bb3eef46c2` trong yêu cầu không tồn tại trên origin (`not our ref`); không coi hai full SHA là một. Báo cáo này đánh giá source đã chỉ định và snapshot evidence thực tế vừa nêu, không xác nhận snapshot SHA không tồn tại.
+- Docs/evidence: **`7aee525c10aa5aa4cc94611350e8b9f614028537`**, con trực tiếp của tested source. Chủ dự án đã xác nhận ngày 22/10/2026 dùng full SHA này để chốt review; SHA khác trong yêu cầu ban đầu là thông tin đã được đính chính. Đây cũng là snapshot reviewer đã fetch và đối chiếu độc lập.
 - Checkout detached docs SHA thực tế sạch trước HTTP setup; ba file source khớp byte với tested source ([hash](review_2f0aa59_evidence/source-hashes.json)). Full Flutter/analyze chạy trước probe reviewer; probe là file tạm riêng, đã bỏ khỏi cây `test/` sau chạy. Không sửa migration/RPC/model/repository/provider/UI/contract. Diff base→source chỉ ba file test/script/fixture; source→docs chỉ docs/AGENTS/evidence. [Diff source](review_2f0aa59_evidence/scope-source.txt), [diff docs](review_2f0aa59_evidence/scope-docs.txt); diff main...HEAD chỉ dùng đối chiếu lịch sử, không review lại A/B/C/D.
 
 ## Phát hiện còn mở
@@ -59,7 +59,6 @@ Chỉ sửa H1/H2 của gói test/script/fixture, test tái hiện đỏ trướ
 ## NOT RUN
 
 - PowerShell `run.ps1`/full Supabase CLI recipe nguyên bản trên reviewer; đã chạy matrix source gốc qua stack Linux tương đương với khác biệt nêu trên.
-- Snapshot docs/evidence full SHA không tồn tại trong yêu cầu; chỉ kiểm snapshot origin thực tế đã ghi đầu báo cáo.
 - Kiểm chứng đủ điều kiện **drop sau commit** và **đúng lỗi domain competitor** chưa được ma trận gốc bảo đảm, theo H1/H2; không ghi Đạt hai cổng này từ 76/76.
 - Thiết bị/browser UI e2e, offline/reopen/deep link.
 - Ngân hàng/VietQR thật, đối soát/webhook.
