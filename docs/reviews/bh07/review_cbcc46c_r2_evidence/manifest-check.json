@@ -1,0 +1,154 @@
+[
+  {
+    "path": "http_concurrency_evidence/auth_users.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/bh07_db_runner.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/bh07_db_runner_results.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/commands.md",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/environment.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/exits.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/flutter_analyze.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/flutter_test.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/flutter_test_full.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/green_probe.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/red_probe.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/red_run_exits.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/red_run_flutter_test.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/red_run_summary.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/reset.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/seed.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/start.log",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "http_concurrency_evidence/summary.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  },
+  {
+    "path": "bh07_test_results_20261022122614.json",
+    "UTF8_no_BOM": true,
+    "decoded_CRLF": 0,
+    "decoded_CR": 0,
+    "hash_matches": true,
+    "secret_hits": []
+  }
+]

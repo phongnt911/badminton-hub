@@ -1,0 +1,57 @@
+[
+  {
+    "file": "green_probe.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "flutter_test_full.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "red_probe.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "start.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": false
+  },
+  {
+    "file": "flutter_analyze.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "seed.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "flutter_test.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": false
+  },
+  {
+    "file": "bh07_db_runner.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": true
+  },
+  {
+    "file": "reset.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": false
+  },
+  {
+    "file": "auth_users.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": false
+  },
+  {
+    "file": "red_run_flutter_test.log",
+    "decoded_content_preserved": true,
+    "previous_UTF16": false
+  }
+]

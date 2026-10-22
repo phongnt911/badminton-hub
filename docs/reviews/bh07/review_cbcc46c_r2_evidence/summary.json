@@ -1,0 +1,15 @@
+{
+  "actual_docs_sha": "bb940280333aec96457dd3014aabba9f66adf4ae",
+  "requested_docs_sha_not_found": "bb94028f80459c3a372d8299166f272c7a36cb76",
+  "tested_source_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
+  "base_sha": "a0f831af47f98c7649e0c80dce4d5f13004a0db2",
+  "manifest_pass": 19,
+  "six_logs_UTF8_LF": true,
+  "all_log_decoded_content_preserved": true,
+  "metadata_correction_only": true,
+  "source_unchanged": true,
+  "secret_hits": 0,
+  "H3": "CLOSED",
+  "H4": "CLOSED",
+  "verdict": "Đạt"
+}

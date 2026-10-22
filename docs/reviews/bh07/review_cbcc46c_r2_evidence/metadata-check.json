@@ -1,0 +1,14 @@
+[
+  {
+    "file": "environment.json",
+    "base_corrected": true,
+    "initial_parameter_preserved": true,
+    "all_other_JSON_fields_unchanged": true
+  },
+  {
+    "file": "summary.json",
+    "base_corrected": true,
+    "initial_parameter_preserved": true,
+    "all_other_JSON_fields_unchanged": true
+  }
+]
