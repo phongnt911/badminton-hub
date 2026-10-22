@@ -1,0 +1,12 @@
+{
+  "os": "Windows 11 Home 10.0.26200",
+  "node": "v24.21.0",
+  "flutter": "3.47.6 (channel stable)",
+  "dart": "3.13.5",
+  "browser": "Chrome/155.0.8059.85",
+  "supabase_cli": "2.121.0",
+  "supabase_local_api": "http://127.0.0.1:54321",
+  "web_server_url": "http://127.0.0.1:8088",
+  "base_sha": "8f9259e8dabf9b79088f9bb1eb9c9049d660eff5",
+  "branch": "feat/bh07-browser-verification"
+}

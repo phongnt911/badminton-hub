@@ -4,7 +4,9 @@
 
 ## Trạng thái hiện tại — 22/10/2026
 
-Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](docs/reviews/bh07/review_cbcc46c_r2.md). **Đóng H3/H4**, giữ H1/H2 đã đóng; không còn P0/P1/P2 mở trong gói. Reviewer tự audit **19/19 hash**, UTF-8 không BOM, CR/CRLF=0, nội dung log và metadata lịch sử bảo toàn, scan không thấy secret theo mẫu kiểm; source không đổi. Vòng2/2 không chạy lại suite; kế thừa kết quả reviewer vòng1/2: **76 HTTP, 240 Flutter +1 skip, 23 DB, 4 probe PASS**, analyze sạch. Giữ A/B/C/D và HTTP/Auth nền Đạt local; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup, rehearsal/pilot vẫn NOT RUN; không merge/apply DB thật/deploy.
+Gói kiểm chứng **Browser / Offline / Reopen BH-07 đang ở trạng thái Chờ review** trên nhánh `feat/bh07-browser-verification` từ base `8f9259e8dabf9b79088f9bb1eb9c9049d660eff5`. Đã kiểm chứng Flutter Web trên Google Chrome 155 thật qua CDP với Supabase local/Auth thật: luồng Start → điểm danh → chốt phí → complete → history/summary; phân quyền 4 actor (Owner, Finance, Cohost null finance, Member cô lập); mất mạng bắt lỗi transport không báo thành công giả, online phục hồi retry cùng intent giữ `request_id`, F5/reopen bảo toàn session từ `localStorage`, logout làm sạch cache. Kết quả: **11/11 ma trận browser PASS (0 FAIL)**, **17 ảnh screenshot PNG**, analyze sạch, 240 Flutter +1 skip, 23 DB PASS. Giữ nguyên source đã nghiệm thu; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị di động thật, ngân hàng/webhook thật, staging/production và rehearsal/pilot vẫn NOT RUN; không merge main/apply DB thật/deploy.
+
+(Lịch sử review) Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](docs/reviews/bh07/review_cbcc46c_r2.md).
 
 **BH-06 đã Đạt tích hợp local tại `318bc52` và merge vào main tại `e7f7627`.** [Review/bằng chứng](docs/reviews/bh06/review_318bc52.md), [xác minh merge main](docs/reviews/bh06/main_merge_e7f7627.md). Quy trình [người triển khai](docs/ai/IMPLEMENTER.md) và [reviewer](docs/ai/REVIEWER.md) cũng đã có trên main.
 
@@ -16,7 +18,7 @@ Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, teste
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | Concurrency HTTP/Auth Đạt local vòng2/2; source cbcc46c | **A/B/C/D giữ Đạt local; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | 11 browser PASS + 76 HTTP PASS + 23 DB PASS | **Chờ review kiểm chứng browser/offline/reopen; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 
