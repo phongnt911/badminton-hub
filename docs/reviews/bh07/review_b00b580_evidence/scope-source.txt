@@ -1,0 +1,2 @@
+M	scripts/bh07_browser/run_browser_verification.js
+M	scripts/bh07_browser/seed_setup.js

@@ -1,0 +1,10 @@
+from pathlib import Path
+root=Path('/workspace/badminton-hub');private=Path('/tmp/bh07-http-review-runtime')
+p=(root/'scripts/bh07_browser/run_browser_verification.js').read_text()
+p=p.replace("const CHROME_PATH = 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe';","const CHROME_PATH = '/usr/bin/chromium';")
+p=p.replace("const PROJECT_ROOT = path.resolve(__dirname, '../..');","const PROJECT_ROOT = '/workspace/badminton-hub';")
+p=p.replace("const EVIDENCE_DIR = path.resolve(PROJECT_ROOT, 'docs/reviews/bh07/browser_evidence');","const EVIDENCE_DIR = '/workspace/scratch/bh07-review-b00b580/browser';")
+p=p.replace("    '--headless=new',","    '--headless=new',\n    '--no-sandbox',\n    '--enable-unsafe-swiftshader',")
+p=p.replace("    execSync('node scripts/bh07_browser/seed_setup.js', { stdio: 'inherit' });","    log('Reviewer infrastructure: identical SQL fixture already seeded in isolated stack');")
+(private/'browser_runner.js').write_text(p)
+print('Infra-only adaptation; assertions unchanged')

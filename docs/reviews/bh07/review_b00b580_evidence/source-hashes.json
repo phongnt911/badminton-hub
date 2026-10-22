@@ -1,0 +1,12 @@
+[
+  {
+    "file": "scripts/bh07_browser/run_browser_verification.js",
+    "sha256": "ed4a319be99f9eac8d8e62562c33b9a305c9b4af9c6ec09264a4ffa2f3e3b650",
+    "matches_tested_source_blob": true
+  },
+  {
+    "file": "scripts/bh07_browser/seed_setup.js",
+    "sha256": "5b7116bc5009764a212cb8ffee0940353880c74ad3481d86c0940532e9640d37",
+    "matches_tested_source_blob": true
+  }
+]

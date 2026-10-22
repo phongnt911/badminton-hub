@@ -1,0 +1,34 @@
+{
+  "base_sha": "86c464293f796d5f3b0890acc8bb33a85f7d4897",
+  "tested_source_sha": "b00b58062b7ccc4b8051165d763bcd016e158e4e",
+  "actual_docs_evidence_sha": "d01e3692b6b07f145f603565a91ea6f629016ba1",
+  "requested_docs_sha_not_resolved": "d01e369b76c8c1e847a76c88894df051f50f4fa6",
+  "verdict": "Chưa đạt",
+  "round": "1/2",
+  "open": {
+    "BR1": "P2 attendance no postcondition (old UI bypass fixed)",
+    "BR2": "P1 missing hard assertions and POST filtering",
+    "BR3": "P2 clipboard/history scope gates weak",
+    "BR4": "P2 same-instance cache test not covered",
+    "BR5": "P2 missing logs and mutable verifier/secret gates/provenance"
+  },
+  "independent": {
+    "analyze_issues": 0,
+    "flutter_pass": 240,
+    "flutter_skip": 1,
+    "db_pass": 23,
+    "web_build_exit": 0,
+    "browser_reported_pass": 11,
+    "browser_total": 11,
+    "distinct_reviewer_screenshots": 12,
+    "negative_control_false_accepts": 8,
+    "manifest_matches": 17,
+    "manifest_entries": 21,
+    "POST_same_request_id": true,
+    "POST_full_payload_equal": true,
+    "complete_operation_count": 1,
+    "complete_audit_count": 1
+  },
+  "clean_before_setup": true,
+  "application_source_changed": false
+}

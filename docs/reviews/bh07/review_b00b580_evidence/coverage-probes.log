@@ -1,0 +1,22 @@
+[
+  {
+    "control": "attendance request has no side effect, click resolves",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "manager clipboard wrong numeric totals",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "cohost clipboard leak: Đã thu: 50000 VNĐ",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "cohost clipboard leak: SĐT: 0987654321\nSTK: 123456789012",
+    "expected": "FAIL",
+    "actual": "PASS"
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "path": "analyze.log",
+    "exists": false,
+    "match": false
+  },
+  {
+    "path": "bh07_db_results.json",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "bh07_db_runner.log",
+    "exists": false,
+    "match": false
+  },
+  {
+    "path": "browser_runner.log",
+    "exists": false,
+    "match": false
+  },
+  {
+    "path": "commands.md",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "environment.json",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "exits.json",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "flutter_test.log",
+    "exists": false,
+    "match": false
+  },
+  {
+    "path": "screenshots/01_owner_ui_authenticated.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/02_session_ui_started.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/03_player_attendance_checked.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/04_session_finance_finalized.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/05_offline_mutation_error.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/06_retry_mutation_success.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/07_summary_manager_clipboard.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/08_cohost_summary_null_finances.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/09_history_filtered_club.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/10_member_isolated_history.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/11_reopen_persisted_session.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "screenshots/12_logout_clean_guest_state.png",
+    "exists": true,
+    "match": true
+  },
+  {
+    "path": "summary.json",
+    "exists": true,
+    "match": true
+  }
+]

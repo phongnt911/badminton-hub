@@ -1,0 +1,34 @@
+=== 1. Checking BOM & CRLF ===
+OK bh07_db_results.json: no BOM, CR=0
+OK commands.md: no BOM, CR=0
+OK environment.json: no BOM, CR=0
+OK exits.json: no BOM, CR=0
+OK reviewer_negative_control.txt: no BOM, CR=0
+OK summary.json: no BOM, CR=0
+
+=== 2. Secret Scan ===
+Secret scan clean: 0 secret patterns matched.
+
+=== 3. Generating hashes.sha256 ===
+Generated manifest with 18 entries at docs/reviews/bh07/browser_evidence/hashes.sha256:
+  15d0fdc4458f...  bh07_db_results.json (5860 bytes)
+  70090c7f7add...  commands.md (1504 bytes)
+  5c1a800e1728...  environment.json (457 bytes)
+  77b61ac3b37c...  exits.json (148 bytes)
+  d4ac4a076965...  reviewer_negative_control.txt (52 bytes)
+  229b52e3c615...  screenshots/01_owner_ui_authenticated.png (33985 bytes)
+  7bc032c4906b...  screenshots/02_session_ui_started.png (81862 bytes)
+  6384a12e5bbb...  screenshots/03_player_attendance_checked.png (80856 bytes)
+  3cadeeb298b5...  screenshots/04_session_finance_finalized.png (51727 bytes)
+  33e3d03b41ab...  screenshots/05_offline_mutation_error.png (53149 bytes)
+  ea78bf0dfb67...  screenshots/06_retry_mutation_success.png (81145 bytes)
+  9c3fde2a0f91...  screenshots/07_summary_manager_clipboard.png (57230 bytes)
+  c16f6cbbdda3...  screenshots/08_cohost_summary_null_finances.png (50066 bytes)
+  96d6538f6cd0...  screenshots/09_history_filtered_club.png (34353 bytes)
+  af89e8b9c73f...  screenshots/10_member_isolated_history.png (24043 bytes)
+  8d8dd4c48c45...  screenshots/11_reopen_persisted_session.png (34281 bytes)
+  293712cad651...  screenshots/12_logout_clean_guest_state.png (35290 bytes)
+  8097a671ed38...  summary.json (3528 bytes)
+
+=== 4. Verifying Manifest ===
+Verification successful: 18/18 hashes match perfectly!

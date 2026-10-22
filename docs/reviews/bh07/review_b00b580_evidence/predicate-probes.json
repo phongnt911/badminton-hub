@@ -1,0 +1,26 @@
+[
+  {
+    "control": "no captured mutation requests",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": "captured=0 offline error verified, complete executed"
+  },
+  {
+    "control": "different request_id and session",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": "captured=2 reqIdMatch=false payloadMatch=false"
+  },
+  {
+    "control": "same request id and session but changed version",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": "captured=2 reqIdMatch=true payloadMatch=true"
+  },
+  {
+    "control": "missing postData/preflight pair",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": "captured=2 reqIdMatch=undefined payloadMatch=false"
+  }
+]

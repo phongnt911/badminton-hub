@@ -1,0 +1,80 @@
+{
+  "screenshots": 12,
+  "unique_screenshot_hashes": 12,
+  "groups": {
+    "ea78bf0dfb67bd2485a1676a09c39c94b7f853a14c8f3c5f0b1682f894678e6f": [
+      "06_retry_mutation_success.png"
+    ],
+    "3cadeeb298b57f8996d22cde89d685839c024a5fefad13bd1773a3db3295d0c1": [
+      "04_session_finance_finalized.png"
+    ],
+    "c16f6cbbdda3a6f9620be22d164824b157ff857cc9e042918bef2203707b07a5": [
+      "08_cohost_summary_null_finances.png"
+    ],
+    "96d6538f6cd0e4038c718b6f3a93bbc001a618f5b9e03c115607720c8d6320b3": [
+      "09_history_filtered_club.png"
+    ],
+    "8d8dd4c48c4511d2e1f2f9762b7c055ee817e23c87c97a9a8bd247250912cca8": [
+      "11_reopen_persisted_session.png"
+    ],
+    "7bc032c4906bf5e177134730cfd63a21f10956f605a4acc3370477c0327f9e5b": [
+      "02_session_ui_started.png"
+    ],
+    "af89e8b9c73f12d5cd0627fc98ec5e3d1220c434e800edd562a5c450abe3eae4": [
+      "10_member_isolated_history.png"
+    ],
+    "9c3fde2a0f914d4b90f5e6a69a6421e1c48969093759f77fe02820b4e82f598c": [
+      "07_summary_manager_clipboard.png"
+    ],
+    "229b52e3c615411a5f5015155c1b81acfcf06dc89a8f992a6b1782c37a1bc08d": [
+      "01_owner_ui_authenticated.png"
+    ],
+    "293712cad651558bb53b44f885c029e719a7451705338fac2caf7054757fca41": [
+      "12_logout_clean_guest_state.png"
+    ],
+    "33e3d03b41abb31aa04267b837a26153b7890a8a57f1f1b35078c985634f6e14": [
+      "05_offline_mutation_error.png"
+    ],
+    "6384a12e5bbbd36720bf2c6126a01084baac64ff2d76d291e62de72574cfac6e": [
+      "03_player_attendance_checked.png"
+    ]
+  },
+  "text_encoding": [
+    {
+      "file": "docs/reviews/bh07/browser_evidence/bh07_db_results.json",
+      "BOM": false,
+      "CR": 0
+    },
+    {
+      "file": "docs/reviews/bh07/browser_evidence/summary.json",
+      "BOM": false,
+      "CR": 0
+    },
+    {
+      "file": "docs/reviews/bh07/browser_evidence/environment.json",
+      "BOM": false,
+      "CR": 0
+    },
+    {
+      "file": "docs/reviews/bh07/browser_evidence/commands.md",
+      "BOM": false,
+      "CR": 0
+    },
+    {
+      "file": "docs/reviews/bh07/browser_evidence/hashes.sha256",
+      "BOM": false,
+      "CR": 0
+    },
+    {
+      "file": "docs/reviews/bh07/browser_evidence/exits.json",
+      "BOM": false,
+      "CR": 0
+    }
+  ],
+  "secret_pattern_hits": [
+    {
+      "file": "docs/reviews/bh07/browser_evidence/commands.md",
+      "kind": "jwt"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "3053c07cb3dc615ace01cabeaa0d9dd562e3e72296bebd8f0ade9bf20d6e6f95": [
+    "06_retry_mutation_success.png"
+  ],
+  "56e9dc5070fced63e8040acd687aba4839d00b7570efd7a0963dd957cc13fe8b": [
+    "04_session_finance_finalized.png"
+  ],
+  "8d5507e3de00ef26b371d77f1f293ecca4ac3fe33050ebb8221819fe56b5713a": [
+    "08_cohost_summary_null_finances.png"
+  ],
+  "25d81d7b4614f861df7522b30205e8ea3faf03b1f61141726b188a606efb728d": [
+    "09_history_filtered_club.png"
+  ],
+  "e1d92aafb5b3996f2791354a5d066b6c4cf4ecd97363afa33caca56da1095dbe": [
+    "11_reopen_persisted_session.png"
+  ],
+  "9cfddf0f2bf97f7416df0362caff69b8405a8cfcd9a93e7a58087de19faf775d": [
+    "02_session_ui_started.png"
+  ],
+  "c3ba6ee268939dc142d0dccf32f435794585f28c02012d77aa6ee64e0b6a94f9": [
+    "10_member_isolated_history.png"
+  ],
+  "e6d7099165fea865d24a0250a3f4cab1094260800057e3620b092746c0980ff5": [
+    "07_summary_manager_clipboard.png"
+  ],
+  "227b5c7e0377e249f207dce4a82d673244d37298697a30e8d3fbeaa384a92f59": [
+    "01_owner_ui_authenticated.png"
+  ],
+  "fe126a54720275f8438e296efbcd87f832e16c9bb9d319685f62e40fb8b05aa3": [
+    "12_logout_clean_guest_state.png"
+  ],
+  "35e6a141ac1115dc9f3d0f15cb77d89c8efe124e413de50376e73fe653a7e8a1": [
+    "05_offline_mutation_error.png"
+  ],
+  "f43b4d620c58d501955bd0c1a72aa0f64daa0f5f10be5013d0e866fe08006aba": [
+    "03_player_attendance_checked.png"
+  ]
+}

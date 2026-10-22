@@ -1,0 +1,97 @@
+[2026-10-22T14:48:08.409Z] === Starting BH-07 Browser / Offline / Reopen Verification Suite (Round 1/2) ===
+[2026-10-22T14:48:08.411Z] Resetting and seeding deterministic fixtures...
+[2026-10-22T14:48:08.411Z] Reviewer infrastructure: identical SQL fixture already seeded in isolated stack
+[2026-10-22T14:48:08.776Z] Chrome version: Chrome/154.0.8037.57
+[2026-10-22T14:48:09.147Z] Waiting 6s for Flutter web bundle initialization...
+[2026-10-22T14:48:16.161Z] Asserting initial guest state before login...
+[2026-10-22T14:48:17.167Z] Initial guest notice verified successfully.
+[2026-10-22T14:48:17.167Z] --- TC01: Real UI Login for Owner A ---
+[2026-10-22T14:48:18.173Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng nhập"] at (99, 255) for: Click Đăng nhập button
+[2026-10-22T14:48:24.245Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: focus input
+[2026-10-22T14:48:28.029Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: focus input
+[2026-10-22T14:48:30.795Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Click Đăng Nhập submit
+[2026-10-22T14:48:35.865Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Navigate to Tài Khoản tab
+[2026-10-22T14:48:39.934Z] [SCREENSHOT] 01_owner_ui_authenticated.png - Owner A authenticated via real UI form (33191 bytes)
+[2026-10-22T14:48:39.934Z] --- TC02: Real UI Start Session ---
+[2026-10-22T14:48:39.934Z] Navigating to session detail: 10000000-0000-4000-8000-000000000099...
+[2026-10-22T14:48:46.455Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Bắt đầu buổi chơi"] at (104, 498) for: Click Bắt đầu buổi chơi
+[2026-10-22T14:48:48.545Z] [SCREENSHOT] 02_session_ui_started.png - Session started to in_progress state via UI button (79148 bytes)
+[2026-10-22T14:48:48.545Z] --- TC03: Real Attendance Check-in ---
+[2026-10-22T14:48:49.550Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Có mặt"] at (63, 646) for: Click Có mặt for player
+[2026-10-22T14:48:53.149Z] [SCREENSHOT] 03_player_attendance_checked.png - Attendance recorded via UI (78159 bytes)
+[2026-10-22T14:48:53.149Z] --- TC04: Real UI Finalize Charges ---
+[2026-10-22T14:48:54.154Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tài chính & thu tiền Chốt phí,"] at (640, 430) for: Open Finance Screen
+[2026-10-22T14:48:59.195Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Chốt phí"] at (947, 351) for: Click Chốt phí button
+[2026-10-22T14:49:03.462Z] Clicking semantic element [TEXTAREA aria="Lý do *" role="null" text=""] at (643, 406) for: focus input
+[2026-10-22T14:49:06.225Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Xác nhận"] at (703, 479) for: Confirm finalize dialog
+[2026-10-22T14:49:08.341Z] [SCREENSHOT] 04_session_finance_finalized.png - Charges finalized to current billing state via UI (51103 bytes)
+[2026-10-22T14:49:08.341Z] --- TC05: Offline Mutation, UI Error, and Idempotent Retry ---
+[2026-10-22T14:49:08.341Z] Setting network offline = true
+[2026-10-22T14:49:09.850Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Kết thúc buổi chơi"] at (640, 407) for: Click Kết thúc buổi chơi while offline
+[2026-10-22T14:49:13.090Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đồng ý"] at (924, 453) for: Confirm complete dialog while offline
+[2026-10-22T14:49:17.170Z] [SCREENSHOT] 05_offline_mutation_error.png - Error handled properly when mutation sent offline (52500 bytes)
+[2026-10-22T14:49:17.170Z] Setting network offline = false
+[2026-10-22T14:49:20.179Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Kết thúc buổi chơi"] at (640, 407) for: Retry Kết thúc buổi chơi online
+[2026-10-22T14:49:23.414Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đồng ý"] at (924, 453) for: Confirm complete dialog online
+[2026-10-22T14:49:28.014Z] [SCREENSHOT] 06_retry_mutation_success.png - Mutation completed successfully after network restoration (78464 bytes)
+[2026-10-22T14:49:28.014Z] Captured complete_session requests count: 4
+[2026-10-22T14:49:28.014Z] --- TC06: Real Clipboard Copy & Privacy Inspection ---
+[2026-10-22T14:49:28.014Z] Navigating to session detail: 10000000-0000-4000-8000-000000000099...
+[2026-10-22T14:49:33.527Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Open Summary Screen
+[2026-10-22T14:49:39.573Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 645) for: Click Sao chép tổng kết
+[2026-10-22T14:49:41.809Z] Manager real clipboard text:
+🏸 Tổng kết: UI Flow Session published to complete
+📍 HTTP Venue A · HTTP Club A
+⏰ 22:42 22/10/2026 - 00:42 23/10/2026
+👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2
+💰 Tổng chi phí: 0 VNĐ
+🧾 Tổng phải thu: 0 VNĐ
+✅ Đã thu: 0 VNĐ
+⏳ Còn phải thu: 0 VNĐ
+[2026-10-22T14:49:41.853Z] [SCREENSHOT] 07_summary_manager_clipboard.png - Manager summary screen and copied clipboard (55857 bytes)
+[2026-10-22T14:49:41.853Z] --- TC07: Cohost A UI View (NULL Finance & Privacy Copy) ---
+[2026-10-22T14:49:41.853Z] Navigating to MainNavigationScreen (home)...
+[2026-10-22T14:49:47.368Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Go to Account tab
+[2026-10-22T14:49:51.409Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Click Đăng xuất
+[2026-10-22T14:49:54.452Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm logout dialog
+[2026-10-22T14:50:00.004Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập / Đăng Ký"] at (640, 326) for: Open login form for Cohost
+[2026-10-22T14:50:05.040Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: focus input
+[2026-10-22T14:50:08.791Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: focus input
+[2026-10-22T14:50:11.563Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit login for Cohost
+[2026-10-22T14:50:16.104Z] Navigating to session detail: 10000000-0000-4000-8000-000000000099...
+[2026-10-22T14:50:21.618Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Open Summary Screen as Cohost
+[2026-10-22T14:50:27.664Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 506) for: Click Sao chép tổng kết as Cohost
+[2026-10-22T14:50:29.890Z] Cohost real clipboard text:
+🏸 Tổng kết: UI Flow Session published to complete
+📍 HTTP Venue A · HTTP Club A
+⏰ 22:42 22/10/2026 - 00:42 23/10/2026
+👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2
+[2026-10-22T14:50:29.931Z] [SCREENSHOT] 08_cohost_summary_null_finances.png - Cohost summary card showing counts only and no finance leak (48512 bytes)
+[2026-10-22T14:50:29.931Z] --- TC08: Session History & Club Filtering via Real UI ---
+[2026-10-22T14:50:29.931Z] Navigating to MainNavigationScreen (home)...
+[2026-10-22T14:50:35.448Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Navigate to Buổi Chơi tab
+[2026-10-22T14:50:39.485Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: Open Session History
+[2026-10-22T14:50:41.561Z] [SCREENSHOT] 09_history_filtered_club.png - History screen loaded and filtered via UI (33145 bytes)
+[2026-10-22T14:50:41.562Z] --- TC09: Participant Member A UI Isolation ---
+[2026-10-22T14:50:41.562Z] Navigating to MainNavigationScreen (home)...
+[2026-10-22T14:50:47.078Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Go to Account tab
+[2026-10-22T14:50:51.120Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Click Logout
+[2026-10-22T14:50:54.154Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm Logout
+[2026-10-22T14:50:58.697Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập / Đăng Ký"] at (640, 326) for: Open login form for Member
+[2026-10-22T14:51:03.732Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: focus input
+[2026-10-22T14:51:07.496Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: focus input
+[2026-10-22T14:51:10.257Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit login for Member
+[2026-10-22T14:51:14.795Z] Navigating to MainNavigationScreen (home)...
+[2026-10-22T14:51:20.315Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Navigate to Buổi Chơi tab
+[2026-10-22T14:51:24.354Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: Open History Screen as Member
+[2026-10-22T14:51:26.427Z] [SCREENSHOT] 10_member_isolated_history.png - Participant personal history view with no treasury leak (23749 bytes)
+[2026-10-22T14:51:26.427Z] --- TC10: Refresh / Reopen & Session Persistence ---
+[2026-10-22T14:51:26.427Z] Navigating to MainNavigationScreen (home)...
+[2026-10-22T14:51:30.936Z] Reloading page via Page.reload...
+[2026-10-22T14:51:39.960Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Navigate to Account tab after reload
+[2026-10-22T14:51:44.542Z] [SCREENSHOT] 11_reopen_persisted_session.png - Authenticated session cleanly preserved across page reload (33051 bytes)
+[2026-10-22T14:51:44.542Z] --- TC11: Real UI Logout & Complete Cache Purge ---
+[2026-10-22T14:51:45.547Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Click Logout via UI
+[2026-10-22T14:51:48.579Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm Logout Dialog
+[2026-10-22T14:51:53.147Z] [SCREENSHOT] 12_logout_clean_guest_state.png - Logged out view with clean storage and memory state (34854 bytes)
+[2026-10-22T14:51:53.150Z] === Verification Complete: 11/11 checks PASS (0 FAIL) in 224740ms ===
