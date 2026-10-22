@@ -247,9 +247,12 @@ class CdpClient {
 }
 
 async function startChrome() {
-  if (!fs.existsSync(USER_DATA_DIR)) {
-    fs.mkdirSync(USER_DATA_DIR, { recursive: true });
+  if (fs.existsSync(USER_DATA_DIR)) {
+    try {
+      fs.rmSync(USER_DATA_DIR, { recursive: true, force: true });
+    } catch (_) {}
   }
+  fs.mkdirSync(USER_DATA_DIR, { recursive: true });
 
   const proc = spawn(CHROME_PATH, [
     `--remote-debugging-port=${DEBUG_PORT}`,
