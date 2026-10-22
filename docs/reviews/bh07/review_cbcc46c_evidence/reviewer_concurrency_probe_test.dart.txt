@@ -1,0 +1,85 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_test/flutter_test.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:badminton_hub/data/finance_repository.dart';
+import 'bh07_http_auth_test.dart' as source;
+
+class RejectFirstRequest extends http.BaseClient {
+  final inner = http.Client();
+  int? status;
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    if (request.url.path.endsWith('/record_cash_payment')) {
+      final payload = jsonDecode((request as http.Request).body) as Map<String,dynamic>;
+      payload['p_amount_vnd'] = 50000; // outstanding is 40000 after original matrix
+      final changed = http.Request(request.method, request.url)..headers.addAll(request.headers)..body=jsonEncode(payload);
+      final response=await inner.send(changed);status=response.statusCode;return response;
+    }
+    return inner.send(request);
+  }
+}
+void main() {
+  test('H1 real rejected first response is not classified as post-commit drop', () async {
+    final env=Platform.environment;
+    final rejecting=RejectFirstRequest();
+    final drop=source.DropResponseAfterCommitClient(rejecting,targetPath:'record_cash_payment');
+    final client=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_ANON_KEY']!,httpClient:drop);
+    final admin=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_SERVICE_ROLE_KEY']!);
+    await client.auth.signInWithPassword(email:'ownerb@example.test',password:'bh07-http-pass-123456');
+    final finance=FinanceRepository(client:client);
+    const req='c0000000-0000-4000-8000-000000000099';
+    Future<int> ops() async => (await admin.from('operation_requests').select('request_id').eq('request_id',req)).length;
+    var transport=false;
+    try {await finance.recordCashPayment(requestId:req,playerId:source.playerCcDrop,amountVnd:10000);} catch(e) {transport=e is http.ClientException && drop.dropped;}
+    final before=await ops();
+    expect(rejecting.status,400);expect(transport,false);expect(before,0);
+    final normal=SupabaseClient(env['BH07_HTTP_URL']!,env['BH07_HTTP_ANON_KEY']!);
+    await normal.auth.signInWithPassword(email:'ownerb@example.test',password:'bh07-http-pass-123456');
+    final result=await FinanceRepository(client:normal).recordCashPayment(requestId:req,playerId:source.playerCcDrop,amountVnd:10000);
+    final after=await ops();expect(after,1);expect(result.status,'confirmed');
+    print('REVIEW_PROBE first_http_status=${rejecting.status} transport_caught=$transport operation_before_retry=$before operation_after_retry=$after retry_confirmed=${result.status}');
+    await client.dispose();await normal.dispose();await admin.dispose();
+  });
+  test('H2 original unrelated SQLSTATE counterexample is rejected', () {
+    final unrelated=PostgrestException(message:'FORBIDDEN',code:'P0001');
+    final complete=source.isCompleteConflictError(unrelated);
+    final cash=source.isCashOvercollectError(unrelated);
+    expect(complete,false);expect(cash,false);
+    print('REVIEW_PROBE unrelated_FORBIDDEN_P0001 accepted_complete=$complete accepted_cash=$cash');
+  });
+  test('H1 non-200 statuses preserve response and HTTP200 drops after drain', () async {
+    for(final status in [201,204,400,401,403,404,409,500]) {
+      final proxy=source.DropResponseAfterCommitClient(source.StaticStatusClient(status),targetPath:'record_cash_payment');
+      final response=await proxy.send(http.Request('POST',Uri.parse('http://localhost/rest/v1/rpc/record_cash_payment')));
+      expect(response.statusCode,status);expect(proxy.dropped,false);expect(proxy.drained,false);
+      await response.stream.drain<void>();
+    }
+    final proxy=source.DropResponseAfterCommitClient(source.StaticStatusClient(200),targetPath:'record_cash_payment');
+    await expectLater(proxy.send(http.Request('POST',Uri.parse('http://localhost/rest/v1/rpc/record_cash_payment'))),throwsA(isA<http.ClientException>()));
+    expect(proxy.dropped,true);expect(proxy.drained,true);expect(proxy.droppedStatusCode,200);
+  });
+  test('H2 domain and SQLSTATE controls', () {
+    for(final msg in ['VERSION_CONFLICT: stale','INVALID_STATE: completed']) {
+      for(final code in ['22023','409']) {
+        expect(source.isCompleteConflictError(PostgrestException(message:msg,code:code)),true);
+      }
+    }
+    expect(source.isCashOvercollectError(PostgrestException(message:'PAYMENT_EXCEEDS_OUTSTANDING: over',code:'22023')),true);
+    final errors=<Object>[
+      for(final code in ['P0001','42501','22023','409']) PostgrestException(message:'FORBIDDEN',code:code),
+      PostgrestException(message:'NOT_FOUND',code:'P0002'),
+      PostgrestException(message:'INVALID_INPUT: amount',code:'22023'),
+      PostgrestException(message:'VERSION_CONFLICT',code:'42501'),
+      PostgrestException(message:'PAYMENT_EXCEEDS_OUTSTANDING',code:'P0001'),
+      http.ClientException('timeout'), StateError('server failed')
+    ];
+    for(final error in errors) {
+      expect(source.isCompleteConflictError(error),false);expect(source.isCashOvercollectError(error),false);
+    }
+    expect(source.verifyH2NegativeControls(),true);
+  });
+
+}

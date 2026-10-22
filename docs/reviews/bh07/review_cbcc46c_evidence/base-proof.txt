@@ -1,0 +1,6 @@
+git rev-parse cbcc46c^
+a0f831af47f98c7649e0c80dce4d5f13004a0db2
+
+git cat-file -t a0f831ae3f47e305608bfa0dff19ae035b31f798
+exit=128
+fatal: git cat-file: could not get object info

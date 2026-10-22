@@ -1,6 +1,6 @@
 # BH-07 — buổi hoàn chỉnh, lịch sử, tổng kết và pilot
 
-> **Hiện hành 22/10/2026:** Gói kiểm chứng **Concurrency HTTP/Auth BH-07 đang ở trạng thái Chờ review vòng 1/2 tại `cbcc46c`** trên nhánh `feat/bh07-http-concurrency` từ base `a0f831a`. Đã sửa H1/H2 P2 theo [review_2f0aa59.md](reviews/bh07/review_2f0aa59.md): H1 chỉ drop sau HTTP 200, kiểm chứng DB server đã commit trước retry, bổ sung negative control HTTP 400; H2 kiểm domain error có cấu trúc (VERSION_CONFLICT/INVALID_STATE 22023/409, PAYMENT_EXCEEDS_OUTSTANDING 22023), bổ sung negative controls loại bỏ FORBIDDEN/NOT_FOUND/INVALID_INPUT/transport. Red probe 3 FAIL trước sửa, green probe 5/5 PASS sau sửa. Ma trận HTTP local đạt **76/76 PASS**, analyze sạch (0 issues), **240 Flutter +1 skip**, **23/23 BH-07 DB PASS**. Manifest 19/19 khớp LF, quét sạch secret. Giữ HTTP/Auth `f9159dd` và A/B/C/D đã Đạt local. **Toàn BH-07/pilot chưa nghiệm thu**; thiết bị/browser/offline, ngân hàng, staging/production/backup và rehearsal/pilot vẫn NOT RUN. Không merge main/apply DB thật/deploy.
+> **Hiện hành 22/10/2026:** Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt vòng1/2 tại `cbcc46c`**, docs/evidence `b23df5e`, theo [review độc lập](reviews/bh07/review_cbcc46c.md). **Đóng H1/H2 P2** sau kiểm chứng độc lập; còn **H3/H4 P2 về log UTF-16/CRLF trái công bố LF và full base SHA sai**. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, **4/4 probe** PASS. Manifest19/19 khớp raw bytes, chưa đạt chuẩn LF; scan đã decode không thấy secret theo mẫu kiểm. Chỉ sửa tài liệu/bằng chứng vòng2/2, không đổi logic test/app/backend. Giữ HTTP/Auth `f9159dd` và A/B/C/D local; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot vẫn NOT RUN; không merge/apply DB thật/deploy.
 
 ## 1. Nền bắt buộc
 
@@ -157,3 +157,7 @@ Bàn giao và review cũ giữ làm lịch sử theo SHA. Đây là nghiệm thu
 ## 18. Review Concurrency HTTP/Auth tại 2f0aa59 (22/10/2026)
 
 **Chưa đạt**, H1/H2 P2; xem [báo cáo độc lập](reviews/bh07/review_2f0aa59.md). Chỉ sửa gói test kiểm chứng vòng1/2: chứng minh commit trước retry và kiểm đúng lỗi domain competitor, giữ 70 check cũ. Không sửa backend/app, không chuyển pilot/merge/deploy.
+
+## 19. Review sửa Concurrency HTTP/Auth vòng1/2 (22/10/2026)
+
+Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Chưa đạt vòng1/2 tại `cbcc46c`**, docs/evidence `b23df5e`, theo [review độc lập](reviews/bh07/review_cbcc46c.md). **Đóng H1/H2 P2** sau kiểm chứng độc lập; còn **H3/H4 P2 về log UTF-16/CRLF trái công bố LF và full base SHA sai**. Reviewer tự chạy **76/76 HTTP**, analyze sạch, **240 Flutter +1 skip**, **23/23 DB**, **4/4 probe** PASS. Manifest19/19 khớp raw bytes, chưa đạt chuẩn LF; scan đã decode không thấy secret theo mẫu kiểm. Chỉ sửa tài liệu/bằng chứng vòng2/2, không đổi logic test/app/backend. Giữ HTTP/Auth `f9159dd` và A/B/C/D local; **toàn BH-07/pilot chưa nghiệm thu**. Thiết bị/browser/offline, ngân hàng/webhook, staging/production/backup và rehearsal/pilot vẫn NOT RUN; không merge/apply DB thật/deploy.

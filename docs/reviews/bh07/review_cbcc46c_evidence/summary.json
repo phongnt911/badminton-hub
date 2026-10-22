@@ -1,0 +1,33 @@
+{
+  "tested_source_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
+  "docs_evidence_sha": "b23df5ee77fda4633be6ac8c572db583cbe9a532",
+  "actual_base_sha": "a0f831af47f98c7649e0c80dce4d5f13004a0db2",
+  "incorrect_base_metadata": "a0f831ae3f47e305608bfa0dff19ae035b31f798",
+  "verdict": "Chưa đạt",
+  "closed": [
+    "H1 P2",
+    "H2 P2"
+  ],
+  "open": [
+    "H3 P2: UTF16 CRLF logs contradict LF claim",
+    "H4 P2: invalid full base SHA metadata"
+  ],
+  "independent_results": {
+    "analyze_issues": 0,
+    "flutter_pass": 240,
+    "flutter_skip": 1,
+    "bh07_db_pass": 23,
+    "http_pass": 76,
+    "reviewer_probes_pass": 4,
+    "author_raw_manifest_matches": 19,
+    "UTF16_CRLF_logs": 6
+  },
+  "exits": {
+    "analyze": 0,
+    "flutter": 0,
+    "bh07_db": 0,
+    "http": 0,
+    "probes": 0
+  },
+  "clean_before_HTTP_setup": true
+}

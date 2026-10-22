@@ -1,0 +1,154 @@
+[
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/auth_users.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/bh07_db_runner.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 32
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/bh07_db_runner_results.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/commands.md",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/environment.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/exits.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/flutter_analyze.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 2
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/flutter_test.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/flutter_test_full.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 250
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/green_probe.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 7
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/red_probe.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 37
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/red_run_exits.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/red_run_flutter_test.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/red_run_summary.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/reset.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/seed.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-16",
+    "decoded_CRLF": 1
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/start.log",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": false,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/http_concurrency_evidence/summary.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  },
+  {
+    "path": "docs/reviews/bh07/bh07_test_results_20261022122614.json",
+    "raw_matches": true,
+    "byte_lf_normalized_matches": true,
+    "decoded_text_lf_utf8_matches": true,
+    "encoding": "utf-8-sig",
+    "decoded_CRLF": 0
+  }
+]

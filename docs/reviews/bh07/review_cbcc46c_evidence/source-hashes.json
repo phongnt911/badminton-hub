@@ -1,0 +1,7 @@
+{
+  "path": "test/integration/bh07_http_auth_test.dart",
+  "tested_source_sha": "cbcc46c2e125b156b53f4297ef864cf658855d37",
+  "blob_sha256": "4946e95a2eb3b15e7a390f0f46064c8f11b70c16a278a151a197b20baaaea265",
+  "checkout_sha256": "4946e95a2eb3b15e7a390f0f46064c8f11b70c16a278a151a197b20baaaea265",
+  "matches": true
+}

@@ -1,0 +1,481 @@
+00:00 +0: loading /workspace/badminton-hub/test/integration/bh07_http_auth_test.dart
+00:00 +0: BH-07 HTTP/Auth matrix
+Shell: BH07_HTTP_SUMMARY {
+Shell:   "ticket": "BH-07 HTTP/Auth verification",
+Shell:   "generated_at_utc": "2026-10-22T12:37:39.966840Z",
+Shell:   "started_at_utc": "2026-10-22T12:37:36.145071Z",
+Shell:   "duration_ms": 3821,
+Shell:   "base_sha": "a0f831af47f98c7649e0c80dce4d5f13004a0db2",
+Shell:   "tested_sha": "b23df5ee77fda4633be6ac8c572db583cbe9a532",
+Shell:   "api_url": "http://127.0.0.1:54321",
+Shell:   "runtime": {
+Shell:     "dart": "3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"linux_x64\"",
+Shell:     "executable": "/workspace/toolchains/flutter-review-3.47.7/bin/cache/artifacts/engine/linux-x64/flutter_tester",
+Shell:     "operating_system": "linux",
+Shell:     "operating_system_version": "Linux 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026"
+Shell:   },
+Shell:   "counts": {
+Shell:     "total": 76,
+Shell:     "passed": 76,
+Shell:     "failed": 0
+Shell:   },
+Shell:   "checks": [
+Shell:     {
+Shell:       "id": "auth.ownerA.jwt",
+Shell:       "description": "ownerA signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=0556e450-78e7-426f-bde5-2fc81eaa8427 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.financeA.jwt",
+Shell:       "description": "financeA signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=863a28ae-1510-4809-a71d-1182e5f1b991 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.cohostA.jwt",
+Shell:       "description": "cohostA signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=286b09e7-d105-4f29-8917-4c9199355d59 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.memberA.jwt",
+Shell:       "description": "memberA signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=91a4e756-6d3c-460d-922f-6474d17d6b99 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.guestA.jwt",
+Shell:       "description": "guestA signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=acb0b216-7c85-4813-affb-5b683399d797 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.ownerB.jwt",
+Shell:       "description": "ownerB signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=540267e9-d369-4350-86f9-24069d75c4e5 role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.outsider.jwt",
+Shell:       "description": "outsider signs in through GoTrue and receives an authenticated JWT",
+Shell:       "status": "PASS",
+Shell:       "detail": "user=8cad2260-32c3-444b-b618-2caa3ec6f18b role=authenticated segments=3"
+Shell:     },
+Shell:     {
+Shell:       "id": "auth.bad-password",
+Shell:       "description": "GoTrue rejects a wrong password",
+Shell:       "status": "PASS",
+Shell:       "detail": "Email hoặc mật khẩu không chính xác."
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.cross-club.complete",
+Shell:       "description": "owner B cannot complete a club A session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.participant.complete",
+Shell:       "description": "participant cannot complete a session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý buổi mới kết thúc buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.anonymous.complete",
+Shell:       "description": "anonymous request is denied at the function privilege boundary",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=permission denied for function complete_session details=Unauthorized hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.cross-club.finance",
+Shell:       "description": "owner B cannot read club A finance",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.cross-club.summary",
+Shell:       "description": "owner B cannot read club A summary",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.participant.summary",
+Shell:       "description": "participant cannot read summary",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.guest.summary",
+Shell:       "description": "guest cannot read summary",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Chỉ host/quản lý hoặc finance xem được tổng kết buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.participant.finance",
+Shell:       "description": "participant cannot read session finance",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "acl.cohost.finance",
+Shell:       "description": "management-only cohost cannot read session finance",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Cần quyền tài chính để xem tài chính buổi details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "privacy.cross-club.private-detail",
+Shell:       "description": "owner B cannot read a private club A session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "privacy.outsider.private-detail",
+Shell:       "description": "outsider cannot read a private session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=FORBIDDEN: Không có quyền xem buổi chơi này details=Forbidden hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "privacy.anonymous.private-detail",
+Shell:       "description": "anonymous cannot read a private session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=42501 message=UNAUTHENTICATED: Cần đăng nhập để xem buổi chơi này details=Unauthorized hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "privacy.club-member.private-detail",
+Shell:       "description": "active club member can read the private club session",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed"
+Shell:     },
+Shell:     {
+Shell:       "id": "scope.participant.detail",
+Shell:       "description": "participant reads public detail with own registration",
+Shell:       "status": "PASS",
+Shell:       "detail": "registration=confirmed attendance=present"
+Shell:     },
+Shell:     {
+Shell:       "id": "scope.guest.public-detail",
+Shell:       "description": "signed-in non-participant reads public detail without management rights",
+Shell:       "status": "PASS",
+Shell:       "detail": "manage=false finance=false"
+Shell:     },
+Shell:     {
+Shell:       "id": "scope.anonymous.public-detail",
+Shell:       "description": "anonymous reads public detail without management rights",
+Shell:       "status": "PASS",
+Shell:       "detail": "manage=false finance=false"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.stale",
+Shell:       "description": "complete rejects a stale billing revision",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=22023 message=BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước details=Bad Request hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.stale.unchanged",
+Shell:       "description": "stale rejection leaves lifecycle and version unchanged",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=in_progress version=2"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.version-conflict",
+Shell:       "description": "complete rejects an outdated expected version",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=22023 message=VERSION_CONFLICT: Buổi chơi đã thay đổi, cần tải lại details=Bad Request hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.version-conflict.unchanged",
+Shell:       "description": "version conflict leaves lifecycle and version unchanged",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=in_progress version=5"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.current.precondition",
+Shell:       "description": "debt fixture starts in_progress at version 7 with current billing",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=in_progress version=7"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.current.before-complete",
+Shell:       "description": "finance sees current revision, due total and remaining debt before complete",
+Shell:       "status": "PASS",
+Shell:       "detail": "state=current version=7 due=300000 outstanding=250000 charges=2 payments=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.players",
+Shell:       "description": "real list_session_players returns both confirmed participants",
+Shell:       "status": "PASS",
+Shell:       "detail": "players=2"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.current.success",
+Shell:       "description": "management completes current billing with outstanding debt",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed version=8"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.retry-idempotent",
+Shell:       "description": "same complete request_id replays without a second lifecycle/audit side effect",
+Shell:       "status": "PASS",
+Shell:       "detail": "retryVersion=8 detailVersion=8 audit=1 operations=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.current.after-complete",
+Shell:       "description": "completed session keeps current revision, charges and outstanding debt",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed state=current outstanding=250000"
+Shell:     },
+Shell:     {
+Shell:       "id": "summary.finance",
+Shell:       "description": "finance summary returns server aggregates and preserves outstanding debt",
+Shell:       "status": "PASS",
+Shell:       "detail": "manage=false finance=true present=2 due=300000 paid=50000 outstanding=250000"
+Shell:     },
+Shell:     {
+Shell:       "id": "summary.management-null-money",
+Shell:       "description": "management-only cohost sees counts but every finance field is null",
+Shell:       "status": "PASS",
+Shell:       "detail": "manage=true finance=false billing=null due=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "summary.privacy",
+Shell:       "description": "finance summary has exactly the public projection and no private fields",
+Shell:       "status": "PASS",
+Shell:       "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd issues="
+Shell:     },
+Shell:     {
+Shell:       "id": "summary.management-raw-null",
+Shell:       "description": "management raw summary keeps every finance key present with null",
+Shell:       "status": "PASS",
+Shell:       "detail": "keys=title,club_id,ends_at,fee_mode,club_name,lifecycle,starts_at,can_manage,session_id,venue_name,revision_no,billing_state,no_show_count,present_count,source_version,total_paid_vnd,confirmed_count,session_version,can_view_finance,active_revision_id,expenses_total_vnd,amount_due_total_vnd,outstanding_total_vnd financePresentAndNull=true issues="
+Shell:     },
+Shell:     {
+Shell:       "id": "history.privacy",
+Shell:       "description": "every history row has exactly the public projection and no private fields",
+Shell:       "status": "PASS",
+Shell:       "detail": "rows=4 issues="
+Shell:     },
+Shell:     {
+Shell:       "id": "history.privacy.negative-controls",
+Shell:       "description": "history validator rejects top-level, nested and later-row private fields",
+Shell:       "status": "PASS",
+Shell:       "detail": "top=[extra=account_number, private-key] nested=[private-key] later=[row[1]: extra=receiver_snapshot;private-key]"
+Shell:     },
+Shell:     {
+Shell:       "id": "summary.privacy.negative-controls",
+Shell:       "description": "summary validator rejects top-level and nested bank/account/receiver fields",
+Shell:       "status": "PASS",
+Shell:       "detail": "top=[extra=bank_code, private-key] nested=[private-key]"
+Shell:     },
+Shell:     {
+Shell:       "id": "privacy.fixture-private-data",
+Shell:       "description": "fixture stores fake phone, bank, account and receiver markers outside projections",
+Shell:       "status": "PASS",
+Shell:       "detail": "memberContacts=1 playerContacts=4 clubBanks=1 hostBanks=1 privateReceivers=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.post-expense-after-complete.rejected",
+Shell:       "description": "new expense is rejected after complete",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.post-expense-after-complete.no-side-effect",
+Shell:       "description": "rejected post-expense adds no expense and does not bump billing input",
+Shell:       "status": "PASS",
+Shell:       "detail": "expenses=1 billingInputVersion=2"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.reverse-payment-after-complete",
+Shell:       "description": "finance reverses a confirmed payment after complete; retry keeps one reversal and history",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=reversed reversals=1 outstanding=300000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.cash-after-complete",
+Shell:       "description": "cash payment is allowed after complete; retry produces one payment and one ledger entry",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=confirmed guestPayments=1 ledger=1 outstanding=200000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.submit-payment-after-complete",
+Shell:       "description": "participant submit is allowed after complete and request_id replays the same payment",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=submitted id=7b5aeaff-b02b-4461-9c2a-4ffa73a28d68"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.confirm-payment-after-complete",
+Shell:       "description": "finance confirms participant payment after complete; retry adds no duplicate ledger",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=confirmed payments=2 ledger=1 operations=1 outstanding=100000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.instructions-after-complete",
+Shell:       "description": "participant payment instructions stay current after complete",
+Shell:       "status": "PASS",
+Shell:       "detail": "state=current due=150000 paid=100000 outstanding=50000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.refinalize-after-complete",
+Shell:       "description": "refinalize is allowed after complete; retry reuses revision 2 with one active revision",
+Shell:       "status": "PASS",
+Shell:       "detail": "revision=2 retryRevision=2 revisions=2 active=1 outstanding=100000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.reject-payment-after-complete",
+Shell:       "description": "finance rejects a submitted payment after complete; retry is idempotent and does not change paid total",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=rejected paid=200000 outstanding=100000 revision=2"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.free-current.precondition",
+Shell:       "description": "free fixture has one exempt present player, current zero revision and one zero charge",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=in_progress version=3 players=1 revision=40000000-0000-4000-8000-000000000002 revisionNo=1 allocation=0 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 outstanding=0"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.free-current.success",
+Shell:       "description": "free current session completes and retry does not duplicate audit",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed version=4 audit=1 due=0 outstanding=0"
+Shell:     },
+Shell:     {
+Shell:       "id": "complete.free-current.charge-preserved",
+Shell:       "description": "zero charge keeps the same player/revision after complete and retry",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed revision=40000000-0000-4000-8000-000000000002 charges=1 chargePlayer=30000000-0000-4000-8000-000000000003 chargeDue=0 revisionRows=1 chargeRows=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.owner-scope",
+Shell:       "description": "owner history contains completed/cancelled sessions and excludes in-progress sessions",
+Shell:       "status": "PASS",
+Shell:       "detail": "ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.order",
+Shell:       "description": "history is ordered newest first",
+Shell:       "status": "PASS",
+Shell:       "detail": "order=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.club-filter",
+Shell:       "description": "history club filter returns only the requested club",
+Shell:       "status": "PASS",
+Shell:       "detail": "clubA=5 clubB=0"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.date-filter",
+Shell:       "description": "history date bounds include only 19-20 October sessions",
+Shell:       "status": "PASS",
+Shell:       "detail": "ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.pagination",
+Shell:       "description": "history pagination does not duplicate or drop rows",
+Shell:       "status": "PASS",
+Shell:       "detail": "pages=2/2/1 ids=10000000-0000-4000-8000-000000000001,10000000-0000-4000-8000-000000000002,10000000-0000-4000-8000-000000000006,10000000-0000-4000-8000-000000000005,10000000-0000-4000-8000-000000000007"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.cohost-scope",
+Shell:       "description": "cohost history includes only sessions with management access",
+Shell:       "status": "PASS",
+Shell:       "detail": "ids=10000000-0000-4000-8000-000000000001"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.finance-scope",
+Shell:       "description": "club treasurer history includes club finance sessions",
+Shell:       "status": "PASS",
+Shell:       "detail": "count=5"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.participant-and-guest-scope",
+Shell:       "description": "participant, outsider and cross-club histories do not leak managed sessions",
+Shell:       "status": "PASS",
+Shell:       "detail": "participant=0 outsider=0 ownerB=20000000-0000-4000-8000-000000000001"
+Shell:     },
+Shell:     {
+Shell:       "id": "history.invalid-range",
+Shell:       "description": "history rejects a reversed date range",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_INPUT: Khoảng ngày không hợp lệ details=Bad Request hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "list.after-complete",
+Shell:       "description": "completed sessions remain in management lists for owner and cohost",
+Shell:       "status": "PASS",
+Shell:       "detail": "owner=7 cohost=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "scope.participant.detail-after-complete",
+Shell:       "description": "participant still reads completed detail with own registration",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed version=8"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.completed.precondition",
+Shell:       "description": "finance fixture is completed with current 100000 allocation",
+Shell:       "status": "PASS",
+Shell:       "detail": "lifecycle=completed state=current outstanding=100000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.reverse-expense-after-complete",
+Shell:       "description": "expense reversal is allowed after complete, is idempotent and makes billing stale",
+Shell:       "status": "PASS",
+Shell:       "detail": "status=reversed reversals=1 state=stale outstanding=100000"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.post-expense-fin-after-complete.rejected",
+Shell:       "description": "new expense remains rejected on a completed session",
+Shell:       "status": "PASS",
+Shell:       "detail": "POSTGREST code=22023 message=INVALID_STATE: Buổi đã kết thúc/huỷ, chỉ điều chỉnh qua hành động tài chính details=Bad Request hint=null"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.post-expense-fin-after-complete.no-side-effect",
+Shell:       "description": "rejected completed-session expense leaves one historical expense row",
+Shell:       "status": "PASS",
+Shell:       "detail": "expenses=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "finance.refinalize-fin-after-complete",
+Shell:       "description": "refinalize after complete and expense reversal creates one current zero revision",
+Shell:       "status": "PASS",
+Shell:       "detail": "revision=2 allocation=0 revisions=2 active=1 expenses=0"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.complete.replay-idempotent",
+Shell:       "description": "concurrent complete requests with same request_id replay identically without duplicating audit or version",
+Shell:       "status": "PASS",
+Shell:       "detail": "v1=4 v2=4 audit=1 ops=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.complete.competing-conflict",
+Shell:       "description": "concurrent complete requests with different request_ids allow only one commit and reject competitor with conflict",
+Shell:       "status": "PASS",
+Shell:       "detail": "winnerVersion=4 loserError=POSTGREST code=22023 message=INVALID_STATE: Chỉ kết thúc buổi đang diễn ra details=Bad Request hint=null isConflictDomain=true negControls=true audit=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.cash.replay-idempotent",
+Shell:       "description": "concurrent cash payments with same request_id produce one payment, one ledger entry and idempotent result",
+Shell:       "status": "PASS",
+Shell:       "detail": "p1=d22bfe23-0051-4408-833c-e378631a0e26 p2=d22bfe23-0051-4408-833c-e378631a0e26 payments=1 ledger=1 ops=1"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.cash.competing-no-overcollect",
+Shell:       "description": "concurrent competing cash payments with different request_ids reject over-collection and preserve correct debt",
+Shell:       "status": "PASS",
+Shell:       "detail": "winnerPay=8e432dd4-a3ce-4cef-921b-cc7e1616bc96 loserErr=POSTGREST code=22023 message=PAYMENT_EXCEEDS_OUTSTANDING: Số tiền vượt quá khoản còn phải thu (30000) details=Bad Request hint=null isOvercollectDomain=true negControls=true totalPays=2 paid=120000 outstanding=30000"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.confirm.replay-idempotent",
+Shell:       "description": "concurrent confirm_payment requests with same request_id produce one ledger entry and clear debt",
+Shell:       "status": "PASS",
+Shell:       "detail": "status1=confirmed status2=confirmed ledger=1 ops=1 outstanding=0"
+Shell:     },
+Shell:     {
+Shell:       "id": "concurrency.drop-response.retry-no-duplicate",
+Shell:       "description": "simulated network drop after server commit succeeds on retry without duplicate payment or ledger entries",
+Shell:       "status": "PASS",
+Shell:       "detail": "dropCaught=true preCommitted=true negControl=true baselineId=d7457882-09d8-4309-ac5f-60ee98fbddfc retryId=d7457882-09d8-4309-ac5f-60ee98fbddfc payments=1 ledger=1 ops=1 outstanding=40000"
+Shell:     }
+Shell:   ]
+Shell: }
+00:04 +1: All tests passed!
