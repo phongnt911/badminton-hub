@@ -1,0 +1,6 @@
+{
+  "exit": 0,
+  "snapshot_files_before_proof": 44,
+  "tree_and_manifest_unchanged": true,
+  "note": "Proof is added after measured pass; final package is regenerated and verified once more without writes."
+}

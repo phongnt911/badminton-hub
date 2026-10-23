@@ -1,0 +1,46 @@
+{
+  "mode": "Codex implementation/self-verification, not independent review",
+  "task_base_sha": "1ed4f3e6b42b853f51add79279fe3daf8168e360",
+  "tested_late_source_sha": "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a",
+  "baseline_run_sha": "0a2b95f21b2289c9252e026dbcf14ece10fa3d15",
+  "flutter_build_analyze_tests_run_sha": "0a2b95f21b2289c9252e026dbcf14ece10fa3d15",
+  "source_hashes": {
+    "scripts/bh07_browser/assertions.js": "7a8e78567d0a1ac3d2c182f4e62f209a163a7d4cb4f5c72a5d9766fd94782de2",
+    "scripts/bh07_browser/audit_evidence.js": "9dc022d89de5afabc82b98fe696bbd5f8fb081d9486ea2e0a567bda27acbe880",
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+    "scripts/bh07_browser/late_response_assertions.js": "7b6105a065cba0ca9c38291408f45167f72b30776e0e83bb1e6664286d1dc901",
+    "scripts/bh07_browser/run_browser_verification.js": "7781c1addf93f76725ce714e5576062dafef7da9f05994ee54624b46672cdee5",
+    "scripts/bh07_browser/run_late_response.js": "4e7824cf5513fb05fa6896ec4f591edf832bea808953fb7ae672d7ba6adc2ff5",
+    "scripts/bh07_browser/run_late_response_controls.js": "e7c8e4a2daf4dff8e6b2e13fa984446230651211bbb0456448f6178cf5568c76",
+    "scripts/bh07_browser/run_mutant_controls.py": "d2e72d381f39750a938e9848742cd932000a908233076d4c8bef959e1d02715d",
+    "scripts/bh07_browser/run_negative_controls.js": "81748b615768b60d2585fd0d9221c0e551d085c473968fe7cc4260b7115b590e",
+    "scripts/bh07_browser/run_verifier_controls.py": "1262eea43481a20e46cfd0cdcb8993fd8ed4b2220550092fd001e54af27e71b3",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949"
+  },
+  "unchanged_app_tree_hashes": {
+    "1ed4f3e": {
+      "lib": "520a38be3c644e32a433b1b70ed1cf728ecee40f",
+      "test": "8d3574a6f164f69ea1fdedaa8c9f9f6b3ac0ade1",
+      "supabase": "a2de8edcee1cc8d314f20849feb50ecbe8175208"
+    },
+    "0a2b95f": {
+      "lib": "520a38be3c644e32a433b1b70ed1cf728ecee40f",
+      "test": "8d3574a6f164f69ea1fdedaa8c9f9f6b3ac0ade1",
+      "supabase": "a2de8edcee1cc8d314f20849feb50ecbe8175208"
+    },
+    "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a": {
+      "lib": "520a38be3c644e32a433b1b70ed1cf728ecee40f",
+      "test": "8d3574a6f164f69ea1fdedaa8c9f9f6b3ac0ade1",
+      "supabase": "a2de8edcee1cc8d314f20849feb50ecbe8175208"
+    }
+  },
+  "os": "Linux/bash",
+  "flutter": "3.47.7",
+  "chromium": "154.0.8037.57",
+  "stack": "PostgreSQL17.11, GoTrue2.197.0, PostgREST16.4, Kong2.8.1",
+  "notes": [
+    "Final selector-only fix c4ce99b changes only run_late_response.js. Earlier baseline/app validation ran at 0a2b95f; lib/test/supabase and baseline driver are identical.",
+    "Baseline raw base_sha1fc7e2e belongs to existing runner; actual task base1ed4f3e is recorded separately.",
+    "Runtime key values are private and not published."
+  ]
+}

@@ -1,0 +1,130 @@
+[
+  {
+    "file": "baseline_screenshots/01_owner_ui_authenticated.png",
+    "sha256": "227b5c7e0377e249f207dce4a82d673244d37298697a30e8d3fbeaa384a92f59",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/02_session_ui_started.png",
+    "sha256": "0de8d7e0071b36cb56af4cea8e1a19d290a4eac545a4349b1e799f4daa91e97b",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/03_player_attendance_checked.png",
+    "sha256": "0054c228f6074bb5dbcaaa31e76f4f7098ddbfe908703ee6127054d4596536af",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/04_session_finance_finalized.png",
+    "sha256": "e2e3bfde39b3db7b8fb94747e7b09aba16f3e8e4689ce2fe58e117c93fad9be8",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/05_offline_mutation_error.png",
+    "sha256": "5be70c4f079eb416aa9d3690aff3a3cbf18d27f41eadf5988782e9ed7d11cbf0",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/06_retry_mutation_success.png",
+    "sha256": "c106cf2996ba72f35fe73bc260d507063238238525a6c728e1934f92fcbe11ef",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/07_summary_manager_clipboard.png",
+    "sha256": "d5c92772169f51ae488abab719db8aa3e6af8c41ed4fcaa06e4c5d84ab4990e0",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/08_cohost_summary_null_finances.png",
+    "sha256": "2f17e7a3015346c283fd687e8b7e4c857661714db0f260556f982ec2d2ce126e",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/09_history_filtered_club.png",
+    "sha256": "21038de2c401940c27d5588ae6f6afe431cf0857cf3c9ca352b0890653360290",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/10_member_isolated_history.png",
+    "sha256": "c3ba6ee268939dc142d0dccf32f435794585f28c02012d77aa6ee64e0b6a94f9",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/11_reopen_persisted_session.png",
+    "sha256": "e1d92aafb5b3996f2791354a5d066b6c4cf4ecd97363afa33caca56da1095dbe",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "baseline_screenshots/12_logout_clean_guest_state.png",
+    "sha256": "fe126a54720275f8438e296efbcd87f832e16c9bb9d319685f62e40fb8b05aa3",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "late_run/cohosta_after_release.png",
+    "sha256": "2f17e7a3015346c283fd687e8b7e4c857661714db0f260556f982ec2d2ce126e",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "late_run/cohosta_before_release.png",
+    "sha256": "b3dd8634db606dd3e0b10c5c6b3ff97f4395e0a1fe83490999378ecc9bba25ab",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "late_run/membera_after_release.png",
+    "sha256": "c3ba6ee268939dc142d0dccf32f435794585f28c02012d77aa6ee64e0b6a94f9",
+    "dimensions": [
+      1280,
+      813
+    ]
+  },
+  {
+    "file": "late_run/membera_before_release.png",
+    "sha256": "c3ba6ee268939dc142d0dccf32f435794585f28c02012d77aa6ee64e0b6a94f9",
+    "dimensions": [
+      1280,
+      813
+    ]
+  }
+]

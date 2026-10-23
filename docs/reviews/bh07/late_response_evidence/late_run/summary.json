@@ -1,0 +1,126 @@
+{
+  "base_sha": "1ed4f3e6b42b853f51add79279fe3daf8168e360",
+  "tested_source_sha": "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a",
+  "dirty_before_run": "",
+  "verification_mode": "Codex implementation/self-verification, not independent review",
+  "results": [
+    {
+      "actor": "cohosta",
+      "status": "PASS",
+      "errors": [],
+      "witness": {
+        "method": "POST",
+        "status": 200,
+        "sessionId": "10000000-0000-4000-8000-000000000099",
+        "ownerFinance": true,
+        "expenses": 200000,
+        "bodyHash": "7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157",
+        "heldAt": 1792742125572,
+        "deliveredHash": "7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157",
+        "deliveredAt": 1792742170233,
+        "actor": "cohosta",
+        "ownerPositive": true,
+        "ownerNegativePassed": true,
+        "ownerProfile": true,
+        "targetProfile": "cohosta@example.test",
+        "guestVerified": true,
+        "tokenCleared": true,
+        "guestAt": 1792742148358,
+        "loginAt": 1792742161069,
+        "releaseAt": 1792742170229,
+        "originBefore": 1792742096911.2,
+        "originAfter": 1792742096911.2,
+        "samples": [
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          }
+        ],
+        "clipboard": "🏸 Tổng kết: UI Flow Session published to complete\n📍 HTTP Venue A · HTTP Club A\n⏰ 15:46 - 17:46 23/10/2026\n👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2",
+        "copyAvailable": true,
+        "summaryEntry": true,
+        "memberHistoryEmpty": false
+      }
+    },
+    {
+      "actor": "membera",
+      "status": "PASS",
+      "errors": [],
+      "witness": {
+        "method": "POST",
+        "status": 200,
+        "sessionId": "10000000-0000-4000-8000-000000000099",
+        "ownerFinance": true,
+        "expenses": 200000,
+        "bodyHash": "7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157",
+        "heldAt": 1792742226250,
+        "deliveredHash": "7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157",
+        "deliveredAt": 1792742266778,
+        "actor": "membera",
+        "ownerPositive": true,
+        "ownerNegativePassed": true,
+        "ownerProfile": true,
+        "targetProfile": "membera@example.test",
+        "guestVerified": true,
+        "tokenCleared": true,
+        "guestAt": 1792742249044,
+        "loginAt": 1792742261684,
+        "releaseAt": 1792742266774,
+        "originBefore": 1792742096911.2,
+        "originAfter": 1792742096911.2,
+        "samples": [
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          }
+        ],
+        "clipboard": null,
+        "copyAvailable": false,
+        "summaryEntry": false,
+        "memberHistoryEmpty": true
+      }
+    }
+  ],
+  "passed": 2,
+  "failed": 0
+}

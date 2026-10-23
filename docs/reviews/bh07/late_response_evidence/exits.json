@@ -1,0 +1,10 @@
+{
+  "analyze": 0,
+  "flutter_test": 0,
+  "web_build": 0,
+  "baseline_browser": 0,
+  "late_browser": 0,
+  "controls": 0,
+  "regression_controls": 0,
+  "selector_attempt": 1
+}

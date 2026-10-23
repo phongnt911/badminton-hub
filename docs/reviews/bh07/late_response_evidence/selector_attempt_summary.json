@@ -1,0 +1,14 @@
+{
+  "base_sha": "1ed4f3e6b42b853f51add79279fe3daf8168e360",
+  "tested_source_sha": "0a2b95f21b2289c9252e026dbcf14ece10fa3d15",
+  "dirty_before_run": "",
+  "verification_mode": "Codex implementation/self-verification, not independent review",
+  "results": [
+    {
+      "status": "FAIL",
+      "error": "Could not find semantic element to click for: Refresh Owner summary to hold real response"
+    }
+  ],
+  "passed": 0,
+  "failed": 1
+}

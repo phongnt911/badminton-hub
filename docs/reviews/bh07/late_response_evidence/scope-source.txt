@@ -1,0 +1,4 @@
+A	scripts/bh07_browser/late_response_assertions.js
+M	scripts/bh07_browser/run_browser_verification.js
+A	scripts/bh07_browser/run_late_response.js
+A	scripts/bh07_browser/run_late_response_controls.js

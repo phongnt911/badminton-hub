@@ -1,0 +1,32 @@
+{
+  "status": "Chờ review gói kiểm chứng response trễ",
+  "mode": "Codex tự triển khai/tự kiểm, không độc lập",
+  "base_sha": "1ed4f3e6b42b853f51add79279fe3daf8168e360",
+  "tested_source_sha": "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a",
+  "late_browser": {
+    "passed": 2,
+    "failed": 0
+  },
+  "baseline_browser": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "controls": 21,
+  "regression_controls": 41,
+  "analyze_issues": 0,
+  "flutter_passed": 240,
+  "flutter_skipped": 1,
+  "scope": "observable browser UI/copy after delayed real Owner response; private Dart heap not inspected",
+  "app_bugs_observed": 0,
+  "not_run": [
+    "independent review",
+    "private Dart heap inspection in browser",
+    "mobile/other browser/device",
+    "banking/webhook",
+    "staging/production/backup/restore",
+    "rehearsal/pilot",
+    "fresh DB23/335 regression runners",
+    "full Supabase db reset"
+  ]
+}

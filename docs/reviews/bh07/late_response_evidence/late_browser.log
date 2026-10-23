@@ -1,0 +1,76 @@
+[2026-10-23T07:55:00.512Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng nhập"] at (99, 255) for: Open login form
+[2026-10-23T07:55:02.558Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: Focus login input
+[2026-10-23T07:55:04.668Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: Focus login input
+[2026-10-23T07:55:06.736Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit real Auth login
+[2026-10-23T07:55:10.260Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Verify account identity
+[2026-10-23T07:55:13.330Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Sessions tab
+[2026-10-23T07:55:15.360Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: History
+[2026-10-23T07:55:17.402Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+⏰ 15:46 - 17:46 23/10/2026
+📍 HTTP Venue A · HTTP Club A
+👥 2/8 người đã xác nhận
+Xem chi tiết" role="group" text=""] at (640, 284) for: Fixture history row
+[2026-10-23T07:55:19.445Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Summary entry
+[2026-10-23T07:55:22.489Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 645) for: Copy current actor summary
+[2026-10-23T07:55:25.527Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tải lại tổng kết"] at (1260, 28) for: Refresh Owner summary to hold real response
+Held actual Owner response: {"status":200,"sessionId":"10000000-0000-4000-8000-000000000099","ownerFinance":true,"bodyHash":"7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157"}
+[2026-10-23T07:55:28.617Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:55:33.167Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:55:37.720Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:55:42.244Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Account tab
+[2026-10-23T07:55:44.278Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Logout
+[2026-10-23T07:55:46.312Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm logout
+[2026-10-23T07:55:49.362Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập / Đăng Ký"] at (640, 326) for: Open login form
+[2026-10-23T07:55:51.387Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: Focus login input
+[2026-10-23T07:55:53.447Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: Focus login input
+[2026-10-23T07:55:55.542Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit real Auth login
+[2026-10-23T07:55:59.059Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Verify account identity
+[2026-10-23T07:56:02.074Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Sessions tab
+[2026-10-23T07:56:04.110Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: History
+[2026-10-23T07:56:06.141Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+⏰ 15:46 - 17:46 23/10/2026
+📍 HTTP Venue A · HTTP Club A
+👥 2/8 người đã xác nhận
+Xem chi tiết" role="group" text=""] at (640, 284) for: Fixture history row
+[2026-10-23T07:56:08.169Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Summary entry
+[2026-10-23T07:56:17.564Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 506) for: Copy current actor summary
+[2026-10-23T07:56:20.640Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:56:25.188Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:56:29.735Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:56:34.254Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Account tab
+[2026-10-23T07:56:36.281Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Logout
+[2026-10-23T07:56:38.308Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm logout
+[2026-10-23T07:56:41.346Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập / Đăng Ký"] at (640, 326) for: Open login form
+[2026-10-23T07:56:43.372Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: Focus login input
+[2026-10-23T07:56:45.431Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: Focus login input
+[2026-10-23T07:56:47.499Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit real Auth login
+[2026-10-23T07:56:51.013Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Verify account identity
+[2026-10-23T07:56:54.030Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Sessions tab
+[2026-10-23T07:56:56.057Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: History
+[2026-10-23T07:56:58.097Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+⏰ 15:46 - 17:46 23/10/2026
+📍 HTTP Venue A · HTTP Club A
+👥 2/8 người đã xác nhận
+Xem chi tiết" role="group" text=""] at (640, 284) for: Fixture history row
+[2026-10-23T07:57:00.131Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Summary entry
+[2026-10-23T07:57:03.169Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 645) for: Copy current actor summary
+[2026-10-23T07:57:06.210Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tải lại tổng kết"] at (1260, 28) for: Refresh Owner summary to hold real response
+Held actual Owner response: {"status":200,"sessionId":"10000000-0000-4000-8000-000000000099","ownerFinance":true,"bodyHash":"7ff0354e065386601190e819c6569949da36d97d3290c1cdeaa6975db4dae157"}
+[2026-10-23T07:57:09.306Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:57:13.879Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:57:18.425Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:57:22.943Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Account tab
+[2026-10-23T07:57:24.980Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Logout
+[2026-10-23T07:57:27.010Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm logout
+[2026-10-23T07:57:30.047Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập / Đăng Ký"] at (640, 326) for: Open login form
+[2026-10-23T07:57:32.072Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: Focus login input
+[2026-10-23T07:57:34.121Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: Focus login input
+[2026-10-23T07:57:36.160Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit real Auth login
+[2026-10-23T07:57:39.674Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Verify account identity
+[2026-10-23T07:57:42.688Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Sessions tab
+[2026-10-23T07:57:44.715Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: History
+[2026-10-23T07:57:55.146Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-23T07:57:59.669Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Account tab
+[2026-10-23T07:58:01.704Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng xuất"] at (640, 435) for: Logout
+[2026-10-23T07:58:03.736Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Xuất"] at (767, 453) for: Confirm logout
+{"passed":2,"failed":0}

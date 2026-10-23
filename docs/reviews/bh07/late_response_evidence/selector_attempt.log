@@ -1,0 +1,15 @@
+[2026-10-23T07:53:32.644Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng nhập"] at (99, 255) for: Open login form
+[2026-10-23T07:53:34.703Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (644, 325) for: Focus login input
+[2026-10-23T07:53:36.792Z] Clicking semantic element [INPUT aria="Mật khẩu" role="null" text=""] at (644, 389) for: Focus login input
+[2026-10-23T07:53:38.855Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Đăng Nhập"] at (640, 452) for: Submit real Auth login
+[2026-10-23T07:53:42.378Z] Clicking semantic element [FLT-SEMANTICS aria="Tài Khoản" role="tab" text=""] at (1152, 773) for: Verify account identity
+[2026-10-23T07:53:45.411Z] Clicking semantic element [FLT-SEMANTICS aria="Buổi Chơi" role="tab" text=""] at (128, 773) for: Sessions tab
+[2026-10-23T07:53:47.443Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lịch sử buổi Buổi đã kết thúc/"] at (640, 184) for: History
+[2026-10-23T07:53:49.482Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+⏰ 15:46 - 17:46 23/10/2026
+📍 HTTP Venue A · HTTP Club A
+👥 2/8 người đã xác nhận
+Xem chi tiết" role="group" text=""] at (640, 284) for: Fixture history row
+[2026-10-23T07:53:51.519Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tổng kết buổi Số có mặt, vắng "] at (640, 514) for: Summary entry
+[2026-10-23T07:53:54.571Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao chép tổng kết"] at (640, 645) for: Copy current actor summary
+{"passed":0,"failed":1}
