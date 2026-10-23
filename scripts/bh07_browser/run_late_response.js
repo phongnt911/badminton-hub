@@ -135,7 +135,7 @@ async function main() {
       const samples = [];
       for (let i = 0; i < 4; i++) {
         const elements = await cdp.getAllSemantics(); const joined = A.semanticTexts(elements).join('\n');
-        samples.push({ financeCard: joined.includes('Tài chính tổng hợp'), ownerProfile: joined.includes('ownera@example.test'), summaryEntryForMember: actor === 'membera' && joined.includes('Tổng kết buổi') });
+        samples.push({ privacyErrors: actor === 'cohosta' ? A.validateCohostSummarySurface(elements) : A.validateHistorySurface(elements, [], true), financeCard: joined.includes('Tài chính tổng hợp'), ownerProfile: joined.includes('ownera@example.test'), summaryEntryForMember: actor === 'membera' && joined.includes('Tổng kết buổi') });
         await wait(300);
       }
       const surface = await cdp.getAllSemantics(); const joined = A.semanticTexts(surface).join('\n');

@@ -1,4 +1,4 @@
-const { FIXTURE, validateCohostClipboard, validateCohostSummarySurface } = require('./assertions');
+const { FIXTURE, validateCohostClipboard, validateCohostSummarySurface, validateHistorySurface } = require('./assertions');
 
 function validateLateResponse(w) {
   const errors = [];
@@ -17,12 +17,15 @@ function validateLateResponse(w) {
   if (!w.guestVerified || !w.tokenCleared) errors.push('logout guest/token precondition missing');
   if (!Array.isArray(w.samples) || w.samples.length < 3) errors.push('missing post-release UI samples');
   for (const sample of w.samples || []) {
-    if (sample.financeCard !== false || sample.ownerProfile !== false || sample.summaryEntryForMember !== false) errors.push('stale privileged UI leaked');
+    if (sample.financeCard !== false || sample.ownerProfile !== false || sample.summaryEntryForMember !== false || !Array.isArray(sample.privacyErrors) || sample.privacyErrors.length > 0) errors.push('stale privileged UI leaked');
   }
   if (w.actor === 'cohosta') {
     errors.push(...validateCohostSummarySurface(w.surface), ...validateCohostClipboard(w.clipboard));
-  } else if (w.copyAvailable || w.summaryEntry || w.memberHistoryEmpty !== true) {
-    errors.push('Member gained summary/copy or lost isolated empty history');
+  } else {
+    errors.push(...validateHistorySurface(w.surface, [], true));
+    if (w.copyAvailable !== false || w.summaryEntry !== false || w.memberHistoryEmpty !== true) {
+      errors.push('Member gained summary/copy or lost isolated empty history');
+    }
   }
   return errors;
 }

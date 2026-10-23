@@ -7,12 +7,12 @@ const base = {
   heldAt: 1, guestAt: 2, loginAt: 3, releaseAt: 4, deliveredAt: 5,
   originBefore: 1234, originAfter: 1234, ownerProfile: true, targetProfile: 'cohosta@example.test',
   guestVerified: true, tokenCleared: true,
-  samples: Array.from({ length: 3 }, () => ({ financeCard: false, ownerProfile: false, summaryEntryForMember: false })), surface: [{ text: 'Chỉ xem số lượng' }],
+  samples: Array.from({ length: 3 }, () => ({ financeCard: false, ownerProfile: false, summaryEntryForMember: false, privacyErrors: [] })), surface: [{ text: 'Chỉ xem số lượng' }],
   clipboard: `🏸 Tổng kết: ${FIXTURE.uiSessionTitle}\n📍 HTTP Venue A · HTTP Club A\n⏰ 12:00 - 14:00 23/10/2026\n${FIXTURE.cohostCountsLine}`,
 };
 const cases = [
   ['cohost positive', base, true],
-  ['member positive', { ...base, actor: 'membera', targetProfile: 'membera@example.test', memberHistoryEmpty: true }, true],
+  ['member positive', { ...base, actor: 'membera', targetProfile: 'membera@example.test', memberHistoryEmpty: true, copyAvailable: false, summaryEntry: false, surface: [{ text: 'Lịch sử buổi\nChưa có buổi nào' }] }, true],
   ...[
     ['no Owner positive', { ownerPositive: false }],
     ['missing real Owner negative control', { ownerNegativePassed: false }],
