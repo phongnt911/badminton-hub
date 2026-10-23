@@ -116,7 +116,7 @@ async function main() {
       if (!ownerNegativePassed) throw new Error('Target guards accepted actual Owner privileged UI/clipboard');
       if (positiveErrors.length) throw new Error(positiveErrors.join('; '));
       armed = true;
-      await cdp.clickSemantic((e) => e.aria === 'Tải lại tổng kết', 'Refresh Owner summary to hold real response');
+      await cdp.clickSemantic((e) => text(e).includes('Tải lại tổng kết'), 'Refresh Owner summary to hold real response');
       await until(() => { if (fatal) throw fatal; return held !== null; }, 'Held Owner 200');
       const guestAt = await logout(cdp);
       if (held.deliveredAt) throw new Error('Response delivered before actor login');
