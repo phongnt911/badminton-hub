@@ -1,6 +1,6 @@
 # Lịch sử cập nhật trạng thái
 
-**Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập**, base `b91a350e619529d389af3edf6d4a06408af8d200`, nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
+**Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
 
 **(Lịch sử 23/10/2026 — accepted backup/restore local)** **Backup/restore cleanup R1 Đạt local vòng2/2 — đã đóng công việc backup/restore local**, source `282f978`, docs/evidence `986baac`, theo [review chốt](reviews/bh07/review_282f978.md). Codex tự chạy14/14 control,13/13 rehearsal Linux,analyze sạch,240 Flutter+1skip,23/23 DB,manifest16/16 readonly; inspect context/daemon/permission/transport và cleanup lỗi đều bị chặn, không còn P0/P1/P2 mở trong phạm vi. Probe reviewer cũ giữ nguyên exit1 do assertion lịch sử; output thực xác nhận context đã bị chặn. Không đổi app/backend/source triển khai trong review; evidence cũ giữ nguyên. **Giữ Git ref chưa merge, không merge main/deploy/pilot.** Toàn BH-07 chưa nghiệm thu; managed Supabase/PITR/offsite/encryption/retention,concurrent writers,staging/production/restore thật,browser/device ở lượt này,banking/webhook,rehearsal tải thật/pilot vẫn NOT RUN. **Sau bước này, hồ sơ readiness BH-07 (docs-only) đã được lập và đang Chờ review; không chạy môi trường thật hoặc tự chuyển BH-08.**
 
@@ -8,7 +8,16 @@
 
 **(Lịch sử) Review R1 vòng1/2 tại `6d00e9c` Chưa đạt P2**: inspect Docker context bị nhận nhầm resource vắng mặt, không gọi rm nhưng vẫn PASS/exit0. [Kết luận](reviews/bh07/review_6d00e9c.md). Evidence cũ giữ nguyên. [Runbook](26_BH07_OPERATIONS_REHEARSAL.md), [bàn giao](reviews/bh07/backup_restore_handoff.md). Bàn giao ban đầu tại `b626a78` từ base browser `74305bb`, tự kiểm không độc lập: 13/13 recovery, analyze sạch,240 Flutter+1skip,23/23 DB,manifest11/11; sau đó review độc lập mở R1 P2 về cleanup. Backup managed Supabase đầy đủ/PITR/offsite, concurrent writers, staging/production và pilot vẫn NOT RUN.
 
-## 23/10/2026 — Hồ sơ readiness BH-07 Chờ review
+## 23/10/2026 — Hồ sơ readiness BH-07 sửa R1–R4 vòng 1/2, Chờ review vòng 2/2
+
+Sửa đủ 4 phát hiện P2 (R1–R4) theo [review bc63673](reviews/bh07/review_bc63673.md) trên nhánh `feat/bh07-readiness`, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`):
+- **R1:** Trỏ bằng chứng chính của Browser / Offline / Reopen tới `browser_codex_fix_evidence/` (summary xác nhận `tested_source_sha=a6d58af...`) và `self_review_a6d58af_evidence/`; nêu rõ gói `a62f509`/`browser_evidence/` chỉ là lịch sử trước sửa (Chưa đạt theo review 02cd0ed), không dùng làm evidence chính.
+- **R2:** Bổ sung kế hoạch chi tiết cho hai cổng đo private Dart heap/cache (V2b) và full Supabase reset từ migration trên project test sạch (V5b), đầy đủ 5 thành phần (môi trường/đầu vào, owner, PASS, FAIL, rollback), kèm điều kiện chấp nhận và giới hạn.
+- **R3:** Quy định rõ reviewer độc lập chốt kết luận kỹ thuật (Đạt/Chưa đạt) trong phạm vi review dựa trên bằng chứng kiểm thử theo `docs/ai/REVIEWER.md`; chủ dự án quyết định phạm vi (scope), chấp nhận rủi ro còn lại (residual-risk acceptance) bằng văn bản và phê duyệt thao tác môi trường riêng. Phê duyệt rủi ro không đổi NOT RUN thành PASS và không thay thế kết luận kỹ thuật.
+- **R4:** Phân loại 3 nhóm cổng (Nhóm 1: bắt buộc cốt lõi không thể waive; Nhóm 2: ngoài phạm vi; Nhóm 3: vận hành/môi trường cho phép residual-risk acceptance). Viết lại tiêu chí PASS và FAIL loại trừ nhau (mutually exclusive) và vét cạn, khẳng định acceptance rủi ro không biến NOT RUN thành PASS.
+Docs-only, không đổi code app/backend/script hay evidence cũ; giữ kết luận Đạt local của các gói trước; toàn BH-07 chưa nghiệm thu, không merge/deploy/pilot. [Hồ sơ](reviews/bh07/bh07_readiness.md) đang **Chờ review độc lập vòng 2/2**.
+
+## (Lịch sử) 23/10/2026 — Hồ sơ readiness BH-07 Chờ review vòng 1/2
 
 Lập hồ sơ readiness docs-only trên nhánh `feat/bh07-readiness` từ base `b91a350`: ma trận A/B/C/D, HTTP/Auth, concurrency, browser/response trễ và backup/restore local; tách rõ **Đạt local** với **NOT RUN**; kế hoạch kiểm chứng độc lập browser, mobile/browser khác, managed Supabase/PITR/offsite/encryption/retention, concurrent writers, staging/production, banking sandbox, tải/pilot và nghiệm thu toàn BH-07. Không chạy môi trường thật, không đổi app/backend/script/evidence cũ, không merge/deploy/pilot. [Hồ sơ](reviews/bh07/bh07_readiness.md) đang **Chờ review độc lập**; người triển khai không tự ghi Đạt.
 

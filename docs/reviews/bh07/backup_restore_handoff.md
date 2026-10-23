@@ -2,7 +2,7 @@
 
 **Trạng thái hiện hành: Đạt local vòng2/2, đóng R1 và công việc backup/restore local tại source282f978 theo [review chốt](review_282f978.md). Không nghiệm thu toàn BH-07/production/pilot; giữ NOT RUN. Nội dung chờ review dưới đây là lịch sử bàn giao trước kết luận.**
 
-**Điểm tiếp tục (23/10/2026):** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập** tại [bh07_readiness.md](bh07_readiness.md), base `b91a350e619529d389af3edf6d4a06408af8d200`. Hồ sơ map cổng/SHA/evidence, tách Đạt local với NOT RUN và lập kế hoạch kiểm chứng; không chạy môi trường thật. Không merge main/deploy/pilot hoặc tự chuyển BH-08.
+**Điểm tiếp tục (23/10/2026):** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673** tại [bh07_readiness.md](bh07_readiness.md), base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`). Hồ sơ map cổng/SHA/evidence, tách Đạt local với NOT RUN và lập kế hoạch kiểm chứng; không chạy môi trường thật. Không merge main/deploy/pilot hoặc tự chuyển BH-08.
 
 **Lịch sử bàn giao trước chốt: R1 cleanup vòng2/2 từng Chờ review độc lập.** Người triển khai tự kiểm, **không phải review độc lập; không tự ghi Đạt**. Base review `f216ae1fb220f140b091abd5acd2969333ec7f53`, tested source `282f978ba2afaa58e3f5810f282bdfd0febf334d`, nhánh `feat/bh07-backup-rehearsal`. Evidence mới ở `backup_restore_cleanup_r2_evidence/`. Đã được review chốt local vòng2/2; browser giữ Đạt local. Không merge main/deploy/pilot.
 
