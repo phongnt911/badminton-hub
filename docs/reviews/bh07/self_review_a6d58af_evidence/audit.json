@@ -1,0 +1,10 @@
+{
+  "manifest_exit": 0,
+  "readonly": true,
+  "snapshot_files": 53,
+  "source_hashes_match": true,
+  "app_backend_diff_empty": true,
+  "tested_source": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+  "docs_evidence": "994ebfeb98c7c76815c2b8e0e6519fbe735ab1af",
+  "mode": "self review, not independent"
+}

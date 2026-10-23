@@ -1,3 +1,5 @@
+> **Hiện hành23/10/2026: Đạt theo tự review local, KHÔNG độc lập**, theo yêu cầu trực tiếp của chủ dự án. Xem [kết luận](self_review_a6d58af.md). Phần bàn giao bên dưới giữ trạng thái tại thời điểm công bố trước tự review; không nghiệm thu toàn BH-07/production/pilot.
+
 # Bàn giao Codex sửa BR3 — Browser / Offline / Reopen BH-07
 
 Ngày 23/10/2026. **Codex tự sửa/tự kiểm, KHÔNG phải review độc lập. Trạng thái: Chờ review độc lập sau Codex tự sửa.** Không ghi Đạt/hoàn thành toàn gói.
