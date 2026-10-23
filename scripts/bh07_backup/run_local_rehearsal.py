@@ -151,6 +151,7 @@ def main():
         cmd(['docker', 'run', '-d', '--name', name, '--network', NETWORK, '--env-file', str(env_path), *(ports or []), image])
         owned.append(name)
 
+    stage = 'source fixture'
     try:
         setup = SETUP.read_text(encoding='utf-8')
         source_port = free_port()
@@ -190,22 +191,31 @@ def main():
         bad = cmd(['docker', 'exec', '-i', SOURCE, 'pg_restore', '--list'], b'corrupt archive control', accept_error=True)
         check('corrupt archive rejected', bad.returncode != 0)
         restore_started = time.monotonic()
+        stage = 'target postgres start'
         target_run(target, 'postgres:17', {'POSTGRES_PASSWORD': ns['password']})
-        for _ in range(40):
+        ready = False
+        for _ in range(120):
             if cmd(['docker', 'exec', target, 'pg_isready', '-U', 'postgres'], accept_error=True).returncode == 0:
+                ready = True
                 break
             time.sleep(0.5)
+        if not ready:
+            raise RuntimeError('target postgres did not become ready')
         # postgres exists in every fresh official image; retain its ALTER ROLE
         # settings/password but skip exactly its duplicate CREATE statement.
+        stage = 'globals bootstrap'
         globals_sql = roles.decode()
         check('bootstrap role filter is exact', globals_sql.count('CREATE ROLE postgres;') == 1)
         globals_sql = globals_sql.replace('CREATE ROLE postgres;\n', '', 1)
         cmd(['docker', 'exec', '-i', target, 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1'], globals_sql.encode())
+        stage = 'archive restore'
         cmd(['docker', 'exec', '-i', target, 'pg_restore', '-U', 'postgres', '--clean', '--if-exists', '--create', '--exit-on-error', '-d', 'template1'], archive)
+        stage = 'post-restore fingerprint'
         restored = fingerprint(target)
         check('all public/Auth rows schema roles sequences match', same_snapshot(before, restored))
         (out / 'source_fingerprints.json').write_text(json.dumps(before, indent=2) + '\n')
         (out / 'restored_fingerprints.json').write_text(json.dumps(restored, indent=2) + '\n')
+        stage = 'restored services'
         pw, secret = ns['password'], ns['secret']
         target_run(target + '-auth', 'ghcr.io/supabase/gotrue:v2.197.0', {'GOTRUE_API_HOST': '0.0.0.0', 'GOTRUE_API_PORT': 9999, 'API_EXTERNAL_URL': 'http://127.0.0.1', 'GOTRUE_SITE_URL': 'http://127.0.0.1', 'GOTRUE_DB_DRIVER': 'postgres', 'GOTRUE_DB_DATABASE_URL': f'postgres://supabase_auth_admin:{pw}@{target}:5432/postgres?search_path=auth', 'GOTRUE_JWT_SECRET': secret, 'GOTRUE_JWT_AUD': 'authenticated', 'GOTRUE_JWT_EXP': 3600, 'GOTRUE_JWT_DEFAULT_GROUP_NAME': 'authenticated', 'GOTRUE_JWT_ADMIN_ROLES': 'service_role', 'GOTRUE_EXTERNAL_EMAIL_ENABLED': 'true', 'GOTRUE_DISABLE_SIGNUP': 'false'}, ['-p', '127.0.0.1::9999'])
         target_run(target + '-rest', 'ghcr.io/supabase/postgrest:v16.4', {'PGRST_DB_URI': f'postgres://authenticator:{pw}@{target}:5432/postgres', 'PGRST_DB_SCHEMAS': 'public', 'PGRST_DB_ANON_ROLE': 'anon', 'PGRST_JWT_SECRET': secret, 'PGRST_SERVER_PORT': 3000}, ['-p', '127.0.0.1::3000'])
@@ -216,6 +226,7 @@ def main():
             assert address.startswith('127.0.0.1:')
             return 'http://' + address
         new_auth = endpoint(target + '-auth', 9999); new_rest = endpoint(target + '-rest', 3000) + '/rpc'
+        stage = 'recovery smoke'
         for _ in range(40):
             try:
                 recovered_projection = projections(new_auth, new_rest)
@@ -235,6 +246,7 @@ def main():
         status, after_replay = rpc(new_rest, owner, 'get_session_summary', {'p_session_id': SESSION})
         check('server aggregate/outstanding unchanged by replay', status == 200 and after_replay == expected_projection['ownera']['body'])
         summary['recovery_seconds'] = round(time.monotonic() - restore_started, 3)
+        stage = 'negative controls'
         public_before_tamper = public_rows(fingerprint(target))
         old_audit = json.loads(sql(target, 'SELECT count(*) FROM audit_events'))
         sql(target, f"DELETE FROM audit_events WHERE session_id='{SESSION}'")
@@ -254,7 +266,7 @@ def main():
         summary['status'] = 'FAIL'
         summary['failure_type'] = type(error).__name__
         # Do not emit a potential secret-bearing subprocess/HTTP exception.
-        print('FAIL stage:', type(error).__name__, flush=True)
+        print('FAIL stage:', type(error).__name__, 'at', stage, flush=True)
     finally:
         cleanup_errors = []
 
