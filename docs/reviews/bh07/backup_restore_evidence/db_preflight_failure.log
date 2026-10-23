@@ -1,0 +1,12 @@
+Khởi tạo DB BH-07: bh07_clean_20261023094013 và bh07_upgrade_20261023094013...
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 1045, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 997, in main
+    create_db(CLEAN, 'clean')
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 154, in create_db
+    must(name, setup_auth, f'auth stub {label}')
+  File "/workspace/badminton-hub/docs/reviews/bh07/run_bh07_tests.py", line 55, in must
+    raise RuntimeError(f"{label}: {r.stderr.strip()}")
+RuntimeError: auth stub clean: ERROR:  role "anon" does not exist

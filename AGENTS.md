@@ -1,5 +1,7 @@
 # Hướng dẫn cho AI làm việc trong repo
 
+**Bước tiếp theo đã triển khai: backup/restore rehearsal local Chờ review độc lập**, source `b626a78`, base browser đã đóng `74305bb`, nhánh `feat/bh07-backup-rehearsal`. Codex triển khai/tự kiểm, không độc lập. **13/13 recovery check, analyze sạch, 240 Flutter +1 skip và23/23 DB PASS**; restore public/Auth/schema/roles/sequences, HTTP Auth/ACL và retry payment đúng1 lần,3 negative controls đều phát hiện lỗi. [Runbook](docs/26_BH07_OPERATIONS_REHEARSAL.md), [bàn giao](docs/reviews/bh07/backup_restore_handoff.md). Browser giữ Đạt local/đã đóng; không merge main/deploy/pilot. Backup managed Supabase đầy đủ/PITR/offsite, concurrent writers, staging/production và pilot vẫn NOT RUN.
+
 Đọc `docs/00_START_HERE.md` trước khi triển khai. Sau đó đọc các tài liệu chuẩn theo thứ tự được liệt kê và tuân thủ `docs/04_LLM_RULES.md`.
 
 Dự án đang chuyển từ demo sang công cụ quản lý CLB/buổi cho host. Tài liệu v1.1 mô tả đích, không khẳng định code/DB đã triển khai. Làm từng ticket trong `docs/09_IMPLEMENTATION_PLAN.md`, giữ Flutter + Provider + Supabase.

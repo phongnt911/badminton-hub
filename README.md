@@ -1,5 +1,7 @@
 # Badminton Hub
 
+**Bước tiếp theo đã triển khai: backup/restore rehearsal local Chờ review độc lập**, source `b626a78`, base browser đã đóng `74305bb`, nhánh `feat/bh07-backup-rehearsal`. Codex triển khai/tự kiểm, không độc lập. **13/13 recovery check, analyze sạch, 240 Flutter +1 skip và23/23 DB PASS**; restore public/Auth/schema/roles/sequences, HTTP Auth/ACL và retry payment đúng1 lần,3 negative controls đều phát hiện lỗi. [Runbook](docs/26_BH07_OPERATIONS_REHEARSAL.md), [bàn giao](docs/reviews/bh07/backup_restore_handoff.md). Browser giữ Đạt local/đã đóng; không merge main/deploy/pilot. Backup managed Supabase đầy đủ/PITR/offsite, concurrent writers, staging/production và pilot vẫn NOT RUN.
+
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
 ## Trạng thái hiện tại — 23/10/2026
