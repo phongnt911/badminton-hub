@@ -1,0 +1,290 @@
+{
+  "auth.audit_log_entries": {
+    "rows": 11,
+    "sha256": "bc483d67d370b76e11036e0a2530d6a90351493d6f11dff21de6a5bd13f1414a"
+  },
+  "auth.custom_oauth_providers": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.flow_state": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.identities": {
+    "rows": 7,
+    "sha256": "639537c413f70b7900a46a4da6423c06a0183b88146a231d9e76b5183333711d"
+  },
+  "auth.instances": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.mfa_amr_claims": {
+    "rows": 4,
+    "sha256": "63120380df6daa3c0efd9130c53956485eb55e483de4d5a3cd03a7e42a162fad"
+  },
+  "auth.mfa_challenges": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.mfa_factors": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.mfa_recovery_code_sets": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.mfa_recovery_codes": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.oauth_authorizations": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.oauth_client_states": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.oauth_clients": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.oauth_consents": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.one_time_tokens": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.refresh_tokens": {
+    "rows": 4,
+    "sha256": "61702639eb6d6ee3c8e2c3a39f3ecc91b8e7baa12880cad7a4b0810576442ff8"
+  },
+  "auth.saml_providers": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.saml_relay_states": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.schema_migrations": {
+    "rows": 75,
+    "sha256": "2af3cb3d941c38d0632035c71212505d589c91340d9288dabb5e3481d57ec52b"
+  },
+  "auth.scim_tokens": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.scim_users": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.sessions": {
+    "rows": 4,
+    "sha256": "4a8954da37b296b017c4b7299b8545757f548addba5a758c91c21d7bd76207a6"
+  },
+  "auth.sso_domains": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.sso_providers": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.users": {
+    "rows": 7,
+    "sha256": "447a56733284da0b4b2b3c780627af71cd464656448b8322ba3f472518c89b37"
+  },
+  "auth.webauthn_challenges": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "auth.webauthn_credentials": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "public.app_roles": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "public.audit_events": {
+    "rows": 1,
+    "sha256": "f6542e98c510b6e598dcc2236385e64b0154bef07a967134d7b117475a5831d4"
+  },
+  "public.charge_revisions": {
+    "rows": 9,
+    "sha256": "7cd97d12be7647f0172e15f912b386377dfff7817b5382c79bd4e212fbec3af9"
+  },
+  "public.club_bank_accounts": {
+    "rows": 1,
+    "sha256": "3dbd0de28f0959db1bfbf58d1b6f903d1219d9bba36e25adf3851259486dfcdc"
+  },
+  "public.club_members": {
+    "rows": 5,
+    "sha256": "e26fbcf3f74b90e6e70b84e8f55bae150acd31507825c2018a216e6603e03261"
+  },
+  "public.club_transactions": {
+    "rows": 4,
+    "sha256": "e89dd9efb250652bdd69a848a9d9ef0d53f391c3abd88d5bbd2733bb032af498"
+  },
+  "public.clubs": {
+    "rows": 2,
+    "sha256": "b0175ab795f312601f7b4ccdb921d92abf4d5d71f77ecb831139bc1ce9a71574"
+  },
+  "public.host_bank_accounts": {
+    "rows": 1,
+    "sha256": "9e9655bcd3744e38e9fc5af287cdc771a963452ad79217e1b099db39c5b76515"
+  },
+  "public.member_contacts": {
+    "rows": 1,
+    "sha256": "76ebe5073adf9b01701e85fbd78f348e005cac14061116031a0c5491479382b1"
+  },
+  "public.operation_requests": {
+    "rows": 1,
+    "sha256": "0c61817f48ddb45d6fce2153d4f0e92e834928ff7d83b977e8c4862a1e2b918f"
+  },
+  "public.payments": {
+    "rows": 2,
+    "sha256": "a6cc5a6ba9d93df6964498a752d8ce2e74dc801f0220731600f7447025e5ec17"
+  },
+  "public.profile_private": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "public.profiles": {
+    "rows": 7,
+    "sha256": "9c150ec1013f83383d8c8912779dc3a0cb041de0ffcecc1e770ec2490bf2b6c0"
+  },
+  "public.session_charges": {
+    "rows": 10,
+    "sha256": "9259f97fe79938d0c7c744765b642a123f1569a9018c949bcf083b7ab3d804d1"
+  },
+  "public.session_expenses": {
+    "rows": 3,
+    "sha256": "a1f4a3bd61319fc9e2d4c0f312f1562a4cbad899519ff833ff44e764aec8f97f"
+  },
+  "public.session_player_contacts": {
+    "rows": 4,
+    "sha256": "991704f97338c0a940e103e25c025096692ca8787f2580a771cd7241576f8d06"
+  },
+  "public.session_players": {
+    "rows": 12,
+    "sha256": "9b75153ca75eca0428dcf2099c3e093894505597b6c5ec37e0e949df5e24d2cd"
+  },
+  "public.session_staff": {
+    "rows": 2,
+    "sha256": "1d043fb5e38f73bf3138d4067ddc7f2bb545d03129fce7f58b6fb909d2b3c354"
+  },
+  "public.sessions": {
+    "rows": 13,
+    "sha256": "13675d07692c26ac1a57e3bd031727c8d548843cd791000eb42d61b4d54b8de4"
+  },
+  "public.venues": {
+    "rows": 1,
+    "sha256": "62274084f331ea0d0c3bb8f76c90a9ff5a0ea2ee1edec11c38be0c69b2b411fc"
+  },
+  "public.waitlist_invitations": {
+    "rows": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "_schema": "d10d05ee0029461e584040fa3f4002b7efe25ef33ee112aa4cf135760ee32789",
+  "_sequences": [
+    {
+      "cycle": false,
+      "data_type": "bigint",
+      "max_value": 9223372036854775807,
+      "min_value": 1,
+      "cache_size": 1,
+      "last_value": 4,
+      "schemaname": "auth",
+      "start_value": 1,
+      "increment_by": 1,
+      "sequencename": "refresh_tokens_id_seq",
+      "sequenceowner": "supabase_auth_admin"
+    }
+  ],
+  "_roles": [
+    {
+      "rolname": "anon",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolcreatedb": false,
+      "rolbypassrls": false,
+      "rolconnlimit": -1,
+      "rolcreaterole": false,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    },
+    {
+      "rolname": "authenticated",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolcreatedb": false,
+      "rolbypassrls": false,
+      "rolconnlimit": -1,
+      "rolcreaterole": false,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    },
+    {
+      "rolname": "authenticator",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": false,
+      "rolcanlogin": true,
+      "rolcreatedb": false,
+      "rolbypassrls": false,
+      "rolconnlimit": -1,
+      "rolcreaterole": false,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    },
+    {
+      "rolname": "postgres",
+      "rolsuper": true,
+      "rolconfig": null,
+      "rolinherit": true,
+      "rolcanlogin": true,
+      "rolcreatedb": true,
+      "rolbypassrls": true,
+      "rolconnlimit": -1,
+      "rolcreaterole": true,
+      "rolvaliduntil": null,
+      "rolreplication": true
+    },
+    {
+      "rolname": "service_role",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": true,
+      "rolcanlogin": false,
+      "rolcreatedb": false,
+      "rolbypassrls": true,
+      "rolconnlimit": -1,
+      "rolcreaterole": false,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    },
+    {
+      "rolname": "supabase_auth_admin",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": false,
+      "rolcanlogin": true,
+      "rolcreatedb": false,
+      "rolbypassrls": false,
+      "rolconnlimit": -1,
+      "rolcreaterole": true,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    }
+  ]
+}

@@ -1,20 +1,20 @@
 # BH-07 — Vận hành và backup/restore rehearsal local
 
-**Trạng thái hiện hành: Chưa đạt R1 vòng1/2, cần sửa inspect error classifier vòng2/2. [Review](reviews/bh07/review_6d00e9c.md). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.**
+**Trạng thái hiện hành: R1 cleanup vòng2/2 Chờ review độc lập.** Source `282f978`, base review `f216ae1`; [review R1 vòng1/2 Chưa đạt](reviews/bh07/review_6d00e9c.md), [bàn giao](reviews/bh07/backup_restore_handoff.md), [evidence mới](reviews/bh07/backup_restore_cleanup_r2_evidence/). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.
 
-Trạng thái: **Chờ review độc lập bản sửa R1 cleanup của backup/restore local**. Người triển khai tự kiểm, không phải review độc lập. Browser đã đóng Đạt local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.
+Trạng thái: **Chờ review độc lập bản sửa R1 cleanup vòng2/2 của backup/restore local**. Người triển khai tự kiểm, không phải review độc lập. Browser đã đóng Đạt local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.
 
 ## Phạm vi hiện hành
 
-Source `6d00e9cea29c29a2b57d3291fb92be7600110f98`, base review `ec0784f359ed877177330c59dbf40e0ce384ecbf`. Chỉ sửa script rehearsal/probe và tài liệu; app, unit test, migration/RPC, contract và backend không đổi. Môi trường chạy thật là Windows 11/Docker29.8.2, PostgreSQL17, GoTrue2.197.0, PostgREST16.4, Kong2.8.1; Flutter3.47.6. Đây là môi trường khác evidence Linux cũ.
+Source `282f978ba2afaa58e3f5810f282bdfd0febf334d`, base review `f216ae1fb220f140b091abd5acd2969333ec7f53`. Chỉ sửa script rehearsal/probe và tài liệu; app, unit test, migration/RPC, contract và backend không đổi. Môi trường chạy thật là Windows 11/Docker29.8.2, PostgreSQL17, GoTrue2.197.0, PostgREST16.4, Kong2.8.1; Flutter3.47.6. Đây là môi trường khác evidence Linux cũ.
 
 Script tạo stack nguồn riêng từ migration hiện hành, Auth users thật và fixture cũ. Owner đăng nhập mật khẩu thật, ghi tiền mặt 10.000đ qua RPC; kiểm Owner/Cohost/outsider/anonymous qua HTTP. Dừng Auth nguồn trước snapshot; không có writer ứng dụng khác. Không phải backup online với writer đồng thời.
 
 ## R1 cleanup gate
 
-Phần `finally` của `scripts/bh07_backup/run_local_rehearsal.py` kiểm tra từng container/network do lượt chạy sở hữu trước khi xóa và `docker inspect` lại sau khi xóa. Lỗi xóa, resource còn tồn tại hoặc private dump/key còn lại đều ghi `cleanup_errors`, đặt `cleanup_failed=true`, chuyển summary sang `FAIL` và trả exit `1`. Cleanup vẫn tiếp tục các resource còn lại sau một lỗi; lỗi chạy chính được giữ nguyên, không bị `CleanupError` ghi đè. Log cleanup chỉ dùng alias/return code, không chứa command/secret.
+Phần `finally` của `scripts/bh07_backup/run_local_rehearsal.py` kiểm tra từng container/network do lượt chạy sở hữu trước khi xóa và `docker inspect` lại sau khi xóa. Chỉ thông báo vắng mặt đúng kind và đúng tên resource được coi là `False` (ví dụ `No such object: <name>` cho container hoặc `network <name> not found` cho network); lỗi Docker context/daemon/permission/transport hoặc bất kỳ inspect thất bại không khớp chính xác đều ghi `cleanup_errors`, đặt `cleanup_failed=true`, chuyển summary sang `FAIL` và trả exit `1`. Cleanup vẫn tiếp tục các resource còn lại sau một lỗi; lỗi chạy chính được giữ nguyên, không bị `CleanupError` ghi đè. Log cleanup chỉ dùng alias/return code, không chứa command/secret.
 
-Probe `scripts/bh07_backup/cleanup_probe.py` trích nguyên cleanup `finally` và `return` hiện hành bằng AST, không copy logic. Control gồm positive, private cleanup failure, Docker cleanup failure, cleanup tiếp tục sau lỗi và giữ lỗi chạy chính. Trước sửa probe exit1 và tái hiện hai negative vẫn exit0; sau sửa exit0 với5/5 control đúng.
+Probe `scripts/bh07_backup/cleanup_probe.py` trích nguyên cleanup `finally` và `return` hiện hành bằng AST, không copy logic. Control gồm5 control cũ (positive, private cleanup failure, Docker cleanup failure, cleanup tiếp tục sau lỗi, giữ lỗi chạy chính) và negative bổ sung: inspect lỗi trước remove với context/daemon/permission/transport, inspect lỗi sau remove container/network, network remove failure, remove trả0 nhưng container/network vẫn còn. Kết quả cuối14/14 `ok=true`. Probe reviewer được phát lại nguyên file; exit1 là do assertion cũ yêu cầu false success, không phải runner PASS.
 
 ## Cách chạy an toàn trong local
 
@@ -31,8 +31,8 @@ Không đưa archive, roles SQL, mật khẩu/JWT hay nội dung Auth users vào
 
 ## Kết quả đo local và giới hạn
 
-Lượt sạch cuối tại `6d00e9c`: 13/13 check PASS, backup `0,219giây`, từ tạo cluster đích đến Auth/ACL/replay smoke `9,219giây`, `private_dumps_keys_removed=true`, `cleanup_errors=[]`, `cleanup_failed=false`, source_port `55874`; sau chạy không còn `bh07-http-review-*`. Một lượt tại `2c6225f` exit1 vì target PostgreSQL chưa sẵn sàng; log/summary thất bại được giữ, đã thêm chờ60giây/stage tại `6d00e9c`. Các số này không phải RTO/RPO hay SLA production.
+Lượt sạch cuối tại `282f978`: 13/13 check PASS, backup `0,203giây`, từ tạo cluster đích đến Auth/ACL/replay smoke `9,313giây`, `private_dumps_keys_removed=true`, `cleanup_errors=[]`, `cleanup_failed=false`, source_port `64444`; sau chạy không còn `bh07-http-review-*` hoặc resource `bh07` khác. Một lượt tại `2c6225f` exit1 vì target PostgreSQL chưa sẵn sàng; log/summary thất bại được giữ, đã thêm chờ60giây/stage tại `6d00e9c`. Các số này không phải RTO/RPO hay SLA production.
 
-Bằng chứng mới ở `reviews/bh07/backup_restore_cleanup_evidence/`; evidence cũ `backup_restore_evidence/` và `review_b626a78_evidence/` giữ nguyên. Manifest18/18, UTF-8 LF,0 secret/JWT ngoài allowlist, verify readonly exit0.
+Bằng chứng mới ở `reviews/bh07/backup_restore_cleanup_r2_evidence/`; evidence cũ `backup_restore_evidence/`, `review_b626a78_evidence/` và `backup_restore_cleanup_evidence/` giữ nguyên. Manifest16/16, UTF-8 LF,0 secret/JWT ngoài allowlist, verify readonly exit0.
 
 NOT RUN: backup toàn bộ managed Supabase project/Storage objects/Edge Functions/Realtime/cấu hình secret bên ngoài DB; PITR, offsite/encryption/retention rotation tự động; backup với writer đồng thời; staging/production và restore thực tế; ngân hàng/webhook; browser/device/offline/deep link trong gói rehearsal này; rehearsal tải thật, pilot và nghiệm thu toàn BH-07. PostgreSQL/Auth fixture local không thay thế các cổng này.

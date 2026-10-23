@@ -1,56 +1,60 @@
-# Bàn giao backup/restore rehearsal BH-07 local — sửa R1 cleanup
+# Bàn giao backup/restore rehearsal BH-07 local — sửa R1 cleanup vòng2/2
 
-**Trạng thái hiện hành: Chưa đạt R1 vòng1/2, cần sửa inspect error classifier vòng2/2. [Review](review_6d00e9c.md). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.**
+**Trạng thái hiện hành: Chờ review độc lập bản sửa R1 cleanup vòng2/2.** Người triển khai tự kiểm, **không phải review độc lập; không tự ghi Đạt**. Base review `f216ae1fb220f140b091abd5acd2969333ec7f53`, tested source `282f978ba2afaa58e3f5810f282bdfd0febf334d`, nhánh `feat/bh07-backup-rehearsal`. Evidence mới ở `backup_restore_cleanup_r2_evidence/`. Chưa đóng backup/restore, chưa chuyển bước kế; browser giữ Đạt local. Không merge main/deploy/pilot.
 
-**Trạng thái hiện hành: Chờ review độc lập R1 fix. Người triển khai tự kiểm, không phải review độc lập; không tự ghi Đạt.**
+## Phạm vi và kết luận đang chờ
 
-- Nhánh: `feat/bh07-backup-rehearsal`.
-- Base review: `ec0784f359ed877177330c59dbf40e0ce384ecbf`.
-- Tested source: `6d00e9cea29c29a2b57d3291fb92be7600110f98`, worktree sạch trước lượt rehearsal cuối.
-- Docs/evidence: commit chứa file này (reviewer lấy SHA từ prompt); evidence mới ở `backup_restore_cleanup_evidence/`. Evidence cũ `backup_restore_evidence/` và `review_b626a78_evidence/` giữ nguyên.
-- Phạm vi sửa: chỉ `scripts/bh07_backup/run_local_rehearsal.py` và probe mới `scripts/bh07_backup/cleanup_probe.py`; không đổi app, unit test, migration/RPC, contract hay backend.
+- Chỉ sửa `scripts/bh07_backup/run_local_rehearsal.py` và `scripts/bh07_backup/cleanup_probe.py`; không đổi `lib`, `test`, `supabase`, migration/RPC, contract hay backend.
+- R1 vòng1/2 bị review Chưa đạt tại [review_6d00e9c](review_6d00e9c.md): `resource_present` coi mọi stderr có `not found` là resource vắng mặt, nên lỗi Docker context thật vẫn cho PASS/exit0 dù container/network còn nguyên.
+- Bản này chỉ chấp nhận absence đúng kind/tên: container `No such object: <name>`/`No such container: <name>`, network `network <name> not found`/`No such network: <name>`, so khớp toàn chuỗi (không dùng substring `not found`). Context/daemon/permission/transport và inspect lỗi đều ghi `cleanup_errors`, `cleanup_failed=true`, status `FAIL`, exit `1`; cleanup vẫn tiếp tục resource khác, private dump/key vẫn được dọn, lỗi chạy chính không bị ghi đè.
+- Chỉ dùng tên resource do lượt chạy sở hữu; không xóa resource có sẵn của người khác. Log chỉ có alias/return code, không chứa command/secret.
 
-## R1 đã sửa
+## Probe và tái hiện
 
-- Cleanup kiểm tra từng container/network do lượt chạy sở hữu trước khi xóa và `docker inspect` lại sau khi xóa; resource còn tồn tại hoặc lệnh xóa lỗi đều ghi `cleanup_errors`.
-- Cleanup tiếp tục các resource còn lại sau một lỗi; private dump/key còn tồn tại thì `private_dumps_keys_removed=false`.
-- Nếu cleanup lỗi, summary chuyển `FAIL`, `cleanup_failed=true`, exit `1`; lỗi chạy chính được giữ nguyên (`failure_type` không bị ghi đè).
-- Log cleanup chỉ dùng alias/return code, không log command chứa secret.
-- Probe `scripts/bh07_backup/cleanup_probe.py` trích nguyên cleanup `finally` và `return` hiện hành bằng AST, không copy logic. 5 control: positive; private cleanup failure; Docker cleanup failure; cleanup tiếp tục sau lỗi; giữ lỗi chạy chính.
-- Trước sửa probe exit `1` (positive đúng, hai negative vẫn exit `0`); sau sửa exit `0`, cả 5 control `ok=true`. Probe reviewer cũ được phát lại và giữ nguyên file.
+- Probe `scripts/bh07_backup/cleanup_probe.py` trích nguyên `finally` và `return` hiện hành bằng AST, dùng Docker stub stateful; không copy predicate cleanup.
+- Trước sửa (source `f216ae1` + probe mới): exit `1`; 3 control sai vì context vẫn bị coi là vắng mặt: `inspect_error_before_remove_context`, `inspect_error_after_remove`, `network_inspect_error_after_remove`. Log `cleanup_probe_before.log`.
+- Sau sửa: exit `0`, **14/14 control `ok=true`**. Giữ5 control cũ; thêm:
+  - inspect lỗi trước remove: context, daemon, permission, transport;
+  - inspect lỗi sau remove: container và network;
+  - network remove failure;
+  - container remove trả0 nhưng resource vẫn còn;
+  - network remove trả0 nhưng resource vẫn còn.
+- Probe reviewer `docs/reviews/bh07/review_6d00e9c_evidence/inspect_probe.py` được phát lại **nguyên file, giữ nguyên kỳ vọng**, không sửa evidence của reviewer. Exit `1` là do assertion cũ `not results[2]['ok']` yêu cầu false success; output mới cho thấy lỗi context đã đúng: `actual_exit=1`, `cleanup_failed=true`, `rm_calls=[]`, container/network synthetic còn nguyên. Đây là bằng chứng lỗi đã được chặn, không phải runner PASS. Log `reviewer_inspect_probe_replay.log`.
 
 ## Kết quả tự chạy
 
 | Lệnh | Exit | Kết quả |
 |---|---|---|
-| `python scripts\bh07_backup\cleanup_probe.py` trước sửa |1|Tái hiện private/Docker cleanup failure vẫn exit0|
-| `python scripts\bh07_backup\cleanup_probe.py` sau sửa |0|5/5 control PASS|
-| `python -u scripts\bh07_backup\run_local_rehearsal.py --out <temp>` tại `6d00e9c` |0|13/13 check PASS; dirty rỗng; private dump/key đã xóa; cleanup lỗi rỗng|
+| `python scripts\bh07_backup\cleanup_probe.py` trước sửa |1|3 control context/inspect-after sai, tái hiện false success|
+| `python scripts\bh07_backup\cleanup_probe.py` sau sửa |0|14/14 control `ok=true`|
+| `python docs\reviews\bh07\review_6d00e9c_evidence\inspect_probe.py` (nguyên file) |1|Assertion cũ yêu cầu false success; output thực tế context exit1, cleanup failed, resources còn, không rm|
+| `python -u scripts\bh07_backup\run_local_rehearsal.py --out <temp>` tại `282f978` |0|13/13 check PASS; dirty rỗng; private dump/key đã xóa; cleanup lỗi rỗng; source_port `64444`|
 | `flutter analyze` |0|0 issue|
 | `flutter test` |0|240 PASS,1 skip|
-| `BH02_TEST_CONTAINER=bh02-test-postgres python -u docs/reviews/bh07/run_bh07_tests.py` |0|23/23 DB PASS; Auth stub riêng|
-| `clean_and_manifest.py --generate/--verify` |0/0|18/18 file, hash read-only, UTF-8 LF, 0 secret/JWT ngoài allowlist|
+| `BH02_TEST_CONTAINER=bh02-test-postgres python -u docs/reviews/bh07/run_bh07_tests.py` |0|23/23 DB PASS; JSON `worktree_dirty=false`, Auth stub riêng|
+| `clean_and_manifest.py --generate/--verify` |0/0|16/16 file, UTF-8 LF,0 secret/JWT ngoài allowlist, verify readonly không đổi hash|
 
-Rehearsal cuối: `status=PASS local rehearsal; pending review`, `private_dumps_keys_removed=true`, `cleanup_errors=[]`, `cleanup_failed=false`, source_port `55874`; sau chạy không còn container/network `bh07-http-review-*` (log `post_rehearsal_docker_state.log`). Đây là môi trường Windows/Docker local, không phải Linux cũ.
+Rehearsal cuối: `status=PASS local rehearsal; pending review`, `private_dumps_keys_removed=true`, `cleanup_errors=[]`, `cleanup_failed=false`; sau chạy không còn container/network `bh07-http-review-*` hoặc resource `bh07` khác (log `post_rehearsal_docker_state.log`). Đây là môi trường Windows/Docker local, không phải Linux cũ.
 
-Một lượt sạch tại `2c6225f3c1383d89d8d6c5101ddc1320b99313f8` exit `1` vì target PostgreSQL chưa sẵn sàng trước restore. Log/summary thất bại được giữ trong evidence; đã bổ sung chờ tối đa 60 giây và nhãn stage an toàn tại `6d00e9c`, không che lỗi. Lượt `6d00e9c` mới là evidence cuối.
+Một lần generate manifest đầu tiên exit1 vì log PowerShell là UTF-16/CRLF; đã chuẩn hóa text evidence về UTF-8 LF rồi generate/verify lại exit0. Lỗi này được ghi trong `exits.json`/`commands.md`, không che.
 
 ## Cần review
 
-Tập trung `scripts/bh07_backup/run_local_rehearsal.py` phần `finally`/`return` và `scripts/bh07_backup/cleanup_probe.py`. Reviewer tự chạy lại probe, rehearsal thật từ checkout sạch với output mới, `flutter analyze`, `flutter test`, DB runner và manifest readonly. Kiểm:
-- private dump/key còn lại hoặc Docker rm/inspect lỗi không thể cho exit0/PASS;
-- cleanup vẫn tiếp tục resource khác sau lỗi;
+Tập trung `scripts/bh07_backup/run_local_rehearsal.py` phần `resource_present`/`finally`/`return` và `scripts/bh07_backup/cleanup_probe.py`. Reviewer tự chạy lại probe, rehearsal thật từ checkout sạch với output mới, `flutter analyze`, `flutter test`, DB runner và manifest readonly. Kiểm:
+- lỗi context/daemon/permission/transport hoặc inspect sau remove không thể cho exit0/PASS;
+- absence chỉ được xác nhận đúng kind/tên, không dùng substring `not found`;
+- cleanup vẫn tiếp tục resource khác sau lỗi; private dump/key còn lại phải FAIL;
 - lỗi chạy chính không bị cleanup ghi đè;
 - chỉ resource của lượt chạy bị xóa; không log secret;
-- probe không copy logic cleanup và không nới kỳ vọng;
+- probe không copy logic cleanup và không nới kỳ vọng; 14 control thực sự chạy;
 - manifest không đổi sau verify readonly.
 
 Không chấp nhận kết luận chỉ dựa vào log của người triển khai; phải tự chạy. Không merge main/deploy/pilot.
 
 ## NOT RUN
 
-Managed Supabase backup/PITR/offsite/encryption/retention; backup cùng concurrent writer; staging/production/restore thật; browser/device/offline/deep link ở gói này; ngân hàng/webhook; rehearsal tải thật/pilot và nghiệm thu toàn BH-07. Local PostgreSQL/Auth không đại diện cho các cổng này.
+Managed Supabase backup/PITR/offsite/encryption/retention; backup cùng concurrent writer; staging/production/restore thật; browser/device/offline/deep link ở gói này; ngân hàng/webhook; rehearsal tải thật/pilot và nghiệm thu toàn BH-07; fault injection permission thật trên archive/secret. Local PostgreSQL/Auth không đại diện cho các cổng này. Không merge/apply DB thật/deploy/chuyển pilot.
 
 ## Lịch sử
 
-Bàn giao ban đầu source `b626a7852401e91db436ecc70134150f4c87c06f` (base `74305bb`) bị review [Chưa đạt R1 P2](review_b626a78.md); evidence và probe reviewer cũ vẫn giữ. Runbook: [26](../../26_BH07_OPERATIONS_REHEARSAL.md).
+Bàn giao ban đầu source `b626a7852401e91db436ecc70134150f4c87c06f` (base `74305bb`) bị review [Chưa đạt R1 P2](review_b626a78.md); bản sửa vòng1/2 tại `6d00e9c` bị review [Chưa đạt R1 P2](review_6d00e9c.md) vì lỗi context false absence. Evidence cũ `backup_restore_evidence/`, `review_b626a78_evidence/` và `backup_restore_cleanup_evidence/` được giữ nguyên, không ghi đè. Runbook: [26](../../26_BH07_OPERATIONS_REHEARSAL.md).

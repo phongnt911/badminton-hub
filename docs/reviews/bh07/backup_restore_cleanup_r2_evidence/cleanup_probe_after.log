@@ -1,0 +1,317 @@
+CLEANUP FAIL: private dump/key path still exists
+CLEANUP FAIL: remove container container-a: exit 1
+CLEANUP FAIL: container still exists: container-a
+CLEANUP FAIL: remove container container-a: exit 1
+CLEANUP FAIL: container still exists: container-a
+CLEANUP FAIL: private dump/key path still exists
+CLEANUP FAIL: container inspect container-a: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: container inspect container-a: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: container inspect container-a: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: container inspect container-a: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: container inspect container-a: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: remove network synthetic-network: exit 1
+CLEANUP FAIL: network still exists: synthetic-network
+CLEANUP FAIL: container still exists: container-a
+CLEANUP FAIL: network still exists: synthetic-network
+[
+  {
+    "case": "positive",
+    "actual_exit": 0,
+    "expected_exit_zero": true,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": false,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "private_cleanup_failure",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "private dump/key path still exists"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "docker_cleanup_failure",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "remove container container-a: exit 1",
+      "container still exists: container-a"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "cleanup_continues_after_error",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "remove container container-a: exit 1",
+      "container still exists: container-a"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "original_failure_preserved",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "RuntimeError",
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "private dump/key path still exists"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "inspect_error_before_remove_context",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container inspect container-a: exit 1",
+      "network inspect synthetic-network: exit 1"
+    ],
+    "container_rm_calls": [],
+    "network_rm_calls": 0,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": true,
+    "ok": true
+  },
+  {
+    "case": "inspect_error_before_remove_daemon",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container inspect container-a: exit 1",
+      "network inspect synthetic-network: exit 1"
+    ],
+    "container_rm_calls": [],
+    "network_rm_calls": 0,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": true,
+    "ok": true
+  },
+  {
+    "case": "inspect_error_before_remove_permission",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container inspect container-a: exit 1",
+      "network inspect synthetic-network: exit 1"
+    ],
+    "container_rm_calls": [],
+    "network_rm_calls": 0,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": true,
+    "ok": true
+  },
+  {
+    "case": "inspect_error_before_remove_transport",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container inspect container-a: exit 1",
+      "network inspect synthetic-network: exit 1"
+    ],
+    "container_rm_calls": [],
+    "network_rm_calls": 0,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": true,
+    "ok": true
+  },
+  {
+    "case": "inspect_error_after_remove",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container inspect container-a: exit 1"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "network_inspect_error_after_remove",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "network inspect synthetic-network: exit 1"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "network_remove_failure",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "remove network synthetic-network: exit 1",
+      "network still exists: synthetic-network"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": true,
+    "ok": true
+  },
+  {
+    "case": "container_remove_zero_but_remains",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "container still exists: container-a"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [
+      "container-a"
+    ],
+    "network_remaining": false,
+    "ok": true
+  },
+  {
+    "case": "network_remove_zero_but_remains",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "network still exists: synthetic-network"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "remaining_containers": [],
+    "network_remaining": true,
+    "ok": true
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "captured_local": "2026-10-23T18:33:52+07:00",
+  "branch": "feat/bh07-backup-rehearsal",
+  "review_base_sha": "f216ae1fb220f140b091abd5acd2969333ec7f53",
+  "tested_source_sha": "282f978ba2afaa58e3f5810f282bdfd0febf334d",
+  "script_summary_base_sha": "ec0784f359ed877177330c59dbf40e0ce384ecbf",
+  "cwd": "C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub",
+  "os": "Windows-11-10.0.26100-SP0",
+  "python": "3.12.7 (tags/v3.12.7:0b05ead, Oct 1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+  "docker_server": "29.8.2",
+  "flutter": "3.47.6 stable, Dart 3.13.5, framework revision 5fc346839b",
+  "images": {
+    "postgres:17": "sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe",
+    "ghcr.io/supabase/gotrue:v2.197.0": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+    "ghcr.io/supabase/postgrest:v16.4": "sha256:d155c6718ed9a9f990d159a2ab7c0a3f16944dbb6d0a0344557421042acfe0df",
+    "ghcr.io/supabase/kong:2.8.1": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+  },
+  "rehearsal": {
+    "output_dir": "C:\\Users\\POTA\\AppData\\Local\\Temp\\opencode\\bh07-r1-r2-rehearsal-20261023-1",
+    "exit": 0,
+    "source_port": 64444,
+    "dirty_before_run": "",
+    "passed_checks": 13,
+    "total_checks": 13,
+    "private_dumps_keys_removed": true,
+    "cleanup_errors": [],
+    "cleanup_failed": false
+  },
+  "db_runner": {
+    "container": "bh02-test-postgres",
+    "base_sha": "282f978ba2afaa58e3f5810f282bdfd0febf334d",
+    "worktree_dirty": false,
+    "passed": 23,
+    "total": 23
+  },
+  "notes": [
+    "summary.json records script-level base_sha ec0784f, the original fixture baseline; the review base for this round is f216ae1.",
+    "The real rehearsal ran before evidence/docs edits so dirty_before_run is empty; evidence was created after the run.",
+    "The DB runner was run from a clean worktree with logs written outside the repo, then copied into evidence; its JSON records worktree_dirty=false.",
+    "The reviewer inspect_probe.py was replayed unchanged. Its exit 1 is the old assertion expecting the pre-fix false success, not a runner PASS; the new cleanup probe has the corrected 14/14 controls.",
+    "Evidence is a real local run on Windows, not the earlier Linux environment.",
+    "No managed Supabase, staging, production, banking/webhook, concurrent-writer or pilot rehearsal was run."
+  ]
+}

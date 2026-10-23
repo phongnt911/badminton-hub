@@ -1,0 +1,15 @@
+docker ps -a --filter name=bh07-http-review
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+exit=0
+
+docker network ls --filter name=bh07-http-review
+NETWORK ID   NAME      DRIVER    SCOPE
+exit=0
+
+docker ps -a --format {{.Names}} | findstr bh07
+<no matching bh07 resources>
+exit=0
+
+docker network ls --format {{.Name}} | findstr bh07
+<no matching bh07 resources>
+exit=0

@@ -1,0 +1,21 @@
+{
+  "cleanup_probe_before_fix_282f978_probe_on_f216ae1": 1,
+  "cleanup_probe_after_fix": 0,
+  "reviewer_inspect_probe_unchanged": 1,
+  "rehearsal_final_282f978": 0,
+  "flutter_analyze": 0,
+  "flutter_test": 0,
+  "bh07_db_runner": 0,
+  "manifest_generate_initial_powershell_utf16_logs": 1,
+  "manifest_generate_final": 0,
+  "manifest_verify": 0,
+  "python_compile": 0,
+  "git_diff_check": 0,
+  "app_diff_f216ae1_282f978": 0,
+  "managed_supabase_backup_pitr_offsite": "NOT RUN",
+  "concurrent_writers": "NOT RUN",
+  "staging_production": "NOT RUN",
+  "browser_device_offline_deep_link": "NOT RUN",
+  "banking_webhook": "NOT RUN",
+  "rehearsal_pilot": "NOT RUN"
+}
