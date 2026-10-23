@@ -1,0 +1,142 @@
+{
+  "checked": 34,
+  "all_match": true,
+  "files": {
+    "docs/reviews/bh07/browser_evidence/analyze.log": {
+      "matches_checkout_blob": true,
+      "sha256": "725857a428300a62e7e02e8a8e56fcb818d28e1a7b90637bf0d133a43f98f893"
+    },
+    "docs/reviews/bh07/browser_evidence/bh07_db_results.json": {
+      "matches_checkout_blob": true,
+      "sha256": "809d5b561edde856b5459b7944a48b2af28e1d8f4590e94ef1396addda6868c2"
+    },
+    "docs/reviews/bh07/browser_evidence/bh07_db_runner.log": {
+      "matches_checkout_blob": true,
+      "sha256": "06e49a96857c644ece51bae2f98683a7b41598a8fe4c8f8c1f874e912461f29f"
+    },
+    "docs/reviews/bh07/browser_evidence/browser_runner.console.log": {
+      "matches_checkout_blob": true,
+      "sha256": "60954b6588983e21ae3b8db872af7e4bdec69768ea03dbf72712eb257e3ecc67"
+    },
+    "docs/reviews/bh07/browser_evidence/browser_runner.log": {
+      "matches_checkout_blob": true,
+      "sha256": "7d147d797e05a6a2dbf0d240619f7c03e3e62b4fcd5d058065c2092865b3666f"
+    },
+    "docs/reviews/bh07/browser_evidence/commands.md": {
+      "matches_checkout_blob": true,
+      "sha256": "b5069b7b95d773eef00cc5717c9982adee6dd474d435d16c3d8cd11e080a41e5"
+    },
+    "docs/reviews/bh07/browser_evidence/environment.json": {
+      "matches_checkout_blob": true,
+      "sha256": "686a3300fb5916db3c0e84d77fd7d9199ce7fc995e773d130847e3122c14da73"
+    },
+    "docs/reviews/bh07/browser_evidence/exits.json": {
+      "matches_checkout_blob": true,
+      "sha256": "da270551d280ca3e25d8be95d2036a5ee6eab60792de391b01f3098403405641"
+    },
+    "docs/reviews/bh07/browser_evidence/flutter_test.log": {
+      "matches_checkout_blob": true,
+      "sha256": "28f686fda9d03cbaf089142c13bf0f7f1d86edc4005b09e3912187e3924e2c98"
+    },
+    "docs/reviews/bh07/browser_evidence/hashes.sha256": {
+      "matches_checkout_blob": true,
+      "sha256": "3930aac8a7401dccb304324f2578579564a1f7a0f668262b6d6ba0fe3170e9ad"
+    },
+    "docs/reviews/bh07/browser_evidence/manifest_verify.log": {
+      "matches_checkout_blob": true,
+      "sha256": "8847b4983bf9c83d90391092260e79db5a4bd4b3e1e3830a06ad11f4f2c0d11a"
+    },
+    "docs/reviews/bh07/browser_evidence/mutant_negative_control.json": {
+      "matches_checkout_blob": true,
+      "sha256": "9c5059b0ac8f7aff0aa4f66a860e894cf9097c78e6419886713621c411b8c8a9"
+    },
+    "docs/reviews/bh07/browser_evidence/mutant_negative_control.log": {
+      "matches_checkout_blob": true,
+      "sha256": "0e88dd4d61a0d8dd07b38fb022694b468c032176d9a015912ac803e35d6a5570"
+    },
+    "docs/reviews/bh07/browser_evidence/mutant_negative_control.stdout.log": {
+      "matches_checkout_blob": true,
+      "sha256": "e8707876dd636b603b32bc0d0cc61531f5fdae8c85dc62acb2caeecc56007eea"
+    },
+    "docs/reviews/bh07/browser_evidence/negative_controls.json": {
+      "matches_checkout_blob": true,
+      "sha256": "e7c49ba1baa665687f6d115bd5c2f32df76b62ed0f718c376fd06485a6315d58"
+    },
+    "docs/reviews/bh07/browser_evidence/negative_controls.log": {
+      "matches_checkout_blob": true,
+      "sha256": "b67a25a41a51ac255ba38a0a84abe0eace91606e59ad0642b61b4a9a23dcdbb2"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/01_owner_ui_authenticated.png": {
+      "matches_checkout_blob": true,
+      "sha256": "229b52e3c615411a5f5015155c1b81acfcf06dc89a8f992a6b1782c37a1bc08d"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/02_session_ui_started.png": {
+      "matches_checkout_blob": true,
+      "sha256": "6318ef53ea3fe2a598a99b6b5642e50e2daebfbdb78324835072984259346344"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/03_player_attendance_checked.png": {
+      "matches_checkout_blob": true,
+      "sha256": "f028362797a76ef2173ac557675b3891c007a3220fb203ef68d0498c41e532ba"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/04_session_finance_finalized.png": {
+      "matches_checkout_blob": true,
+      "sha256": "741e304d714dfeaeb7da6d6d2362b05faf75c428a6ecb2320c836a95ada4f3f0"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/05_offline_mutation_error.png": {
+      "matches_checkout_blob": true,
+      "sha256": "eda93e61d1777bd553957ce6cd8fd7868a71cd54d0e747950cb1478b30a22c40"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/06_retry_mutation_success.png": {
+      "matches_checkout_blob": true,
+      "sha256": "d597b78e006f83a5562aeb9fb6913727a0bd0cbf4a2f98d0869dc288542f1700"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/07_summary_manager_clipboard.png": {
+      "matches_checkout_blob": true,
+      "sha256": "da4c51ff90fda6afaee57ce8aa8b3001c4cf44d78b57281f5178f7b6840e2f1b"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/08_cohost_summary_null_finances.png": {
+      "matches_checkout_blob": true,
+      "sha256": "8061c6a1aa29bf6d3d7e5400f6bb56cfd619109a1b944bd55cdf5d19abfa199e"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/09_history_filtered_club.png": {
+      "matches_checkout_blob": true,
+      "sha256": "24887ddccce492426df656ee5d3509652c1a085f52b7c3ba74eeefe6fd8b3777"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/10_member_isolated_history.png": {
+      "matches_checkout_blob": true,
+      "sha256": "af89e8b9c73f12d5cd0627fc98ec5e3d1220c434e800edd562a5c450abe3eae4"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/11_reopen_persisted_session.png": {
+      "matches_checkout_blob": true,
+      "sha256": "8d8dd4c48c4511d2e1f2f9762b7c055ee817e23c87c97a9a8bd247250912cca8"
+    },
+    "docs/reviews/bh07/browser_evidence/screenshots/12_logout_clean_guest_state.png": {
+      "matches_checkout_blob": true,
+      "sha256": "293712cad651558bb53b44f885c029e719a7451705338fac2caf7054757fca41"
+    },
+    "docs/reviews/bh07/browser_evidence/summary.json": {
+      "matches_checkout_blob": true,
+      "sha256": "83050526bde1c310b31f53e3bb77b088407673cbe44437c55c74ae8a581b64a7"
+    },
+    "docs/reviews/bh07/browser_evidence/verifier_controls.json": {
+      "matches_checkout_blob": true,
+      "sha256": "85239b2a8415b9211955ddf838b32da4b6671e319a3159e691d5e18fb64827cd"
+    },
+    "docs/reviews/bh07/browser_evidence/verifier_controls.log": {
+      "matches_checkout_blob": true,
+      "sha256": "d7fe4e456a2598844cfcdd7fd677361d5c0bddb46a93cb30cedbe126d31d6285"
+    },
+    "docs/reviews/bh07/browser_evidence/verifier_controls.stdout.log": {
+      "matches_checkout_blob": true,
+      "sha256": "15763a4389910a737a7af3298f4a47a29faadb0202b878fc46ba0ff7f4e970d3"
+    },
+    "docs/reviews/bh07/browser_evidence/web_build.log": {
+      "matches_checkout_blob": true,
+      "sha256": "0be0de7d10dff2ee3d2826fb33164fae4e876e857c9702d299692531b59864f6"
+    },
+    "docs/reviews/bh07/browser_evidence/web_server.access.log": {
+      "matches_checkout_blob": true,
+      "sha256": "9aad864be8cd0f9b5153ed8d5470a2c91c05dc94ccfc0b309c25f96db559cebd"
+    }
+  }
+}

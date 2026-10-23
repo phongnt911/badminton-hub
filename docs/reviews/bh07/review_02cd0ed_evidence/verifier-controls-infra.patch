@@ -1,0 +1,11 @@
+--- tested-source/run_verifier_controls.py
++++ reviewer-copy/run_verifier_controls.py
+@@ -174,7 +174,7 @@
+     temp_root = tempfile.mkdtemp(prefix='bh07-verifier-controls-')
+     pristine = os.path.join(temp_root, 'pristine')
+     shutil.copytree(EVIDENCE_DIR, pristine, ignore=shutil.ignore_patterns('hashes.sha256'))
+-    run_generate(pristine)
++    shutil.copy2(os.path.join(EVIDENCE_DIR, 'hashes.sha256'), os.path.join(pristine, 'hashes.sha256'))
+ 
+     log_lines = []
+     results = []

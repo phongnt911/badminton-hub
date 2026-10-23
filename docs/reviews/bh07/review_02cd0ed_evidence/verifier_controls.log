@@ -1,0 +1,61 @@
+=== baseline public evidence ===
+expected_exit=0 actual_exit=0 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+ALL CHECKS PASSED: 33/33 files verified, 0 secret/JWT outside allowlist, strict UTF-8 LF.
+
+=== missing declared file ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] MISSING FILE (declared in manifest): analyze.log
+
+=== extra undeclared file ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] EXTRA FILE (not in manifest): unexpected-extra.txt
+
+=== hash mismatch ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] HASH MISMATCH for browser_runner.log: expected 7d147d797e05a6a2dbf0d240619f7c03e3e62b4fcd5d058065c2092865b3666f, got 00eb4a51b362678542ef71835d02c0a6e9fc944f14bfb44458004e489f44e087
+
+=== fake sb_secret value ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] SECRET DETECTED in commands.md: Supabase Secret Key sb_secret_[REDACTED]...
+
+=== fake service_role JWT with valid hash ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] SECRET DETECTED in commands.md: Service Role JWT outside public allowlist eyJhbGciOiJIUzI1... role=service_role alg=HS256
+
+=== invalid UTF-8 with valid hash ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] INVALID UTF-8 in environment.json: 'utf-8' codec can't decode byte 0xff in position 2456: invalid start byte
+
+=== UTF-8 BOM with valid hash ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] BOM DETECTED in environment.json
+
+=== CRLF with valid hash ===
+expected_exit=1 actual_exit=1 readonly=True
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] CRLF/CR DETECTED in commands.md
+

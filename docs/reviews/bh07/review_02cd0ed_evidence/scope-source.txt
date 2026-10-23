@@ -1,0 +1,6 @@
+A	scripts/bh07_browser/assertions.js
+M	scripts/bh07_browser/clean_and_manifest.py
+M	scripts/bh07_browser/run_browser_verification.js
+A	scripts/bh07_browser/run_mutant_controls.py
+M	scripts/bh07_browser/run_negative_controls.js
+A	scripts/bh07_browser/run_verifier_controls.py

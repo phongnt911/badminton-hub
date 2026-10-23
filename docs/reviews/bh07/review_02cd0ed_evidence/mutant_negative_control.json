@@ -1,0 +1,10 @@
+{
+  "source_sha": "02cd0edbb9b1f77213c6788474984686895e125c",
+  "negative_controls_sha256": "ff41b1ddbdb731e5bae3a14d8983dd9ce39a6ea3c36ff36a27ce9e5c7084abad",
+  "assertions_sha256": "f5e92a6c2258b5c9d25c6d7345aee6420816d18981a0e9f669db0fdd2f483e33",
+  "baseline_exit": 0,
+  "mutant_exit": 1,
+  "baseline_ok": true,
+  "mutant_detected": true,
+  "all_ok": true
+}

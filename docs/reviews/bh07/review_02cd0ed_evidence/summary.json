@@ -1,0 +1,47 @@
+{
+  "checkout_sha": "02cd0edbb9b1f77213c6788474984686895e125c",
+  "tested_source_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "base_sha": "b5517df1055ded3de86bdce49927188eab8e53d8",
+  "verdict": "Chưa đạt",
+  "P0": 0,
+  "P1": 0,
+  "P2": 3,
+  "analyze_exit": 0,
+  "flutter": {
+    "passed": 240,
+    "skip": 1,
+    "exit": 0
+  },
+  "db": {
+    "passed": 23,
+    "exit": 0
+  },
+  "browser": {
+    "passed": 11,
+    "exit": 0,
+    "dirty": false
+  },
+  "negative": {
+    "cases": 27,
+    "exit": 0
+  },
+  "verifier": {
+    "cases": 9,
+    "exit": 0,
+    "readonly": true
+  },
+  "mutant": {
+    "baseline_exit": 0,
+    "mutant_exit": 1,
+    "exit": 0
+  },
+  "reviewer_extra": {
+    "positive": 4,
+    "false_accepts": 5,
+    "exit": 1
+  },
+  "author_manifest": {
+    "matched": 33,
+    "unchanged_files_including_manifest": 34
+  }
+}

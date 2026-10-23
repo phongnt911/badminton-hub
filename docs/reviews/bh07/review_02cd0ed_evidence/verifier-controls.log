@@ -1,0 +1,11 @@
+PASS: baseline public evidence (expected exit 0, got 0, readonly=True)
+PASS: missing declared file (expected exit 1, got 1, readonly=True)
+PASS: extra undeclared file (expected exit 1, got 1, readonly=True)
+PASS: hash mismatch (expected exit 1, got 1, readonly=True)
+PASS: fake sb_secret value (expected exit 1, got 1, readonly=True)
+PASS: fake service_role JWT with valid hash (expected exit 1, got 1, readonly=True)
+PASS: invalid UTF-8 with valid hash (expected exit 1, got 1, readonly=True)
+PASS: UTF-8 BOM with valid hash (expected exit 1, got 1, readonly=True)
+PASS: CRLF with valid hash (expected exit 1, got 1, readonly=True)
+
+Verifier controls: 9/9 behaved as expected.

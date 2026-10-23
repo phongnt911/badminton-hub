@@ -1,0 +1,114 @@
+{
+  "screenshots": [
+    {
+      "file": "01_owner_ui_authenticated.png",
+      "sha256": "229b52e3c615411a5f5015155c1b81acfcf06dc89a8f992a6b1782c37a1bc08d",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "02_session_ui_started.png",
+      "sha256": "6318ef53ea3fe2a598a99b6b5642e50e2daebfbdb78324835072984259346344",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "03_player_attendance_checked.png",
+      "sha256": "f028362797a76ef2173ac557675b3891c007a3220fb203ef68d0498c41e532ba",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "04_session_finance_finalized.png",
+      "sha256": "741e304d714dfeaeb7da6d6d2362b05faf75c428a6ecb2320c836a95ada4f3f0",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "05_offline_mutation_error.png",
+      "sha256": "eda93e61d1777bd553957ce6cd8fd7868a71cd54d0e747950cb1478b30a22c40",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "06_retry_mutation_success.png",
+      "sha256": "d597b78e006f83a5562aeb9fb6913727a0bd0cbf4a2f98d0869dc288542f1700",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "07_summary_manager_clipboard.png",
+      "sha256": "da4c51ff90fda6afaee57ce8aa8b3001c4cf44d78b57281f5178f7b6840e2f1b",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "08_cohost_summary_null_finances.png",
+      "sha256": "8061c6a1aa29bf6d3d7e5400f6bb56cfd619109a1b944bd55cdf5d19abfa199e",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "09_history_filtered_club.png",
+      "sha256": "24887ddccce492426df656ee5d3509652c1a085f52b7c3ba74eeefe6fd8b3777",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "10_member_isolated_history.png",
+      "sha256": "af89e8b9c73f12d5cd0627fc98ec5e3d1220c434e800edd562a5c450abe3eae4",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "11_reopen_persisted_session.png",
+      "sha256": "8d8dd4c48c4511d2e1f2f9762b7c055ee817e23c87c97a9a8bd247250912cca8",
+      "size": [
+        1264,
+        805
+      ]
+    },
+    {
+      "file": "12_logout_clean_guest_state.png",
+      "sha256": "293712cad651558bb53b44f885c029e719a7451705338fac2caf7054757fca41",
+      "size": [
+        1264,
+        805
+      ]
+    }
+  ],
+  "count": 12,
+  "distinct_hashes": 12,
+  "source_hash_matches": {
+    "scripts/bh07_browser/run_browser_verification.js": true,
+    "scripts/bh07_browser/assertions.js": true,
+    "scripts/bh07_browser/seed_setup.js": true,
+    "scripts/bh07_browser/clean_and_manifest.py": true,
+    "scripts/bh07_browser/run_negative_controls.js": true,
+    "scripts/bh07_browser/run_verifier_controls.py": true,
+    "scripts/bh07_browser/run_mutant_controls.py": true
+  },
+  "tested_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "dirty": false,
+  "base": "b5517df1055ded3de86bdce49927188eab8e53d8"
+}

@@ -1,0 +1,92 @@
+{
+  "ticket": "BH-07 browser/offline/reopen verification (authorized final fix)",
+  "generated_at_utc": "2026-10-23T04:54:11.027Z",
+  "started_at_utc": "2026-10-23T04:50:09.738Z",
+  "duration_ms": 241280,
+  "base_sha": "b5517df1055ded3de86bdce49927188eab8e53d8",
+  "tested_checkout_sha": "02cd0edbb9b1f77213c6788474984686895e125c",
+  "is_dirty": false,
+  "dirty_details": "",
+  "source_hashes": {
+    "scripts/bh07_browser/run_browser_verification.js": "943428dcb0368f7002f5dd9ae3cbceb941d4aad92d3042f9d26ba16568090bf9",
+    "scripts/bh07_browser/assertions.js": "f5e92a6c2258b5c9d25c6d7345aee6420816d18981a0e9f669db0fdd2f483e33",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773"
+  },
+  "browser": "Chrome/154.0.8037.57",
+  "web_url": "http://127.0.0.1:8088",
+  "api_url": "http://127.0.0.1:54321",
+  "counts": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "id": "browser.ui.login-owner",
+      "description": "Owner A signs in through real UI form fields and verifies authenticated profile state",
+      "status": "PASS",
+      "detail": "auth form submitted, verified badge present, guest mode cleared"
+    },
+    {
+      "id": "browser.ui.start-session",
+      "description": "Owner starts published session via UI button, transitioning lifecycle to in_progress",
+      "status": "PASS",
+      "detail": "lifecycle updated to in_progress"
+    },
+    {
+      "id": "browser.ui.attendance-checkin",
+      "description": "Attendance check-in executed via UI and updates attendance status badge",
+      "status": "PASS",
+      "detail": "Member A attendance status successfully updated from not_checked_in to present"
+    },
+    {
+      "id": "browser.ui.finalize-charges",
+      "description": "Charges finalized via dialog and billing state transitions to current",
+      "status": "PASS",
+      "detail": "billing state is now current (Đang hiệu lực)"
+    },
+    {
+      "id": "browser.mutation.offline-retry-intent",
+      "description": "Offline mutation shows a real UI error, then retry preserves request_id and full payload",
+      "status": "PASS",
+      "detail": "offline_error_visible=true captured=2 full_payload_match=true exactly_once_verified"
+    },
+    {
+      "id": "browser.clipboard.manager-privacy",
+      "description": "Manager clipboard matches every fixture aggregate field exactly and excludes contacts, bank accounts and secrets",
+      "status": "PASS",
+      "detail": "expense=200000 due=200000 paid=0 outstanding=200000; privacy clean; exact count line present"
+    },
+    {
+      "id": "browser.cohost.null-finance-ui",
+      "description": "Cohost sees counts only on the UI and clipboard, with every finance/contact/bank/account/receiver field excluded",
+      "status": "PASS",
+      "detail": "management-only note present; finance card and all finance labels (including \"—\") absent; clipboard line set is counts plus header/place/time only"
+    },
+    {
+      "id": "browser.history.ui-filter-club",
+      "description": "History sends the selected club filter, returns exactly the permitted session ID, and renders that row only",
+      "status": "PASS",
+      "detail": "filtered p_club_id=aaaaaaaa-1111-4111-8111-111111111111; response ids=[10000000-0000-4000-8000-000000000099]; visible titles=[\"UI Flow Session published to complete\"]; empty/error/Club B states absent"
+    },
+    {
+      "id": "browser.participant.member-isolation-ui",
+      "description": "Member history sends no club filter, returns an empty ID set, and renders only the empty state with no Club B/treasury data",
+      "status": "PASS",
+      "detail": "response ids=[]; exact empty state \"Chưa có buổi nào\"; zero row markers; no Club B, finance, treasury, contact or bank text"
+    },
+    {
+      "id": "browser.reopen.session-persistence-ui",
+      "description": "Page reload cleanly restores authenticated user state from storage without cache corruption",
+      "status": "PASS",
+      "detail": "membera@example.test session preserved across reload"
+    },
+    {
+      "id": "browser.logout.cache-cleared-no-leak",
+      "description": "User logout via UI purges authentication credentials and memory caches without cross-actor data leak",
+      "status": "PASS",
+      "detail": "guest view restored, storage tokens purged completely"
+    }
+  ]
+}
