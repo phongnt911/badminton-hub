@@ -1,0 +1,6 @@
+{
+  "verification_exit": 0,
+  "snapshot_files": 53,
+  "tree_and_manifest_unchanged": true,
+  "record": "First measured readonly pass; final manifest is regenerated once to include this proof/log and reverified readonly."
+}

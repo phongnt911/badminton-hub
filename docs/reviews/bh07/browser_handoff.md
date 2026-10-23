@@ -1,3 +1,5 @@
+> **Hiện hành23/10/2026:** Codex đã tự sửa/tự kiểm BR3, **Chờ review độc lập**, tested source `a6d58aff3f1726484146a6c89aa7d559bb684d6d`. Xem [bàn giao mới](browser_codex_fix_handoff.md) và [bằng chứng riêng](browser_codex_fix_evidence/). Đây **không phải review độc lập**; không tự ghi Đạt. Phần dưới giữ bàn giao tác giả trước Codex để truy vết.
+
 # Bàn giao kiểm chứng Browser / Offline / Reopen BH-07 — sửa cuối theo ủy quyền bổ sung
 
 - **Trạng thái:** **Chờ review lần sửa cuối theo ủy quyền bổ sung**. Người triển khai không tự ghi Đạt.

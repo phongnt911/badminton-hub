@@ -1,0 +1,9 @@
+{
+  "lifecycle": "completed",
+  "version": 3,
+  "operation_rows": 1,
+  "complete_audit_rows": 1,
+  "attendance": "present",
+  "checked_in": true,
+  "expenses": 200000
+}

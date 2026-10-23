@@ -1,0 +1,12 @@
+{
+  "analyze": 0,
+  "flutter_test": 0,
+  "bh07_db": 0,
+  "web_build": 0,
+  "browser": 0,
+  "negative_controls": 0,
+  "verifier_controls": 0,
+  "mutant": 0,
+  "red_probe": 1,
+  "green_probe": 0
+}

@@ -1,0 +1,3 @@
+M	scripts/bh07_browser/assertions.js
+M	scripts/bh07_browser/run_browser_verification.js
+M	scripts/bh07_browser/run_negative_controls.js

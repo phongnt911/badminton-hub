@@ -1,0 +1,103 @@
+{
+  "screenshots": [
+    {
+      "file": "01_owner_ui_authenticated.png",
+      "sha256": "227b5c7e0377e249f207dce4a82d673244d37298697a30e8d3fbeaa384a92f59",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "02_session_ui_started.png",
+      "sha256": "38720f875fbfdf46c6891b421c789ebd53533c9f6cc66cb4ad2acdc7e6caa989",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "03_player_attendance_checked.png",
+      "sha256": "0c1dfa2e64339f6272f84956358b75ebd220267d7a60b8945d54744294ca17ff",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "04_session_finance_finalized.png",
+      "sha256": "63c7d92bf8c0467587e0dfc67ea984c3d494560762d94c93d115337e2c0d49b1",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "05_offline_mutation_error.png",
+      "sha256": "9b2229c09194bc684a45fbfdafce14e96a94e2c5b2c459c4b3bb55887e0ded83",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "06_retry_mutation_success.png",
+      "sha256": "c148cd1e5980ea242cc7d76069dda8d094b649bd4e83161e857d97876ee29cba",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "07_summary_manager_clipboard.png",
+      "sha256": "058e732a93b8fa0af64aef5375030ace145f9938844694ad2ff3201f53468766",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "08_cohost_summary_null_finances.png",
+      "sha256": "d46ad6d3a5c6cfa7163fa8d73324dcb7184b167121713c53f54273909762a0d9",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "09_history_filtered_club.png",
+      "sha256": "f364d22fb6c53f3999c94e98a7ca14960ee52a2f408f08f11d0c265b484609fd",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "10_member_isolated_history.png",
+      "sha256": "c3ba6ee268939dc142d0dccf32f435794585f28c02012d77aa6ee64e0b6a94f9",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "11_reopen_persisted_session.png",
+      "sha256": "e1d92aafb5b3996f2791354a5d066b6c4cf4ecd97363afa33caca56da1095dbe",
+      "dimensions": [
+        1280,
+        813
+      ]
+    },
+    {
+      "file": "12_logout_clean_guest_state.png",
+      "sha256": "fe126a54720275f8438e296efbcd87f832e16c9bb9d319685f62e40fb8b05aa3",
+      "dimensions": [
+        1280,
+        813
+      ]
+    }
+  ],
+  "distinct": 12,
+  "scope_app_diff_empty": true,
+  "probe_unchanged_except_output_path": true
+}

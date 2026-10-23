@@ -1,0 +1,57 @@
+[
+  {
+    "name": "manager valid baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "manager unknown financial field",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "cohost valid baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "cohost money appended to place line",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "cohost UI bare currency leak",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "member valid empty baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "member empty screen with bank account",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "valid empty response",
+    "expected": "PASS",
+    "actual": "PASS",
+    "error": null
+  },
+  {
+    "name": "FORBIDDEN response object",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "error": null
+  }
+]
+Mismatches: 5

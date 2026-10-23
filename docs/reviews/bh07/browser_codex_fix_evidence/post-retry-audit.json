@@ -1,0 +1,28 @@
+{
+  "posts": [
+    {
+      "event": "request",
+      "requestId": "61650.41",
+      "path": "/rest/v1/rpc/complete_session",
+      "method": "POST",
+      "payload": {
+        "p_request_id": "1a4170c4-61d5-41d4-81c8-5acbf6b958a2",
+        "p_session_id": "10000000-0000-4000-8000-000000000099",
+        "p_expected_version": 2
+      }
+    },
+    {
+      "event": "request",
+      "requestId": "61650.42",
+      "path": "/rest/v1/rpc/complete_session",
+      "method": "POST",
+      "payload": {
+        "p_request_id": "1a4170c4-61d5-41d4-81c8-5acbf6b958a2",
+        "p_session_id": "10000000-0000-4000-8000-000000000099",
+        "p_expected_version": 2
+      }
+    }
+  ],
+  "count": 2,
+  "payload_match": true
+}

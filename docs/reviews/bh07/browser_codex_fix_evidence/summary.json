@@ -1,0 +1,64 @@
+{
+  "verification_mode": "Codex tự sửa/tự kiểm; KHÔNG phải review độc lập; Chờ review độc lập",
+  "status": "Chờ review độc lập sau Codex tự sửa",
+  "base_sha": "1fc7e2eb171acd6c7afbc16e9f1053f9b3cb21c3",
+  "tested_source_sha": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+  "is_dirty_at_browser_start": false,
+  "source_hashes": {
+    "scripts/bh07_browser/assertions.js": "7a8e78567d0a1ac3d2c182f4e62f209a163a7d4cb4f5c72a5d9766fd94782de2",
+    "scripts/bh07_browser/audit_evidence.js": "9dc022d89de5afabc82b98fe696bbd5f8fb081d9486ea2e0a567bda27acbe880",
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+    "scripts/bh07_browser/run_browser_verification.js": "a1db4445fa7aaf83e44955f017e9a3b0f2b5797d17b70951527ea793c93ea431",
+    "scripts/bh07_browser/run_mutant_controls.py": "d2e72d381f39750a938e9848742cd932000a908233076d4c8bef959e1d02715d",
+    "scripts/bh07_browser/run_negative_controls.js": "81748b615768b60d2585fd0d9221c0e551d085c473968fe7cc4260b7115b590e",
+    "scripts/bh07_browser/run_verifier_controls.py": "1262eea43481a20e46cfd0cdcb8993fd8ed4b2220550092fd001e54af27e71b3",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949"
+  },
+  "analyze_issues": 0,
+  "flutter": {
+    "passed": 240,
+    "skipped": 1
+  },
+  "bh07_db": {
+    "passed": 23,
+    "failed": 0
+  },
+  "browser": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "negative": {
+    "cases": 41,
+    "positive": 8,
+    "negative": 33,
+    "harness_errors": 0
+  },
+  "verifier": {
+    "cases": 9,
+    "readonly": true
+  },
+  "mutant": {
+    "baseline_exit": 0,
+    "mutant_exit": 1
+  },
+  "probe": {
+    "unchanged_except_output_path": true,
+    "red_base_sha": "1fc7e2eb171acd6c7afbc16e9f1053f9b3cb21c3",
+    "red_exit": 1,
+    "red_false_accepts": 5,
+    "green_exit": 0,
+    "green_positive": 4,
+    "green_negative": 5
+  },
+  "not_run": [
+    "Independent review of Codex changes",
+    "Other/mobile browsers/devices",
+    "Delayed owner response after actor switch",
+    "Banking/VietQR/webhook",
+    "Staging/production/backup/restore",
+    "Rehearsal/pilot and full BH07 acceptance",
+    "Full Supabase db reset",
+    "335 DB regressions BH02..06"
+  ]
+}
