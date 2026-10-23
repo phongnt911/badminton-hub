@@ -1,0 +1,102 @@
+CLEANUP FAIL: private dump/key path still exists
+CLEANUP FAIL: remove container container-a: exit 1
+CLEANUP FAIL: container still exists: container-a
+CLEANUP FAIL: remove container container-a: exit 1
+CLEANUP FAIL: container still exists: container-a
+CLEANUP FAIL: private dump/key path still exists
+[
+  {
+    "case": "positive",
+    "actual_exit": 0,
+    "expected_exit_zero": true,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": false,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  },
+  {
+    "case": "private_cleanup_failure",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "private dump/key path still exists"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  },
+  {
+    "case": "docker_cleanup_failure",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "remove container container-a: exit 1",
+      "container still exists: container-a"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  },
+  {
+    "case": "cleanup_continues_after_error",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "CleanupError",
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "remove container container-a: exit 1",
+      "container still exists: container-a"
+    ],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  },
+  {
+    "case": "original_failure_preserved",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "RuntimeError",
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": true,
+    "cleanup_errors": [
+      "private dump/key path still exists"
+    ],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "base_sha": "ec0784f359ed877177330c59dbf40e0ce384ecbf",
+  "tested_source_sha": "2c6225f3c1383d89d8d6c5101ddc1320b99313f8",
+  "dirty_before_run": "",
+  "mode": "local fixture only; implementer self-check; pending independent review",
+  "checks": [
+    {
+      "name": "source cash committed via real Owner RPC",
+      "pass": true
+    },
+    {
+      "name": "source Owner/cohost/outsider ACL controls",
+      "pass": true
+    },
+    {
+      "name": "fixture has financial/audit/idempotency data",
+      "pass": true
+    },
+    {
+      "name": "corrupt archive rejected",
+      "pass": true
+    },
+    {
+      "name": "bootstrap role filter is exact",
+      "pass": true
+    }
+  ],
+  "source_port": 49333,
+  "backup": {
+    "sha256": "82ef077334f1e817fdaafddd40483eae5e5a3be63429f2f7de1745c07fd92be9",
+    "bytes": 445367,
+    "globals_sha256": "45a691369d3e2e81d060604ac5b6994fc7b04ad77d6f048844f5ca1400a13a97",
+    "seconds": 0.203
+  },
+  "status": "FAIL",
+  "failure_type": "RuntimeError",
+  "private_dumps_keys_removed": true,
+  "cleanup_errors": [],
+  "cleanup_failed": false,
+  "elapsed_seconds": 52.828,
+  "passed": 5
+}

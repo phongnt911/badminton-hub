@@ -1,42 +1,54 @@
-# Bàn giao backup/restore rehearsal BH-07 local
+# Bàn giao backup/restore rehearsal BH-07 local — sửa R1 cleanup
 
-**Kết quả review hiện hành: Chưa đạt R1 P2; xem [review_b626a78.md](review_b626a78.md). Bàn giao ban đầu dưới đây giữ làm lịch sử, không còn là trạng thái chờ kết luận.**
-
-**Chờ review độc lập. Codex triển khai/tự kiểm, không phải review độc lập.** Bước tiếp theo được chủ dự án giao sau khi đóng browser. Không tự ghi hoàn thành toàn BH-07, không merge main/deploy/pilot.
+**Trạng thái hiện hành: Chờ review độc lập R1 fix. Người triển khai tự kiểm, không phải review độc lập; không tự ghi Đạt.**
 
 - Nhánh: `feat/bh07-backup-rehearsal`.
-- Base browser đã đóng: `74305bb343fbaf548cb5eea38a77475cc3a21b39`.
-- Tested source: `b626a7852401e91db436ecc70134150f4c87c06f`, worktree sạch.
-- Chỉ source mới: `scripts/bh07_backup/run_local_rehearsal.py`; docs/evidence commit sau không sửa source. Runbook: [26](../../26_BH07_OPERATIONS_REHEARSAL.md).
-- Environment: Linux/Docker, PostgreSQL17.11, GoTrue2.197.0, PostgREST16.4, Kong2.8.1; Flutter3.47.7. Supabase component stack thật local; không dùng managed project/production.
+- Base review: `ec0784f359ed877177330c59dbf40e0ce384ecbf`.
+- Tested source: `6d00e9cea29c29a2b57d3291fb92be7600110f98`, worktree sạch trước lượt rehearsal cuối.
+- Docs/evidence: commit chứa file này (reviewer lấy SHA từ prompt); evidence mới ở `backup_restore_cleanup_evidence/`. Evidence cũ `backup_restore_evidence/` và `review_b626a78_evidence/` giữ nguyên.
+- Phạm vi sửa: chỉ `scripts/bh07_backup/run_local_rehearsal.py` và probe mới `scripts/bh07_backup/cleanup_probe.py`; không đổi app, unit test, migration/RPC, contract hay backend.
+
+## R1 đã sửa
+
+- Cleanup kiểm tra từng container/network do lượt chạy sở hữu trước khi xóa và `docker inspect` lại sau khi xóa; resource còn tồn tại hoặc lệnh xóa lỗi đều ghi `cleanup_errors`.
+- Cleanup tiếp tục các resource còn lại sau một lỗi; private dump/key còn tồn tại thì `private_dumps_keys_removed=false`.
+- Nếu cleanup lỗi, summary chuyển `FAIL`, `cleanup_failed=true`, exit `1`; lỗi chạy chính được giữ nguyên (`failure_type` không bị ghi đè).
+- Log cleanup chỉ dùng alias/return code, không log command chứa secret.
+- Probe `scripts/bh07_backup/cleanup_probe.py` trích nguyên cleanup `finally` và `return` hiện hành bằng AST, không copy logic. 5 control: positive; private cleanup failure; Docker cleanup failure; cleanup tiếp tục sau lỗi; giữ lỗi chạy chính.
+- Trước sửa probe exit `1` (positive đúng, hai negative vẫn exit `0`); sau sửa exit `0`, cả 5 control `ok=true`. Probe reviewer cũ được phát lại và giữ nguyên file.
 
 ## Kết quả tự chạy
 
 | Lệnh | Exit | Kết quả |
 |---|---|---|
-| `python -u scripts/bh07_backup/run_local_rehearsal.py --out /workspace/scratch/bh07-backup-run-01` |0|13/13 check, dump/key tạm đã xóa|
+| `python scripts\bh07_backup\cleanup_probe.py` trước sửa |1|Tái hiện private/Docker cleanup failure vẫn exit0|
+| `python scripts\bh07_backup\cleanup_probe.py` sau sửa |0|5/5 control PASS|
+| `python -u scripts\bh07_backup\run_local_rehearsal.py --out <temp>` tại `6d00e9c` |0|13/13 check PASS; dirty rỗng; private dump/key đã xóa; cleanup lỗi rỗng|
 | `flutter analyze` |0|0 issue|
 | `flutter test` |0|240 PASS,1 skip|
-| `BH02_TEST_CONTAINER=bh07-backup-regression python -u docs/reviews/bh07/run_bh07_tests.py` |0|23/23 DB; Auth stub riêng, không phải bằng chứng GoTrue|
+| `BH02_TEST_CONTAINER=bh02-test-postgres python -u docs/reviews/bh07/run_bh07_tests.py` |0|23/23 DB PASS; Auth stub riêng|
+| `clean_and_manifest.py --generate/--verify` |0/0|18/18 file, hash read-only, UTF-8 LF, 0 secret/JWT ngoài allowlist|
 
-Log gốc và JSON trong `backup_restore_evidence/`. Lần DB đầu exit1 vì container mới thiếu role anon; log `db_preflight_failure.log` giữ nguyên. Sau bootstrap `anon/authenticated/service_role` mới chạy lại xanh; không sửa runner/app. DB JSON ghi đúng tested SHA, dirty=false. Source rehearsal capture dirty trước khi tạo output; output ngoài repo. Khởi tạo nguồn dùng recipe đã có `late_response_evidence/run_local_stack.py` (không sửa recipe); generated private copy chỉ đổi root/out/private. Seed SQL trực tiếp cho application fixture; thao tác thanh toán và quyền khôi phục được thực hiện HTTP thật, không mock.
+Rehearsal cuối: `status=PASS local rehearsal; pending review`, `private_dumps_keys_removed=true`, `cleanup_errors=[]`, `cleanup_failed=false`, source_port `55874`; sau chạy không còn container/network `bh07-http-review-*` (log `post_rehearsal_docker_state.log`). Đây là môi trường Windows/Docker local, không phải Linux cũ.
+
+Một lượt sạch tại `2c6225f3c1383d89d8d6c5101ddc1320b99313f8` exit `1` vì target PostgreSQL chưa sẵn sàng trước restore. Log/summary thất bại được giữ trong evidence; đã bổ sung chờ tối đa 60 giây và nhãn stage an toàn tại `6d00e9c`, không che lỗi. Lượt `6d00e9c` mới là evidence cuối.
 
 ## Cần review
 
-Tự chạy rehearsal từ checkout sạch và output mới; lệnh tạo/xóa chỉ container fixture của chính nó. Phải không có stack `bh07-http-review-*` có sẵn. Không nhận remote URL. Kiểm dump globals/DB, restore sang cluster mới, data/schema/roles/sequences fingerprint khớp trước Auth restart, Owner/cohost/outsider/anonymous và sai mật khẩu, replay cùng payment ID/1 ledger/1 operation, aggregate server giữ nguyên. Review3 negative controls: corrupt archive, audit row bị xóa dùng cùng snapshot comparator, RPC grant bị thu hồi dùng cùng HTTP oracle. Không suy privacy đầy đủ chỉ từ8 tiền null; privacy sâu đã ở gói HTTP/browser cũ, không chạy lại trong rehearsal.
+Tập trung `scripts/bh07_backup/run_local_rehearsal.py` phần `finally`/`return` và `scripts/bh07_backup/cleanup_probe.py`. Reviewer tự chạy lại probe, rehearsal thật từ checkout sạch với output mới, `flutter analyze`, `flutter test`, DB runner và manifest readonly. Kiểm:
+- private dump/key còn lại hoặc Docker rm/inspect lỗi không thể cho exit0/PASS;
+- cleanup vẫn tiếp tục resource khác sau lỗi;
+- lỗi chạy chính không bị cleanup ghi đè;
+- chỉ resource của lượt chạy bị xóa; không log secret;
+- probe không copy logic cleanup và không nới kỳ vọng;
+- manifest không đổi sau verify readonly.
 
-Backup0,369giây, recovery đến Auth/ACL/replay11,386giây là số đo fixture quiesced, không là production SLA. Toàn bộ bảng Auth/public có counts+hash, không công bố row payload/dump/password/JWT. Các JSON/hash không phải backup có thể phục hồi; archive thực chỉ giữ tạm rồi xóa. Nguồn GoTrue dừng trước snapshot; restore fingerprint so trước login mới vì login thay Auth/session rows. Negative tamper dùng public fingerprint sau smoke để tránh Auth write noise.
-
-Manifest UTF8/LF/secret kiểm bằng:
-
-```bash
-python scripts/bh07_browser/clean_and_manifest.py --verify --evidence-dir docs/reviews/bh07/backup_restore_evidence
-```
-
-Reviewer chỉ verify readonly; so hash toàn thư mục trước/sau. Flutter/DB có thể tự chạy lại; khi tạo container DB mới phải tạo3 roles fixture nêu trên trước runner. Không chạy recipe vào stack dùng chung.
+Không chấp nhận kết luận chỉ dựa vào log của người triển khai; phải tự chạy. Không merge main/deploy/pilot.
 
 ## NOT RUN
 
-Review độc lập của gói mới; backup toàn bộ managed Supabase/Storage objects/Edge Functions/Realtime/external secrets; PITR/offsite/encryption/retention automation; backup cùng concurrent writer; browser/device/offline/deep link ở gói này; ngân hàng/webhook; staging/production/restore thật; rehearsal tải thật/pilot và nghiệm thu toàn BH-07. Không suy rộng local PostgreSQL/Auth thành hoàn tất các cổng này.
+Managed Supabase backup/PITR/offsite/encryption/retention; backup cùng concurrent writer; staging/production/restore thật; browser/device/offline/deep link ở gói này; ngân hàng/webhook; rehearsal tải thật/pilot và nghiệm thu toàn BH-07. Local PostgreSQL/Auth không đại diện cho các cổng này.
 
-Kiểm đóng gói: manifest11/11, UTF8 không BOM/LF,0 secret/JWT ngoài allowlist PASS, exit0. Hash tất cả file evidence trước/sau verify giống nhau (readonly PASS). `git diff 74305bb -- lib test supabase` rỗng; `git diff --check` sạch. Không chạy lại browser vì bước này chỉ bổ sung runner backup và docs; browser giữ nguyên kết luận đóng.
+## Lịch sử
+
+Bàn giao ban đầu source `b626a7852401e91db436ecc70134150f4c87c06f` (base `74305bb`) bị review [Chưa đạt R1 P2](review_b626a78.md); evidence và probe reviewer cũ vẫn giữ. Runbook: [26](../../26_BH07_OPERATIONS_REHEARSAL.md).

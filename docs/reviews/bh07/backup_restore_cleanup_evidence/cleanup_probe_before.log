@@ -1,0 +1,86 @@
+[
+  {
+    "case": "positive",
+    "actual_exit": 0,
+    "expected_exit_zero": true,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": null,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": true
+  },
+  {
+    "case": "private_cleanup_failure",
+    "actual_exit": 0,
+    "expected_exit_zero": false,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": null,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": false
+  },
+  {
+    "case": "docker_cleanup_failure",
+    "actual_exit": 0,
+    "expected_exit_zero": false,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": null,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": false
+  },
+  {
+    "case": "cleanup_continues_after_error",
+    "actual_exit": 0,
+    "expected_exit_zero": false,
+    "status": "PASS local rehearsal; pending review",
+    "failure_type": null,
+    "private_dumps_keys_removed": true,
+    "cleanup_failed": null,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-b",
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": false
+  },
+  {
+    "case": "original_failure_preserved",
+    "actual_exit": 1,
+    "expected_exit_zero": false,
+    "status": "FAIL",
+    "failure_type": "RuntimeError",
+    "private_dumps_keys_removed": false,
+    "cleanup_failed": null,
+    "cleanup_errors": [],
+    "container_rm_calls": [
+      "container-a"
+    ],
+    "network_rm_calls": 1,
+    "private_rmtree_calls": 1,
+    "ok": false
+  }
+]

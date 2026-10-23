@@ -1,0 +1,2 @@
+docker ps -a --filter name=bh07-http-review
+docker network ls --filter name=bh07-http-review

@@ -1,0 +1,22 @@
+{
+  "captured_local": "2026-10-23T17:42:14+07:00",
+  "branch": "feat/bh07-backup-rehearsal",
+  "base_sha": "ec0784f359ed877177330c59dbf40e0ce384ecbf",
+  "tested_source_sha": "6d00e9cea29c29a2b57d3291fb92be7600110f98",
+  "cwd": "C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub",
+  "os": "Windows-11-10.0.26100-SP0",
+  "python": "3.12.7 (tags/v3.12.7:0b05ead, Oct 1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+  "docker_server": "29.8.2",
+  "flutter": "3.47.6 stable, Dart 3.13.5, framework revision 5fc346839b",
+  "images": {
+    "postgres:17": "sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe",
+    "ghcr.io/supabase/gotrue:v2.197.0": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+    "ghcr.io/supabase/postgrest:v16.4": "sha256:d155c6718ed9a9f990d159a2ab7c0a3f16944dbb6d0a0344557421042acfe0df",
+    "ghcr.io/supabase/kong:2.8.1": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+  },
+  "notes": [
+    "Local Supabase stack was left running; the source Kong used an OS-assigned free loopback port (source_port 55874 in the final summary).",
+    "Evidence is a real local run on Windows, not the earlier Linux environment.",
+    "No managed Supabase, staging, production, banking/webhook, or concurrent-writer rehearsal was run."
+  ]
+}

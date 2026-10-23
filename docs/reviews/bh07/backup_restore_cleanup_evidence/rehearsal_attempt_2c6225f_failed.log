@@ -1,0 +1,35 @@
+started bh07-http-review-db
+started bh07-http-review-auth
+migration 20261015051808_init_schema_v1_1.sql
+migration 20261015133247_bh03_clubs_and_members.sql
+migration 20261015140216_bh03_identity_retry_session_fixes.sql
+migration 20261015151445_pre_bh04_hardening.sql
+migration 20261015163000_bh04_sessions.sql
+migration 20261015163001_bh04_review_fixes.sql
+migration 20261015170500_bh05_registrations.sql
+migration 20261016090000_bh05_review_fixes.sql
+migration 20261016091000_bh05_a3_cancel_revokes_invitations.sql
+migration 20261016100000_bh05_start_session.sql
+migration 20261016110000_bh06_expenses_finalize.sql
+migration 20261016120000_bh06_payments_ledger.sql
+migration 20261016130000_bh06_reads.sql
+migration 20261016140000_bh06a_review_round1.sql
+migration 20261020100000_bh06_integration_receiver.sql
+migration 20261020160000_bh06_integration_receiver_backfill.sql
+migration 20261020170000_bh06_finance_session_version.sql
+migration 20261020180000_bh07_reads.sql
+started bh07-http-review-rest
+started bh07-http-review-kong
+created local Auth user ownera 7fc0af95-f7ae-4532-93f1-4e22dc494647
+created local Auth user financea 65836d3d-2cb9-4e96-97a5-36118c7ec3c8
+created local Auth user cohosta fcd2889c-0cda-4b70-a8af-6270a945f134
+created local Auth user membera de47f286-45fc-4de1-b601-b61850586acc
+created local Auth user guesta 21e7b6dc-3dbe-4028-bd94-3adbf826ea3c
+created local Auth user ownerb f4b35fb4-d651-45d9-9cc8-467ebc209126
+created local Auth user outsider 5a1f8245-80e6-4692-9edc-39d64c5a06fe
+PASS: source cash committed via real Owner RPC
+PASS: source Owner/cohost/outsider ACL controls
+PASS: fixture has financial/audit/idempotency data
+PASS: corrupt archive rejected
+PASS: bootstrap role filter is exact
+FAIL stage: RuntimeError
