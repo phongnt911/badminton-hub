@@ -1,0 +1,12 @@
+{
+  "cleanup_probe": 0,
+  "cleanup_probe_ok_count": 14,
+  "old_inspect_probe_unchanged": 1,
+  "old_probe_reason": "historical assertion requires pre-fix false success; actual context control now FAIL/exit1 as required",
+  "rehearsal": 0,
+  "analyze": 0,
+  "flutter_test": 0,
+  "db": 0,
+  "manifest_author_readonly": 0,
+  "post_cleanup_inspection": 0
+}

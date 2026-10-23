@@ -1,8 +1,10 @@
 # Bàn giao backup/restore rehearsal BH-07 local — sửa R1 cleanup vòng2/2
 
+**Trạng thái hiện hành: Đạt local vòng2/2, đóng R1 và công việc backup/restore local tại source282f978 theo [review chốt](review_282f978.md). Không nghiệm thu toàn BH-07/production/pilot; giữ NOT RUN. Nội dung chờ review dưới đây là lịch sử bàn giao trước kết luận.**
+
 **Trạng thái hiện hành: Chờ review độc lập bản sửa R1 cleanup vòng2/2.** Người triển khai tự kiểm, **không phải review độc lập; không tự ghi Đạt**. Base review `f216ae1fb220f140b091abd5acd2969333ec7f53`, tested source `282f978ba2afaa58e3f5810f282bdfd0febf334d`, nhánh `feat/bh07-backup-rehearsal`. Evidence mới ở `backup_restore_cleanup_r2_evidence/`. Chưa đóng backup/restore, chưa chuyển bước kế; browser giữ Đạt local. Không merge main/deploy/pilot.
 
-## Phạm vi và kết luận đang chờ
+## Phạm vi bàn giao trước review (lịch sử)
 
 - Chỉ sửa `scripts/bh07_backup/run_local_rehearsal.py` và `scripts/bh07_backup/cleanup_probe.py`; không đổi `lib`, `test`, `supabase`, migration/RPC, contract hay backend.
 - R1 vòng1/2 bị review Chưa đạt tại [review_6d00e9c](review_6d00e9c.md): `resource_present` coi mọi stderr có `not found` là resource vắng mặt, nên lỗi Docker context thật vẫn cho PASS/exit0 dù container/network còn nguyên.

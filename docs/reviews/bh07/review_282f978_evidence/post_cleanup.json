@@ -1,0 +1,44 @@
+{
+  "checks": [
+    {
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "name=bh07-http-review",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit": 0,
+      "resource_names": []
+    },
+    {
+      "command": [
+        "docker",
+        "ps",
+        "-a",
+        "--filter",
+        "name=bh07-restore-",
+        "--format",
+        "{{.Names}}"
+      ],
+      "exit": 0,
+      "resource_names": []
+    },
+    {
+      "command": [
+        "docker",
+        "network",
+        "ls",
+        "--filter",
+        "name=bh07-http-review",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit": 0,
+      "resource_names": []
+    }
+  ],
+  "private_runtime_paths": []
+}

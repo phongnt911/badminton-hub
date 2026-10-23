@@ -1,5 +1,7 @@
 # BH-07 — Vận hành và backup/restore rehearsal local
 
+**Trạng thái hiện hành: Đạt local vòng2/2, đóng R1 và công việc backup/restore local tại source282f978 theo [review chốt](reviews/bh07/review_282f978.md). Không nghiệm thu toàn BH-07/production/pilot; giữ NOT RUN. Nội dung chờ review dưới đây là lịch sử bàn giao trước kết luận.**
+
 **Trạng thái hiện hành: R1 cleanup vòng2/2 Chờ review độc lập.** Source `282f978`, base review `f216ae1`; [review R1 vòng1/2 Chưa đạt](reviews/bh07/review_6d00e9c.md), [bàn giao](reviews/bh07/backup_restore_handoff.md), [evidence mới](reviews/bh07/backup_restore_cleanup_r2_evidence/). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.
 
 Trạng thái: **Chờ review độc lập bản sửa R1 cleanup vòng2/2 của backup/restore local**. Người triển khai tự kiểm, không phải review độc lập. Browser đã đóng Đạt local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.

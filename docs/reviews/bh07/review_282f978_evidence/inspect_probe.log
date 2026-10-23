@@ -1,0 +1,90 @@
+CLEANUP FAIL: container inspect synthetic-owned: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+CLEANUP FAIL: container inspect synthetic-owned: exit 1
+CLEANUP FAIL: network inspect synthetic-network: exit 1
+{
+  "actual_docker_error": "Failed to initialize: unable to resolve docker endpoint: context \"bh07-review-missing-context\": context not found: open /home/agent/.docker/contexts/meta/93774cce31b10f554b5a28fe1668e1b29b967f790eb7d37f75c41d750197127e/meta.json: no such file or directory",
+  "controls": [
+    {
+      "case": "positive",
+      "expected_exit_zero": true,
+      "actual_exit": 0,
+      "summary": {
+        "status": "PASS local rehearsal; pending review",
+        "checks": [
+          {
+            "pass": true
+          }
+        ],
+        "private_dumps_keys_removed": true,
+        "cleanup_errors": [],
+        "cleanup_failed": false,
+        "elapsed_seconds": 0.0,
+        "passed": 1
+      },
+      "remaining_container_count": 0,
+      "network_remaining": false,
+      "rm_calls": [
+        "synthetic-owned"
+      ],
+      "ok": true
+    },
+    {
+      "case": "daemon_error",
+      "expected_exit_zero": false,
+      "actual_exit": 1,
+      "summary": {
+        "status": "FAIL",
+        "checks": [
+          {
+            "pass": true
+          }
+        ],
+        "private_dumps_keys_removed": true,
+        "cleanup_errors": [
+          "container inspect synthetic-owned: exit 1",
+          "network inspect synthetic-network: exit 1"
+        ],
+        "cleanup_failed": true,
+        "failure_type": "CleanupError",
+        "elapsed_seconds": 0.0,
+        "passed": 1
+      },
+      "remaining_container_count": 1,
+      "network_remaining": true,
+      "rm_calls": [],
+      "ok": true
+    },
+    {
+      "case": "missing_context_error",
+      "expected_exit_zero": false,
+      "actual_exit": 1,
+      "summary": {
+        "status": "FAIL",
+        "checks": [
+          {
+            "pass": true
+          }
+        ],
+        "private_dumps_keys_removed": true,
+        "cleanup_errors": [
+          "container inspect synthetic-owned: exit 1",
+          "network inspect synthetic-network: exit 1"
+        ],
+        "cleanup_failed": true,
+        "failure_type": "CleanupError",
+        "elapsed_seconds": 0.0,
+        "passed": 1
+      },
+      "remaining_container_count": 1,
+      "network_remaining": true,
+      "rm_calls": [],
+      "ok": true
+    }
+  ]
+}
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/docs/reviews/bh07/review_6d00e9c_evidence/inspect_probe.py", line 24, in <module>
+    assert results[0]['ok'] and results[1]['ok'] and not results[2]['ok']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

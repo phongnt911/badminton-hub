@@ -1,0 +1,12 @@
+{
+  "review_base_sha": "f216ae1fb220f140b091abd5acd2969333ec7f53",
+  "reviewed_source_sha": "282f978ba2afaa58e3f5810f282bdfd0febf334d",
+  "actual_checkout_sha": "986baac29d506282740f477a5fb5ba94e15c496b",
+  "script_tree_sha": "baba0aaca005e49e5f7965e630a7f75b2cfff0b1",
+  "dirty_before_run": false,
+  "os": "Linux/Docker",
+  "flutter": "3.47.7",
+  "fixture_summary_base_sha": "ec0784f359ed877177330c59dbf40e0ce384ecbf",
+  "source_mutated_by_reviewer": false,
+  "notes": "Scripts source tree equal at tested source and docs/evidence checkout; JSON records actual HEAD without rewriting. Codex authored the earlier baseline; this review checks another implementer fix."
+}
