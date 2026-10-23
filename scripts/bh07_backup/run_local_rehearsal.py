@@ -280,7 +280,13 @@ def main():
                 cleanup_errors.append(f'{description}: exit {result.returncode}')
 
         def resource_present(kind, name):
-            args = ['docker', 'inspect', name] if kind == 'container' else ['docker', 'network', 'inspect', name]
+            if kind == 'container':
+                args = ['docker', 'inspect', name]
+            elif kind == 'network':
+                args = ['docker', 'network', 'inspect', name]
+            else:
+                cleanup_errors.append(f'{kind} inspect {name}: unsupported kind')
+                return None
             try:
                 result = cmd(args, accept_error=True)
             except Exception as error:
@@ -291,7 +297,27 @@ def main():
             stderr = getattr(result, 'stderr', b'') or b''
             if isinstance(stderr, bytes):
                 stderr = stderr.decode('utf-8', 'replace')
-            if 'no such object' in stderr.lower() or 'not found' in stderr.lower():
+            elif not isinstance(stderr, str):
+                stderr = str(stderr)
+            stderr = stderr.strip()
+            if kind == 'container':
+                absence_messages = (
+                    f'error: no such object: {name}',
+                    f'no such object: {name}',
+                    f'error: no such container: {name}',
+                    f'no such container: {name}',
+                )
+            else:
+                absence_messages = (
+                    f'error response from daemon: network {name} not found',
+                    f'network {name} not found',
+                    f'error: no such network: {name}',
+                    f'no such network: {name}',
+                )
+            # Docker context, daemon, permission and transport errors also contain
+            # words such as "not found"; only the exact absence message for this
+            # resource kind and name proves that the resource is gone.
+            if stderr.casefold() in {message.casefold() for message in absence_messages}:
                 return False
             cleanup_errors.append(f'{kind} inspect {name}: exit {result.returncode}')
             return None
