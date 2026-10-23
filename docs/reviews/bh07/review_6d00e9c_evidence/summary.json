@@ -1,0 +1,80 @@
+{
+  "base_sha": "ec0784f359ed877177330c59dbf40e0ce384ecbf",
+  "tested_source_sha": "0d4f9c0f4fbf2c1e4a33e28eda81bf73c3f6895c",
+  "dirty_before_run": "",
+  "mode": "local fixture only; implementer self-check; pending independent review",
+  "checks": [
+    {
+      "name": "source cash committed via real Owner RPC",
+      "pass": true
+    },
+    {
+      "name": "source Owner/cohost/outsider ACL controls",
+      "pass": true
+    },
+    {
+      "name": "fixture has financial/audit/idempotency data",
+      "pass": true
+    },
+    {
+      "name": "corrupt archive rejected",
+      "pass": true
+    },
+    {
+      "name": "bootstrap role filter is exact",
+      "pass": true
+    },
+    {
+      "name": "all public/Auth rows schema roles sequences match",
+      "pass": true
+    },
+    {
+      "name": "real Auth/JWT/ACL projections preserved after restore",
+      "pass": true
+    },
+    {
+      "name": "wrong password still rejected after restore",
+      "pass": true
+    },
+    {
+      "name": "same request after restore returns same payment ID",
+      "pass": true
+    },
+    {
+      "name": "restore retry is exactly one payment ledger operation",
+      "pass": true
+    },
+    {
+      "name": "server aggregate/outstanding unchanged by replay",
+      "pass": true
+    },
+    {
+      "name": "missing audit-row negative control detected",
+      "pass": true
+    },
+    {
+      "name": "lost RPC grant negative control detected via HTTP",
+      "pass": true
+    }
+  ],
+  "source_port": 54923,
+  "backup": {
+    "sha256": "995c558c9aa70075e5cfb637a6c374cd3f05c2bcff1308c6b443874750c4dda7",
+    "bytes": 441214,
+    "globals_sha256": "fa3c7cb8737522f9feae2fe3f51a62a98dda01ac695daa6417fb63dd8d818972",
+    "seconds": 0.381
+  },
+  "recovery_seconds": 12.793,
+  "projection_hashes": {
+    "ownera": "c4eb0b910357056aa57b126839c09870090d1d0406f8473eb1b58b0ef44a264b",
+    "cohosta": "8343248dcc12cb26de869032e6645a3ee10700b6be13b9df7b408675711f8479",
+    "outsider": "e6cbbd072b94e10d7fc62665f7f394e76c74393c1828a88fa301f3a613c0e239",
+    "anonymous": "761d49da3c64aa43d03569666b259644cbd54cbac23347123790e3fc5cdbb8fb"
+  },
+  "status": "PASS local rehearsal; pending review",
+  "private_dumps_keys_removed": true,
+  "cleanup_errors": [],
+  "cleanup_failed": false,
+  "elapsed_seconds": 76.741,
+  "passed": 13
+}

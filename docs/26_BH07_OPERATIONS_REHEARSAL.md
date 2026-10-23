@@ -1,5 +1,7 @@
 # BH-07 — Vận hành và backup/restore rehearsal local
 
+**Trạng thái hiện hành: Chưa đạt R1 vòng1/2, cần sửa inspect error classifier vòng2/2. [Review](reviews/bh07/review_6d00e9c.md). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.**
+
 Trạng thái: **Chờ review độc lập bản sửa R1 cleanup của backup/restore local**. Người triển khai tự kiểm, không phải review độc lập. Browser đã đóng Đạt local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.
 
 ## Phạm vi hiện hành

@@ -1,0 +1,12 @@
+{
+  "new_probe": 0,
+  "old_probe_unchanged": 1,
+  "rehearsal": 0,
+  "flutter_analyze": 0,
+  "flutter_test": 0,
+  "db": 0,
+  "manifest_verify_readonly": 0,
+  "post_resource_inspection": 0,
+  "inspect_probe": 0,
+  "inspect_probe_meaning": "reproduced false success for real Docker context not found error"
+}

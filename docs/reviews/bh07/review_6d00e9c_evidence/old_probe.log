@@ -1,0 +1,7 @@
+CLEANUP FAIL: container still exists: synthetic-target
+CLEANUP FAIL: network still exists: synthetic-network
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/docs/reviews/bh07/review_b626a78_evidence/cleanup_probe.py", line 19, in <module>
+    assert exit_code==0
+           ^^^^^^^^^^^^
+AssertionError

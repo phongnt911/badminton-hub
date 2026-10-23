@@ -1,5 +1,7 @@
 # Bàn giao backup/restore rehearsal BH-07 local — sửa R1 cleanup
 
+**Trạng thái hiện hành: Chưa đạt R1 vòng1/2, cần sửa inspect error classifier vòng2/2. [Review](review_6d00e9c.md). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.**
+
 **Trạng thái hiện hành: Chờ review độc lập R1 fix. Người triển khai tự kiểm, không phải review độc lập; không tự ghi Đạt.**
 
 - Nhánh: `feat/bh07-backup-rehearsal`.
