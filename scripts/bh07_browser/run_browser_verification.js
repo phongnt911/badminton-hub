@@ -1272,9 +1272,13 @@ async function runMatrix() {
   return failedCount === 0;
 }
 
-runMatrix().then(ok => {
-  process.exit(ok ? 0 : 1);
-}).catch(err => {
-  log(`FATAL: ${err.stack || err}`);
-  process.exit(1);
-});
+// Reuse the real UI/CDP driver in additional local verification runners.
+module.exports = { CdpClient, startChrome };
+if (require.main === module) {
+  runMatrix().then(ok => {
+    process.exit(ok ? 0 : 1);
+  }).catch(err => {
+    log(`FATAL: ${err.stack || err}`);
+    process.exit(1);
+  });
+}
