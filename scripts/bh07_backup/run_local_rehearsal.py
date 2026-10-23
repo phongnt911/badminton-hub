@@ -241,15 +241,65 @@ def main():
         # Do not emit a potential secret-bearing subprocess/HTTP exception.
         print('FAIL stage:', type(error).__name__, flush=True)
     finally:
+        cleanup_errors = []
+
+        def cleanup_step(description, args):
+            try:
+                result = cmd(args, accept_error=True)
+            except Exception as error:
+                cleanup_errors.append(f'{description}: {type(error).__name__}')
+                return
+            if result.returncode != 0:
+                cleanup_errors.append(f'{description}: exit {result.returncode}')
+
+        def resource_present(kind, name):
+            args = ['docker', 'inspect', name] if kind == 'container' else ['docker', 'network', 'inspect', name]
+            try:
+                result = cmd(args, accept_error=True)
+            except Exception as error:
+                cleanup_errors.append(f'{kind} inspect {name}: {type(error).__name__}')
+                return None
+            if result.returncode == 0:
+                return True
+            stderr = getattr(result, 'stderr', b'') or b''
+            if isinstance(stderr, bytes):
+                stderr = stderr.decode('utf-8', 'replace')
+            if 'no such object' in stderr.lower() or 'not found' in stderr.lower():
+                return False
+            cleanup_errors.append(f'{kind} inspect {name}: exit {result.returncode}')
+            return None
+
+        # Continue best-effort cleanup after any single failure. Only names from
+        # this run are used; an absent resource is already clean.
         for name in reversed(owned):
-            cmd(['docker', 'rm', '-f', '-v', name], accept_error=True)
-        cmd(['docker', 'network', 'rm', NETWORK], accept_error=True)
-        shutil.rmtree(private, ignore_errors=True)
+            present = resource_present('container', name)
+            if present:
+                cleanup_step('remove container ' + name, ['docker', 'rm', '-f', '-v', name])
+                if resource_present('container', name):
+                    cleanup_errors.append('container still exists: ' + name)
+        present = resource_present('network', NETWORK)
+        if present:
+            cleanup_step('remove network ' + NETWORK, ['docker', 'network', 'rm', NETWORK])
+            if resource_present('network', NETWORK):
+                cleanup_errors.append('network still exists: ' + NETWORK)
+        try:
+            shutil.rmtree(private, ignore_errors=True)
+        except Exception as error:
+            cleanup_errors.append('private cleanup: ' + type(error).__name__)
+        if private.exists():
+            cleanup_errors.append('private dump/key path still exists')
         summary['private_dumps_keys_removed'] = not private.exists()
+        summary['cleanup_errors'] = cleanup_errors
+        summary['cleanup_failed'] = bool(cleanup_errors)
+        for error in cleanup_errors:
+            print('CLEANUP FAIL:', error, flush=True)
+        if cleanup_errors and summary.get('status', '').startswith('PASS'):
+            summary['status'] = 'FAIL'
+            summary['failure_type'] = 'CleanupError'
         summary['elapsed_seconds'] = round(time.monotonic() - started, 3)
         summary['passed'] = sum(item['pass'] for item in summary['checks'])
         (out / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
-    return 0 if summary['status'].startswith('PASS') else 1
+    return 0 if summary.get('status', '').startswith('PASS') and not cleanup_errors else 1
 
 
 if __name__ == '__main__':
