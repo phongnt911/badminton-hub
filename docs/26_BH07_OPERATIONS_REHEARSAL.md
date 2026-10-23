@@ -2,9 +2,11 @@
 
 **Trạng thái hiện hành: Đạt local vòng2/2, đóng R1 và công việc backup/restore local tại source282f978 theo [review chốt](reviews/bh07/review_282f978.md). Không nghiệm thu toàn BH-07/production/pilot; giữ NOT RUN. Nội dung chờ review dưới đây là lịch sử bàn giao trước kết luận.**
 
-**Trạng thái hiện hành: R1 cleanup vòng2/2 Chờ review độc lập.** Source `282f978`, base review `f216ae1`; [review R1 vòng1/2 Chưa đạt](reviews/bh07/review_6d00e9c.md), [bàn giao](reviews/bh07/backup_restore_handoff.md), [evidence mới](reviews/bh07/backup_restore_cleanup_r2_evidence/). Bàn giao/kết quả tự kiểm dưới đây giữ làm lịch sử; chưa được nghiệm thu.
+**Điểm tiếp tục (23/10/2026):** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập** tại [bh07_readiness.md](reviews/bh07/bh07_readiness.md), base `b91a350e619529d389af3edf6d4a06408af8d200`. Hồ sơ map các cổng với SHA/evidence, tách **Đạt local** với **NOT RUN** và lập kế hoạch kiểm chứng phần còn thiếu; không chạy môi trường thật. Không merge main/deploy/pilot hoặc tự chuyển BH-08.
 
-Trạng thái: **Chờ review độc lập bản sửa R1 cleanup vòng2/2 của backup/restore local**. Người triển khai tự kiểm, không phải review độc lập. Browser đã đóng Đạt local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.
+**Lịch sử bàn giao trước chốt:** R1 cleanup vòng2/2 từng **Chờ review độc lập** tại source `282f978`, base review `f216ae1`; [review R1 vòng1/2 Chưa đạt](reviews/bh07/review_6d00e9c.md), [bàn giao](reviews/bh07/backup_restore_handoff.md), [evidence mới](reviews/bh07/backup_restore_cleanup_r2_evidence/). Kết quả tự kiểm dưới đây giữ làm lịch sử; đã được review chốt local vòng2/2.
+
+**Lịch sử:** bản sửa R1 cleanup vòng2/2 từng ở trạng thái Chờ review. Browser đã đóng local tại `74305bb`; không mở lại trong gói này. Tài liệu không cấp phép vận hành production hoặc pilot.
 
 ## Phạm vi hiện hành
 
