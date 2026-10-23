@@ -1,0 +1,17 @@
+{
+  "review_head": "bc63673cd58ce0f83bc783cb33375a6aba9e6576",
+  "base": "b91a350e619529d389af3edf6d4a06408af8d200",
+  "browser_matrix_source": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+  "linked_browser_evidence_source": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "correct_codex_fix_evidence_source": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+  "audit_exit": 0,
+  "diff_check_exit": 0,
+  "runtime_tests": "NOT RUN docs-only",
+  "review_result": "Chưa đạt",
+  "findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 4
+  },
+  "implementation_docs_modified": false
+}
