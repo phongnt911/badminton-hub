@@ -1,17 +1,31 @@
-// BH-07 Browser / Offline / Reopen Verification Suite (Round 2/2 Remediation)
+// BH-07 Browser / Offline / Reopen Verification Suite (authorized final fix)
 // Real Flutter Web on real Chrome (CDP) against real local Supabase Auth/PostgREST.
-// Strictly addresses remaining items in BR1 - BR5 per review_b00b580.md:
+// Addresses the remaining BR2/BR3/BR5 P2 findings from review_eadb5c7.md while
+// keeping the already-closed BR1 and same-SPA BR4 actor-switch case intact:
 // - BR1: Strict attendance assertion on specific player, preconditions & postconditions (no false pass on no-op)
-// - BR2: Filter POST-only (drop OPTIONS), require 2 requests, assert deep payload/request_id match, offline transport error & exactly-once DB side effects
-// - BR3: Verify numeric aggregate totals (>0), strict Cohost zero-money & privacy gate, real club filter interaction & member isolation
-// - BR4: SPA cache invalidation across actor switch within the SAME document/instance (no Page.navigate/reload reset), late response test, and isolated F5 persistence
-// - BR5: Publish all logs, measure real exits, source provenance & honest hashes, strict readonly verifier mode
+// - BR2: Filter POST-only (drop OPTIONS), require 2 requests, assert deep payload/request_id match, assert the real offline UI error, and verify exactly-once DB/audit side effects
+// - BR3: Assert every exact aggregate field/number, reject wrong fields or "—", enforce cohost count-only/private-data exclusion, and assert history IDs, empty/denied rows and the real filter payload
+// - BR4: SPA cache invalidation across actor switch within the SAME document/instance (no Page.navigate/reload reset) and isolated F5 persistence
+// - BR5: Publish all logs, measure real exits, source provenance & honest hashes, strict read-only verifier mode
 
 const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+
+const {
+  FIXTURE,
+  OFFLINE_ERROR_MESSAGE,
+  validateOfflineUiState,
+  validateCompleteRequests,
+  validateManagerClipboard,
+  validateCohostClipboard,
+  validateCohostSummarySurface,
+  validateHistoryCall,
+  validateHistoryIds,
+  validateHistorySurface,
+} = require('./assertions');
 
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const DEBUG_PORT = 9335;
@@ -20,6 +34,7 @@ const EVIDENCE_DIR = path.resolve(PROJECT_ROOT, 'docs/reviews/bh07/browser_evide
 const SCREENSHOTS_DIR = path.resolve(EVIDENCE_DIR, 'screenshots');
 const USER_DATA_DIR = path.join(os.tmpdir(), 'chrome_bh07_isolated_v2');
 const WEB_URL = 'http://127.0.0.1:8088';
+const BASE_SHA = 'b5517df1055ded3de86bdce49927188eab8e53d8';
 
 if (!fs.existsSync(SCREENSHOTS_DIR)) {
   fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
@@ -39,6 +54,19 @@ function queryDb(sql) {
   return out.trim();
 }
 
+function readGitStatus() {
+  return execSync('git status --porcelain', { encoding: 'utf-8' }).trim();
+}
+
+async function waitForCondition(predicate, description, timeoutMs = 8000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (predicate()) return true;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`Timed out waiting for ${description}`);
+}
+
 class CdpClient {
   constructor(wsUrl) {
     this.wsUrl = wsUrl;
@@ -48,6 +76,8 @@ class CdpClient {
     this.sessionId = null;
     this.targetId = null;
     this.requestListeners = [];
+    this.responseListeners = [];
+    this.networkRequests = new Map();
   }
 
   async connect() {
@@ -59,8 +89,33 @@ class CdpClient {
     this.ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
       if (msg.method === 'Network.requestWillBeSent') {
+        this.networkRequests.set(msg.params.requestId, {
+          requestId: msg.params.requestId,
+          url: msg.params.request.url,
+          method: msg.params.request.method,
+          postData: msg.params.request.postData,
+        });
         for (const listener of this.requestListeners) {
           listener(msg.params);
+        }
+      }
+      if (msg.method === 'Network.loadingFinished' && this.responseListeners.length > 0) {
+        const meta = this.networkRequests.get(msg.params.requestId);
+        if (meta) {
+          this.send('Network.getResponseBody', { requestId: msg.params.requestId })
+            .then((res) => {
+              if (!res.result) return;
+              let body = res.result.body;
+              if (res.result.base64Encoded) {
+                body = Buffer.from(body, 'base64').toString('utf8');
+              }
+              for (const listener of this.responseListeners) {
+                try {
+                  listener({ ...meta, body });
+                } catch (_) {}
+              }
+            })
+            .catch(() => {});
         }
       }
       if (msg.id && this.pending.has(msg.id)) {
@@ -326,7 +381,10 @@ async function startChrome() {
 async function runMatrix() {
   const checks = [];
   const startTime = Date.now();
-  log('=== Starting BH-07 Browser / Offline / Reopen Verification Suite (Round 2/2) ===');
+  const dirtyAtStart = readGitStatus();
+  const isDirtyAtStart = dirtyAtStart.length > 0;
+  log(`=== Starting BH-07 Browser / Offline / Reopen Verification Suite (final authorized fix) ===`);
+  log(`Dirty checkout before run: ${isDirtyAtStart ? 'true' : 'false'}${isDirtyAtStart ? `\n${dirtyAtStart}` : ''}`);
 
   // Step 0: Ensure fresh fixtures in local database
   log('Resetting and seeding deterministic fixtures...');
@@ -550,9 +608,9 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC05: Offline Mutation, UI Error, and Idempotent Retry ---');
-    const sessionId = '10000000-0000-4000-8000-000000000099';
+    const sessionId = FIXTURE.uiSessionId;
     let capturedRequests = [];
-    
+
     // STRICT POST-ONLY FILTER (BR2): filter out OPTIONS preflights
     cdp.requestListeners.push(req => {
       if (req.request.method === 'POST' && req.request.url.includes('/rpc/complete_session')) {
@@ -581,13 +639,23 @@ async function runMatrix() {
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Đồng ý' || e.aria === 'Đồng ý'),
       'Confirm complete dialog while offline'
     );
-    await new Promise(r => setTimeout(r, 2000));
 
-    // Assert transport error was caught, NO false success
+    // Poll for the real transport-error snackbar. A silent no-error/no-success
+    // UI is a failure even when the later retry succeeds.
+    await cdp.findSemantic(
+      e => ((e.text || '') + '\n' + (e.aria || '')).includes(OFFLINE_ERROR_MESSAGE),
+      6000
+    );
     const offlineElements = await cdp.getAllSemantics();
-    const falseSuccess = offlineElements.some(e => (e.text || '').includes('Đã kết thúc buổi chơi.'));
-    if (falseSuccess) {
-      throw new Error('FAIL: App reported false success while network was offline!');
+    const offlineErrors = validateOfflineUiState(offlineElements);
+    if (offlineErrors.length > 0) {
+      checks.push({
+        id: 'browser.mutation.offline-retry-intent',
+        description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
+        status: 'FAIL',
+        detail: offlineErrors.join('; ')
+      });
+      throw new Error(offlineErrors.join('; '));
     }
 
     // Verify DB remains in_progress during offline failure
@@ -596,7 +664,7 @@ async function runMatrix() {
       throw new Error(`FAIL: Session lifecycle modified during offline failure: ${offlineLifecycle}`);
     }
 
-    await cdp.screenshot('05_offline_mutation_error.png', 'Error handled properly when mutation sent offline');
+    await cdp.screenshot('05_offline_mutation_error.png', 'Transport error snackbar visible on the finance screen while offline');
 
     // 3. Restore network
     await cdp.setOffline(false);
@@ -616,52 +684,27 @@ async function runMatrix() {
 
     await cdp.screenshot('06_retry_mutation_success.png', 'Mutation completed successfully after network restoration');
 
-    // 5. Check captured requests for request_id & payload match
-    // Check captured requests for request_id & payload match
+    // 5. Check exactly two POST requests and deep payload equality
     log(`Captured complete_session POST requests count: ${capturedRequests.length}`);
-    if (capturedRequests.length !== 2) {
+    const requestErrors = validateCompleteRequests(capturedRequests);
+    if (requestErrors.length > 0) {
       checks.push({
         id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
+        description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
         status: 'FAIL',
-        detail: `Expected exactly 2 POST requests (1 offline, 1 online retry), got ${capturedRequests.length}`
+        detail: requestErrors.join('; ')
       });
-      throw new Error(`Expected exactly 2 POST requests, got ${capturedRequests.length}`);
+      throw new Error(requestErrors.join('; '));
     }
 
     const req1 = capturedRequests[0].postData;
-    const req2 = capturedRequests[1].postData;
-
-    if (!req1 || !req2) {
-      checks.push({
-        id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
-        status: 'FAIL',
-        detail: 'Captured request is missing valid postData'
-      });
-      throw new Error('Captured request missing postData');
-    }
-
-    const reqIdMatch = req1.p_request_id && (req1.p_request_id === req2.p_request_id);
-    const sessionMatch = req1.p_session_id === req2.p_session_id;
-    const versionMatch = req1.p_expected_version === req2.p_expected_version;
-
-    if (!reqIdMatch || !sessionMatch || !versionMatch) {
-      checks.push({
-        id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
-        status: 'FAIL',
-        detail: `Payload mismatch: reqIdMatch=${reqIdMatch} sessionMatch=${sessionMatch} versionMatch=${versionMatch}`
-      });
-      throw new Error(`Retry mutation failed idempotency: reqIdMatch=${reqIdMatch} sessionMatch=${sessionMatch} versionMatch=${versionMatch}`);
-    }
 
     // 6. Assert DB Side Effects exactly-once (BR2)
     const postCompleteSession = queryDb(`SELECT lifecycle || '|' || version FROM sessions WHERE id = '${sessionId}'`);
     if (postCompleteSession !== 'completed|3') {
       checks.push({
         id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
+        description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
         status: 'FAIL',
         detail: `DB session lifecycle/version expected completed|3, got ${postCompleteSession}`
       });
@@ -673,7 +716,7 @@ async function runMatrix() {
     if (opCount !== '1' || auditCount !== '1') {
       checks.push({
         id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
+        description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
         status: 'FAIL',
         detail: `Side effect duplication: opCount=${opCount} auditCount=${auditCount}`
       });
@@ -682,15 +725,15 @@ async function runMatrix() {
 
     checks.push({
       id: 'browser.mutation.offline-retry-intent',
-      description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
+      description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
       status: 'PASS',
-      detail: `captured=2 reqIdMatch=true payloadMatch=true exactly_once_verified`
+      detail: `offline_error_visible=true captured=2 full_payload_match=true exactly_once_verified`
     });
   } catch (err) {
     if (!checks.some(c => c.id === 'browser.mutation.offline-retry-intent')) {
       checks.push({
         id: 'browser.mutation.offline-retry-intent',
-        description: 'Offline mutation catches transport error without false success, retry preserves request_id and payload',
+        description: 'Offline mutation shows a real UI error, then retry preserves request_id and full payload',
         status: 'FAIL',
         detail: err.message
       });
@@ -702,7 +745,7 @@ async function runMatrix() {
   // --------------------------------------------------------------------------
   try {
     log('--- TC06: Real Clipboard Copy & Privacy Inspection ---');
-    const sessionId = '10000000-0000-4000-8000-000000000099';
+    const sessionId = FIXTURE.uiSessionId;
     await cdp.navigateToSession(sessionId);
 
     await cdp.clickSemantic(
@@ -727,28 +770,21 @@ async function runMatrix() {
     log(`Manager real clipboard text:\n${clipboardText}`);
     await cdp.screenshot('07_summary_manager_clipboard.png', 'Manager summary screen and copied clipboard');
 
-    const hasPhone = /0\d{9,10}/.test(clipboardText) || clipboardText.includes('+84900000004');
-    const hasBank = /(stk|ngan hang|vietinbank|techcombank)/i.test(clipboardText) || clipboardText.includes('0000000007');
-    const hasSecret = /secret|password|bearer/i.test(clipboardText);
-    
-    // Assert non-zero numeric totals from seeded fixture (BR3)
-    const hasExpectedTotals = clipboardText.includes('200.000') || clipboardText.includes('200,000') || clipboardText.includes('200000');
-    const hasFinances = clipboardText.includes('Tổng chi phí:') && clipboardText.includes('Còn phải thu:') && hasExpectedTotals;
-
-    if (!hasPhone && !hasBank && !hasSecret && hasFinances && hasExpectedTotals) {
-      checks.push({
-        id: 'browser.clipboard.manager-privacy',
-        description: 'Manager summary text copied to real clipboard includes aggregate finances but excludes private contacts and bank accounts',
-        status: 'PASS',
-        detail: 'real clipboard read successfully, privacy clean (no phone/bank), finance totals present and verified >0'
-      });
-    } else {
-      throw new Error(`Clipboard failed privacy or aggregate assertion: hasPhone=${hasPhone} hasBank=${hasBank} hasFinances=${hasFinances} hasExpectedTotals=${hasExpectedTotals}`);
+    const managerErrors = validateManagerClipboard(clipboardText);
+    if (managerErrors.length > 0) {
+      throw new Error(managerErrors.join('; '));
     }
+
+    checks.push({
+      id: 'browser.clipboard.manager-privacy',
+      description: 'Manager clipboard matches every fixture aggregate field exactly and excludes contacts, bank accounts and secrets',
+      status: 'PASS',
+      detail: 'expense=200000 due=200000 paid=0 outstanding=200000; privacy clean; exact count line present'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.clipboard.manager-privacy',
-      description: 'Manager summary text copied to real clipboard includes aggregate finances but excludes private contacts and bank accounts',
+      description: 'Manager clipboard matches every fixture aggregate field exactly and excludes contacts, bank accounts and secrets',
       status: 'FAIL',
       detail: err.message
     });
@@ -830,12 +866,11 @@ async function runMatrix() {
     );
     await new Promise(r => setTimeout(r, 3000));
 
-    // 4. Assert Cache Invalidation: Management-only card is visible, Finance card is purged
+    // 4. Assert Cache Invalidation and strict cohost privacy on the live UI
     const cohostElements = await cdp.getAllSemantics();
-    const hasManagementOnlyNote = cohostElements.some(e => (e.text || '').includes('Chỉ xem số lượng'));
-    const hasFinanceCard = cohostElements.some(e => (e.text || '').includes('Tài chính tổng hợp') || (e.text || '').includes('Chi phí & Thu chi'));
+    const cohostSurfaceErrors = validateCohostSummarySurface(cohostElements);
 
-    // 5. Copy summary as Cohost and assert zero-money / strict privacy gate
+    // 5. Copy summary as Cohost and validate the exact allowed line set
     await cdp.clickSemantic(
       e => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === 'Sao chép tổng kết' || e.aria === 'Sao chép tổng kết'),
       'Click Sao chép tổng kết as Cohost'
@@ -843,28 +878,24 @@ async function runMatrix() {
     await new Promise(r => setTimeout(r, 1200));
     const cohostClipboard = await cdp.readClipboard();
     log(`Cohost real clipboard text:\n${cohostClipboard}`);
+    const cohostClipboardErrors = validateCohostClipboard(cohostClipboard);
+    const cohostErrors = [...cohostSurfaceErrors, ...cohostClipboardErrors];
 
-    // Strict regex check for any currency mentions, phone, or bank details
-    const hasAnyMoney = /(?:\d{1,3}(?:\.\d{3})+|\d+)\s*(?:vnđ|vnd|đ)/i.test(cohostClipboard) || 
-      /(?:tổng chi phí|còn phải thu|đã thu|tiền sân|tiền cầu|phụ thu)/i.test(cohostClipboard) ||
-      /0\d{9,10}/.test(cohostClipboard) ||
-      /(?:stk|ngan hang|vietinbank|techcombank)/i.test(cohostClipboard);
-
-    if (hasManagementOnlyNote && !hasFinanceCard && !hasAnyMoney) {
-      await cdp.screenshot('08_cohost_summary_null_finances.png', 'Cohost summary card showing counts only and no finance leak');
-      checks.push({
-        id: 'browser.cohost.null-finance-ui',
-        description: 'Cohost without club finance role sees management counts only, NULL money fields on UI, and clipboard excludes all finance totals',
-        status: 'PASS',
-        detail: 'management only card verified, finance card hidden, clipboard money fields clean in same document instance'
-      });
-    } else {
-      throw new Error(`Cohost finance leakage: hasManagementOnlyNote=${hasManagementOnlyNote} hasFinanceCard=${hasFinanceCard} hasAnyMoney=${hasAnyMoney}`);
+    if (cohostErrors.length > 0) {
+      throw new Error(`Cohost privacy contract failed: ${cohostErrors.join('; ')}`);
     }
+
+    await cdp.screenshot('08_cohost_summary_null_finances.png', 'Cohost summary card showing counts only and no finance leak');
+    checks.push({
+      id: 'browser.cohost.null-finance-ui',
+      description: 'Cohost sees counts only on the UI and clipboard, with every finance/contact/bank/account/receiver field excluded',
+      status: 'PASS',
+      detail: 'management-only note present; finance card and all finance labels (including "—") absent; clipboard line set is counts plus header/place/time only'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.cohost.null-finance-ui',
-      description: 'Cohost without club finance role sees management counts only, NULL money fields on UI, and clipboard excludes all finance totals',
+      description: 'Cohost sees counts only on the UI and clipboard, with every finance/contact/bank/account/receiver field excluded',
       status: 'FAIL',
       detail: err.message
     });
@@ -886,6 +917,26 @@ async function runMatrix() {
 
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab');
     await new Promise(r => setTimeout(r, 2000));
+
+    // Capture the actual history RPC request and response so the club filter and
+    // returned IDs can be checked independently from visible labels.
+    const historyCalls = [];
+    const historyResponses = [];
+    cdp.requestListeners.push(req => {
+      if (req.request.method === 'POST' && req.request.url.includes('/rpc/list_my_session_history')) {
+        let postData = null;
+        try { postData = JSON.parse(req.request.postData); } catch (_) {}
+        historyCalls.push({ url: req.request.url, method: req.request.method, postData });
+      }
+    });
+    cdp.responseListeners.push(res => {
+      if (!String(res.url || '').includes('/rpc/list_my_session_history')) return;
+      let body = null;
+      let postData = null;
+      try { body = JSON.parse(res.body); } catch (_) {}
+      try { postData = JSON.parse(res.postData); } catch (_) {}
+      if (body !== null) historyResponses.push({ url: res.url, postData, body });
+    });
 
     // Open Session History
     await cdp.clickSemantic(
@@ -914,35 +965,47 @@ async function runMatrix() {
     );
     await new Promise(r => setTimeout(r, 2500));
 
-    // Assert filtered results: must include HTTP Club A session, must NOT include HTTP Club B
-    const historyElements = await cdp.getAllSemantics();
-    const hasClubASession = historyElements.some(e => 
-      (e.text || '').includes('UI Flow Session') || 
-      (e.aria || '').includes('UI Flow Session') ||
-      (e.text || '').includes('HTTP Venue A')
+    const filteredCall = [...historyCalls].reverse().find(
+      (call) => call.postData && call.postData.p_club_id === FIXTURE.clubAId
     );
-    const hasClubBSession = historyElements.some(e => 
-      (e.text || '').includes('HTTP Club B') || 
-      (e.aria || '').includes('HTTP Club B') || 
-      (e.text || '').includes('Ba Ngòi') ||
-      (e.aria || '').includes('Ba Ngòi')
+    await waitForCondition(
+      () => historyResponses.some((response) => response.postData && response.postData.p_club_id === FIXTURE.clubAId),
+      'filtered history response',
+      10000
+    );
+    const filteredResponse = [...historyResponses].reverse().find(
+      (response) => response.postData && response.postData.p_club_id === FIXTURE.clubAId
     );
 
-    if (hasClubASession && !hasClubBSession) {
-      await cdp.screenshot('09_history_filtered_club.png', 'History screen loaded and filtered by club via UI');
-      checks.push({
-        id: 'browser.history.ui-filter-club',
-        description: 'Session history screen renders and filters completed/cancelled sessions by club',
-        status: 'PASS',
-        detail: 'history screen filtered by HTTP Club A: Club A sessions present, Club B sessions excluded'
-      });
-    } else {
-      throw new Error(`History filter assertion failed: hasClubASession=${hasClubASession} hasClubBSession=${hasClubBSession}`);
+    const historyElements = await cdp.getAllSemantics();
+    const historyErrors = [
+      ...validateHistoryCall(filteredCall, FIXTURE.clubAId),
+      ...validateHistoryIds(
+        (filteredResponse && Array.isArray(filteredResponse.body) ? filteredResponse.body : []).map((session) => session.id),
+        [FIXTURE.uiSessionId]
+      ),
+      ...validateHistorySurface(historyElements, FIXTURE.cohostExpectedTitles, false),
+    ];
+    const selectedClubLabel = historyElements.some(
+      (element) => `${element.text || ''}\n${element.aria || ''}`.includes('HTTP Club A')
+    );
+    if (!selectedClubLabel) historyErrors.push('history UI does not show HTTP Club A as the selected/visible club');
+
+    if (historyErrors.length > 0) {
+      throw new Error(`History filter/ID contract failed: ${historyErrors.join('; ')}`);
     }
+
+    await cdp.screenshot('09_history_filtered_club.png', 'History screen filtered by HTTP Club A through the real dropdown');
+    checks.push({
+      id: 'browser.history.ui-filter-club',
+      description: 'History sends the selected club filter, returns exactly the permitted session ID, and renders that row only',
+      status: 'PASS',
+      detail: `filtered p_club_id=${FIXTURE.clubAId}; response ids=[${FIXTURE.uiSessionId}]; visible titles=${JSON.stringify(FIXTURE.cohostExpectedTitles)}; empty/error/Club B states absent`
+    });
   } catch (err) {
     checks.push({
       id: 'browser.history.ui-filter-club',
-      description: 'Session history screen renders and filters completed/cancelled sessions by club',
+      description: 'History sends the selected club filter, returns exactly the permitted session ID, and renders that row only',
       status: 'FAIL',
       detail: err.message
     });
@@ -992,6 +1055,25 @@ async function runMatrix() {
     // Open History Screen as Member
     await cdp.clickSemantic(e => e.aria === 'Buổi Chơi' && e.role === 'tab', 'Navigate to Buổi Chơi tab as Member');
     await new Promise(r => setTimeout(r, 2000));
+
+    const memberHistoryCalls = [];
+    const memberHistoryResponses = [];
+    cdp.requestListeners.push(req => {
+      if (req.request.method === 'POST' && req.request.url.includes('/rpc/list_my_session_history')) {
+        let postData = null;
+        try { postData = JSON.parse(req.request.postData); } catch (_) {}
+        memberHistoryCalls.push({ url: req.request.url, method: req.request.method, postData });
+      }
+    });
+    cdp.responseListeners.push(res => {
+      if (!String(res.url || '').includes('/rpc/list_my_session_history')) return;
+      let body = null;
+      let postData = null;
+      try { body = JSON.parse(res.body); } catch (_) {}
+      try { postData = JSON.parse(res.postData); } catch (_) {}
+      if (body !== null) memberHistoryResponses.push({ url: res.url, postData, body });
+    });
+
     await cdp.clickSemantic(
       e => (e.text || '').includes('Lịch sử buổi'),
       'Open History Screen as Member'
@@ -1001,27 +1083,39 @@ async function runMatrix() {
       'member history screen title',
       10000
     );
+    await waitForCondition(
+      () => memberHistoryResponses.length > 0,
+      'member history response',
+      10000
+    );
 
-    // Verify Member isolation: no treasury or other clubs leaks
     const memberHistoryElements = await cdp.getAllSemantics();
-    const hasClubBLeak = memberHistoryElements.some(e => (e.text || '').includes('Ba Ngòi'));
-    const hasTreasuryLeak = memberHistoryElements.some(e => (e.text || '').includes('Quỹ CLB') || (e.text || '').includes('Số dư'));
+    const memberCall = [...memberHistoryCalls].reverse()[0];
+    const memberResponse = [...memberHistoryResponses].reverse()[0];
+    const memberHistoryErrors = [
+      ...validateHistoryCall(memberCall, null),
+      ...validateHistoryIds(
+        (memberResponse && Array.isArray(memberResponse.body) ? memberResponse.body : []).map((session) => session.id),
+        []
+      ),
+      ...validateHistorySurface(memberHistoryElements, FIXTURE.memberExpectedTitles, true),
+    ];
 
-    if (!hasClubBLeak && !hasTreasuryLeak) {
-      await cdp.screenshot('10_member_isolated_history.png', 'Participant personal history view with no treasury leak');
-      checks.push({
-        id: 'browser.participant.member-isolation-ui',
-        description: 'Regular participant accesses only permitted sessions without club treasury management leak',
-        status: 'PASS',
-        detail: 'member history rendered in isolation, no club treasury leak'
-      });
-    } else {
-      throw new Error(`Member isolation failed: hasClubBLeak=${hasClubBLeak} hasTreasuryLeak=${hasTreasuryLeak}`);
+    if (memberHistoryErrors.length > 0) {
+      throw new Error(`Member history isolation failed: ${memberHistoryErrors.join('; ')}`);
     }
+
+    await cdp.screenshot('10_member_isolated_history.png', 'Participant personal history view with exact empty state and no out-of-scope rows');
+    checks.push({
+      id: 'browser.participant.member-isolation-ui',
+      description: 'Member history sends no club filter, returns an empty ID set, and renders only the empty state with no Club B/treasury data',
+      status: 'PASS',
+      detail: 'response ids=[]; exact empty state "Chưa có buổi nào"; zero row markers; no Club B, finance, treasury, contact or bank text'
+    });
   } catch (err) {
     checks.push({
       id: 'browser.participant.member-isolation-ui',
-      description: 'Regular participant accesses only permitted sessions without club treasury management leak',
+      description: 'Member history sends no club filter, returns an empty ID set, and renders only the empty state with no Club B/treasury data',
       status: 'FAIL',
       detail: err.message
     });
@@ -1124,22 +1218,25 @@ async function runMatrix() {
   const failedCount = checks.filter(c => c.status === 'FAIL').length;
   log(`=== Verification Complete: ${passedCount}/${checks.length} checks PASS (${failedCount} FAIL) in ${durationMs}ms ===`);
 
-  // Write summary.json with provenance and source hashes
+  // Write summary.json with measured provenance and source hashes
   const currentSha = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
   const runnerHash = crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex');
+  const assertionsHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'assertions.js'))).digest('hex');
   const seedHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'seed_setup.js'))).digest('hex');
   const cleanerHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'clean_and_manifest.py'))).digest('hex');
 
   const summary = {
-    ticket: 'BH-07 browser/offline/reopen verification (Round 2/2)',
+    ticket: 'BH-07 browser/offline/reopen verification (authorized final fix)',
     generated_at_utc: new Date().toISOString(),
     started_at_utc: new Date(startTime).toISOString(),
     duration_ms: durationMs,
-    base_sha: '465b46607c8fd5d1566e7eca8688af09fc557e34',
+    base_sha: BASE_SHA,
     tested_checkout_sha: currentSha,
-    is_dirty: false,
+    is_dirty: isDirtyAtStart,
+    dirty_details: dirtyAtStart,
     source_hashes: {
       'scripts/bh07_browser/run_browser_verification.js': runnerHash,
+      'scripts/bh07_browser/assertions.js': assertionsHash,
       'scripts/bh07_browser/seed_setup.js': seedHash,
       'scripts/bh07_browser/clean_and_manifest.py': cleanerHash
     },
@@ -1158,10 +1255,12 @@ async function runMatrix() {
   // Write browser_runner.log
   fs.writeFileSync(path.resolve(EVIDENCE_DIR, 'browser_runner.log'), logLines.join('\n') + '\n', 'utf-8');
 
-  // Write exits.json with real exit measurements
+  // Write exits.json only for steps this process actually executed. Build and
+  // database reset are external to this script and must be reported as NOT RUN
+  // here rather than hardcoded as success.
   const exits = {
-    web_build: 0,
-    db_reset: 0,
+    web_build: 'NOT RUN',
+    db_reset: 'NOT RUN',
     seed_setup: seedExit,
     browser_matrix: failedCount === 0 ? 0 : 1
   };
