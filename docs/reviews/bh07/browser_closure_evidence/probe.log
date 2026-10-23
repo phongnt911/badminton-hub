@@ -1,0 +1,66 @@
+[
+  {
+    "name": "manager valid baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "manager unknown financial field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "errors": [
+      "manager clipboard contains a non-allowed line: \"📉 Hoàn tiền: 999 VNĐ\"",
+      "manager clipboard has an unexpected line count"
+    ]
+  },
+  {
+    "name": "cohost valid baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "cohost money appended to place line",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "errors": [
+      "cohost clipboard leaked a money value"
+    ]
+  },
+  {
+    "name": "cohost UI bare currency leak",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "errors": [
+      "cohost UI leaked a money value"
+    ]
+  },
+  {
+    "name": "member valid empty baseline",
+    "expected": "PASS",
+    "actual": "PASS",
+    "errors": []
+  },
+  {
+    "name": "member empty screen with bank account",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "errors": [
+      "private contact/bank/account/receiver field leaked"
+    ]
+  },
+  {
+    "name": "valid empty response",
+    "expected": "PASS",
+    "actual": "PASS",
+    "error": null
+  },
+  {
+    "name": "FORBIDDEN response object",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "error": "Member history isolation failed: history response body is not an array"
+  }
+]
+Mismatches: 0

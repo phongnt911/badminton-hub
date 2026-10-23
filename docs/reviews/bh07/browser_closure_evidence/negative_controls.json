@@ -1,0 +1,259 @@
+{
+  "generated_at_utc": "2026-10-23T09:20:45.153Z",
+  "source_sha": "417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c",
+  "assertions_sha256": "7a8e78567d0a1ac3d2c182f4e62f209a163a7d4cb4f5c72a5d9766fd94782de2",
+  "runner_sha256": "7781c1addf93f76725ce714e5576062dafef7da9f05994ee54624b46672cdee5",
+  "expected_case_count": 41,
+  "recorded_case_count": 41,
+  "marker_errors": [],
+  "case_count_error": null,
+  "mismatches": [],
+  "results": [
+    {
+      "control": "offline positive: exact transport error is visible on the finance route",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "offline negative: silent no-error/no-success UI",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered"
+    },
+    {
+      "control": "offline negative: success-only UI while offline",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered; false success message was rendered while offline"
+    },
+    {
+      "control": "offline negative: error shown outside the finance lifecycle",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "finance screen/route was not retained after the offline failure"
+    },
+    {
+      "control": "manager positive: all four exact aggregate fields",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "manager negative: one wrong aggregate field",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "Đã thu: expected \"0 VNĐ\", got \"50,000 VNĐ\"; manager clipboard contains a non-allowed line: \"✅ Đã thu: 50,000 VNĐ\""
+    },
+    {
+      "control": "manager negative: outstanding field is the null marker",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "Còn phải thu: expected \"200,000 VNĐ\", got \"—\"; manager clipboard contains a non-allowed line: \"⏳ Còn phải thu: —\"; null finance marker \"—\" is not allowed for the fixture contract"
+    },
+    {
+      "control": "manager negative: missing aggregate field",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "Đã thu: expected exactly one field, got 0; manager clipboard has an unexpected line count"
+    },
+    {
+      "control": "manager negative: title contains 200000 while finance fields are null",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "manager clipboard is missing session title \"UI Flow Session published to complete\"; Tổng chi phí: expected \"200,000 VNĐ\", got \"—\"; Tổng phải thu: expected \"200,000 VNĐ\", got \"—\"; Đã thu: expected \"0 VNĐ\", got \"—\"; Còn phải thu: expected \"200,000 VNĐ\", got \"—\"; expected exactly one metadata line matching /^🏸 Tổng kết: UI Flow Session published to complete$/; expected exactly one metadata line matching /^📍 .+$/; expected exactly one metadata line matching /^⏰ .+$/; manager clipboard contains a non-allowed line: \"🏸 Tổng kết: Buổi 200000\"; manager clipboard contains a non-allowed line: \"💰 Tổng chi phí: —\"; manager clipboard contains a non-allowed line: \"🧾 Tổng phải thu: —\"; manager clipboard contains a non-allowed line: \"✅ Đã thu: —\"; manager clipboard contains a non-allowed line: \"⏳ Còn phải thu: —\"; manager clipboard has an unexpected line count; null finance marker \"—\" is not allowed for the fixture contract"
+    },
+    {
+      "control": "cohost positive: only header/place/time/count lines",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "cohost negative: finance field with null marker",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard contains a non-allowed line: \"🧾 Tổng phải thu: —\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Tổng phải thu\"; cohost clipboard contains the null finance marker \"—\""
+    },
+    {
+      "control": "cohost negative: money value",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard contains a non-allowed line: \"✅ Đã thu: 50,000 VNĐ\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Đã thu\"; cohost clipboard leaked a money value"
+    },
+    {
+      "control": "cohost negative: phone and bank account fields",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard contains a non-allowed line: \"SĐT: 0987654321\"; cohost clipboard contains a non-allowed line: \"STK: 123456789012\"; cohost clipboard has 6 lines; at most 4 are allowed; private phone number leaked; private contact/bank/account/receiver field leaked"
+    },
+    {
+      "control": "cohost UI positive: management-only surface with counts",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "cohost UI negative: finance card is visible",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost finance card \"Tài chính tổng hợp\" is visible"
+    },
+    {
+      "control": "cohost UI negative: finance field with null marker is visible",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost UI leaked finance field \"Tổng phải thu\"; cohost UI contains the null finance marker \"—\""
+    },
+    {
+      "control": "history positive: Cohost Club A exact one permitted row",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "history negative: Cohost receives an extra Club B row",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history leaked forbidden text \"HTTP club B history\"; history rendered unexpected session \"HTTP club B history\"; history rendered 2 row marker(s); expected 1"
+    },
+    {
+      "control": "history positive: Member exact empty state",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "history negative: Member receives a Club B row",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history leaked forbidden text \"HTTP club B history\"; member history rendered out-of-scope session \"HTTP club B history\"; member history rendered 1 session row marker(s)"
+    },
+    {
+      "control": "history negative: Member receives treasury/finance text",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history leaked forbidden text \"Quỹ CLB\"; history leaked forbidden text \"Số dư\""
+    },
+    {
+      "control": "history negative: error/empty ambiguity is rejected",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history rendered error state \"Không tải được lịch sử\""
+    },
+    {
+      "control": "history request negative: wrong club filter payload",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history club filter expected aaaaaaaa-1111-4111-8111-111111111111, got bbbbbbbb-2222-4222-8222-222222222222"
+    },
+    {
+      "control": "history response negative: wrong ID set",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history response ids expected [\"10000000-0000-4000-8000-000000000099\"], got [\"20000000-0000-4000-8000-000000000001\"]"
+    },
+    {
+      "control": "complete_session positive: two identical POST payloads",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    },
+    {
+      "control": "complete_session negative: missing retry request",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "expected exactly 2 complete_session POST requests, got 1"
+    },
+    {
+      "control": "complete_session negative: full payload differs on retry",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "expected version differs between the offline request and the retry; full complete_session payload differs between the offline request and the retry"
+    },
+    {
+      "control": "BR3-1 manager unknown finance field",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "manager clipboard contains a non-allowed line: \"📉 Hoàn tiền: 999 VNĐ\"; manager clipboard has an unexpected line count"
+    },
+    {
+      "control": "BR3-1 manager duplicate metadata",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "expected exactly one metadata line matching /^📍 .+$/; manager clipboard has an unexpected line count"
+    },
+    {
+      "control": "BR3-2 cohost clipboard currency VNĐ",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard leaked a money value"
+    },
+    {
+      "control": "BR3-2 cohost clipboard currency đ",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard leaked a money value"
+    },
+    {
+      "control": "BR3-2 cohost clipboard currency VND",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost clipboard leaked a money value"
+    },
+    {
+      "control": "BR3-2 cohost UI currency VNĐ",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost UI leaked a money value"
+    },
+    {
+      "control": "BR3-2 cohost UI currency đ",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost UI leaked a money value"
+    },
+    {
+      "control": "BR3-2 cohost UI currency VND",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "cohost UI leaked a money value"
+    },
+    {
+      "control": "BR3-3 member empty UI with bank account",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "private contact/bank/account/receiver field leaked"
+    },
+    {
+      "control": "BR3-3 null response is not empty history",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history response body is not an array"
+    },
+    {
+      "control": "BR3-3 FORBIDDEN object is not empty history",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history response body is not an array"
+    },
+    {
+      "control": "BR3-3 malformed JSON is not empty history",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history response body is not an array"
+    },
+    {
+      "control": "BR3-3 HTTP 403 with array body must fail",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "detail": "history response body is not an array"
+    },
+    {
+      "control": "BR3-3 HTTP 200 empty array positive",
+      "expected": "PASS",
+      "actual": "PASS",
+      "detail": ""
+    }
+  ]
+}

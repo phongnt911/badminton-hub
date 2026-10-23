@@ -1,0 +1,19 @@
+{
+  "manifests": [
+    {
+      "folder": "browser_codex_fix_evidence",
+      "exit": 0,
+      "readonly": true,
+      "files_including_manifest": 53
+    },
+    {
+      "folder": "late_response_evidence",
+      "exit": 0,
+      "readonly": true,
+      "files_including_manifest": 45
+    }
+  ],
+  "app_backend_diff_empty": true,
+  "current_source": "417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c",
+  "mode": "Codex self-review and self-fix, not independent review"
+}

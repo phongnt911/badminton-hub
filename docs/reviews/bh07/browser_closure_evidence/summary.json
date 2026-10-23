@@ -1,0 +1,34 @@
+{
+  "mode": "Codex tự review/tự sửa; không độc lập",
+  "status": "Đạt local; đóng công việc trên nhánh; giữ Git ref chưa merge",
+  "reviewed_evidence_sha": "7839bba99e09ba06e72bc88b9ff5648da5ff59db",
+  "late_browser_source_sha": "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a",
+  "closing_control_source_sha": "417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c",
+  "fresh_checks": {
+    "late_controls": 21,
+    "isolated_mutants_caught": 2,
+    "regression_controls": 41,
+    "old_probe": 9,
+    "verifier_fault_controls": 9,
+    "manager_mutant_caught": true,
+    "published_manifests": [
+      52,
+      44
+    ]
+  },
+  "fixed_P2": 2,
+  "open_P0": 0,
+  "open_P1": 0,
+  "open_P2_in_scope": 0,
+  "github_pr_search": "No matching PR returned by connector; no PR closed or merged",
+  "git_branch_ref": "retained",
+  "not_run": [
+    "Independent review",
+    "Direct private Dart heap inspection",
+    "Mobile/other browsers/devices",
+    "Banking/webhook",
+    "Staging/production/backup/restore",
+    "Rehearsal/pilot",
+    "Fresh Flutter/HTTP/DB runs in closure turn: inherited identical app/driver/helper evidence"
+  ]
+}
