@@ -1,6 +1,8 @@
 # Badminton Hub
 
-**Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](docs/reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
+**Hồ sơ readiness BH-07 Đạt docs-only vòng2/2 tại `31fced4`**, đóng R1–R4 theo [review chốt](docs/reviews/bh07/review_31fced4.md). Reviewer kiểm406 link,31 SHA mục7,13/13 dòng NOT RUN map kế hoạch; diff9 file docs-only, whitespace sạch. Không chạy runtime mới, không đổi verdict/evidence cũ; Browser final vẫn không độc lập, backup giữ giới hạn lịch sử tác giả. **Toàn BH-07 chưa nghiệm thu.** Điểm tiếp: giao V1 cho reviewer/QA không tham gia sửa Browser tự kiểm baseline/response trễ local; không phải mở lại sửa readiness. Các cổng V1–V8 chưa chạy giữ NOT RUN; acceptance không biến test thành PASS. Không merge main/deploy/pilot/BH-08.
+
+**(Lịch sử bàn giao trước chốt) Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](docs/reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
 
 **(Lịch sử 23/10/2026 — accepted backup/restore local)** **Backup/restore cleanup R1 Đạt local vòng2/2 — đã đóng công việc backup/restore local**, source `282f978`, docs/evidence `986baac`, theo [review chốt](docs/reviews/bh07/review_282f978.md). Codex tự chạy14/14 control,13/13 rehearsal Linux,analyze sạch,240 Flutter+1skip,23/23 DB,manifest16/16 readonly; inspect context/daemon/permission/transport và cleanup lỗi đều bị chặn, không còn P0/P1/P2 mở trong phạm vi. Probe reviewer cũ giữ nguyên exit1 do assertion lịch sử; output thực xác nhận context đã bị chặn. Không đổi app/backend/source triển khai trong review; evidence cũ giữ nguyên. **Giữ Git ref chưa merge, không merge main/deploy/pilot.** Toàn BH-07 chưa nghiệm thu; managed Supabase/PITR/offsite/encryption/retention,concurrent writers,staging/production/restore thật,browser/device ở lượt này,banking/webhook,rehearsal tải thật/pilot vẫn NOT RUN. **Sau bước này, hồ sơ readiness BH-07 (docs-only) đã được lập và đang Chờ review; không chạy môi trường thật hoặc tự chuyển BH-08.**
 
@@ -40,7 +42,7 @@ Ngày23/10/2026: Gói **Browser / Offline / Reopen và response Owner trả tr�
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | A/B/C/D, HTTP/Auth, concurrency, browser và backup/restore local có evidence; readiness docs-only | **Hồ sơ readiness Chờ review; browser final không độc lập; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | A/B/C/D, HTTP/Auth, concurrency, browser và backup/restore local có evidence; readiness docs-only | **Hồ sơ readiness Đạt docs-only vòng2/2 tại31fced4; browser final không độc lập; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

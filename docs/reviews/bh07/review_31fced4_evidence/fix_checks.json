@@ -1,0 +1,27 @@
+{
+  "planned_gate_components": [
+    {
+      "gate": "V2b",
+      "components": {
+        "Môi trường/đầu vào": true,
+        "Phụ trách": true,
+        "PASS": true,
+        "FAIL": true,
+        "Rollback": true
+      }
+    },
+    {
+      "gate": "V5b",
+      "components": {
+        "Môi trường/đầu vào": true,
+        "Phụ trách": true,
+        "PASS": true,
+        "FAIL": true,
+        "Rollback": true
+      }
+    }
+  ],
+  "browser_primary_evidence_sha": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+  "browser_old_evidence_marked_historical": true,
+  "runtime_tests": "NOT RUN docs-only"
+}

@@ -1,8 +1,10 @@
 # BH-07 — Vận hành và backup/restore rehearsal local
 
+**Hồ sơ readiness BH-07 Đạt docs-only vòng2/2 tại `31fced4`**, đóng R1–R4 theo [review chốt](reviews/bh07/review_31fced4.md). Reviewer kiểm406 link,31 SHA mục7,13/13 dòng NOT RUN map kế hoạch; diff9 file docs-only, whitespace sạch. Không chạy runtime mới, không đổi verdict/evidence cũ; Browser final vẫn không độc lập, backup giữ giới hạn lịch sử tác giả. **Toàn BH-07 chưa nghiệm thu.** Điểm tiếp: giao V1 cho reviewer/QA không tham gia sửa Browser tự kiểm baseline/response trễ local; không phải mở lại sửa readiness. Các cổng V1–V8 chưa chạy giữ NOT RUN; acceptance không biến test thành PASS. Không merge main/deploy/pilot/BH-08.
+
 **Trạng thái hiện hành: Đạt local vòng2/2, đóng R1 và công việc backup/restore local tại source282f978 theo [review chốt](reviews/bh07/review_282f978.md). Không nghiệm thu toàn BH-07/production/pilot; giữ NOT RUN. Nội dung chờ review dưới đây là lịch sử bàn giao trước kết luận.**
 
-**Điểm tiếp tục (23/10/2026):** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673** tại [bh07_readiness.md](reviews/bh07/bh07_readiness.md), base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`). Hồ sơ map các cổng với SHA/evidence, tách **Đạt local** với **NOT RUN** và lập kế hoạch kiểm chứng phần còn thiếu; không chạy môi trường thật. Không merge main/deploy/pilot hoặc tự chuyển BH-08.
+**(Lịch sử bàn giao 23/10/2026):** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673** tại [bh07_readiness.md](reviews/bh07/bh07_readiness.md), base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`). Hồ sơ map các cổng với SHA/evidence, tách **Đạt local** với **NOT RUN** và lập kế hoạch kiểm chứng phần còn thiếu; không chạy môi trường thật. Không merge main/deploy/pilot hoặc tự chuyển BH-08.
 
 **Lịch sử bàn giao trước chốt:** R1 cleanup vòng2/2 từng **Chờ review độc lập** tại source `282f978`, base review `f216ae1`; [review R1 vòng1/2 Chưa đạt](reviews/bh07/review_6d00e9c.md), [bàn giao](reviews/bh07/backup_restore_handoff.md), [evidence mới](reviews/bh07/backup_restore_cleanup_r2_evidence/). Kết quả tự kiểm dưới đây giữ làm lịch sử; đã được review chốt local vòng2/2.
 

@@ -1,0 +1,58 @@
+{
+  "not_run_rows_mapped": 13,
+  "mapping": [
+    {
+      "gate": "V1",
+      "section": "4.2"
+    },
+    {
+      "gate": "V2",
+      "section": "4.3"
+    },
+    {
+      "gate": "V2",
+      "section": "4.3"
+    },
+    {
+      "gate": "V2",
+      "section": "4.3"
+    },
+    {
+      "gate": "V2b",
+      "section": "4.4"
+    },
+    {
+      "gate": "V3",
+      "section": "4.5"
+    },
+    {
+      "gate": "V3",
+      "section": "4.5"
+    },
+    {
+      "gate": "V4",
+      "section": "4.6"
+    },
+    {
+      "gate": "V5",
+      "section": "4.7"
+    },
+    {
+      "gate": "V5b",
+      "section": "4.8"
+    },
+    {
+      "gate": "V6",
+      "section": "4.9"
+    },
+    {
+      "gate": "V7",
+      "section": "4.10"
+    },
+    {
+      "gate": "V8",
+      "section": "4.11"
+    }
+  ],
+  "runtime_performed": false
+}

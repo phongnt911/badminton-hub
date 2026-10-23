@@ -1,6 +1,8 @@
 # Badminton Hub — điểm bắt đầu cho Antigravity
 
-**Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
+**Hồ sơ readiness BH-07 Đạt docs-only vòng2/2 tại `31fced4`**, đóng R1–R4 theo [review chốt](reviews/bh07/review_31fced4.md). Reviewer kiểm406 link,31 SHA mục7,13/13 dòng NOT RUN map kế hoạch; diff9 file docs-only, whitespace sạch. Không chạy runtime mới, không đổi verdict/evidence cũ; Browser final vẫn không độc lập, backup giữ giới hạn lịch sử tác giả. **Toàn BH-07 chưa nghiệm thu.** Điểm tiếp: giao V1 cho reviewer/QA không tham gia sửa Browser tự kiểm baseline/response trễ local; không phải mở lại sửa readiness. Các cổng V1–V8 chưa chạy giữ NOT RUN; acceptance không biến test thành PASS. Không merge main/deploy/pilot/BH-08.
+
+**(Lịch sử bàn giao trước chốt) Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
 
 **(Lịch sử 23/10/2026 — accepted backup/restore local)** **Backup/restore cleanup R1 Đạt local vòng2/2 — đã đóng công việc backup/restore local**, source `282f978`, docs/evidence `986baac`, theo [review chốt](reviews/bh07/review_282f978.md). Codex tự chạy14/14 control,13/13 rehearsal Linux,analyze sạch,240 Flutter+1skip,23/23 DB,manifest16/16 readonly; inspect context/daemon/permission/transport và cleanup lỗi đều bị chặn, không còn P0/P1/P2 mở trong phạm vi. Probe reviewer cũ giữ nguyên exit1 do assertion lịch sử; output thực xác nhận context đã bị chặn. Không đổi app/backend/source triển khai trong review; evidence cũ giữ nguyên. **Giữ Git ref chưa merge, không merge main/deploy/pilot.** Toàn BH-07 chưa nghiệm thu; managed Supabase/PITR/offsite/encryption/retention,concurrent writers,staging/production/restore thật,browser/device ở lượt này,banking/webhook,rehearsal tải thật/pilot vẫn NOT RUN. **Sau bước này, hồ sơ readiness BH-07 (docs-only) đã được lập và đang Chờ review; không chạy môi trường thật hoặc tự chuyển BH-08.**
 
@@ -24,13 +26,13 @@
 
 ## Trạng thái hiện tại (cập nhật 23/10/2026)
 
-Chủ dự án đã duyệt audit B1–B9/C1/C2, giao merge BH-06, đồng bộ tiến độ và triển khai BH-07 local; hồ sơ readiness đang Chờ review. [Lịch sử xác nhận](23_DOC_AUDIT_FOLLOWUP.md); điểm tiếp tục hiện hành ở docs/25.
+Chủ dự án đã duyệt audit B1–B9/C1/C2, giao merge BH-06, đồng bộ tiến độ và triển khai BH-07 local; hồ sơ readiness đã Đạt docs-only, V1 độc lập vẫn NOT RUN. [Lịch sử xác nhận](23_DOC_AUDIT_FOLLOWUP.md); điểm tiếp tục hiện hành ở docs/25.
 
 - BH-01 đến BH-05 đã triển khai ở mức local/staging theo [09_IMPLEMENTATION_PLAN.md](09_IMPLEMENTATION_PLAN.md) và [22_BH05_HANDOFF.md](22_BH05_HANDOFF.md). **BH-05 đạt review tích hợp A+B+C** tại `d769531` theo [review_d769531.md](reviews/bh05/review_d769531.md): không có phát hiện P0/P1/P2 trong phạm vi kiểm chứng.
 - **Hồi quy trên `main` tại `3a34883` đạt**, do reviewer tự chạy trên checkout sạch ([review_main_3a34883.md](reviews/bh05/review_main_3a34883.md)): `flutter analyze` sạch, 137/137 Flutter test, 251/251 DB test (BH-02 33+14, BH-03 48+22, BH-04 44, BH-05 90) trên PostgreSQL cô lập + Auth stub.
 - Gói kiểm chứng **Concurrency HTTP/Auth BH-07 Đạt local vòng2/2**, tested source `cbcc46c`, docs/evidence thực tế `bb940280333aec96457dd3014aabba9f66adf4ae`, theo [review độc lập](reviews/bh07/review_cbcc46c_r2.md).
 - **BH-06 đã merge main tại `e7f7627`**, chứa review `b3bcfbb` (tested `318bc52`); [xác minh merge](reviews/bh06/main_merge_e7f7627.md). Baseline review: analyze sạch, 190 Flutter +335 DB +7 tích hợp +3 nâng cấp +2 probe PASS. docs/ai có trên main từ `eaeb209`.
-- **Điểm tiếp tục:** Hồ sơ readiness BH-07 docs-only đang **Chờ review độc lập** tại [bh07_readiness.md](reviews/bh07/bh07_readiness.md), base `b91a350`. Hồ sơ map cổng/SHA/evidence, tách Đạt local với NOT RUN và lập kế hoạch kiểm chứng phần còn thiếu. Browser/response trễ và backup/restore đã đóng local theo giới hạn; không merge main/deploy/pilot hoặc tự chuyển BH-08.
+- **Điểm tiếp tục:** Readiness Đạt docs-only vòng2/2 tại31fced4 theo [review](reviews/bh07/review_31fced4.md). Giao V1 kiểm chứng Browser/response trễ local cho reviewer/QA không tham gia sửa gói; chưa có kết quả V1 mới. Toàn BH-07 chưa nghiệm thu; không merge/deploy/pilot/BH-08.
 - Lịch sử các đợt cập nhật trước nằm ở [STATUS_HISTORY.md](STATUS_HISTORY.md); đó là nhật ký, không phải chỉ dẫn hiện hành.
 
 ## Mục tiêu
