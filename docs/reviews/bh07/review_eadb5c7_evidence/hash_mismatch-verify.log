@@ -1,0 +1,5 @@
+=== [READ-ONLY VERIFY MODE] Auditing manifest, file integrity and secrets ===
+Loaded 21 expected entries from manifest.
+
+AUDIT FAILED with 1 error(s):
+  [X] HASH MISMATCH for analyze.log: expected 53548a175b28ad3ee7bb16042bbab16d77f0eec0c0367cece8d7b4344c252afe, got 8a5fa63b0f654a250364b432179795fd0bc30caa92a453133ceaa13d69ce4ed4

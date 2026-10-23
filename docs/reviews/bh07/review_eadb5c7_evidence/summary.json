@@ -1,0 +1,40 @@
+{
+  "base_sha": "465b46607c8fd5d1566e7eca8688af09fc557e34",
+  "tested_source_sha": "51cb3b124533ecc4abce00609a5f0bbbd6309221",
+  "docs_evidence_sha": "eadb5c71b5f8194e15188e977dbf85a954761e75",
+  "round": "2/2",
+  "verdict": "Chưa đạt",
+  "closed": [
+    "BR1 P2",
+    "BR4 SPA happy path",
+    "BR2 former P1 POST/payload/exactly_once"
+  ],
+  "remaining": {
+    "BR2": "P2 missing positive offline UI error assertion",
+    "BR3": "P2 aggregate/null/cohost fields/member scope validators",
+    "BR5": "P2 JWT/UTF8/negative runner/provenance and exits"
+  },
+  "independent": {
+    "analyze_issues": 0,
+    "flutter_pass": 240,
+    "flutter_skip": 1,
+    "db_pass": 23,
+    "browser_pass": 11,
+    "browser_total": 11,
+    "web_build_exit": 0,
+    "manifest_pass": 21,
+    "manifest_total": 21,
+    "verifier_readonly_all_controls": true,
+    "original_negative_controls_rejected": 8,
+    "expanded_controls": 13,
+    "expanded_controls_correct": 9,
+    "expanded_controls_false_accepts": 4,
+    "silent_offline_error_control_false_accept": true,
+    "JWT_control_false_accept": true,
+    "invalid_UTF8_control_false_accept": true,
+    "mutant_negative_runner_false_green": true
+  },
+  "state": "STOP after 2 rounds; owner decision required before further remediation/review",
+  "application_source_changed": false,
+  "clean_before_setup": true
+}

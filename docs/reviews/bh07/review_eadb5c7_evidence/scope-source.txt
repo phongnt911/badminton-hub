@@ -1,0 +1,4 @@
+M	scripts/bh07_browser/clean_and_manifest.py
+M	scripts/bh07_browser/run_browser_verification.js
+A	scripts/bh07_browser/run_negative_controls.js
+M	scripts/bh07_browser/seed_setup.js

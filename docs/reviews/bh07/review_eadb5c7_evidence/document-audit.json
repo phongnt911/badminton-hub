@@ -1,0 +1,14 @@
+{
+  "1792716872979.4": {
+    "samples": 120,
+    "finance_seen": false,
+    "count_only_seen": true,
+    "guest_seen": true
+  },
+  "1792717092737": {
+    "samples": 23,
+    "finance_seen": false,
+    "count_only_seen": false,
+    "guest_seen": true
+  }
+}

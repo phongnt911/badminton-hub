@@ -1,0 +1,51 @@
+=== Running Reviewer Negative Control Probes ===
+
+--- Probe 1: Predicate Probes for TC05 complete_session ---
+[
+  {
+    "control": "no captured mutation requests",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Expected exactly 2 POST requests, got 0"
+  },
+  {
+    "control": "different request_id and session",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Retry mutation failed idempotency: reqIdMatch=false sessionMatch=false versionMatch=false"
+  },
+  {
+    "control": "same request id and session but changed version",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Retry mutation failed idempotency: reqIdMatch=true sessionMatch=true versionMatch=false"
+  },
+  {
+    "control": "missing postData/preflight pair",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Captured request missing postData"
+  }
+]
+Predicate Probes: PASS (All 4 controls rejected properly)
+
+--- Probe 2: Coverage Probes for TC03 & TC06/07 ---
+[
+  {
+    "control": "manager clipboard wrong numeric totals",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "cohost clipboard leak: Đã thu: 50000 VNĐ",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "cohost clipboard leak: SĐT: 0987654321\nSTK: 123456789012",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  }
+]
+
+OVERALL NEGATIVE CONTROLS STATUS: GREEN (All controls pass)

@@ -1,0 +1,897 @@
+[
+  {
+    "event": "request",
+    "requestId": "BCB4E436C567EB70CA39F97948890B04",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.17",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "BCB4E436C567EB70CA39F97948890B04",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.17",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "38DCA22CCFEDAE1B18B301BD0C08A5CF",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.18",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "38DCA22CCFEDAE1B18B301BD0C08A5CF",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.18",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.19",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.20",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.21",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.22",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.23",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.24",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.25",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.26",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.27",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.28",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.29",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.30",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "request",
+    "requestId": "18034.31",
+    "path": "/rest/v1/rpc/start_session",
+    "method": "POST",
+    "payload": {
+      "p_request_id": "9f4b1bd8-e01f-47db-bb30-7b9a007f4e82",
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "6E12BE2A3EDFA00DB8FF814A1EDF9DEA",
+    "path": "/rest/v1/rpc/start_session",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "6E12BE2A3EDFA00DB8FF814A1EDF9DEA",
+    "path": "/rest/v1/rpc/start_session",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.31",
+    "path": "/rest/v1/rpc/start_session",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "C242580E4A6131E703090103EADAC7FA",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.32",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "C242580E4A6131E703090103EADAC7FA",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.32",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.33",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "BCC57A26289E006DA4C3F5A4DCF34745",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "BCC57A26289E006DA4C3F5A4DCF34745",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.33",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "847EEE4868168850E3F41C935237B10D",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.34",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "847EEE4868168850E3F41C935237B10D",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.34",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.35",
+    "path": "/rest/v1/rpc/record_attendance",
+    "method": "POST",
+    "payload": {
+      "p_request_id": "3d56a041-c67b-439f-84d3-13f1c51d229f",
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "28EC35FCC03F38977B76B78C91A9ED25",
+    "path": "/rest/v1/rpc/record_attendance",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "28EC35FCC03F38977B76B78C91A9ED25",
+    "path": "/rest/v1/rpc/record_attendance",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.35",
+    "path": "/rest/v1/rpc/record_attendance",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.36",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.36",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.37",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.37",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "3ED3F644D81F0DC2A8BDD8443A5B9D01",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "3ED3F644D81F0DC2A8BDD8443A5B9D01",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.38",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.38",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.39",
+    "path": "/rest/v1/rpc/finalize_session_charges",
+    "method": "POST",
+    "payload": {
+      "p_request_id": "b23aa147-158b-494e-8764-5842aa20b9cd",
+      "p_session_id": "10000000-0000-4000-8000-000000000099",
+      "p_expected_version": 2
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "77B39A65C44CA8B45B98F47D773CCDE4",
+    "path": "/rest/v1/rpc/finalize_session_charges",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "77B39A65C44CA8B45B98F47D773CCDE4",
+    "path": "/rest/v1/rpc/finalize_session_charges",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.39",
+    "path": "/rest/v1/rpc/finalize_session_charges",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.40",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "F82E76C23E346B909B0A8A5B36CEF19F",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "F82E76C23E346B909B0A8A5B36CEF19F",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.40",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.41",
+    "path": "/rest/v1/rpc/complete_session",
+    "method": "POST",
+    "payload": {
+      "p_request_id": "f494f276-b3ba-428d-8f44-31a53db273aa",
+      "p_session_id": "10000000-0000-4000-8000-000000000099",
+      "p_expected_version": 2
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "07FBF2070B324DDEBB07D7CBD62370C7",
+    "path": "/rest/v1/rpc/complete_session",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "07FBF2070B324DDEBB07D7CBD62370C7",
+    "path": "/rest/v1/rpc/complete_session",
+    "status": 200
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.41",
+    "error": "net::ERR_INTERNET_DISCONNECTED"
+  },
+  {
+    "event": "request",
+    "requestId": "35743B6DBCF17BCCE9348C59BA36A773",
+    "path": "/rest/v1/rpc/complete_session",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.42",
+    "path": "/rest/v1/rpc/complete_session",
+    "method": "POST",
+    "payload": {
+      "p_request_id": "f494f276-b3ba-428d-8f44-31a53db273aa",
+      "p_session_id": "10000000-0000-4000-8000-000000000099",
+      "p_expected_version": 2
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "35743B6DBCF17BCCE9348C59BA36A773",
+    "path": "/rest/v1/rpc/complete_session",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.42",
+    "path": "/rest/v1/rpc/complete_session",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "9CA75CF973D15C9252D29DF0FBB31E86",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.43",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "9CA75CF973D15C9252D29DF0FBB31E86",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.43",
+    "path": "/rest/v1/rpc/get_session_finance",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "59E1AF1E45CDFDC327AC261EF27EFFDF",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.44",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "59E1AF1E45CDFDC327AC261EF27EFFDF",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.44",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.45",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "request",
+    "requestId": "9C66310F87FE218B93C3EDDE6427ABB2",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "9C66310F87FE218B93C3EDDE6427ABB2",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.45",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.46",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.46",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.47",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.47",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "CD20664E078F08FC1AE474C24DDD1E50",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.48",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "CD20664E078F08FC1AE474C24DDD1E50",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.48",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "4B886589B8617F14D7D168778B4C12BF",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "4B886589B8617F14D7D168778B4C12BF",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.51",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "18034.51",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.52",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.53",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.54",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "request",
+    "requestId": "20F6BB3EB1E05F6D3AAFD1E1099C1ED9",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "20F6BB3EB1E05F6D3AAFD1E1099C1ED9",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.55",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.55",
+    "path": "/rest/v1/rpc/get_session_public_detail",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "CA859501D85C2F7C95A42D02B32E03BA",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.56",
+    "path": "/rest/v1/rpc/list_session_players",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "CA859501D85C2F7C95A42D02B32E03BA",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.56",
+    "path": "/rest/v1/rpc/list_session_players",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "C6824EFEC7E2DC24E6F7748A55EA0CBE",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "C6824EFEC7E2DC24E6F7748A55EA0CBE",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.57",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "method": "POST",
+    "payload": {
+      "p_session_id": "10000000-0000-4000-8000-000000000099"
+    }
+  },
+  {
+    "event": "response",
+    "requestId": "18034.57",
+    "path": "/rest/v1/rpc/get_session_summary",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "2FFE9146E3D97499B65231DCCF013852",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "D971E26784164089B1D30534F507B8A0",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "2FFE9146E3D97499B65231DCCF013852",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.58",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.59",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "D971E26784164089B1D30534F507B8A0",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.58",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.59",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.60",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "0EAB5802B42F328806D7E8E0FDFE76F9",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "0EAB5802B42F328806D7E8E0FDFE76F9",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.60",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "A25E9C81EDBEC4B6D7992C4BCB08DED1",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "A25E9C81EDBEC4B6D7992C4BCB08DED1",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.63",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "18034.63",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "1C979799BDC3FD0BB3C6A48187593537",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "03B4C7B1107E10710106CB7DEEB9648B",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "1C979799BDC3FD0BB3C6A48187593537",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "03B4C7B1107E10710106CB7DEEB9648B",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.64",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "request",
+    "requestId": "18034.65",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "18034.64",
+    "path": "/rest/v1/rpc/list_my_clubs",
+    "status": 200
+  },
+  {
+    "event": "response",
+    "requestId": "18034.65",
+    "path": "/rest/v1/rpc/list_my_session_history",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "0EA1929A47F64C4E11031CE55F407821",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "OPTIONS",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "0EA1929A47F64C4E11031CE55F407821",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "request",
+    "requestId": "18034.78",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "method": "POST",
+    "payload": {}
+  },
+  {
+    "event": "response",
+    "requestId": "18034.78",
+    "path": "/rest/v1/rpc/list_my_sessions",
+    "status": 200
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.79",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.80",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  },
+  {
+    "event": "loadingFailed",
+    "requestId": "18034.81",
+    "error": "net::ERR_TUNNEL_CONNECTION_FAILED"
+  }
+]

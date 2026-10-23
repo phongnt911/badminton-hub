@@ -2,9 +2,9 @@
 
 Ứng dụng Flutter + Supabase giúp host quản lý CLB, lịch sinh hoạt, đăng ký vãng lai, điểm danh, chốt phí và thu/chi. Thị trường pilot: Nha Trang.
 
-## Trạng thái hiện tại — 22/10/2026
+## Trạng thái hiện tại — 23/10/2026
 
-Gói **Browser / Offline / Reopen BH-07 Chưa đạt vòng1/2 tại `b00b580`**, docs/evidence thực tế `d01e3692b6b07f145f603565a91ea6f629016ba1`, theo [review độc lập](docs/reviews/bh07/review_b00b580.md). UI thật đã chạy,12 ảnh khác nhau; **BR1 còn P2, BR2 P1, BR3/BR4/BR5 P2** về postcondition, gate retry/privacy/history/cache và bằng chứng. Reviewer tự chạy **11/11 browser UI tự báo PASS**, analyze sạch, **240 Flutter +1 skip**, **23 DB**, Web build PASS; trace POST/DB chứng minh app giữ cùng intent và1 audit/operation. Nhưng8 control sai vẫn bị test nhận PASS, manifest chỉ17/21 (thiếu4 log). Chỉ sửa gói kiểm chứng vòng2/2, không sửa app/backend. Giữ A/B/C/D và HTTP/Auth/concurrency Đạt local; **toàn BH-07/pilot chưa nghiệm thu**. Các cổng mobile, banking/webhook, staging/production/backup, rehearsal/pilot và cache cùng instance vẫn NOT RUN/chưa đạt; không merge/apply DB thật/deploy.
+Gói **Browser / Offline / Reopen BH-07 Chưa đạt vòng2/2** tại source `51cb3b1`, docs/evidence `eadb5c7`, theo [review độc lập](docs/reviews/bh07/review_eadb5c7.md). Đóng BR1 và ca SPA BR4; lỗi P1 retry đã sửa nhưng **BR2 còn P2**, **BR3/BR5 P2 còn mở** về gate UI error, aggregate/ACL và verifier/negative controls/provenance. Reviewer tự chạy analyze sạch, **240 Flutter +1 skip**, **23 DB**, **11/11 browser**, Web build PASS; **21/21 hash**, readonly missing/hash/sb_secret controls PASS. Tuy nhiên4 control BR3, silent-error, JWT/UTF8 và mutant negative-runner vẫn được nhận xanh sai. **Dừng gói sau2 vòng theo AGENTS, chờ quyết định chủ dự án; không tự mở vòng3 hoặc giao sửa tiếp.** App/backend không đổi; giữ A/B/C/D và HTTP/Auth/concurrency Đạt local. Toàn BH-07/pilot chưa nghiệm thu; mobile/banking/webhook/staging/production/backup/rehearsal/pilot và response trễ sau đổi actor vẫn NOT RUN. Không merge/apply DB thật/deploy.
 
 (Lịch sử review) Gói kiểm chứng **Browser / Offline / Reopen BH-07 Chưa đạt tại `c8a8e7f`** theo [review độc lập](docs/reviews/bh07/review_c8a8e7f.md). Mở **BR1/BR2 P1, BR3–BR5 P2**: runner bỏ qua UI, không kiểm mutation offline/request_id, copy/privacy/ACL và auth/cache chưa đủ, thiếu log/provenance. Đã chuyển sang sửa gói kiểm chứng vòng 1/2.
 
@@ -20,7 +20,7 @@ Gói **Browser / Offline / Reopen BH-07 Chưa đạt vòng1/2 tại `b00b580`**,
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | Browser/Offline/Reopen Chưa đạt b00b580 vòng1/2 | **Sửa BR1–BR5 vòng2/2; giữ nghiệm thu local trước, toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | Browser/Offline/Reopen Chưa đạt vòng2/2 tại51cb3b1 | **Dừng gói/chờ chủ dự án; giữ nghiệm thu local trước; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

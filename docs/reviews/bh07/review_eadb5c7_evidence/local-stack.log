@@ -1,0 +1,29 @@
+started bh07-http-review-db
+started bh07-http-review-auth
+migration 20261015051808_init_schema_v1_1.sql
+migration 20261015133247_bh03_clubs_and_members.sql
+migration 20261015140216_bh03_identity_retry_session_fixes.sql
+migration 20261015151445_pre_bh04_hardening.sql
+migration 20261015163000_bh04_sessions.sql
+migration 20261015163001_bh04_review_fixes.sql
+migration 20261015170500_bh05_registrations.sql
+migration 20261016090000_bh05_review_fixes.sql
+migration 20261016091000_bh05_a3_cancel_revokes_invitations.sql
+migration 20261016100000_bh05_start_session.sql
+migration 20261016110000_bh06_expenses_finalize.sql
+migration 20261016120000_bh06_payments_ledger.sql
+migration 20261016130000_bh06_reads.sql
+migration 20261016140000_bh06a_review_round1.sql
+migration 20261020100000_bh06_integration_receiver.sql
+migration 20261020160000_bh06_integration_receiver_backfill.sql
+migration 20261020170000_bh06_finance_session_version.sql
+migration 20261020180000_bh07_reads.sql
+started bh07-http-review-rest
+started bh07-http-review-kong
+created local Auth user ownera 05a7b262-82ef-44d3-89bc-25d3ee73e1c2
+created local Auth user financea 5e7fecc9-daf6-48f3-bcd3-31c91eabd8e5
+created local Auth user cohosta dade8dcf-3d55-4bd5-871e-3ec552a44453
+created local Auth user membera db2a537c-5966-4e0c-b7d9-6d162195abfc
+created local Auth user guesta 5fcd625f-2add-495c-8170-a53c78015b3c
+created local Auth user ownerb c8c4b2d0-1323-4ae4-8755-261bab563e9a
+created local Auth user outsider 6aaacf0e-7c1b-4d00-a2ba-9b48d01a52ee

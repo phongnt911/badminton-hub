@@ -1,0 +1,50 @@
+[
+  {
+    "case": "baseline",
+    "expected_zero_exit": true,
+    "actual_exit": 0,
+    "verdict_matches_expectation": true,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  },
+  {
+    "case": "missing",
+    "expected_zero_exit": false,
+    "actual_exit": 1,
+    "verdict_matches_expectation": true,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  },
+  {
+    "case": "hash_mismatch",
+    "expected_zero_exit": false,
+    "actual_exit": 1,
+    "verdict_matches_expectation": true,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  },
+  {
+    "case": "fake_sb_secret",
+    "expected_zero_exit": false,
+    "actual_exit": 1,
+    "verdict_matches_expectation": true,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  },
+  {
+    "case": "fake_service_role_JWT",
+    "expected_zero_exit": false,
+    "actual_exit": 0,
+    "verdict_matches_expectation": false,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  },
+  {
+    "case": "invalid_UTF8",
+    "expected_zero_exit": false,
+    "actual_exit": 0,
+    "verdict_matches_expectation": false,
+    "manifest_unchanged": true,
+    "all_files_unchanged": true
+  }
+]

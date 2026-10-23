@@ -1,0 +1,1 @@
+{"control":"offline UI displays neither error nor success, same intent and DB counters valid","expected":"FAIL","actual":"PASS","detail":"captured=2 reqIdMatch=true payloadMatch=true exactly_once_verified"}

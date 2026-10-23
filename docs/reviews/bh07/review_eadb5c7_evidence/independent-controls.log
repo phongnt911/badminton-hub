@@ -1,0 +1,67 @@
+[
+  {
+    "control": "no requests",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "different key/session",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "different expected_version",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "missing postData",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "positive same intent with valid DB counters",
+    "expected": "PASS",
+    "actual": "PASS"
+  },
+  {
+    "control": "attendance no-op",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "manager clipboard: Tổng chi phí: 999 VNĐ\nCòn phải thu: 999 VNĐ",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "manager clipboard: Tổng chi phí: 200.000 VNĐ\nTổng phải thu: 999 VNĐ\nĐã thu: 999 VNĐ\nCòn phải thu: 999 VNĐ",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "manager clipboard: Buổi 200000\nTổng chi phí: —\nCòn phải thu: —",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "cohost clipboard: Đã thu: 50000 VNĐ",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "cohost clipboard: SĐT: 0987654321\nSTK: 123456789012",
+    "expected": "FAIL",
+    "actual": "FAIL"
+  },
+  {
+    "control": "cohost clipboard: Tổng phải thu: —",
+    "expected": "FAIL",
+    "actual": "PASS"
+  },
+  {
+    "control": "member forbidden Club B history/finance row",
+    "expected": "FAIL",
+    "actual": "PASS"
+  }
+]

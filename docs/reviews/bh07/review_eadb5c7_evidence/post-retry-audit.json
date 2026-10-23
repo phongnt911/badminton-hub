@@ -1,0 +1,36 @@
+{
+  "POST_requests": [
+    {
+      "event": "request",
+      "requestId": "18034.41",
+      "path": "/rest/v1/rpc/complete_session",
+      "method": "POST",
+      "payload": {
+        "p_request_id": "f494f276-b3ba-428d-8f44-31a53db273aa",
+        "p_session_id": "10000000-0000-4000-8000-000000000099",
+        "p_expected_version": 2
+      }
+    },
+    {
+      "event": "request",
+      "requestId": "18034.42",
+      "path": "/rest/v1/rpc/complete_session",
+      "method": "POST",
+      "payload": {
+        "p_request_id": "f494f276-b3ba-428d-8f44-31a53db273aa",
+        "p_session_id": "10000000-0000-4000-8000-000000000099",
+        "p_expected_version": 2
+      }
+    }
+  ],
+  "full_payload_equal": true,
+  "effects": {
+    "version": 3,
+    "lifecycle": "completed",
+    "operation_rows": 1,
+    "complete_audit_rows": 1,
+    "attendance": "present",
+    "checked_in": true,
+    "expenses": 200000
+  }
+}

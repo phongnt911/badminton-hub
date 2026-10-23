@@ -1,0 +1,8 @@
+{
+  "mutation": "manager clipboard gate replaced by if(true) in disposable copy only",
+  "expected_nonzero_exit": true,
+  "actual_exit": 0,
+  "runner_sha256_before": "2113b0869fd9a2c7aff190a75d40ff68392b1f7320b68a961c1b140f89c3bb33",
+  "mutant_sha256": "472772cb668eae7aad237237491841688e85eb763ed1ad9467af9d2c643d1475",
+  "repo_untouched": true
+}

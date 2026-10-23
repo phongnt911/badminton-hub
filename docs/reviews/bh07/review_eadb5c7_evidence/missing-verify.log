@@ -1,0 +1,5 @@
+=== [READ-ONLY VERIFY MODE] Auditing manifest, file integrity and secrets ===
+Loaded 21 expected entries from manifest.
+
+AUDIT FAILED with 1 error(s):
+  [X] MISSING FILE (declared in manifest): analyze.log
