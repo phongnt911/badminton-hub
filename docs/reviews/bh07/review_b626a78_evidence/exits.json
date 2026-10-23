@@ -1,0 +1,9 @@
+{
+  "rehearsal": 0,
+  "analyze": 0,
+  "flutter_test": 0,
+  "db": 0,
+  "manifest_verify_readonly": 0,
+  "cleanup_probe": 0,
+  "probe_meaning": "1 positive correct;2 negatives demonstrate false success"
+}

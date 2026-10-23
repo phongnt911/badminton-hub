@@ -1,0 +1,26 @@
+[
+  {
+    "case": "positive",
+    "docker_cleanup_success": true,
+    "private_dumps_keys_removed": true,
+    "actual_exit": 0,
+    "expected_exit_zero": true,
+    "verdict": "PASS control"
+  },
+  {
+    "case": "private_cleanup_failure",
+    "docker_cleanup_success": true,
+    "private_dumps_keys_removed": false,
+    "actual_exit": 0,
+    "expected_exit_zero": false,
+    "verdict": "FAIL gate reproduced"
+  },
+  {
+    "case": "docker_cleanup_failure",
+    "docker_cleanup_success": false,
+    "private_dumps_keys_removed": true,
+    "actual_exit": 0,
+    "expected_exit_zero": false,
+    "verdict": "FAIL gate reproduced"
+  }
+]

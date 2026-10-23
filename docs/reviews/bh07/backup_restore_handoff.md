@@ -1,5 +1,7 @@
 # Bàn giao backup/restore rehearsal BH-07 local
 
+**Kết quả review hiện hành: Chưa đạt R1 P2; xem [review_b626a78.md](review_b626a78.md). Bàn giao ban đầu dưới đây giữ làm lịch sử, không còn là trạng thái chờ kết luận.**
+
 **Chờ review độc lập. Codex triển khai/tự kiểm, không phải review độc lập.** Bước tiếp theo được chủ dự án giao sau khi đóng browser. Không tự ghi hoàn thành toàn BH-07, không merge main/deploy/pilot.
 
 - Nhánh: `feat/bh07-backup-rehearsal`.

@@ -1,5 +1,7 @@
 # Hướng dẫn cho AI làm việc trong repo
 
+**Review backup/restore local: Chưa đạt — R1 P2 về cleanup vẫn báo PASS khi xóa dump/key hoặc Docker resource thất bại.** Source `b626a78`, docs/evidence `542eb24`; lượt review tự chạy13 recovery check, analyze sạch,240 Flutter+1skip,23 DB vàmanifest11/11 PASS, nhưng1 positive+2 negative probe tái hiện cleanup false success. [Review](docs/reviews/bh07/review_b626a78.md). **Giao AI triển khai sửa R1; Codex chỉ review/chốt, không sửa source.** Codex đã là tác giả source trước đó, không tuyên bố review này độc lập. Chưa đóng backup/restore hoặc chuyển bước kế; browser giữ Đạt local/đã đóng. Không merge main/deploy/pilot.
+
 **Bước tiếp theo đã triển khai: backup/restore rehearsal local Chờ review độc lập**, source `b626a78`, base browser đã đóng `74305bb`, nhánh `feat/bh07-backup-rehearsal`. Codex triển khai/tự kiểm, không độc lập. **13/13 recovery check, analyze sạch, 240 Flutter +1 skip và23/23 DB PASS**; restore public/Auth/schema/roles/sequences, HTTP Auth/ACL và retry payment đúng1 lần,3 negative controls đều phát hiện lỗi. [Runbook](docs/26_BH07_OPERATIONS_REHEARSAL.md), [bàn giao](docs/reviews/bh07/backup_restore_handoff.md). Browser giữ Đạt local/đã đóng; không merge main/deploy/pilot. Backup managed Supabase đầy đủ/PITR/offsite, concurrent writers, staging/production và pilot vẫn NOT RUN.
 
 Đọc `docs/00_START_HERE.md` trước khi triển khai. Sau đó đọc các tài liệu chuẩn theo thứ tự được liệt kê và tuân thủ `docs/04_LLM_RULES.md`.

@@ -1,0 +1,42 @@
+started bh07-http-review-db
+started bh07-http-review-auth
+migration 20261015051808_init_schema_v1_1.sql
+migration 20261015133247_bh03_clubs_and_members.sql
+migration 20261015140216_bh03_identity_retry_session_fixes.sql
+migration 20261015151445_pre_bh04_hardening.sql
+migration 20261015163000_bh04_sessions.sql
+migration 20261015163001_bh04_review_fixes.sql
+migration 20261015170500_bh05_registrations.sql
+migration 20261016090000_bh05_review_fixes.sql
+migration 20261016091000_bh05_a3_cancel_revokes_invitations.sql
+migration 20261016100000_bh05_start_session.sql
+migration 20261016110000_bh06_expenses_finalize.sql
+migration 20261016120000_bh06_payments_ledger.sql
+migration 20261016130000_bh06_reads.sql
+migration 20261016140000_bh06a_review_round1.sql
+migration 20261020100000_bh06_integration_receiver.sql
+migration 20261020160000_bh06_integration_receiver_backfill.sql
+migration 20261020170000_bh06_finance_session_version.sql
+migration 20261020180000_bh07_reads.sql
+started bh07-http-review-rest
+started bh07-http-review-kong
+created local Auth user ownera 2721252c-ae23-44f3-a3cf-3e54d1ce480b
+created local Auth user financea f27fbd28-48f0-4567-ad9b-f7bbaee3535c
+created local Auth user cohosta 06cb664f-07b6-48f5-8b70-6baefa6d87fc
+created local Auth user membera 0d3f96b0-4b4d-4c6f-873b-c563afc12cda
+created local Auth user guesta 560ea3ca-a76f-4bc2-8072-5a76d2fb844a
+created local Auth user ownerb eca29710-781d-4223-bd3a-7e538d963600
+created local Auth user outsider 49e8c26f-fd4b-45b3-988d-8fdc7a380913
+PASS: source cash committed via real Owner RPC
+PASS: source Owner/cohost/outsider ACL controls
+PASS: fixture has financial/audit/idempotency data
+PASS: corrupt archive rejected
+PASS: bootstrap role filter is exact
+PASS: all public/Auth rows schema roles sequences match
+PASS: real Auth/JWT/ACL projections preserved after restore
+PASS: wrong password still rejected after restore
+PASS: same request after restore returns same payment ID
+PASS: restore retry is exactly one payment ledger operation
+PASS: server aggregate/outstanding unchanged by replay
+PASS: missing audit-row negative control detected
+PASS: lost RPC grant negative control detected via HTTP
