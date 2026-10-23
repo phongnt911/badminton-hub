@@ -1,0 +1,4 @@
+# Command: python scripts/bh07_browser/clean_and_manifest.py --verify
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+ALL CHECKS PASSED: 33/33 files verified, 0 secret/JWT outside allowlist, strict UTF-8 LF.
+EXIT_CODE=0

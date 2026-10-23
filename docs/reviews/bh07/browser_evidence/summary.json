@@ -1,15 +1,17 @@
 {
-  "ticket": "BH-07 browser/offline/reopen verification (Round 2/2)",
-  "generated_at_utc": "2026-10-22T15:44:57.873Z",
-  "started_at_utc": "2026-10-22T15:40:53.087Z",
-  "duration_ms": 244735,
-  "base_sha": "465b46607c8fd5d1566e7eca8688af09fc557e34",
-  "tested_checkout_sha": "51cb3b124533ecc4abce00609a5f0bbbd6309221",
+  "ticket": "BH-07 browser/offline/reopen verification (authorized final fix)",
+  "generated_at_utc": "2026-10-23T04:14:56.286Z",
+  "started_at_utc": "2026-10-23T04:10:52.629Z",
+  "duration_ms": 243611,
+  "base_sha": "b5517df1055ded3de86bdce49927188eab8e53d8",
+  "tested_checkout_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
   "is_dirty": false,
+  "dirty_details": "",
   "source_hashes": {
-    "scripts/bh07_browser/run_browser_verification.js": "2113b0869fd9a2c7aff190a75d40ff68392b1f7320b68a961c1b140f89c3bb33",
+    "scripts/bh07_browser/run_browser_verification.js": "8003c69e563acb0c62a7e4edffbac4a655232c2644c57d16b27740b238b70589",
+    "scripts/bh07_browser/assertions.js": "f5e92a6c2258b5c9d25c6d7345aee6420816d18981a0e9f669db0fdd2f483e33",
     "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
-    "scripts/bh07_browser/clean_and_manifest.py": "8d25c23b5a253f542532d42534dfef52a0cc059ee8d7859e0db6750c2cc87b9c"
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773"
   },
   "browser": "Chrome/155.0.8059.85",
   "web_url": "http://127.0.0.1:8088",
@@ -46,33 +48,33 @@
     },
     {
       "id": "browser.mutation.offline-retry-intent",
-      "description": "Offline mutation catches transport error without false success, retry preserves request_id and payload",
+      "description": "Offline mutation shows a real UI error, then retry preserves request_id and full payload",
       "status": "PASS",
-      "detail": "captured=2 reqIdMatch=true payloadMatch=true exactly_once_verified"
+      "detail": "offline_error_visible=true captured=2 full_payload_match=true exactly_once_verified"
     },
     {
       "id": "browser.clipboard.manager-privacy",
-      "description": "Manager summary text copied to real clipboard includes aggregate finances but excludes private contacts and bank accounts",
+      "description": "Manager clipboard matches every fixture aggregate field exactly and excludes contacts, bank accounts and secrets",
       "status": "PASS",
-      "detail": "real clipboard read successfully, privacy clean (no phone/bank), finance totals present and verified >0"
+      "detail": "expense=200000 due=200000 paid=0 outstanding=200000; privacy clean; exact count line present"
     },
     {
       "id": "browser.cohost.null-finance-ui",
-      "description": "Cohost without club finance role sees management counts only, NULL money fields on UI, and clipboard excludes all finance totals",
+      "description": "Cohost sees counts only on the UI and clipboard, with every finance/contact/bank/account/receiver field excluded",
       "status": "PASS",
-      "detail": "management only card verified, finance card hidden, clipboard money fields clean in same document instance"
+      "detail": "management-only note present; finance card and all finance labels (including \"—\") absent; clipboard line set is counts plus header/place/time only"
     },
     {
       "id": "browser.history.ui-filter-club",
-      "description": "Session history screen renders and filters completed/cancelled sessions by club",
+      "description": "History sends the selected club filter, returns exactly the permitted session ID, and renders that row only",
       "status": "PASS",
-      "detail": "history screen filtered by HTTP Club A: Club A sessions present, Club B sessions excluded"
+      "detail": "filtered p_club_id=aaaaaaaa-1111-4111-8111-111111111111; response ids=[10000000-0000-4000-8000-000000000099]; visible titles=[\"UI Flow Session published to complete\"]; empty/error/Club B states absent"
     },
     {
       "id": "browser.participant.member-isolation-ui",
-      "description": "Regular participant accesses only permitted sessions without club treasury management leak",
+      "description": "Member history sends no club filter, returns an empty ID set, and renders only the empty state with no Club B/treasury data",
       "status": "PASS",
-      "detail": "member history rendered in isolation, no club treasury leak"
+      "detail": "response ids=[]; exact empty state \"Chưa có buổi nào\"; zero row markers; no Club B, finance, treasury, contact or bank text"
     },
     {
       "id": "browser.reopen.session-persistence-ui",

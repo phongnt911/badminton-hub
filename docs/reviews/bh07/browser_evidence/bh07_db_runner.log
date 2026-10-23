@@ -1,7 +1,7 @@
-Khởi tạo DB BH-07: bh07_clean_20261022154611 và bh07_upgrade_20261022154611...
+Khởi tạo DB BH-07: bh07_clean_20261023041604 và bh07_upgrade_20261023041604...
 CLEAN migrations: 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql, 20261020180000_bh07_reads.sql
 UPGRADE baseline: 20261020100000_bh06_integration_receiver.sql, 20261020160000_bh06_integration_receiver_backfill.sql, 20261020170000_bh06_finance_session_version.sql
-Suite DB bh07_clean_20261022154611: venue=fbaf6a8c-459e-4cd5-b7f8-688742bdb1e9, club1=4544e392-aaff-4720-8813-9cdf307b766d, club2=86c4e3a7-7d90-4a64-89f5-db1d7e42f703
+Suite DB bh07_clean_20261023041604: venue=6ec66cf3-9093-4a4e-a86f-4f20be391c12, club1=5cd91c48-54d8-4270-8a7b-92e45ab71f07, club2=9844002c-58d0-4874-b3fe-3dac69369710
 PASS: Complete: chưa chốt phí bị BILLING_NOT_FINALIZED, không đổi lifecycle/version/audit
 PASS: Complete: revision stale bị BILLING_STALE, không đổi lifecycle/version/audit
 PASS: Complete: version cũ trả VERSION_CONFLICT, không đổi dữ liệu
@@ -29,4 +29,5 @@ PASS: Upgrade: summary/history đọc được buổi completed cũ sau migratio
 ==========================================
 KẾT QUẢ KIỂM THỬ BH-07: TỔNG 23 | PASS 23 | FAIL 0
 ==========================================
-Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh07\bh07_test_results_20261022154611.json
+Results file: C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh07\bh07_test_results_20261023041604.json
+EXIT_CODE=0

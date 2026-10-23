@@ -1,97 +1,91 @@
-# Báo cáo bàn giao Kiểm chứng Browser / Offline / Reopen BH-07 Local (Vòng 2/2)
+# Bàn giao kiểm chứng Browser / Offline / Reopen BH-07 — sửa cuối theo ủy quyền bổ sung
 
-- **Trạng thái**: Chờ review độc lập (Vòng 2/2)
-- **Nhánh**: `feat/bh07-browser-verification`
-- **Base commit**: `465b46607c8fd5d1566e7eca8688af09fc557e34`
-- **Tested source commit**: `51cb3b124533ecc4abce00609a5f0bbbd6309221`
-- **Mã nguồn ứng dụng**: Giữ nguyên toàn bộ 100% source app (`lib/`, `test/`), DB migrations, RPC và contracts; chỉ cập nhật công cụ/test kiểm chứng, fixture và tài liệu bằng chứng.
-- **Trình duyệt kiểm thử**: Google Chrome 155.0.8059.85 (Headless CDP Automation với thao tác chuột, bàn phím và cây ngữ nghĩa Semantics thật)
-- **Nền tảng backend**: Supabase local stack thật (GoTrue Auth, PostgREST RPC, PostgreSQL 15 trên Docker `supabase_db_badminton-hub`)
-
----
-
-## 1. Khắc phục triệt để 5 phát hiện Review Độc lập Vòng 1/2 (BR1 – BR5)
-
-| Mã | Mức | Phát hiện trong `review_b00b580.md` | Giải pháp và kết quả khắc phục vòng 2/2 | Trạng thái |
-|:---|:---:|:---|:---|:---:|
-| **BR1** | **P2** | Điểm danh PASS chỉ vì click xong; không assert đúng player/attendance/count sau mutation. | Kiểm tra tiền đề (`not_checked_in`), click UI "Có mặt" đúng thành viên `Member A`, assert hậu đề hiển thị `present` ("Có mặt"), đối chiếu trực tiếp cơ sở dữ liệu `session_players` chuyển sang `present` và `checked_in_at` có giá trị. | **Đã sửa** |
-| **BR2** | **P1** | Lọc POST bị trộn lẫn OPTIONS; thiếu request vẫn PASS; payload match bỏ qua version; không assert transport error khi offline, completed khi online và side effects 1 lần. | Bổ sung bộ lọc POST nghiêm ngặt (`req.method === 'POST'`), bắt buộc có đủ 2 request (1 offline, 1 online retry); so khớp sâu `p_request_id` và toàn bộ payload (bao gồm cả `p_expected_version`); assert lỗi transport offline không có false success; sau khi online assert session chuyển `completed`, version tăng lên 3, `operation_requests` đếm đúng 1 và `audit_events` với action `SESSION_COMPLETED` đếm đúng 1. | **Đã sửa** |
-| **BR3** | **P2** | Clipboard validator còn lọt số tiền sai / zero giả; Cohost chỉ cấm 2 nhãn; History filter không thao tác dropdown chọn CLB và không assert IDs. | Fixture được bổ sung chi phí sân 200.000 VNĐ để tránh zero giả; Manager clipboard assert chính xác các dòng tài chính (`200,000 VNĐ`) và quét sạch SĐT/STK/secrets; Cohost assert thẻ "Chỉ xem số lượng", ẩn hoàn toàn thẻ tài chính, clipboard bị chặn toàn diện bằng regex tiền tệ, SĐT, STK; History thao tác mở dropdown chọn CLB A thật qua UI, assert xuất hiện buổi của CLB A và loại trừ hoàn toàn các buổi của CLB B; Member A cách ly lịch sử cá nhân. | **Đã sửa** |
-| **BR4** | **P2** | Chưa kiểm cache đổi actor trong cùng instance vì `Page.navigate` / reload reset toàn bộ app trước assertion. | Chuyển đổi actor từ Owner sang Cohost hoàn toàn trong **CÙNG 1 document/instance SPA** bằng các nút Back (`clickBack`) trên AppBar và tab bar navigation của Flutter Web (không gọi `Page.navigate` hay reload trang); sau khi đăng nhập Cohost, assert thẻ tài chính của Owner bị xóa sạch khỏi view/cache và clipboard Cohost không còn số tiền nào; duy trì ca reload (F5) riêng ở TC10 để kiểm tra session persistence. | **Đã sửa** |
-| **BR5** | **P2** | Thiếu 4 file log gốc; `clean_and_manifest.py` tự ý ghi đè manifest bằng file hiện có xóa dấu vết thiếu file; scanner lọt secret giả `sb_secret_`; exits hardcode. | Xuất bản đầy đủ 4 file log gốc (`analyze.log`, `flutter_test.log`, `bh07_db_runner.log`, `browser_runner.log`) bằng `git add -f`; tách biệt script thành 2 mode rõ ràng: `--generate` (chuẩn hóa LF, tính hash) và `--verify` (readonly, kiểm tra tính toàn vẹn, secret, exit khác 0 nếu thiếu file/hash sai, KHÔNG sửa file); scanner bao phủ `sb_secret_` và JWT service role; đo lường exit code thực tế từ process; ghi nhận SHA, dirty status (`false`), source hashes; bổ sung kịch bản `run_negative_controls.js` tái lập 8/8 probes của reviewer (đỏ trước sửa, xanh sau sửa). | **Đã sửa** |
+- **Trạng thái:** **Chờ review lần sửa cuối theo ủy quyền bổ sung**. Người triển khai không tự ghi Đạt.
+- **Nhánh:** `feat/bh07-browser-verification`
+- **Base commit:** `b5517df1055ded3de86bdce49927188eab8e53d8`
+- **Tested source commit:** `a62f509986f65592da3fb5bccebe7b7c246ff7b7`
+- **Docs/evidence:** thư mục `docs/reviews/bh07/browser_evidence/`; commit bàn giao hiện hành được gửi kèm trong prompt review và xác định bằng `git log` (không thể tự ghi SHA của chính commit đang chứa file này).
+- **Phạm vi thay đổi:** chỉ script kiểm chứng, fixture, tài liệu và bằng chứng. Không đổi `lib/`, unit test, migration/RPC, model/repository/provider/UI hay contract nghiệp vụ.
+- **Môi trường:** Windows 11 IoT Enterprise LTSC 10.0.26100; Flutter 3.47.6 / Dart 3.13.5; Chrome 155.0.8059.85; Node v24.21.0; Python 3.12.7; Supabase local; PostgreSQL 17.11 trong `bh02-test-postgres`.
 
 ---
 
-## 2. Kết quả Ma trận Kiểm chứng Trình duyệt Thật (11/11 PASS)
+## 1. Phát hiện còn mở từ `review_eadb5c7.md` và phần đã bổ sung
 
-Runner tự động thực thi 11 kịch bản tương tác UI thực tế trên Google Chrome 155 thật qua CDP:
+| Mã | Nội dung reviewer yêu cầu | Phần đã bổ sung trong gói này | Trạng thái |
+|:---|:---|:---|:---|
+| **BR2** (P2) | Phải chứng minh UI thật hiện lỗi offline, không được im lặng không lỗi/không thành công; đúng 2 POST, cùng `request_id`, cùng toàn bộ payload; online hoàn tất; đúng 1 operation và 1 audit `SESSION_COMPLETED`. | `assertions.js` có `validateOfflineUiState` kiểm đúng câu lỗi `Đã xảy ra lỗi. Vui lòng thử lại sau.`, cấm success giả và yêu cầu route tài chính còn giữ. `validateCompleteRequests` lọc POST, bắt buộc đúng 2 request, so sánh `request_id`, session, version và toàn bộ payload. Runner polling lỗi thật trước khi retry, sau đó kiểm DB `completed|3`, 1 operation và 1 audit. | Chờ reviewer xác nhận |
+| **BR3** (P2) | Aggregate phải đúng trường/số, không được nhận field lạ hoặc `—`; Cohost chỉ được thấy count, không lộ tài chính/contact/bank; History phải kiểm ID/empty/denied row và payload filter thật. | `validateManagerClipboard` kiểm chính xác `Tổng chi phí=200,000 VNĐ`, `Tổng phải thu=200,000 VNĐ`, `Đã thu=0 VNĐ`, `Còn phải thu=200,000 VNĐ`; từ chối field lạ và `—`. `validateCohostClipboard`/`validateCohostSummarySurface` chỉ cho phép header/place/time/count, cấm mọi nhãn tiền, số tiền, phone/bank/account/receiver/secret. History chụp request/response RPC thật, kiểm `p_club_id`, đúng tập ID `[10000000-0000-4000-8000-000000000099]`, row marker, empty state và dữ liệu Club B/treasury. Member kiểm `p_club_id=null`, response `[]`, `Chưa có buổi nào`, không row. | Chờ reviewer xác nhận |
+| **BR5** (P2) | `--verify` phải read-only tuyệt đối; thiếu/thừa/hash sai/UTF-8 sai/BOM/CRLF/secret phải exit khác 0 và không sửa file; chỉ allowlist public anon JWT; reject JWT `service_role` đã decode; negative runner phải chạy predicate hiện tại, await đủ case, đủ số lượng, có positive control và fail khi gate manager thành `if (true)`. | `clean_and_manifest.py` tách `--verify` chỉ đọc; kiểm missing/extra/hash/UTF-8/BOM/CRLF; decode JWT và từ chối `service_role` ngoài allowlist; không tìm literal role trong base64. `run_negative_controls.js` có 27 case await tuần tự, marker check, đúng số case, positive control, JSON đầy đủ. `run_verifier_controls.py` có 9 control read-only. `run_mutant_controls.py` chạy bản sao không sửa (exit 0) và bản `if (true)` (exit 1), không sửa script thật. | Chờ reviewer xác nhận |
 
-| STT | Mã kiểm thử | Mô tả kịch bản UI thật | Kết quả | Chi tiết ghi nhận |
-|:---:|:---|:---|:---:|:---|
-| 01 | `browser.ui.login-owner` | Owner A đăng nhập qua form UI (`AuthScreen`), nhập email/pass, xác nhận badge đã xác thực trên `AccountScreen` | **PASS** | auth form submitted, verified badge present, guest mode cleared |
-| 02 | `browser.ui.start-session` | Owner A mở buổi chơi đã công bố (`published`), click nút "Bắt đầu buổi chơi", chuyển lifecycle sang "Đang diễn ra" | **PASS** | lifecycle updated to `in_progress` |
-| 03 | `browser.ui.attendance-checkin` | Điểm danh Member A qua nút bấm "Có mặt": assert precondition `not_checked_in`, click UI, assert postcondition `present` và kiểm DB | **PASS** | Member A attendance status successfully updated from not_checked_in to present |
-| 04 | `browser.ui.finalize-charges` | Mở màn tài chính, bấm nút "Chốt phí", nhập lý do trong dialog, chuyển trạng thái phí sang "Đang hiệu lực" (`current`) | **PASS** | billing state is now current (Đang hiệu lực) |
-| 05 | `browser.mutation.offline-retry-intent` | Mô phỏng offline: bấm "Kết thúc buổi chơi" trong dialog, bắt lỗi transport, UI không báo thành công giả; bật online và retry thành công | **PASS** | captured=2 reqIdMatch=true payloadMatch=true exactly_once_verified |
-| 06 | `browser.clipboard.manager-privacy` | Mở màn "Tổng kết buổi", bấm "Sao chép tổng kết", đọc clipboard thật: xác nhận tổng tiền 200,000 VNĐ, sạch SĐT/STK/secrets | **PASS** | real clipboard read successfully, privacy clean (no phone/bank), finance totals present and verified >0 |
-| 07 | `browser.cohost.null-finance-ui` | Điều hướng bằng UI trong cùng document SPA, đăng nhập Cohost A: xem tổng kết có thẻ "Chỉ xem số lượng", ẩn thẻ tài chính, clipboard không số tiền | **PASS** | management only card verified, finance card hidden, clipboard money fields clean in same document instance |
-| 08 | `browser.history.ui-filter-club` | Mở tab "Buổi Chơi", mở lịch sử buổi, thao tác dropdown chọn HTTP Club A: assert xuất hiện buổi CLB A, loại trừ buổi CLB B | **PASS** | history screen filtered by HTTP Club A: Club A sessions present, Club B sessions excluded |
-| 09 | `browser.participant.member-isolation-ui` | Đăng xuất qua UI, đăng nhập Member A: mở lịch sử cá nhân cô lập, không rò rỉ thông tin quỹ hay tài chính CLB | **PASS** | member history rendered in isolation, no club treasury leak |
-| 10 | `browser.reopen.session-persistence-ui` | Tải lại trang (F5/reload) khi đang là Member A, xác nhận phiên đăng nhập được khôi phục nguyên vẹn từ storage | **PASS** | `membera@example.test` session preserved across reload |
-| 11 | `browser.logout.cache-cleared-no-leak` | Bấm "Đăng xuất" qua UI, xác nhận dialog: UI lập tức trở về khách, `localStorage` bị xóa sạch toàn bộ auth tokens | **PASS** | guest view restored, storage tokens purged completely |
+BR1 và ca SPA Owner→Cohost của BR4 vẫn giữ nguyên; 11/11 browser check vẫn PASS.
 
 ---
 
-## 3. Danh mục 12 Ảnh Chụp Màn Hình Thật (Screenshots)
+## 2. Kết quả bằng chứng local
 
-Toàn bộ ảnh chụp thực tế được lưu tại `docs/reviews/bh07/browser_evidence/screenshots/`, phản ánh đúng từng bước nghiệp vụ và kích thước thực tế:
+| Lệnh / cổng | Kết quả | Exit | Bằng chứng |
+|:---|:---|:---:|:---|
+| `flutter build web` | Build thành công | 0 | `web_build.log` |
+| `run_browser_verification.js` | **11/11 browser check PASS**, 12 ảnh khác hash; `is_dirty=false`; tested `a62f509` | 0 | `summary.json`, `browser_runner.log`, `browser_runner.console.log`, `screenshots/` |
+| `flutter analyze` | Không issue | 0 | `analyze.log` |
+| `flutter test` | **240 test + 1 skip** | 0 | `flutter_test.log` |
+| `run_bh07_tests.py` | **23/23 DB PASS** | 0 | `bh07_db_runner.log`, `bh07_db_results.json` |
+| `run_negative_controls.js` | **27/27 case** đúng kỳ vọng; 7 PASS + 20 FAIL; 0 HARNESS_ERROR | 0 | `negative_controls.json`, `negative_controls.log` |
+| `run_verifier_controls.py` | **9/9 control**; baseline pass; mọi fault exit 1; `readonly=True` | 0 | `verifier_controls.log`, `verifier_controls.stdout.log`, `verifier_controls.json` |
+| `run_mutant_controls.py` | Bản không sửa exit 0; bản `if (true)` exit 1; mutant PASS | 0 | `mutant_negative_control.log`, `mutant_negative_control.stdout.log`, `mutant_negative_control.json` |
+| `clean_and_manifest.py --generate` | 33 entry; 0 secret; UTF-8 LF | 0 | `hashes.sha256` |
+| `clean_and_manifest.py --verify` | **33/33 file**, 0 secret/JWT ngoài allowlist, read-only | 0 | `manifest_verify.log` |
+| `supabase db reset` toàn bộ | Không chạy | **NOT RUN** | `exits.json` |
 
-| Tên tệp ảnh | Kích thước | Mô tả bằng chứng trực quan |
-|:---|:---:|:---|
-| `01_owner_ui_authenticated.png` | 33,985 B | Owner A đăng nhập thành công qua form UI, màn hình hồ sơ đã xác thực |
-| `02_session_ui_started.png` | 82,010 B | Buổi chơi chuyển sang trạng thái "Đang diễn ra" sau khi bấm nút "Bắt đầu buổi chơi" |
-| `03_player_attendance_checked.png` | 81,000 B | Điểm danh Member A thành công qua nút bấm trên UI, badge hiển thị "Có mặt" |
-| `04_session_finance_finalized.png` | 58,348 B | Chốt phí thành công qua dialog, chip trạng thái hiển thị "Đang hiệu lực" |
-| `05_offline_mutation_error.png` | 59,766 B | Lỗi transport khi ngắt mạng: app bắt lỗi chính xác, không báo thành công giả |
-| `06_retry_mutation_success.png` | 81,288 B | Kết nối mạng trở lại và retry: buổi chơi kết thúc thành công (lifecycle `completed`) |
-| `07_summary_manager_clipboard.png` | 59,831 B | Màn hình tổng kết của Manager: đầy đủ tài chính (200k), sạch thông tin riêng tư |
-| `08_cohost_summary_null_finances.png` | 50,253 B | Góc nhìn Cohost trong cùng SPA instance: thẻ "Chỉ xem số lượng", không thẻ tài chính, clipboard không số tiền |
-| `09_history_filtered_club.png` | 35,123 B | Màn hình lịch sử lọc theo HTTP Club A thật qua dropdown, buổi của CLB A xuất hiện |
-| `10_member_isolated_history.png` | 24,043 B | Lịch sử cá nhân cách ly của người chơi Member A |
-| `11_reopen_persisted_session.png` | 34,281 B | Tải lại trang (F5): khôi phục chính xác trạng thái đã đăng nhập của Member A |
-| `12_logout_clean_guest_state.png` | 35,290 B | Đăng xuất qua UI: quay về màn hình khách, storage token bị xóa sạch hoàn toàn |
+Contract chính đã quan sát trên UI/clipboard thật:
 
----
-
-## 4. Đo lường Mã Thoát Thực tế (Exit Codes)
-
-Tất cả các lệnh kiểm tra được đo lường thực tế từ process và ghi nhận trong `docs/reviews/bh07/browser_evidence/exits.json`:
-
-```json
-{
-  "web_build": 0,
-  "db_reset": 0,
-  "seed_setup": 0,
-  "browser_matrix": 0,
-  "flutter_analyze": 0,
-  "flutter_test": 0,
-  "bh07_db_runner": 0,
-  "negative_controls": 0
-}
-```
-
-- `flutter analyze`: `No issues found! (ran in 1.1s)` → Exit 0 (lưu tại `analyze.log`).
-- `flutter test`: `240 passed, 1 skipped` → Exit 0 (lưu tại `flutter_test.log`).
-- `python -u docs/reviews/bh07/run_bh07_tests.py`: `TỔNG 23 | PASS 23 | FAIL 0` → Exit 0 (lưu tại `bh07_db_runner.log`).
-- `node scripts/bh07_browser/run_browser_verification.js`: `11/11 PASS` → Exit 0 (lưu tại `browser_runner.log`).
-- `node scripts/bh07_browser/run_negative_controls.js`: `8/8 negative controls properly rejected` → Exit 0.
+- Manager clipboard: `200,000 VNĐ`, `200,000 VNĐ`, `0 VNĐ`, `200,000 VNĐ`; không field lạ, không `—`.
+- Cohost clipboard/UI: chỉ có header/place/time và dòng `👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2`; không tài chính, tiền, contact, bank, account, receiver.
+- History Cohost: request `p_club_id=aaaaaaaa-1111-4111-8111-111111111111`; response đúng một ID `10000000-0000-4000-8000-000000000099`; một row.
+- History Member: request `p_club_id=null`; response `[]`; `Chưa có buổi nào`; không row/Club B/treasury.
+- Offline complete: lỗi UI thật hiện; retry đúng 2 POST cùng payload/`request_id`; DB `completed|3`; 1 operation, 1 audit `SESSION_COMPLETED`.
 
 ---
 
-## 5. Tuyên bố các mục KHÔNG THỰC HIỆN (NOT RUN)
+## 3. File kiểm chứng chính
 
-Theo đúng quy định của dự án, các hạng mục sau **không nằm trong phạm vi kiểm chứng local** và được bảo lưu trạng thái **NOT RUN**:
-1. **Thiết bị di động thật (iOS / Android)**: Chỉ kiểm chứng trên Google Chrome thật (Flutter Web qua CDP).
-2. **Cổng thanh toán ngân hàng / Webhook thật**: Không gọi API ngân hàng thật; chỉ kiểm tra qua mock RPC nội bộ.
-3. **Môi trường Staging / Production**: Không can thiệp cơ sở dữ liệu trên cloud hay môi trường ngoài local.
-4. **Rehearsal / Pilot thực tế**: Chưa nghiệm thu toàn diện BH-07 cho pilot.
+- `scripts/bh07_browser/assertions.js`: predicate dùng chung cho browser thật và negative controls.
+- `scripts/bh07_browser/run_browser_verification.js`: matrix UI thật, RPC capture, offline/history/clipboard gate.
+- `scripts/bh07_browser/run_negative_controls.js`: 27 control dùng đúng predicate hiện tại.
+- `scripts/bh07_browser/clean_and_manifest.py`: `--generate` và `--verify` read-only.
+- `scripts/bh07_browser/run_verifier_controls.py`: 9 fault/read-only control.
+- `scripts/bh07_browser/run_mutant_controls.py`: kiểm mutation gate manager thành `if (true)`.
+- `scripts/bh07_browser/seed_setup.js`: fixture deterministic (không đổi app/DB contract).
+
+---
+
+## 4. Lịch sử review được giữ nguyên
+
+Các kết luận trước không bị xóa hoặc đổi thành Đạt:
+
+- [review_eadb5c7.md](review_eadb5c7.md): gói Chưa đạt vòng2/2 tại `51cb3b1`; BR1 và ca SPA BR4 đóng; BR2/BR3/BR5 P2 còn mở. Đây là các phát hiện gói sửa cuối này nhắm tới.
+- [review_b00b580.md](review_b00b580.md): Chưa đạt vòng1/2.
+- [review_c8a8e7f.md](review_c8a8e7f.md): Chưa đạt; runner/UI và bằng chứng chưa đủ.
+- [review_cbcc46c_r2.md](review_cbcc46c_r2.md): Concurrency HTTP/Auth Đạt local vòng2/2; không bị thay đổi bởi gói này.
+
+Toàn bộ lịch sử trạng thái chi tiết nằm ở `docs/STATUS_HISTORY.md`.
+
+---
+
+## 5. Rủi ro, giới hạn và NOT RUN
+
+- Đây là kiểm chứng local trên Flutter Web/Chrome headless + Supabase local; không đại diện mobile, trình duyệt khác, staging hay production.
+- Không chứng minh tích hợp ngân hàng/VietQR/webhook thật, backup/restore, rehearsal hoặc pilot.
+- Không chạy `supabase db reset` toàn bộ; chỉ truncate/seed fixture qua `seed_setup.js`.
+- Response trễ sau khi đổi actor vẫn **NOT RUN**.
+- Không merge main, apply DB thật, deploy hoặc chạy pilot.
+- Các kết luận P2 chỉ được đóng khi reviewer độc lập chạy lại và chấp nhận; người triển khai không tự kết luận Đạt.
+
+## 6. Trọng tâm đề nghị reviewer kiểm
+
+1. Chạy lại `run_negative_controls.js` và xác nhận 27/27 case, không chỉ đọc JSON.
+2. Chạy `run_verifier_controls.py` và kiểm `readonly=True` cho mọi fault, đặc biệt fake `sb_secret`, JWT `service_role` đã decode, invalid UTF-8/BOM/CRLF.
+3. Chạy `run_mutant_controls.py`; xác nhận bản `if (true)` thực sự exit 1 vì manager positive control fail.
+4. Chạy browser matrix trên checkout sạch và đối chiếu `summary.json` (`is_dirty=false`, tested SHA), clipboard, history ID và offline POST/DB/audit.
+5. Chạy `clean_and_manifest.py --verify`; xác nhận exit 0 và không sửa file.

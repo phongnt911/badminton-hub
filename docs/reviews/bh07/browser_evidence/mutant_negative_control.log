@@ -1,0 +1,348 @@
+=== Unmodified control copy (positive harness baseline) ===
+exit=0
+=== Running BH-07 current-predicate negative controls ===
+[
+  {
+    "control": "offline positive: exact transport error is visible on the finance route",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "offline negative: silent no-error/no-success UI",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered"
+  },
+  {
+    "control": "offline negative: success-only UI while offline",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered; false success message was rendered while offline"
+  },
+  {
+    "control": "offline negative: error shown outside the finance lifecycle",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "finance screen/route was not retained after the offline failure"
+  },
+  {
+    "control": "manager positive: all four exact aggregate fields",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: one wrong aggregate field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Đã thu: expected \"0 VNĐ\", got \"50,000 VNĐ\""
+  },
+  {
+    "control": "manager negative: outstanding field is the null marker",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Còn phải thu: expected \"200,000 VNĐ\", got \"—\"; null finance marker \"—\" is not allowed for the fixture contract"
+  },
+  {
+    "control": "manager negative: missing aggregate field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "Đã thu: expected exactly one field, got 0"
+  },
+  {
+    "control": "manager negative: title contains 200000 while finance fields are null",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "manager clipboard is missing session title \"UI Flow Session published to complete\"; Tổng chi phí: expected \"200,000 VNĐ\", got \"—\"; Tổng phải thu: expected \"200,000 VNĐ\", got \"—\"; Đã thu: expected \"0 VNĐ\", got \"—\"; Còn phải thu: expected \"200,000 VNĐ\", got \"—\"; null finance marker \"—\" is not allowed for the fixture contract"
+  },
+  {
+    "control": "cohost positive: only header/place/time/count lines",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost negative: finance field with null marker",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"🧾 Tổng phải thu: —\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Tổng phải thu\"; cohost clipboard contains the null finance marker \"—\""
+  },
+  {
+    "control": "cohost negative: money value",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"✅ Đã thu: 50,000 VNĐ\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Đã thu\""
+  },
+  {
+    "control": "cohost negative: phone and bank account fields",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"SĐT: 0987654321\"; cohost clipboard contains a non-allowed line: \"STK: 123456789012\"; cohost clipboard has 6 lines; at most 4 are allowed; private phone number leaked; private contact/bank/account/receiver field leaked"
+  },
+  {
+    "control": "cohost UI positive: management-only surface with counts",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost UI negative: finance card is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost finance card \"Tài chính tổng hợp\" is visible"
+  },
+  {
+    "control": "cohost UI negative: finance field with null marker is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked finance field \"Tổng phải thu\"; cohost UI contains the null finance marker \"—\""
+  },
+  {
+    "control": "history positive: Cohost Club A exact one permitted row",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Cohost receives an extra Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; history rendered unexpected session \"HTTP club B history\"; history rendered 2 row marker(s); expected 1"
+  },
+  {
+    "control": "history positive: Member exact empty state",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Member receives a Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; member history rendered out-of-scope session \"HTTP club B history\"; member history rendered 1 session row marker(s)"
+  },
+  {
+    "control": "history negative: Member receives treasury/finance text",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"Quỹ CLB\"; history leaked forbidden text \"Số dư\""
+  },
+  {
+    "control": "history negative: error/empty ambiguity is rejected",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history rendered error state \"Không tải được lịch sử\""
+  },
+  {
+    "control": "history request negative: wrong club filter payload",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history club filter expected aaaaaaaa-1111-4111-8111-111111111111, got bbbbbbbb-2222-4222-8222-222222222222"
+  },
+  {
+    "control": "history response negative: wrong ID set",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response ids expected [\"10000000-0000-4000-8000-000000000099\"], got [\"20000000-0000-4000-8000-000000000001\"]"
+  },
+  {
+    "control": "complete_session positive: two identical POST payloads",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "complete_session negative: missing retry request",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected exactly 2 complete_session POST requests, got 1"
+  },
+  {
+    "control": "complete_session negative: full payload differs on retry",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected version differs between the offline request and the retry; full complete_session payload differs between the offline request and the retry"
+  }
+]
+
+Recorded 27/27 cases; 7 PASS, 20 FAIL, 0 HARNESS_ERROR.
+
+OVERALL NEGATIVE CONTROLS STATUS: GREEN (all current-predicate controls behave as expected)
+
+
+=== Copy with BR3 manager gate changed to if (true) ===
+exit=1
+=== Running BH-07 current-predicate negative controls ===
+[
+  {
+    "control": "offline positive: exact transport error is visible on the finance route",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "offline negative: silent no-error/no-success UI",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered"
+  },
+  {
+    "control": "offline negative: success-only UI while offline",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"Đã xảy ra lỗi. Vui lòng thử lại sau.\" was not rendered; false success message was rendered while offline"
+  },
+  {
+    "control": "offline negative: error shown outside the finance lifecycle",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "finance screen/route was not retained after the offline failure"
+  },
+  {
+    "control": "manager positive: all four exact aggregate fields",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: one wrong aggregate field",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: outstanding field is the null marker",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: missing aggregate field",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: title contains 200000 while finance fields are null",
+    "expected": "FAIL",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost positive: only header/place/time/count lines",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost negative: finance field with null marker",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"🧾 Tổng phải thu: —\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Tổng phải thu\"; cohost clipboard contains the null finance marker \"—\""
+  },
+  {
+    "control": "cohost negative: money value",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"✅ Đã thu: 50,000 VNĐ\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Đã thu\""
+  },
+  {
+    "control": "cohost negative: phone and bank account fields",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"SĐT: 0987654321\"; cohost clipboard contains a non-allowed line: \"STK: 123456789012\"; cohost clipboard has 6 lines; at most 4 are allowed; private phone number leaked; private contact/bank/account/receiver field leaked"
+  },
+  {
+    "control": "cohost UI positive: management-only surface with counts",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost UI negative: finance card is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost finance card \"Tài chính tổng hợp\" is visible"
+  },
+  {
+    "control": "cohost UI negative: finance field with null marker is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked finance field \"Tổng phải thu\"; cohost UI contains the null finance marker \"—\""
+  },
+  {
+    "control": "history positive: Cohost Club A exact one permitted row",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Cohost receives an extra Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; history rendered unexpected session \"HTTP club B history\"; history rendered 2 row marker(s); expected 1"
+  },
+  {
+    "control": "history positive: Member exact empty state",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Member receives a Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; member history rendered out-of-scope session \"HTTP club B history\"; member history rendered 1 session row marker(s)"
+  },
+  {
+    "control": "history negative: Member receives treasury/finance text",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"Quỹ CLB\"; history leaked forbidden text \"Số dư\""
+  },
+  {
+    "control": "history negative: error/empty ambiguity is rejected",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history rendered error state \"Không tải được lịch sử\""
+  },
+  {
+    "control": "history request negative: wrong club filter payload",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history club filter expected aaaaaaaa-1111-4111-8111-111111111111, got bbbbbbbb-2222-4222-8222-222222222222"
+  },
+  {
+    "control": "history response negative: wrong ID set",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response ids expected [\"10000000-0000-4000-8000-000000000099\"], got [\"20000000-0000-4000-8000-000000000001\"]"
+  },
+  {
+    "control": "complete_session positive: two identical POST payloads",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "complete_session negative: missing retry request",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected exactly 2 complete_session POST requests, got 1"
+  },
+  {
+    "control": "complete_session negative: full payload differs on retry",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected version differs between the offline request and the retry; full complete_session payload differs between the offline request and the retry"
+  }
+]
+
+Recorded 27/27 cases; 11 PASS, 16 FAIL, 0 HARNESS_ERROR.
+
+OVERALL NEGATIVE CONTROLS STATUS: RED (predicate or harness failure)
+[X] manager negative: one wrong aggregate field: expected FAIL, got PASS
+[X] manager negative: outstanding field is the null marker: expected FAIL, got PASS
+[X] manager negative: missing aggregate field: expected FAIL, got PASS
+[X] manager negative: title contains 200000 while finance fields are null: expected FAIL, got PASS

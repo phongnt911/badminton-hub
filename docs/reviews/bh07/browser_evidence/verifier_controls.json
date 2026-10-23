@@ -1,0 +1,70 @@
+{
+  "source_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "verifier_sha256": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+  "controls": [
+    {
+      "control": "baseline public evidence",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "missing declared file",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "extra undeclared file",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "hash mismatch",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "fake sb_secret value",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "fake service_role JWT with valid hash",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "invalid UTF-8 with valid hash",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "UTF-8 BOM with valid hash",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    },
+    {
+      "control": "CRLF with valid hash",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "readonly": true,
+      "ok": true
+    }
+  ],
+  "all_ok": true
+}

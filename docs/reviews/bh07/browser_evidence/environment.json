@@ -1,20 +1,43 @@
 {
-  "os": "Windows 11 Home 10.0.26200",
-  "node": "v24.21.0",
-  "flutter": "3.47.6 (channel stable)",
+  "captured_at_utc": "2026-10-23T04:20:00Z",
+  "os": "Microsoft Windows 11 IoT Enterprise LTSC 10.0.26100",
+  "shell": "Windows PowerShell 5.1 + cmd.exe raw redirection",
+  "branch": "feat/bh07-browser-verification",
+  "base_sha": "b5517df1055ded3de86bdce49927188eab8e53d8",
+  "tested_checkout_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "is_dirty_at_browser_start": false,
+  "flutter": "3.47.6 (channel stable, framework revision 5fc346839b)",
   "dart": "3.13.5",
-  "browser": "Chrome/155.0.8059.85",
+  "node": "v24.21.0",
+  "python": "3.12.7",
+  "chrome": "155.0.8059.85",
   "supabase_cli": "2.121.0",
   "supabase_local_api": "http://127.0.0.1:54321",
   "web_server_url": "http://127.0.0.1:8088",
-  "base_sha": "465b46607c8fd5d1566e7eca8688af09fc557e34",
-  "tested_checkout_sha": "51cb3b124533ecc4abce00609a5f0bbbd6309221",
-  "is_dirty": false,
-  "branch": "feat/bh07-browser-verification",
+  "web_server_command": "python -m http.server 8088 --directory build/web",
+  "postgres_test_container": "bh02-test-postgres",
+  "postgres_version": "PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2), 64-bit",
   "source_hashes": {
-    "scripts/bh07_browser/run_browser_verification.js": "2113b0869fd9a2c7aff190a75d40ff68392b1f7320b68a961c1b140f89c3bb33",
+    "scripts/bh07_browser/run_browser_verification.js": "8003c69e563acb0c62a7e4edffbac4a655232c2644c57d16b27740b238b70589",
+    "scripts/bh07_browser/assertions.js": "f5e92a6c2258b5c9d25c6d7345aee6420816d18981a0e9f669db0fdd2f483e33",
     "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
-    "scripts/bh07_browser/clean_and_manifest.py": "8d25c23b5a253f542532d42534dfef52a0cc059ee8d7859e0db6750c2cc87b9c",
-    "scripts/bh07_browser/run_negative_controls.js": "f5ed6ec925f7df829956005e474dad29b921fc4c8a1be7e01f83656a85e700e7"
-  }
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+    "scripts/bh07_browser/run_negative_controls.js": "ff41b1ddbdb731e5bae3a14d8983dd9ce39a6ea3c36ff36a27ce9e5c7084abad",
+    "scripts/bh07_browser/run_verifier_controls.py": "1262eea43481a20e46cfd0cdcb8993fd8ed4b2220550092fd001e54af27e71b3",
+    "scripts/bh07_browser/run_mutant_controls.py": "d2e72d381f39750a938e9848742cd932000a908233076d4c8bef959e1d02715d"
+  },
+  "not_run_scope": [
+    "mobile device/browser matrix",
+    "delayed response after actor switch",
+    "banking/VietQR/webhook integrations",
+    "staging, production, backup and restore",
+    "rehearsal and pilot",
+    "supabase db reset / full database reset"
+  ],
+  "notes": [
+    "Browser/offline/reopen evidence only; this is not BH-07 or pilot acceptance.",
+    "The local demo anon JWT is public and is the only JWT allowlisted by the verifier.",
+    "All published text evidence is normalized to UTF-8 without BOM and LF by clean_and_manifest.py --generate.",
+    "The public evidence verifier is read-only and rejects missing/extra files, hash mismatches, invalid UTF-8, BOM, CRLF and non-allowlisted secrets/JWTs."
+  ]
 }

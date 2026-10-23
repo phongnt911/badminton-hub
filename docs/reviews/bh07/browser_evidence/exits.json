@@ -1,10 +1,36 @@
 {
+  "generated_at_utc": "2026-10-23T04:22:00Z",
+  "base_sha": "b5517df1055ded3de86bdce49927188eab8e53d8",
+  "tested_checkout_sha": "a62f509986f65592da3fb5bccebe7b7c246ff7b7",
+  "is_dirty_at_browser_start": false,
   "web_build": 0,
-  "db_reset": 0,
+  "db_reset": "NOT RUN",
   "seed_setup": 0,
   "browser_matrix": 0,
   "flutter_analyze": 0,
   "flutter_test": 0,
   "bh07_db_runner": 0,
-  "negative_controls": 0
+  "negative_controls": 0,
+  "verifier_controls": 0,
+  "mutant_control": 0,
+  "clean_and_manifest_generate": 0,
+  "clean_and_manifest_verify": 0,
+  "counts": {
+    "browser_checks_passed": 11,
+    "browser_checks_total": 11,
+    "flutter_tests_passed": 240,
+    "flutter_tests_skipped": 1,
+    "db_checks_passed": 23,
+    "db_checks_total": 23,
+    "negative_controls": 27,
+    "verifier_controls": 9
+  },
+  "not_run": [
+    "mobile device/browser matrix",
+    "delayed response after actor switch",
+    "banking/VietQR/webhook",
+    "staging, production, backup and restore",
+    "rehearsal and pilot",
+    "supabase db reset / full database reset"
+  ]
 }

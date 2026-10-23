@@ -1,0 +1,4 @@
+Unmodified negative-control copy: exit 0 (expected 0)
+if (true) manager-gate mutant copy: exit 1 (expected non-zero)
+Mutant control: PASS
+EXIT_CODE=0
