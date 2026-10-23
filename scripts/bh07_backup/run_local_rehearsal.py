@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import runpy
 import shutil
+import socket
 import subprocess
 import tempfile
 import time
@@ -27,6 +28,12 @@ SOURCE_NAMES = ['bh07-http-review-kong', 'bh07-http-review-rest', 'bh07-http-rev
 SESSION = '10000000-0000-4000-8000-000000000001'
 PLAYER = '30000000-0000-4000-8000-000000000001'
 OPEN = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+def free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(('127.0.0.1', 0))
+        return sock.getsockname()[1]
 
 
 def cmd(args, data=None, accept_error=False):
@@ -131,7 +138,7 @@ def main():
     target = 'bh07-restore-' + uuid.uuid4().hex[:8]
     owned = []
     started = time.monotonic()
-    summary = {'base_sha': '74305bb343fbaf548cb5eea38a77475cc3a21b39', 'tested_source_sha': source_sha, 'dirty_before_run': dirty, 'mode': 'local fixture only; Codex implementation/self-verification', 'checks': []}
+    summary = {'base_sha': 'ec0784f359ed877177330c59dbf40e0ce384ecbf', 'tested_source_sha': source_sha, 'dirty_before_run': dirty, 'mode': 'local fixture only; implementer self-check; pending independent review', 'checks': []}
 
     def check(name, ok):
         summary['checks'].append({'name': name, 'pass': bool(ok)})
@@ -140,22 +147,30 @@ def main():
 
     def target_run(name, image, env, ports=None):
         env_path = private / (name + '.env')
-        env_path.write_text(''.join(f'{k}={v}\n' for k, v in env.items())); env_path.chmod(0o600)
+        env_path.write_text(''.join(f'{k}={v}\n' for k, v in env.items()), encoding='utf-8'); env_path.chmod(0o600)
         cmd(['docker', 'run', '-d', '--name', name, '--network', NETWORK, '--env-file', str(env_path), *(ports or []), image])
         owned.append(name)
 
     try:
-        setup = SETUP.read_text()
+        setup = SETUP.read_text(encoding='utf-8')
+        source_port = free_port()
+        setup = setup.replace('54321', str(source_port))
+        summary['source_port'] = source_port
         setup = setup.replace("root=Path('/workspace/badminton-hub')", f'root=Path({str(ROOT)!r})')
         setup = setup.replace("out=Path('/workspace/scratch/bh07-late-response')", f'out=Path({str(out)!r})')
         setup = setup.replace("private=Path('/tmp/bh07-http-review-runtime')", f'private=Path({str(private / "source-runtime")!r})')
-        script = private / 'setup.py'; script.write_text(setup)
+        # Windows defaults to a legacy code page; all repo fixture files are UTF-8.
+        setup = setup.replace('p.read_text()', "p.read_text(encoding='utf-8')")
+        setup = setup.replace("(root/'scripts/bh07_http/seed.sql').read_text()", "(root/'scripts/bh07_http/seed.sql').read_text(encoding='utf-8')")
+        setup = setup.replace("(root/'scripts/bh07_browser/seed_setup.js').read_text()", "(root/'scripts/bh07_browser/seed_setup.js').read_text(encoding='utf-8')")
+        setup = setup.replace("subprocess.run(args,input=input,text=True,capture_output=True)", "subprocess.run(args,input=input,text=True,capture_output=True,encoding='utf-8')")
+        script = private / 'setup.py'; script.write_text(setup, encoding='utf-8')
         # All fixed-name resources were absent at preflight and are ours only.
         owned.extend(SOURCE_NAMES)
         ns = runpy.run_path(str(script))
         headers = {'apikey': ns['anon']}
-        auth = 'http://127.0.0.1:54321/auth/v1'
-        rest = 'http://127.0.0.1:54321/rest/v1/rpc'
+        auth = f'http://127.0.0.1:{source_port}/auth/v1'
+        rest = f'http://127.0.0.1:{source_port}/rest/v1/rpc'
         token = login(auth, 'ownera', headers)
         request_id = str(uuid.uuid4())
         payload = {'p_player_id': PLAYER, 'p_amount_vnd': 10000, 'p_reference': 'BH07 restore replay', 'p_request_id': request_id}
