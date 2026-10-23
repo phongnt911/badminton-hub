@@ -14,7 +14,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 const EVIDENCE_DIR = path.resolve(PROJECT_ROOT, 'docs/reviews/bh07/browser_evidence');
 const RUNNER_PATH = path.resolve(__dirname, 'run_browser_verification.js');
 const ASSERTIONS_PATH = path.resolve(__dirname, 'assertions.js');
-const EXPECTED_CASE_COUNT = 27;
+const EXPECTED_CASE_COUNT = 41;
 
 const A = require('./assertions');
 const {
@@ -245,6 +245,46 @@ const cases = [
       { ...validCompleteRequests[1], postData: { ...validCompleteRequests[1].postData, p_expected_version: 9 } },
     ]),
   },
+  {
+    name: 'BR3-1 manager unknown finance field', expected: 'FAIL',
+    run: () => A.validateManagerClipboard(`${managerClipboard}\n📉 Hoàn tiền: 999 VNĐ`),
+  },
+  {
+    name: 'BR3-1 manager duplicate metadata', expected: 'FAIL',
+    run: () => A.validateManagerClipboard(`${managerClipboard}\n📍 HTTP Venue A · HTTP Club A`),
+  },
+  ...['VNĐ', 'đ', 'VND'].map((currency) => ({
+    name: `BR3-2 cohost clipboard currency ${currency}`, expected: 'FAIL',
+    run: () => A.validateCohostClipboard(cohostClipboard.replace('HTTP Club A', `HTTP Club A · 999 ${currency}`)),
+  })),
+  ...['VNĐ', 'đ', 'VND'].map((currency) => ({
+    name: `BR3-2 cohost UI currency ${currency}`, expected: 'FAIL',
+    run: () => A.validateCohostSummarySurface(elements('Chỉ xem số lượng', 'Có mặt 1 · Vắng 0 · Đã xác nhận 2', `999 ${currency}`)),
+  })),
+  {
+    name: 'BR3-3 member empty UI with bank account', expected: 'FAIL',
+    run: () => A.validateHistorySurface(elements('Lịch sử buổi', 'Chưa có buổi nào', 'STK: 123456789012'), [], true),
+  },
+  {
+    name: 'BR3-3 null response is not empty history', expected: 'FAIL',
+    run: () => A.validateHistoryResponse(null, []),
+  },
+  {
+    name: 'BR3-3 FORBIDDEN object is not empty history', expected: 'FAIL',
+    run: () => A.validateHistoryResponse({ code: '42501', message: 'FORBIDDEN' }, []),
+  },
+  {
+    name: 'BR3-3 malformed JSON is not empty history', expected: 'FAIL',
+    run: () => A.validateHistoryResponse(A.parseHistoryResponse({ status: 200, body: 'not JSON' }), []),
+  },
+  {
+    name: 'BR3-3 HTTP 403 with array body must fail', expected: 'FAIL',
+    run: () => A.validateHistoryResponse(A.parseHistoryResponse({ status: 403, body: '[]' }), []),
+  },
+  {
+    name: 'BR3-3 HTTP 200 empty array positive', expected: 'PASS',
+    run: () => A.validateHistoryResponse(A.parseHistoryResponse({ status: 200, body: '[]' }), []),
+  },
 ];
 
 function requireMarkers() {
@@ -257,7 +297,8 @@ function requireMarkers() {
     'validateCohostClipboard(',
     'validateCohostSummarySurface(',
     'validateHistoryCall(',
-    'validateHistoryIds(',
+    'validateHistoryResponse(',
+    'parseHistoryResponse(',
     'validateHistorySurface(',
   ];
   const requiredAssertionMarkers = [

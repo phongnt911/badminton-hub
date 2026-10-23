@@ -23,7 +23,8 @@ const {
   validateCohostClipboard,
   validateCohostSummarySurface,
   validateHistoryCall,
-  validateHistoryIds,
+  parseHistoryResponse,
+  validateHistoryResponse,
   validateHistorySurface,
 } = require('./assertions');
 
@@ -34,7 +35,7 @@ const EVIDENCE_DIR = path.resolve(PROJECT_ROOT, 'docs/reviews/bh07/browser_evide
 const SCREENSHOTS_DIR = path.resolve(EVIDENCE_DIR, 'screenshots');
 const USER_DATA_DIR = path.join(os.tmpdir(), 'chrome_bh07_isolated_v2');
 const WEB_URL = 'http://127.0.0.1:8088';
-const BASE_SHA = 'b5517df1055ded3de86bdce49927188eab8e53d8';
+const BASE_SHA = '1fc7e2eb171acd6c7afbc16e9f1053f9b3cb21c3';
 
 if (!fs.existsSync(SCREENSHOTS_DIR)) {
   fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
@@ -98,6 +99,10 @@ class CdpClient {
         for (const listener of this.requestListeners) {
           listener(msg.params);
         }
+      }
+      if (msg.method === 'Network.responseReceived') {
+        const meta = this.networkRequests.get(msg.params.requestId);
+        if (meta) meta.status = msg.params.response.status;
       }
       if (msg.method === 'Network.loadingFinished' && this.responseListeners.length > 0) {
         const meta = this.networkRequests.get(msg.params.requestId);
@@ -931,11 +936,10 @@ async function runMatrix() {
     });
     cdp.responseListeners.push(res => {
       if (!String(res.url || '').includes('/rpc/list_my_session_history')) return;
-      let body = null;
+      const body = parseHistoryResponse(res);
       let postData = null;
-      try { body = JSON.parse(res.body); } catch (_) {}
       try { postData = JSON.parse(res.postData); } catch (_) {}
-      if (body !== null) historyResponses.push({ url: res.url, postData, body });
+      historyResponses.push({ url: res.url, postData, body });
     });
 
     // Open Session History
@@ -980,8 +984,8 @@ async function runMatrix() {
     const historyElements = await cdp.getAllSemantics();
     const historyErrors = [
       ...validateHistoryCall(filteredCall, FIXTURE.clubAId),
-      ...validateHistoryIds(
-        (filteredResponse && Array.isArray(filteredResponse.body) ? filteredResponse.body : []).map((session) => session.id),
+      ...validateHistoryResponse(
+        filteredResponse && filteredResponse.body,
         [FIXTURE.uiSessionId]
       ),
       ...validateHistorySurface(historyElements, FIXTURE.cohostExpectedTitles, false),
@@ -1067,11 +1071,10 @@ async function runMatrix() {
     });
     cdp.responseListeners.push(res => {
       if (!String(res.url || '').includes('/rpc/list_my_session_history')) return;
-      let body = null;
+      const body = parseHistoryResponse(res);
       let postData = null;
-      try { body = JSON.parse(res.body); } catch (_) {}
       try { postData = JSON.parse(res.postData); } catch (_) {}
-      if (body !== null) memberHistoryResponses.push({ url: res.url, postData, body });
+      memberHistoryResponses.push({ url: res.url, postData, body });
     });
 
     await cdp.clickSemantic(
@@ -1094,8 +1097,8 @@ async function runMatrix() {
     const memberResponse = [...memberHistoryResponses].reverse()[0];
     const memberHistoryErrors = [
       ...validateHistoryCall(memberCall, null),
-      ...validateHistoryIds(
-        (memberResponse && Array.isArray(memberResponse.body) ? memberResponse.body : []).map((session) => session.id),
+      ...validateHistoryResponse(
+        memberResponse && memberResponse.body,
         []
       ),
       ...validateHistorySurface(memberHistoryElements, FIXTURE.memberExpectedTitles, true),

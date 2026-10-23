@@ -57,7 +57,7 @@ const PRIVATE_PATTERNS = [
   { label: 'secret/token field', re: /secret|password|bearer|token/i },
   { label: 'private fixture marker', re: /BH07[- ]?PRIVATE|\+84900000004|0000000007|0000000008/i },
 ];
-const MONEY_RE = /(?:\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:vnđ|vnd|đ)\b/i;
+const MONEY_RE = /(?:\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:vnđ|vnd|đ)(?![\p{L}\p{N}_])/iu;
 const HISTORY_ERROR_TEXTS = [
   'Không tải được lịch sử',
   'Chưa làm mới được lịch sử',
@@ -194,6 +194,30 @@ function validateManagerClipboard(text, expected = FIXTURE.managerFinance) {
       errors.push(`${label}: expected "${expectedValue}", got "${values[0]}"`);
     }
   }
+  // This fixture has exactly four metadata lines and four finance lines.
+  // A blacklist of known finance labels cannot reject an unknown extra field.
+  const lines = normalized.split('\n').map((line) => line.trim()).filter(Boolean);
+  const metadataPatterns = [
+    /^🏸 Tổng kết: UI Flow Session published to complete$/,
+    /^📍 .+$/,
+    /^⏰ .+$/,
+    /^👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2$/,
+  ];
+  const financeLines = Object.entries(expected).map(([label, value], index) =>
+    `${['💰', '🧾', '✅', '⏳'][index]} ${label}: ${value}`);
+  for (const pattern of metadataPatterns) {
+    const matches = lines.filter((line) => pattern.test(line));
+    if (matches.length !== 1) errors.push(`expected exactly one metadata line matching ${pattern}`);
+    if (matches.some((line) => MONEY_RE.test(line))) errors.push('money value in manager metadata');
+  }
+  for (const line of lines) {
+    if (!metadataPatterns.some((pattern) => pattern.test(line)) && !financeLines.includes(line)) {
+      errors.push(`manager clipboard contains a non-allowed line: "${line}"`);
+    }
+  }
+  if (lines.length !== metadataPatterns.length + financeLines.length) {
+    errors.push('manager clipboard has an unexpected line count');
+  }
   for (const label of FINANCE_LABELS) {
     if (Object.prototype.hasOwnProperty.call(expected, label)) continue;
     if (lineCount(normalized, `${label}:`) > 0) {
@@ -278,6 +302,25 @@ function validateHistoryCall(call, expectedClubId) {
   return errors;
 }
 
+// The browser capture always supplies an HTTP status. Failed HTTP/JSON
+// responses remain errors, never an empty successful history projection.
+function parseHistoryResponse(response) {
+  if (!response || response.status !== 200) return { error: 'history HTTP response was not 200' };
+  try {
+    return JSON.parse(response.body);
+  } catch (_) {
+    return { error: 'history response was not valid JSON' };
+  }
+}
+
+function validateHistoryResponse(body, expectedIds) {
+  if (!Array.isArray(body)) return ['history response body is not an array'];
+  if (body.some((row) => !row || typeof row !== 'object' || typeof row.id !== 'string')) {
+    return ['history response contains an invalid session row'];
+  }
+  return validateHistoryIds(body.map((row) => row.id), expectedIds);
+}
+
 function validateHistoryIds(actualIds, expectedIds) {
   const errors = [];
   if (!Array.isArray(actualIds)) return ['history response ids are not an array'];
@@ -294,6 +337,8 @@ function validateHistorySurface(elements, expectedTitles, expectedEmpty, allFixt
   const joined = semanticJoined(elements);
   const errors = [];
   if (!joined) return ['history screen rendered no semantic text'];
+  errors.push(...privacyErrors(joined));
+  if (MONEY_RE.test(joined)) errors.push('history UI leaked a money value');
 
   for (const errorText of HISTORY_ERROR_TEXTS) {
     if (joined.includes(errorText)) errors.push(`history rendered error state "${errorText}"`);
@@ -347,5 +392,7 @@ module.exports = {
   validateCohostSummarySurface,
   validateHistoryCall,
   validateHistoryIds,
+  parseHistoryResponse,
+  validateHistoryResponse,
   validateHistorySurface,
 };
