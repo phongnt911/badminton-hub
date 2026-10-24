@@ -1,0 +1,13 @@
+{
+  "manifest_verified": 12,
+  "missing": [],
+  "extra": [],
+  "mismatch": [],
+  "secret_hits": [],
+  "strict_utf8_lf": true,
+  "readonly": true,
+  "oracle_tables_each_cycle": 48,
+  "all_counts_match": true,
+  "db_assertions_recorded_each_cycle": 23,
+  "source_binding_limit": "environment records b4b1f9f dirty runner/tests; no runtime source hashes published to bind to final3b515f2"
+}

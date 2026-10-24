@@ -1,0 +1,165 @@
+{
+  "auth_helper": [
+    {
+      "case": "anon_positive",
+      "status": 401,
+      "body": {
+        "code": "42501",
+        "message": "permission denied for function complete_session"
+      },
+      "expected_accept": true,
+      "actual_accept": true
+    },
+    {
+      "case": "gateway_positive",
+      "status": 401,
+      "body": {
+        "message": "No API key found in request"
+      },
+      "expected_accept": true,
+      "actual_accept": true
+    },
+    {
+      "case": "outsider_positive",
+      "status": 403,
+      "body": {
+        "code": "42501",
+        "message": "FORBIDDEN"
+      },
+      "expected_accept": true,
+      "actual_accept": true
+    },
+    {
+      "case": "old_xx000",
+      "status": 403,
+      "body": {
+        "code": "XX000",
+        "message": "unrelated failure",
+        "hint": "JWT api key FORBIDDEN permission denied"
+      },
+      "expected_accept": false,
+      "actual_accept": false
+    },
+    {
+      "case": "old_invalid",
+      "status": 400,
+      "body": {
+        "code": "INVALID_INPUT"
+      },
+      "expected_accept": false,
+      "actual_accept": false
+    },
+    {
+      "case": "old_not_found",
+      "status": 403,
+      "body": {
+        "code": "NOT_FOUND"
+      },
+      "expected_accept": false,
+      "actual_accept": false
+    },
+    {
+      "case": "old_route404",
+      "status": 404,
+      "body": {
+        "message": "route missing"
+      },
+      "expected_accept": false,
+      "actual_accept": false
+    },
+    {
+      "case": "unknown_sqlstate_gateway_message",
+      "status": 401,
+      "body": {
+        "code": "42P01",
+        "message": "No API key found in request"
+      },
+      "expected_accept": false,
+      "actual_accept": true
+    }
+  ],
+  "ownership_after_start": [
+    {
+      "case": "positive_owned_inventory",
+      "owned_inventory_exit": 0,
+      "expected_reset_attempt": true,
+      "actual_reset_attempt": true,
+      "actual_stop_attempt": true
+    },
+    {
+      "case": "owned_inventory_error",
+      "owned_inventory_exit": 1,
+      "expected_reset_attempt": false,
+      "actual_reset_attempt": true,
+      "actual_stop_attempt": true
+    }
+  ],
+  "cleanup": [
+    {
+      "case": "positive",
+      "error": null,
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [],
+        "clean": true
+      },
+      "removed": [],
+      "remaining_inventory": []
+    },
+    {
+      "case": "inspection_nonzero",
+      "error": "RuntimeError",
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [
+          "docker ps inspection failed (1): daemon failure",
+          "docker ps final verification failed (1): daemon failure"
+        ],
+        "clean": false
+      },
+      "removed": [],
+      "remaining_inventory": []
+    },
+    {
+      "case": "final_inspect_raises_with_primary",
+      "error": "PrimaryError",
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [
+          "Final container verification raised exception: synthetic final inspect"
+        ],
+        "clean": false
+      },
+      "removed": [],
+      "remaining_inventory": []
+    },
+    {
+      "case": "foreign_container",
+      "error": "RuntimeError",
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 1,
+        "cleanup_errors": [
+          "Refusing to delete unowned foreign container(s) matching 'synthetic': ['foreign-id']",
+          "1 container(s) remaining after teardown: ['foreign-id']"
+        ],
+        "clean": false
+      },
+      "removed": [
+        "owned-id"
+      ],
+      "remaining_inventory": [
+        "foreign-id"
+      ]
+    }
+  ],
+  "full_suite_mutant": {
+    "tests_run": 8,
+    "failures": 3,
+    "errors": 0,
+    "mutant_detected": true
+  }
+}

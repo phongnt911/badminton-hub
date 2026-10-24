@@ -1,5 +1,7 @@
 # Bàn giao kiểm chứng V5b — Full Supabase CLI Reset local BH-07 (Sửa R1/R2/R3/R5 vòng 2/2)
 
+**V5b Chưa đạt vòng2/2 tại `3b515f2` — DỪNG theo AGENTS**, docs/evidence `5df6c62`, theo [review chốt](review_3b515f2.md). Còn1 P1 R1 (owned inventory sau start lỗi vẫn reset) và1 P2 R2 (gateway variant nhận code SQL ngoài whitelist). Đóng R3/R5, giữ R4 packaging/count/trung thực dirty; runtime tác giả là b4b1f9f dirty source/tests, không tự gán thành clean3b515f2. Reviewer tự chạy8/8 tests,mutant suite8 test bắt3 FAIL,analyze sạch,240 Flutter+1skip,manifest12/12 readonly vàAST probes. Full CLI runtime NOT RUN do thiếu đĩa. **Không tự mở vòng3/sửa source; báo chủ dự án quyết định bước tiếp.** Giữ V1 Đạt local; toàn BH-07 chưa nghiệm thu,các cổng khác giữ NOT RUN. Không merge main/staging/production/deploy/pilot/BH-08.
+
 > **Trạng thái: Chờ review độc lập V5b vòng 2/2 (24/10/2026).** Người triển khai không tự ghi Đạt.
 > Base review: `b4b1f9f4e688978b5f141208962ccc7e784eebb7` (review `19ab207`);
 > Nhánh: `feat/bh07-full-reset-verification`.
