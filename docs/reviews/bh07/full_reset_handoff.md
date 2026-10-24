@@ -59,7 +59,7 @@ Không sửa app (`lib/`), migrations (`supabase/migrations/`), contract hay pro
 | **Teardown & Cleanup** | `supabase stop --no-backup`, 0 container sót lại (quét `docker ps -a`), tempdir purged, 0 cleanup errors | 0 | [`stop.log`](full_reset_evidence/stop.log), `exits.json`, `summary.json` |
 | **Manifest Check** | 12/12 files khớp SHA-256 (kể cả 7 log files) | 0 | [`hashes.sha256`](full_reset_evidence/hashes.sha256) |
 | **Secret Scan** | 0 JWT 3 đoạn, 0 sb_secret, 0 private keys | 0 | Quét regex tự động 100% clean |
-| **Test hành vi R1–R3, R5** | 8/8 tests PASS, mutant bị phát hiện | 0 | [`tests/test_v5b_runner_flaws.py`](../../tests/test_v5b_runner_flaws.py) |
+| **Test hành vi R1–R3, R5** | 8/8 tests PASS, mutant bị phát hiện | 0 | [`tests/test_v5b_runner_flaws.py`](../../../tests/test_v5b_runner_flaws.py) |
 | **Repo Baseline Health** | `flutter analyze` 0 issues; `flutter test` 240 passed, 1 skipped | 0 | Lệnh trực tiếp local |
 
 ---
