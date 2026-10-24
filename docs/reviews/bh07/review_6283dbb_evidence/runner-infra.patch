@@ -1,0 +1,77 @@
+--- tested-source/run_browser_verification.js
++++ review-runtime/browser_runner.js
+@@ -27,10 +27,10 @@
+   validateHistoryResponse,
+   validateHistorySurface,
+-} = require('./assertions');
++} = require('C:/Users/POTA/Documents/GitHub/badminton-hub/scripts/bh07_browser/assertions.js');
+ 
+ const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+ const DEBUG_PORT = 9335;
+-const PROJECT_ROOT = path.resolve(__dirname, '../..');
+-const EVIDENCE_DIR = path.resolve(PROJECT_ROOT, 'docs/reviews/bh07/browser_evidence');
++const PROJECT_ROOT = 'C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub';
++const EVIDENCE_DIR = 'C:\\Users\\POTA\\AppData\\Local\\Temp\\bh07-v1-review\\browser';
+ const SCREENSHOTS_DIR = path.resolve(EVIDENCE_DIR, 'screenshots');
+ const USER_DATA_DIR = path.join(os.tmpdir(), 'chrome_bh07_isolated_v2');
+@@ -51,5 +51,5 @@
+ 
+ function queryDb(sql) {
+-  const dbContainer = 'supabase_db_badminton-hub';
++  const dbContainer = 'bh07v1-db';
+   const out = execSync(`docker exec -i ${dbContainer} psql -U postgres -d postgres -t -A -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf-8' });
+   return out.trim();
+@@ -396,5 +396,5 @@
+   let seedExit = 0;
+   try {
+-    execSync('node scripts/bh07_browser/seed_setup.js', { stdio: 'inherit' });
++    log('reviewer infrastructure: fixture pre-seeded against isolated bh07v1 stack');
+   } catch (err) {
+     seedExit = err.status || 1;
+@@ -1225,7 +1225,7 @@
+   const currentSha = execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
+   const runnerHash = crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex');
+-  const assertionsHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'assertions.js'))).digest('hex');
+-  const seedHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'seed_setup.js'))).digest('hex');
+-  const cleanerHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve(__dirname, 'clean_and_manifest.py'))).digest('hex');
++  const assertionsHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve('C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\scripts\\bh07_browser\\assertions.js'))).digest('hex');
++  const seedHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve('C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\scripts\\bh07_browser\\seed_setup.js'))).digest('hex');
++  const cleanerHash = crypto.createHash('sha256').update(fs.readFileSync(path.resolve('C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\scripts\\bh07_browser\\clean_and_manifest.py'))).digest('hex');
+ 
+   const summary = {
+@@ -1246,5 +1246,5 @@
+     browser: version.Browser,
+     web_url: WEB_URL,
+-    api_url: 'http://127.0.0.1:54321',
++    api_url: 'http://127.0.0.1:55422',
+     counts: {
+       total: checks.length,
+--- tested-source/run_late_response.js
++++ review-runtime/late_runner.js
+@@ -6,8 +6,8 @@
+ const { execFileSync } = require('node:child_process');
+ const { CdpClient, startChrome } = require(process.env.BH07_BROWSER_DRIVER || './run_browser_verification');
+-const A = require('./assertions');
+-const { validateLateResponse } = require('./late_response_assertions');
+-const ROOT = path.resolve(__dirname, '../..');
+-const OUT = path.resolve(process.env.BH07_LATE_EVIDENCE || path.join(ROOT, 'docs/reviews/bh07/late_response_evidence'));
++const A = require('C:/Users/POTA/Documents/GitHub/badminton-hub/scripts/bh07_browser/assertions.js');
++const { validateLateResponse } = require('C:/Users/POTA/Documents/GitHub/badminton-hub/scripts/bh07_browser/late_response_assertions.js');
++const ROOT = 'C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub';
++const OUT = path.resolve(process.env.BH07_LATE_EVIDENCE || 'C:\\Users\\POTA\\AppData\\Local\\Temp\\bh07-v1-review\\late');
+ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+ const hash = (text) => crypto.createHash('sha256').update(text).digest('hex');
+@@ -71,5 +71,5 @@
+ }
+ async function main() {
+-  const provenance = { base_sha: '1ed4f3e6b42b853f51add79279fe3daf8168e360', tested_source_sha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(), dirty_before_run: execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).trim(), verification_mode: 'Codex implementation/self-verification, not independent review' };
++  const provenance = { base_sha: '1ed4f3e6b42b853f51add79279fe3daf8168e360', tested_source_sha: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(), dirty_before_run: execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).trim(), verification_mode: 'Reviewer/QA run in an isolated local stack; the author of this package did not run this evidence' };
+   fs.mkdirSync(OUT, { recursive: true });
+   const results = []; let cdp, chrome;
+@@ -104,5 +104,5 @@
+       }
+     };
+-    await checked(cdp, 'Fetch.enable', { patterns: [{ urlPattern: 'http://127.0.0.1:54321/rest/v1/rpc/get_session_summary', requestStage: 'Response' }] });
++    await checked(cdp, 'Fetch.enable', { patterns: [{ urlPattern: 'http://127.0.0.1:55422/rest/v1/rpc/get_session_summary', requestStage: 'Response' }] });
+     for (const actor of ['cohosta', 'membera']) {
+       held = null; fatal = null;

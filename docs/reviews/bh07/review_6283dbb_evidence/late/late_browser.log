@@ -1,0 +1,76 @@
+[2026-10-24T03:45:07.257Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng nhß║¡p"] at (99, 255) for: Open login form
+[2026-10-24T03:45:09.287Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (636, 325) for: Focus login input
+[2026-10-24T03:45:11.348Z] Clicking semantic element [INPUT aria="Mß║¡t khß║⌐u" role="null" text=""] at (636, 389) for: Focus login input
+[2026-10-24T03:45:13.400Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p"] at (632, 452) for: Submit real Auth login
+[2026-10-24T03:45:16.929Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Verify account identity
+[2026-10-24T03:45:19.969Z] Clicking semantic element [FLT-SEMANTICS aria="Buß╗òi Ch╞íi" role="tab" text=""] at (126, 765) for: Sessions tab
+[2026-10-24T03:45:22.004Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lß╗ïch sß╗¡ buß╗òi Buß╗òi ─æ├ú kß║┐t th├║c/"] at (632, 184) for: History
+[2026-10-24T03:45:24.037Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+ΓÅ░ 11:33 - 13:33 24/10/2026
+≡ƒôì HTTP Venue A ┬╖ HTTP Club A
+≡ƒæÑ 2/8 ng╞░ß╗¥i ─æ├ú x├íc nhß║¡n
+Xem chi tiß║┐t" role="group" text=""] at (632, 284) for: Fixture history row
+[2026-10-24T03:45:26.064Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tß╗òng kß║┐t buß╗òi Sß╗æ c├│ mß║╖t, vß║»ng "] at (632, 514) for: Summary entry
+[2026-10-24T03:45:29.100Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao ch├⌐p tß╗òng kß║┐t"] at (632, 645) for: Copy current actor summary
+[2026-10-24T03:45:32.133Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tß║úi lß║íi tß╗òng kß║┐t"] at (1244, 28) for: Refresh Owner summary to hold real response
+Held actual Owner response: {"status":200,"sessionId":"10000000-0000-4000-8000-000000000099","ownerFinance":true,"bodyHash":"d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75"}
+[2026-10-24T03:45:35.188Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:45:39.714Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:45:44.257Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:45:48.803Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Account tab
+[2026-10-24T03:45:50.821Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng xuß║Ñt"] at (632, 435) for: Logout
+[2026-10-24T03:45:52.851Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Xuß║Ñt"] at (759, 449) for: Confirm logout
+[2026-10-24T03:45:55.894Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p / ─É─âng K├╜"] at (632, 326) for: Open login form
+[2026-10-24T03:45:57.912Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (636, 325) for: Focus login input
+[2026-10-24T03:45:59.963Z] Clicking semantic element [INPUT aria="Mß║¡t khß║⌐u" role="null" text=""] at (636, 389) for: Focus login input
+[2026-10-24T03:46:02.006Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p"] at (632, 452) for: Submit real Auth login
+[2026-10-24T03:46:05.533Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Verify account identity
+[2026-10-24T03:46:08.554Z] Clicking semantic element [FLT-SEMANTICS aria="Buß╗òi Ch╞íi" role="tab" text=""] at (126, 765) for: Sessions tab
+[2026-10-24T03:46:10.581Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lß╗ïch sß╗¡ buß╗òi Buß╗òi ─æ├ú kß║┐t th├║c/"] at (632, 184) for: History
+[2026-10-24T03:46:12.602Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+ΓÅ░ 11:33 - 13:33 24/10/2026
+≡ƒôì HTTP Venue A ┬╖ HTTP Club A
+≡ƒæÑ 2/8 ng╞░ß╗¥i ─æ├ú x├íc nhß║¡n
+Xem chi tiß║┐t" role="group" text=""] at (632, 284) for: Fixture history row
+[2026-10-24T03:46:14.621Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tß╗òng kß║┐t buß╗òi Sß╗æ c├│ mß║╖t, vß║»ng "] at (632, 514) for: Summary entry
+[2026-10-24T03:46:24.051Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao ch├⌐p tß╗òng kß║┐t"] at (632, 506) for: Copy current actor summary
+[2026-10-24T03:46:27.118Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:46:31.666Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:46:36.204Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:46:40.755Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Account tab
+[2026-10-24T03:46:42.778Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng xuß║Ñt"] at (632, 435) for: Logout
+[2026-10-24T03:46:44.803Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Xuß║Ñt"] at (759, 449) for: Confirm logout
+[2026-10-24T03:46:47.839Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p / ─É─âng K├╜"] at (632, 326) for: Open login form
+[2026-10-24T03:46:49.857Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (636, 325) for: Focus login input
+[2026-10-24T03:46:51.881Z] Clicking semantic element [INPUT aria="Mß║¡t khß║⌐u" role="null" text=""] at (636, 389) for: Focus login input
+[2026-10-24T03:46:53.909Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p"] at (632, 452) for: Submit real Auth login
+[2026-10-24T03:46:57.436Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Verify account identity
+[2026-10-24T03:47:00.469Z] Clicking semantic element [FLT-SEMANTICS aria="Buß╗òi Ch╞íi" role="tab" text=""] at (126, 765) for: Sessions tab
+[2026-10-24T03:47:02.494Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lß╗ïch sß╗¡ buß╗òi Buß╗òi ─æ├ú kß║┐t th├║c/"] at (632, 184) for: History
+[2026-10-24T03:47:04.518Z] Clicking semantic element [FLT-SEMANTICS aria="UI Flow Session published to complete
+ΓÅ░ 11:33 - 13:33 24/10/2026
+≡ƒôì HTTP Venue A ┬╖ HTTP Club A
+≡ƒæÑ 2/8 ng╞░ß╗¥i ─æ├ú x├íc nhß║¡n
+Xem chi tiß║┐t" role="group" text=""] at (632, 284) for: Fixture history row
+[2026-10-24T03:47:06.555Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tß╗òng kß║┐t buß╗òi Sß╗æ c├│ mß║╖t, vß║»ng "] at (632, 514) for: Summary entry
+[2026-10-24T03:47:09.594Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Sao ch├⌐p tß╗òng kß║┐t"] at (632, 645) for: Copy current actor summary
+[2026-10-24T03:47:12.630Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Tß║úi lß║íi tß╗òng kß║┐t"] at (1244, 28) for: Refresh Owner summary to hold real response
+Held actual Owner response: {"status":200,"sessionId":"10000000-0000-4000-8000-000000000099","ownerFinance":true,"bodyHash":"d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75"}
+[2026-10-24T03:47:15.675Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:47:20.204Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:47:24.762Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:47:29.282Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Account tab
+[2026-10-24T03:47:31.304Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng xuß║Ñt"] at (632, 435) for: Logout
+[2026-10-24T03:47:33.325Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Xuß║Ñt"] at (759, 449) for: Confirm logout
+[2026-10-24T03:47:36.362Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p / ─É─âng K├╜"] at (632, 326) for: Open login form
+[2026-10-24T03:47:38.380Z] Clicking semantic element [INPUT aria="Email" role="null" text=""] at (636, 325) for: Focus login input
+[2026-10-24T03:47:40.422Z] Clicking semantic element [INPUT aria="Mß║¡t khß║⌐u" role="null" text=""] at (636, 389) for: Focus login input
+[2026-10-24T03:47:42.476Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Nhß║¡p"] at (632, 452) for: Submit real Auth login
+[2026-10-24T03:47:46.016Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Verify account identity
+[2026-10-24T03:47:49.046Z] Clicking semantic element [FLT-SEMANTICS aria="Buß╗òi Ch╞íi" role="tab" text=""] at (126, 765) for: Sessions tab
+[2026-10-24T03:47:51.070Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="Lß╗ïch sß╗¡ buß╗òi Buß╗òi ─æ├ú kß║┐t th├║c/"] at (632, 184) for: History
+[2026-10-24T03:48:01.567Z] Clicking Back button semantic [FLT-SEMANTICS aria="null" role="button"] at (28, 28) for: Return through AppBar to main tabs
+[2026-10-24T03:48:06.107Z] Clicking semantic element [FLT-SEMANTICS aria="T├ái Khoß║ún" role="tab" text=""] at (1138, 765) for: Account tab
+[2026-10-24T03:48:08.138Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng xuß║Ñt"] at (632, 435) for: Logout
+[2026-10-24T03:48:10.166Z] Clicking semantic element [FLT-SEMANTICS aria="null" role="button" text="─É─âng Xuß║Ñt"] at (759, 449) for: Confirm logout
+{"passed":2,"failed":0}

@@ -1,0 +1,126 @@
+{
+  "base_sha": "1ed4f3e6b42b853f51add79279fe3daf8168e360",
+  "tested_source_sha": "6283dbb3b1ae217e87130acb4ed5efae5bf170c7",
+  "dirty_before_run": "",
+  "verification_mode": "Reviewer/QA run in an isolated local stack; the author of this package did not run this evidence",
+  "results": [
+    {
+      "actor": "cohosta",
+      "status": "PASS",
+      "errors": [],
+      "witness": {
+        "method": "POST",
+        "status": 200,
+        "sessionId": "10000000-0000-4000-8000-000000000099",
+        "ownerFinance": true,
+        "expenses": 200000,
+        "bodyHash": "d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75",
+        "heldAt": 1792813532150,
+        "deliveredHash": "d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75",
+        "deliveredAt": 1792813576683,
+        "actor": "cohosta",
+        "ownerPositive": true,
+        "ownerNegativePassed": true,
+        "ownerProfile": true,
+        "targetProfile": "cohosta@example.test",
+        "guestVerified": true,
+        "tokenCleared": true,
+        "guestAt": 1792813554887,
+        "loginAt": 1792813567550,
+        "releaseAt": 1792813576681,
+        "originBefore": 1792813503808.2,
+        "originAfter": 1792813503808.2,
+        "samples": [
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          }
+        ],
+        "clipboard": "🏸 Tổng kết: UI Flow Session published to complete\r\n📍 HTTP Venue A · HTTP Club A\r\n⏰ 11:33 - 13:33 24/10/2026\r\n👥 Có mặt: 1 · Vắng: 0 · Đã xác nhận: 2",
+        "copyAvailable": true,
+        "summaryEntry": true,
+        "memberHistoryEmpty": false
+      }
+    },
+    {
+      "actor": "membera",
+      "status": "PASS",
+      "errors": [],
+      "witness": {
+        "method": "POST",
+        "status": 200,
+        "sessionId": "10000000-0000-4000-8000-000000000099",
+        "ownerFinance": true,
+        "expenses": 200000,
+        "bodyHash": "d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75",
+        "heldAt": 1792813632650,
+        "deliveredHash": "d36f071e7c7c666a9bb3f398ab24969d0f30f53fae719b3206d9d7cbee6bee75",
+        "deliveredAt": 1792813673127,
+        "actor": "membera",
+        "ownerPositive": true,
+        "ownerNegativePassed": true,
+        "ownerProfile": true,
+        "targetProfile": "membera@example.test",
+        "guestVerified": true,
+        "tokenCleared": true,
+        "guestAt": 1792813655355,
+        "loginAt": 1792813668040,
+        "releaseAt": 1792813673124,
+        "originBefore": 1792813503808.2,
+        "originAfter": 1792813503808.2,
+        "samples": [
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          },
+          {
+            "privacyErrors": [],
+            "financeCard": false,
+            "ownerProfile": false,
+            "summaryEntryForMember": false
+          }
+        ],
+        "clipboard": null,
+        "copyAvailable": false,
+        "summaryEntry": false,
+        "memberHistoryEmpty": true
+      }
+    }
+  ],
+  "passed": 2,
+  "failed": 0
+}

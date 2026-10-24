@@ -1,0 +1,39 @@
+{
+  "mode": "Independent reviewer/QA run. The reviewer did not write or modify the Browser package.",
+  "branch": "feat/bh07-browser-independent-review",
+  "tested_checkout_sha": "6283dbb3b1ae217e87130acb4ed5efae5bf170c7",
+  "reference_sources": {
+    "browser_baseline": "a6d58aff3f1726484146a6c89aa7d559bb684d6d",
+    "late_response": "c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a",
+    "control_fix": "417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c"
+  },
+  "app_tree_hashes": {
+    "lib": "520a38be3c644e32a433b1b70ed1cf728ecee40f",
+    "test": "8d3574a6f164f69ea1fdedaa8c9f9f6b3ac0ade1",
+    "supabase": "a2de8edcee1cc8d314f20849feb50ecbe8175208"
+  },
+  "dirty_before_run": false,
+  "os": "Windows (win32)",
+  "flutter": "3.47.6",
+  "dart": "3.13.5",
+  "chrome": "155.0.8059.85",
+  "node": "24.21.0",
+  "python": "3.12.7",
+  "isolated_stack": {
+    "containers": "bh07v1-db / bh07v1-auth / bh07v1-rest / bh07v1-kong",
+    "postgres": "postgres:17 (17.11)",
+    "gotrue": "ghcr.io/supabase/gotrue:v2.197.0",
+    "postgrest": "ghcr.io/supabase/postgrest:v16.4",
+    "kong": "ghcr.io/supabase/kong:2.8.1",
+    "gateway": "http://127.0.0.1:55422",
+    "web_server": "http://127.0.0.1:8088",
+    "note": "Separate from the project Supabase stack on 54321 and from the unrelated bh07ir-* stack on 55421."
+  },
+  "notes": [
+    "Only infrastructure paths/ports were adapted in disposable copies; assertions and selectors are unchanged.",
+    "runner-infra.patch records every change made to the two drivers before running.",
+    "Runtime passwords/JWT/anon keys were kept outside the repository and are not published.",
+    "The published author evidence was only read and verified; it was never regenerated or rewritten.",
+    "web_build and fixture seeding were run outside the baseline driver; their exits are recorded here."
+  ]
+}

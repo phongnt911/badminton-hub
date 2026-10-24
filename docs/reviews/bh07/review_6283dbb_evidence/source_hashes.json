@@ -1,0 +1,16 @@
+{
+  "tested_checkout_sha": "6283dbb3b1ae217e87130acb4ed5efae5bf170c7",
+  "sha256": {
+    "scripts/bh07_browser/run_browser_verification.js": "7781c1addf93f76725ce714e5576062dafef7da9f05994ee54624b46672cdee5",
+    "scripts/bh07_browser/assertions.js": "7a8e78567d0a1ac3d2c182f4e62f209a163a7d4cb4f5c72a5d9766fd94782de2",
+    "scripts/bh07_browser/run_negative_controls.js": "81748b615768b60d2585fd0d9221c0e551d085c473968fe7cc4260b7115b590e",
+    "scripts/bh07_browser/run_verifier_controls.py": "1262eea43481a20e46cfd0cdcb8993fd8ed4b2220550092fd001e54af27e71b3",
+    "scripts/bh07_browser/run_mutant_controls.py": "d2e72d381f39750a938e9848742cd932000a908233076d4c8bef959e1d02715d",
+    "scripts/bh07_browser/clean_and_manifest.py": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+    "scripts/bh07_browser/audit_evidence.js": "9dc022d89de5afabc82b98fe696bbd5f8fb081d9486ea2e0a567bda27acbe880",
+    "scripts/bh07_browser/seed_setup.js": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
+    "scripts/bh07_browser/late_response_assertions.js": "7b6105a065cba0ca9c38291408f45167f72b30776e0e83bb1e6664286d1dc901",
+    "scripts/bh07_browser/run_late_response.js": "4e7824cf5513fb05fa6896ec4f591edf832bea808953fb7ae672d7ba6adc2ff5",
+    "scripts/bh07_browser/run_late_response_controls.js": "94c1d45fde2076e6f77402746e18a3c752b69dcf8996a1a9220c96fcfa4d162c"
+  }
+}

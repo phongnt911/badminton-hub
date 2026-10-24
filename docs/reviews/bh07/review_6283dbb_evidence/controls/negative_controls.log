@@ -1,0 +1,253 @@
+=== Running BH-07 current-predicate negative controls ===
+[
+  {
+    "control": "offline positive: exact transport error is visible on the finance route",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "offline negative: silent no-error/no-success UI",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"─É├ú xß║úy ra lß╗ùi. Vui l├▓ng thß╗¡ lß║íi sau.\" was not rendered"
+  },
+  {
+    "control": "offline negative: success-only UI while offline",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "offline error message \"─É├ú xß║úy ra lß╗ùi. Vui l├▓ng thß╗¡ lß║íi sau.\" was not rendered; false success message was rendered while offline"
+  },
+  {
+    "control": "offline negative: error shown outside the finance lifecycle",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "finance screen/route was not retained after the offline failure"
+  },
+  {
+    "control": "manager positive: all four exact aggregate fields",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "manager negative: one wrong aggregate field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "─É├ú thu: expected \"0 VN─É\", got \"50,000 VN─É\"; manager clipboard contains a non-allowed line: \"Γ£à ─É├ú thu: 50,000 VN─É\""
+  },
+  {
+    "control": "manager negative: outstanding field is the null marker",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "C├▓n phß║úi thu: expected \"200,000 VN─É\", got \"ΓÇö\"; manager clipboard contains a non-allowed line: \"ΓÅ│ C├▓n phß║úi thu: ΓÇö\"; null finance marker \"ΓÇö\" is not allowed for the fixture contract"
+  },
+  {
+    "control": "manager negative: missing aggregate field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "─É├ú thu: expected exactly one field, got 0; manager clipboard has an unexpected line count"
+  },
+  {
+    "control": "manager negative: title contains 200000 while finance fields are null",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "manager clipboard is missing session title \"UI Flow Session published to complete\"; Tß╗òng chi ph├¡: expected \"200,000 VN─É\", got \"ΓÇö\"; Tß╗òng phß║úi thu: expected \"200,000 VN─É\", got \"ΓÇö\"; ─É├ú thu: expected \"0 VN─É\", got \"ΓÇö\"; C├▓n phß║úi thu: expected \"200,000 VN─É\", got \"ΓÇö\"; expected exactly one metadata line matching /^≡ƒÅ╕ Tß╗òng kß║┐t: UI Flow Session published to complete$/; expected exactly one metadata line matching /^≡ƒôì .+$/; expected exactly one metadata line matching /^ΓÅ░ .+$/; manager clipboard contains a non-allowed line: \"≡ƒÅ╕ Tß╗òng kß║┐t: Buß╗òi 200000\"; manager clipboard contains a non-allowed line: \"≡ƒÆ░ Tß╗òng chi ph├¡: ΓÇö\"; manager clipboard contains a non-allowed line: \"≡ƒº╛ Tß╗òng phß║úi thu: ΓÇö\"; manager clipboard contains a non-allowed line: \"Γ£à ─É├ú thu: ΓÇö\"; manager clipboard contains a non-allowed line: \"ΓÅ│ C├▓n phß║úi thu: ΓÇö\"; manager clipboard has an unexpected line count; null finance marker \"ΓÇö\" is not allowed for the fixture contract"
+  },
+  {
+    "control": "cohost positive: only header/place/time/count lines",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost negative: finance field with null marker",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"≡ƒº╛ Tß╗òng phß║úi thu: ΓÇö\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"Tß╗òng phß║úi thu\"; cohost clipboard contains the null finance marker \"ΓÇö\""
+  },
+  {
+    "control": "cohost negative: money value",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"Γ£à ─É├ú thu: 50,000 VN─É\"; cohost clipboard has 5 lines; at most 4 are allowed; cohost clipboard leaked finance field \"─É├ú thu\"; cohost clipboard leaked a money value"
+  },
+  {
+    "control": "cohost negative: phone and bank account fields",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard contains a non-allowed line: \"S─ÉT: 0987654321\"; cohost clipboard contains a non-allowed line: \"STK: 123456789012\"; cohost clipboard has 6 lines; at most 4 are allowed; private phone number leaked; private contact/bank/account/receiver field leaked"
+  },
+  {
+    "control": "cohost UI positive: management-only surface with counts",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "cohost UI negative: finance card is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost finance card \"T├ái ch├¡nh tß╗òng hß╗úp\" is visible"
+  },
+  {
+    "control": "cohost UI negative: finance field with null marker is visible",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked finance field \"Tß╗òng phß║úi thu\"; cohost UI contains the null finance marker \"ΓÇö\""
+  },
+  {
+    "control": "history positive: Cohost Club A exact one permitted row",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Cohost receives an extra Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; history rendered unexpected session \"HTTP club B history\"; history rendered 2 row marker(s); expected 1"
+  },
+  {
+    "control": "history positive: Member exact empty state",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "history negative: Member receives a Club B row",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"HTTP club B history\"; member history rendered out-of-scope session \"HTTP club B history\"; member history rendered 1 session row marker(s)"
+  },
+  {
+    "control": "history negative: Member receives treasury/finance text",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history leaked forbidden text \"Quß╗╣ CLB\"; history leaked forbidden text \"Sß╗æ d╞░\""
+  },
+  {
+    "control": "history negative: error/empty ambiguity is rejected",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history rendered error state \"Kh├┤ng tß║úi ─æ╞░ß╗úc lß╗ïch sß╗¡\""
+  },
+  {
+    "control": "history request negative: wrong club filter payload",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history club filter expected aaaaaaaa-1111-4111-8111-111111111111, got bbbbbbbb-2222-4222-8222-222222222222"
+  },
+  {
+    "control": "history response negative: wrong ID set",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response ids expected [\"10000000-0000-4000-8000-000000000099\"], got [\"20000000-0000-4000-8000-000000000001\"]"
+  },
+  {
+    "control": "complete_session positive: two identical POST payloads",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  },
+  {
+    "control": "complete_session negative: missing retry request",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected exactly 2 complete_session POST requests, got 1"
+  },
+  {
+    "control": "complete_session negative: full payload differs on retry",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected version differs between the offline request and the retry; full complete_session payload differs between the offline request and the retry"
+  },
+  {
+    "control": "BR3-1 manager unknown finance field",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "manager clipboard contains a non-allowed line: \"≡ƒôë Ho├án tiß╗ün: 999 VN─É\"; manager clipboard has an unexpected line count"
+  },
+  {
+    "control": "BR3-1 manager duplicate metadata",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "expected exactly one metadata line matching /^≡ƒôì .+$/; manager clipboard has an unexpected line count"
+  },
+  {
+    "control": "BR3-2 cohost clipboard currency VN─É",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard leaked a money value"
+  },
+  {
+    "control": "BR3-2 cohost clipboard currency ─æ",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard leaked a money value"
+  },
+  {
+    "control": "BR3-2 cohost clipboard currency VND",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost clipboard leaked a money value"
+  },
+  {
+    "control": "BR3-2 cohost UI currency VN─É",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked a money value"
+  },
+  {
+    "control": "BR3-2 cohost UI currency ─æ",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked a money value"
+  },
+  {
+    "control": "BR3-2 cohost UI currency VND",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "cohost UI leaked a money value"
+  },
+  {
+    "control": "BR3-3 member empty UI with bank account",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "private contact/bank/account/receiver field leaked"
+  },
+  {
+    "control": "BR3-3 null response is not empty history",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response body is not an array"
+  },
+  {
+    "control": "BR3-3 FORBIDDEN object is not empty history",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response body is not an array"
+  },
+  {
+    "control": "BR3-3 malformed JSON is not empty history",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response body is not an array"
+  },
+  {
+    "control": "BR3-3 HTTP 403 with array body must fail",
+    "expected": "FAIL",
+    "actual": "FAIL",
+    "detail": "history response body is not an array"
+  },
+  {
+    "control": "BR3-3 HTTP 200 empty array positive",
+    "expected": "PASS",
+    "actual": "PASS",
+    "detail": ""
+  }
+]
+
+Recorded 41/41 cases; 8 PASS, 33 FAIL, 0 HARNESS_ERROR.
+
+OVERALL NEGATIVE CONTROLS STATUS: GREEN (all current-predicate controls behave as expected)
