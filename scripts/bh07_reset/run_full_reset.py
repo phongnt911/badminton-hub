@@ -206,10 +206,15 @@ def preflight_ownership_check() -> dict:
     
     Aborts immediately if unowned or conflicting resources are found to protect against
     interfering with pre-existing projects or shared databases.
+    Fail-closed on any Docker inspection failure (nonzero exit code).
     """
     print("Running Preflight Ownership & Resource Isolation Check...")
     # 1. Container check (all containers, running or stopped)
     p_check = run_cmd(['docker', 'ps', '-a', '--filter', f'name={PROJECT_ID}', '--format', '{{.ID}} {{.Names}}'], check=False)
+    if p_check.returncode != 0:
+        raise RuntimeError(
+            f"Preflight ABORT: Docker inspection failed with exit code {p_check.returncode}:\n{p_check.stderr.strip()}"
+        )
     existing_containers = p_check.stdout.strip().splitlines() if p_check.stdout.strip() else []
     if existing_containers:
         raise RuntimeError(
@@ -249,6 +254,66 @@ def preflight_ownership_check() -> dict:
         'existing_containers_count': 0,
         'checked_ports': [p[1] for p in target_ports]
     }
+
+
+def assert_negative_auth_rejection(control_name: str, status: int, body: dict, expected_type: str):
+    """Strictly verifies that an HTTP error response is an authentic authentication/authorization rejection.
+    
+    Verifies the exact (status, code, message) tuple on concrete top-level fields.
+    Rejects any unmapped or invalid error domain: XX000 (internal database error),
+    INVALID_INPUT, NOT_FOUND, PGRST202, route 404, or transport errors.
+    Never searches raw JSON or hint/detail fields for loose keywords.
+    """
+    if not isinstance(body, dict):
+        raise AssertionError(f"[{control_name}] Expected JSON object response, got {type(body)}: {body}")
+    
+    code = str(body.get('code', ''))
+    message = str(body.get('message', ''))
+    
+    # 1. Universal rejections of invalid/unrelated error domains
+    disallowed_codes = ('XX000', 'INVALID_INPUT', 'NOT_FOUND', 'PGRST202')
+    if code in disallowed_codes:
+        raise AssertionError(f"[{control_name}] Received invalid error code '{code}': {body}")
+    if status == 404:
+        raise AssertionError(f"[{control_name}] Received HTTP 404 route missing, expected auth rejection: {body}")
+
+    # 2. Per-control strict domain assertions
+    if expected_type == 'anon_complete':
+        # Unauthenticated anon calling complete_session:
+        # Expected: PostgREST returns HTTP 401 or 403 with PostgreSQL permission denied SQLSTATE 42501
+        if status not in (401, 403):
+            raise AssertionError(f"[{control_name}] Expected HTTP 401 or 403, got {status}: {body}")
+        if code != '42501':
+            raise AssertionError(f"[{control_name}] Expected SQLSTATE '42501', got '{code}': {body}")
+        if 'permission denied' not in message.lower() and 'unauthenticated' not in message.lower():
+            raise AssertionError(f"[{control_name}] Expected permission denied message, got '{message}': {body}")
+
+    elif expected_type == 'no_apikey':
+        # Missing API key header entirely:
+        # Gateway Kong returns 401 with 'No API key found in request'
+        # OR PostgREST returns 401/403 with SQLSTATE 42501 permission denied
+        if status not in (401, 403):
+            raise AssertionError(f"[{control_name}] Expected HTTP 401 or 403, got {status}: {body}")
+        if code == '42501':
+            if 'permission denied' not in message.lower() and 'unauthenticated' not in message.lower():
+                raise AssertionError(f"[{control_name}] Expected permission denied message for 42501, got '{message}': {body}")
+        else:
+            # Gateway Kong variant
+            if 'no api key found in request' not in message.lower() and message != 'No API key found in request':
+                raise AssertionError(f"[{control_name}] Expected gateway 'No API key found in request', got '{message}': {body}")
+
+    elif expected_type == 'outsider_summary':
+        # Authenticated outsider user calling private session summary:
+        # Expected: HTTP 403 (or 400 wrapping RPC error) with code 42501 and domain message containing 'FORBIDDEN'
+        if status not in (400, 403):
+            raise AssertionError(f"[{control_name}] Expected HTTP 403 or 400, got {status}: {body}")
+        if code != '42501':
+            raise AssertionError(f"[{control_name}] Expected SQLSTATE '42501', got '{code}': {body}")
+        if 'FORBIDDEN' not in message:
+            raise AssertionError(f"[{control_name}] Expected 'FORBIDDEN' domain message, got '{message}': {body}")
+
+    else:
+        raise ValueError(f"Unknown expected_type: {expected_type}")
 
 
 def prepare_project_dir(workdir: Path):
@@ -458,7 +523,7 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
     )
     assert status_cash == 200 and body_cash.get('status') == 'confirmed'
     results['http_cash_payment_status'] = status_cash
-
+    results['tokens'] = tokens
     return results
 
 
@@ -731,17 +796,19 @@ def main():
         print("\n--- Running Negative Controls ---")
         neg_results = []
 
-        # Positive baseline control: verify valid complete_session and get_session_summary work with Owner A
+        # Positive baseline control: verify valid get_session_summary via real HTTP request with Owner A
         session_debt = '10000000-0000-4000-8000-000000000001'
+        owner_token = http_res2['tokens']['ownera']
         pos_st, pos_b = http_request(
             f"{api_url}/rest/v1/rpc/get_session_summary",
             body={'p_session_id': session_debt},
-            headers={'apikey': anon_key, 'Authorization': f"Bearer {http_res2['tokens']['ownera']}" if 'tokens' in http_res2 else f"Bearer {tokens_ownera}"}
-        ) if 'tokens_ownera' in locals() else (200, {'can_view_finance': True})
-        print(f"Positive baseline control: complete_session & get_session_summary proven valid via Owner A.")
+            headers={'apikey': anon_key, 'Authorization': f"Bearer {owner_token}"}
+        )
+        assert pos_st == 200, f"Positive baseline HTTP get_session_summary failed: {pos_st} {pos_b}"
+        assert pos_b.get('can_view_finance') is True, f"Positive baseline unexpected finance view: {pos_b}"
+        print(f"Positive baseline control PASS: status={pos_st}, can_view_finance={pos_b.get('can_view_finance')}")
 
         # Neg 1: Unauthenticated anon call to complete_session
-        # Payload is 100% valid, only credentials differ (anon key only, no Authorization header)
         ver_latest = int(sql(f"SELECT version FROM public.sessions WHERE id='{session_debt}';"))
         st1, b1 = http_request(
             f"{api_url}/rest/v1/rpc/complete_session",
@@ -749,43 +816,27 @@ def main():
             headers={'apikey': anon_key}
         )
         print(f"Neg 1 (anon complete_session): status={st1}, body={b1}")
-        b1_str = json.dumps(b1).lower()
-        # Must be rejected with 401 Unauthorized or 403 Forbidden with auth/permission error code
-        # Specifically reject INVALID_INPUT or PGRST202 (not found)
-        b1_code = str(b1.get('code', '')) if isinstance(b1, dict) else ''
-        assert b1_code not in ('INVALID_INPUT', 'PGRST202', 'NOT_FOUND'), f"Neg 1 received invalid error domain: {b1}"
-        assert st1 in (401, 403), f"Anon complete should return 401 or 403, got {st1}: {b1}"
-        assert (b1_code == '42501' or 'permission denied' in b1_str or 'unauthenticated' in b1_str or 'jwt' in b1_str), \
-            f"Anon complete body did not match permission/auth error domain: {b1}"
+        assert_negative_auth_rejection('anon_complete_rejected', st1, b1, 'anon_complete')
         neg_results.append({
             'control': 'anon_complete_rejected',
             'status': st1,
-            'code': b1_code,
+            'code': b1.get('code', ''),
             'rejected': True,
             'domain_verified': True
         })
 
         # Neg 1b: Request missing apikey entirely rejected by gateway / postgrest
-        # Headers empty dict {}
         st1b, b1b = http_request(
             f"{api_url}/rest/v1/rpc/complete_session",
             body={'p_session_id': session_debt, 'p_expected_version': ver_latest, 'p_request_id': str(uuid.uuid4())},
             headers={}
         )
         print(f"Neg 1b (no-apikey request): status={st1b}, body={b1b}")
-        b1b_str = json.dumps(b1b).lower()
-        b1b_code = str(b1b.get('code', '')) if isinstance(b1b, dict) else ''
-        # Must NOT return 404 (route missing)
-        assert st1b != 404, f"No-apikey request received 404 route missing, expected auth rejection: {b1b}"
-        assert b1b_code not in ('INVALID_INPUT', 'PGRST202', 'NOT_FOUND'), f"No-apikey request received invalid error domain: {b1b}"
-        assert st1b in (401, 403), f"No-apikey request expected 401 or 403, got {st1b}: {b1b}"
-        # Accept either gateway error ("no api key") or PostgREST anonymous permission denied (42501)
-        assert ('no api key' in b1b_str or 'api key' in b1b_str or b1b_code == '42501' or 'permission denied' in b1b_str or 'unauthenticated' in b1b_str), \
-            f"Missing expected auth/gateway error domain: {b1b}"
+        assert_negative_auth_rejection('no_apikey_rejected', st1b, b1b, 'no_apikey')
         neg_results.append({
             'control': 'no_apikey_rejected',
             'status': st1b,
-            'code': b1b_code,
+            'code': b1b.get('code', ''),
             'rejected': True,
             'domain_verified': True
         })
@@ -803,16 +854,11 @@ def main():
             headers={'apikey': anon_key, 'Authorization': f'Bearer {outsider_jwt}'}
         )
         print(f"Neg 2 (outsider get_session_summary): status={st2}, body={b2}")
-        b2_str = json.dumps(b2)
-        b2_code = str(b2.get('code', '')) if isinstance(b2, dict) else ''
-        assert b2_code not in ('NOT_FOUND', 'INVALID_INPUT'), f"Outsider summary received non-auth error: {b2}"
-        assert st2 in (400, 403), f"Outsider summary should be 403 or 400 RPC error, got {st2}: {b2}"
-        assert 'FORBIDDEN' in b2_str and ('42501' in b2_str or b2_code == '42501' or 'permission denied' in b2_str.lower()), \
-            f"Outsider summary did not return FORBIDDEN with 42501: {b2}"
+        assert_negative_auth_rejection('outsider_summary_forbidden', st2, b2, 'outsider_summary')
         neg_results.append({
             'control': 'outsider_summary_forbidden',
             'status': st2,
-            'code': b2_code,
+            'code': b2.get('code', ''),
             'rejected': True,
             'domain_verified': True
         })
@@ -853,23 +899,28 @@ def main():
         except Exception as stop_exc:
             cleanup_errors.append(f"supabase stop raised exception: {stop_exc}")
 
-        # 2. Inspect remaining containers with -a (including stopped)
+        # 2. Inspect and remove ONLY owned containers (fail-closed if inspection fails)
         try:
             p_check = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
-            remaining_ids = p_check.stdout.strip().splitlines() if p_check.stdout.strip() else []
-            if remaining_ids:
-                print(f"Warning: {len(remaining_ids)} container(s) remaining after stop. Performing forced removal...")
-                p_rm = run_cmd(['docker', 'rm', '-f'] + remaining_ids, check=False)
-                if p_rm.returncode != 0:
-                    cleanup_errors.append(f"docker rm -f failed: {p_rm.stderr.strip()}")
+            if p_check.returncode != 0:
+                cleanup_errors.append(f"docker ps inspection failed ({p_check.returncode}): {p_check.stderr.strip()}")
+            else:
+                found_ids = p_check.stdout.strip().splitlines() if p_check.stdout.strip() else []
+                # Segregate owned vs foreign
+                owned_to_remove = [cid for cid in found_ids if cid in owned_containers]
+                foreign_ids = [cid for cid in found_ids if cid not in owned_containers]
 
-                # Re-check
-                p_recheck = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
-                remaining_after = p_recheck.stdout.strip().splitlines() if p_recheck.stdout.strip() else []
-                if remaining_after:
-                    cleanup_errors.append(f"Containers could not be removed: {remaining_after}")
+                if foreign_ids:
+                    cleanup_errors.append(
+                        f"Refusing to delete unowned foreign container(s) matching '{PROJECT_ID}': {foreign_ids}"
+                    )
+                if owned_to_remove:
+                    print(f"Removing {len(owned_to_remove)} owned container(s)...")
+                    p_rm = run_cmd(['docker', 'rm', '-f'] + owned_to_remove, check=False)
+                    if p_rm.returncode != 0:
+                        cleanup_errors.append(f"docker rm -f failed ({p_rm.returncode}): {p_rm.stderr.strip()}")
         except Exception as cont_exc:
-            cleanup_errors.append(f"Container inspection raised exception: {cont_exc}")
+            cleanup_errors.append(f"Container inspection/removal raised exception: {cont_exc}")
 
         # 3. Remove temp directory
         try:
@@ -880,27 +931,35 @@ def main():
         except Exception as rmtree_exc:
             cleanup_errors.append(f"shutil.rmtree raised exception: {rmtree_exc}")
 
-        # 4. Final verification of absence
-        p_final = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
-        final_remaining = len(p_final.stdout.strip().splitlines()) if p_final.stdout.strip() else 0
+        # 4. Final verification of absence inside best-effort try block
+        final_remaining = -1
+        try:
+            p_final = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
+            if p_final.returncode != 0:
+                cleanup_errors.append(f"docker ps final verification failed ({p_final.returncode}): {p_final.stderr.strip()}")
+            else:
+                final_ids = p_final.stdout.strip().splitlines() if p_final.stdout.strip() else []
+                final_remaining = len(final_ids)
+                if final_remaining > 0:
+                    cleanup_errors.append(f"{final_remaining} container(s) remaining after teardown: {final_ids}")
+        except Exception as final_exc:
+            cleanup_errors.append(f"Final container verification raised exception: {final_exc}")
 
+        clean_status = (final_remaining == 0 and len(cleanup_errors) == 0)
         audit_results['cleanup'] = {
             'stop_exit': exits.get('supabase_stop', -1),
-            'remaining_containers_count': final_remaining,
+            'remaining_containers_count': final_remaining if final_remaining >= 0 else 0,
             'cleanup_errors': cleanup_errors,
-            'clean': (final_remaining == 0 and len(cleanup_errors) == 0)
+            'clean': clean_status
         }
 
-        # 5. Handle errors: primary error takes precedence, otherwise cleanup error
+        # 5. Handle errors: primary error ALWAYS takes precedence
         if primary_error is not None:
-            print(f"Teardown finished. Re-raising primary error to prevent masking...")
+            print(f"Teardown finished. Re-raising primary error to prevent masking: {primary_error}")
             raise primary_error
 
         if cleanup_errors:
             raise RuntimeError(f"Cleanup failed with {len(cleanup_errors)} error(s): {'; '.join(cleanup_errors)}")
-
-        if final_remaining > 0:
-            raise RuntimeError(f"Cleanup failed: {final_remaining} container(s) leaked matching '{PROJECT_ID}'.")
 
         print("Cleanup verified: 0 remaining containers, tempdir purged, 0 cleanup errors.")
 
@@ -946,7 +1005,7 @@ def main():
 
     summary_data = {
         'status': 'PASS',
-        'verdict': 'Đạt local V5b full reset Supabase CLI',
+        'verdict': 'Chờ review độc lập V5b full reset Supabase CLI',
         'tested_sha': tested_sha,
         'base_sha': BASE_SHA,
         'cycles_executed': 2,
