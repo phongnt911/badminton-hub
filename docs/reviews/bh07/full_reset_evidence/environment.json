@@ -1,8 +1,18 @@
 {
-  "timestamp": "20261024T062133Z",
+  "timestamp": "20261024T114934Z",
   "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
-  "tested_sha": "0392e2166bc0c33b3170e6919d86470d193d6301",
+  "tested_sha": "19ab207ea75023f8a21d15da01ebc20fc09b0db4",
   "git_dirty": true,
+  "git_dirty_files": [
+    "M AGENTS.md",
+    "M docs/reviews/bh07/bh07_readiness.md",
+    "M docs/reviews/bh07/full_reset_evidence/commands.md",
+    "M docs/reviews/bh07/full_reset_evidence/environment.json",
+    "M docs/reviews/bh07/full_reset_evidence/hashes.sha256",
+    "M docs/reviews/bh07/full_reset_evidence/snapshot_comparison.json",
+    "M docs/reviews/bh07/full_reset_evidence/summary.json",
+    "M docs/reviews/bh07/full_reset_handoff.md"
+  ],
   "supabase_cli_version": "2.122.0",
   "docker_version": "Docker version 29.8.2, build 7fc2dff",
   "os": "win32",
@@ -12,6 +22,9 @@
     "db": 56422,
     "shadow": 56420,
     "studio": 56423,
-    "smtp": 56424
+    "smtp": 56424,
+    "analytics": 56427,
+    "s3": 56428,
+    "pooler": 56429
   }
 }

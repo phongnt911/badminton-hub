@@ -1,13 +1,130 @@
 {
   "status": "PASS",
   "verdict": "Đạt local V5b full reset Supabase CLI",
-  "tested_sha": "0392e2166bc0c33b3170e6919d86470d193d6301",
+  "tested_sha": "19ab207ea75023f8a21d15da01ebc20fc09b0db4",
   "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
   "cycles_executed": 2,
   "oracle_repeat_match": true,
-  "db_assertions_cycle1": 24,
-  "db_assertions_cycle2": 24,
-  "total_db_assertions_per_cycle": 24,
+  "db_assertions_cycle1": 23,
+  "db_assertions_cycle2": 23,
+  "total_db_assertions_per_cycle": 23,
+  "db_assertions_detail": [
+    {
+      "name": "Session completed lifecycle",
+      "pass": true,
+      "detail": "lifecycle=completed"
+    },
+    {
+      "name": "Audit event SESSION_COMPLETED present",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "Operation request recorded",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "Confirmed payment exists",
+      "pass": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "Ledger transaction exists",
+      "pass": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "Charges and confirmed payments recorded correctly",
+      "pass": true,
+      "detail": "charges=150000, payments=70000"
+    },
+    {
+      "name": "Unfinalized complete rejected",
+      "pass": true,
+      "detail": "ERROR:  BILLING_STALE: Bản chốt phí đã lỗi thời, cần chốt lại trước\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function complete_session(uuid,bigint,uuid) line 42 at assignment\n"
+    },
+    {
+      "name": "Version conflict rejected",
+      "pass": true,
+      "detail": "ERROR:  VERSION_CONFLICT: Buổi chơi đã thay đổi, cần tải lại\nCONTEXT:  PL/pgSQL function complete_session(uuid,bigint,uuid) line 37 at RAISE\n"
+    },
+    {
+      "name": "Free session completed ok",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Free session lifecycle completed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Overcollect payment rejected",
+      "pass": true,
+      "detail": "ERROR:  PAYMENT_EXCEEDS_OUTSTANDING: Số tiền vượt quá khoản còn phải thu (0)\nCONTEXT:  PL/pgSQL function record_cash_payment(uuid,bigint,text,uuid) line 59 at RAISE\n"
+    },
+    {
+      "name": "Complete completed session with new request rejected",
+      "pass": true,
+      "detail": "ERROR:  INVALID_STATE: Chỉ kết thúc buổi đang diễn ra\nCONTEXT:  PL/pgSQL function complete_session(uuid,bigint,uuid) line 34 at RAISE\n"
+    },
+    {
+      "name": "Idempotent replay succeeds without error",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Conflicting payload rejected with IDEMPOTENCY_CONFLICT",
+      "pass": true,
+      "detail": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                              FROM public.check_idempotency('complete_session', p_request_id, v_payload_hash)\"\nPL/pgSQL function complete_session(uuid,bigint,uuid) line 27 at SQL statement\n"
+    },
+    {
+      "name": "Exactly one active charge revision",
+      "pass": true,
+      "detail": "active_revisions=1"
+    },
+    {
+      "name": "Revision total matches sum of charges",
+      "pass": true,
+      "detail": "rev=300000, players=300000"
+    },
+    {
+      "name": "Venue court count is valid",
+      "pass": true,
+      "detail": "court_count=4"
+    },
+    {
+      "name": "Owner member role is owner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Session visibility is valid enum",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Anon direct query to audit_events denied",
+      "pass": true,
+      "detail": "ERROR:  permission denied for table audit_events\nHINT:  Grant the required privileges to the current role with: GRANT SELECT ON public.audit_events TO anon;\n"
+    },
+    {
+      "name": "Anon direct query to operation_requests denied",
+      "pass": true,
+      "detail": "ERROR:  permission denied for table operation_requests\nHINT:  Grant the required privileges to the current role with: GRANT SELECT ON public.operation_requests TO anon;\n"
+    },
+    {
+      "name": "Zero orphaned payments",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Zero orphaned club transactions",
+      "pass": true,
+      "detail": ""
+    }
+  ],
   "schema_valid": true,
   "negative_controls_pass": true,
   "cleanup_success": true
