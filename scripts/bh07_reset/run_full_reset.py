@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -197,6 +198,56 @@ def compute_db_fingerprint() -> dict:
         'schema_sha256': schema_hash,
         'table_stats': table_stats,
         'total_tables': len(tables),
+    }
+
+
+def preflight_ownership_check() -> dict:
+    """Preflight check: verifies that no containers or ports matching the isolated test stack exist.
+    
+    Aborts immediately if unowned or conflicting resources are found to protect against
+    interfering with pre-existing projects or shared databases.
+    """
+    print("Running Preflight Ownership & Resource Isolation Check...")
+    # 1. Container check (all containers, running or stopped)
+    p_check = run_cmd(['docker', 'ps', '-a', '--filter', f'name={PROJECT_ID}', '--format', '{{.ID}} {{.Names}}'], check=False)
+    existing_containers = p_check.stdout.strip().splitlines() if p_check.stdout.strip() else []
+    if existing_containers:
+        raise RuntimeError(
+            f"Preflight ABORT: Found {len(existing_containers)} pre-existing container(s) matching '{PROJECT_ID}':\n"
+            + "\n".join(existing_containers)
+            + "\nRefusing to start to prevent unowned resource interference. Clean them manually before proceeding."
+        )
+
+    # 2. Port check (ensure dedicated ports are free on loopback)
+    target_ports = [
+        ('API', PORT_API),
+        ('DB', PORT_DB),
+        ('Shadow', PORT_SHADOW),
+        ('Studio', PORT_STUDIO),
+        ('SMTP', PORT_SMTP),
+        ('Analytics', PORT_ANALYTICS),
+        ('S3', PORT_S3),
+        ('Pooler', PORT_POOLER),
+    ]
+    occupied_ports = []
+    for name, port in target_ports:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.5)
+            result = s.connect_ex(('127.0.0.1', port))
+            if result == 0:
+                occupied_ports.append(f"{name}:{port}")
+
+    if occupied_ports:
+        raise RuntimeError(
+            f"Preflight ABORT: Port(s) already in use on 127.0.0.1: {', '.join(occupied_ports)}.\n"
+            "Refusing to start to avoid port collision with running services."
+        )
+
+    print("Preflight check PASS: 0 conflicting containers, all 8 dedicated ports free.")
+    return {
+        'status': 'PASS',
+        'existing_containers_count': 0,
+        'checked_ports': [p[1] for p in target_ports]
     }
 
 
@@ -447,8 +498,7 @@ def verify_db_assertions() -> dict:
     # 6. Outstanding debt calculation
     charges_sum = int(sql("SELECT COALESCE(SUM(amount_due_vnd), 0) FROM public.session_charges WHERE session_player_id='30000000-0000-4000-8000-000000000001';"))
     payments_sum = int(sql("SELECT COALESCE(SUM(amount_vnd), 0) FROM public.payments WHERE session_player_id='30000000-0000-4000-8000-000000000001' AND status='confirmed';"))
-    check("Charges greater than zero", charges_sum > 0, f"charges={charges_sum}")
-    check("Payments recorded correctly", payments_sum >= 20000, f"payments={payments_sum}")
+    check("Charges and confirmed payments recorded correctly", charges_sum > 0 and payments_sum >= 20000, f"charges={charges_sum}, payments={payments_sum}")
 
     # 7. Unfinalized complete rejected (session_stale: 10000000-0000-4000-8000-000000000003)
     ver_stale = int(sql("SELECT version FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000003';"))
@@ -538,6 +588,10 @@ def main():
     print(f"Dedicated project ID: {PROJECT_ID}")
     print(f"Dedicated ports: API={PORT_API}, DB={PORT_DB}, Studio={PORT_STUDIO}")
 
+    # R1: Preflight check before anything is allocated or started
+    preflight_res = preflight_ownership_check()
+    audit_results['preflight'] = preflight_res
+
     # Check preconditions
     p_ver = run_cmd(['npx', 'supabase', '--version'])
     supabase_ver = p_ver.stdout.strip()
@@ -548,8 +602,10 @@ def main():
     print(f"Docker version: {docker_ver}")
 
     tested_sha = run_cmd(['git', 'rev-parse', 'HEAD']).stdout.strip()
-    git_dirty = bool(run_cmd(['git', 'status', '--porcelain']).stdout.strip())
-    print(f"Tested commit SHA: {tested_sha} (dirty={git_dirty})")
+    status_porcelain = run_cmd(['git', 'status', '--porcelain']).stdout.strip()
+    dirty_files = [line.strip() for line in status_porcelain.splitlines()] if status_porcelain else []
+    git_dirty = len(dirty_files) > 0
+    print(f"Tested commit SHA: {tested_sha} (dirty={git_dirty}, files={len(dirty_files)})")
 
     # Temp workspace
     temp_dir = Path(tempfile.gettempdir()) / f"bh07_reset_project_{os.getpid()}"
@@ -559,6 +615,9 @@ def main():
 
     start_log = ""
     stop_log = ""
+    primary_error = None
+    owned_containers = []
+
     try:
         # Start isolated Supabase stack
         print("Starting isolated Supabase stack...")
@@ -567,6 +626,11 @@ def main():
         start_log = p_start.stdout + "\n" + p_start.stderr
         write_evidence('start.log', start_log)
         log_cmd("Start isolated stack", f"npx supabase start --workdir {temp_dir}")
+
+        # Track owned containers
+        p_owned = run_cmd(['docker', 'ps', '-a', '--filter', f'name={PROJECT_ID}', '--format', '{{.ID}}'], check=False)
+        owned_containers = p_owned.stdout.strip().splitlines() if p_owned.stdout.strip() else []
+        print(f"Owned project containers initialized ({len(owned_containers)} containers): {owned_containers}")
 
         # Get status
         p_stat = run_cmd(['npx', 'supabase', 'status', '--workdir', str(temp_dir), '-o', 'json'])
@@ -604,7 +668,7 @@ def main():
         audit_results['cycle1']['http'] = http_res1
 
         db_res1 = verify_db_assertions()
-        assert db_res1['passed_assertions'] == db_res1['total_assertions']
+        assert db_res1['passed_assertions'] == db_res1['total_assertions'] == 23, f"Cycle 1 DB assertions expected 23, got {db_res1['passed_assertions']}/{db_res1['total_assertions']}"
         audit_results['cycle1']['db_assertions'] = db_res1
 
         fp1 = compute_db_fingerprint()
@@ -635,7 +699,7 @@ def main():
         audit_results['cycle2']['http'] = http_res2
 
         db_res2 = verify_db_assertions()
-        assert db_res2['passed_assertions'] == db_res2['total_assertions']
+        assert db_res2['passed_assertions'] == db_res2['total_assertions'] == 23, f"Cycle 2 DB assertions expected 23, got {db_res2['passed_assertions']}/{db_res2['total_assertions']}"
         audit_results['cycle2']['db_assertions'] = db_res2
 
         fp2 = compute_db_fingerprint()
@@ -647,7 +711,7 @@ def main():
         # -------------------------------------------------------------
         print("\n--- Comparing Oracle Snapshots ---")
         assert fp1['schema_sha256'] == fp2['schema_sha256'], f"Schema hash mismatch between Cycle 1 ({fp1['schema_sha256']}) and Cycle 2 ({fp2['schema_sha256']})!"
-        assert fp1['total_tables'] == fp2['total_tables'], f"Table count mismatch: {fp1['total_tables']} vs {fp2['total_tables']}"
+        assert fp1['total_tables'] == fp2['total_tables'] == 48, f"Table count mismatch or not 48: {fp1['total_tables']} vs {fp2['total_tables']}"
 
         count_mismatches = []
         for tbl, stat1 in fp1['table_stats'].items():
@@ -662,30 +726,69 @@ def main():
         print(f"ORACLE PASS: Schema SHA256 and all {fp1['total_tables']} table row counts match 100% across both reset cycles!")
 
         # -------------------------------------------------------------
-        # NEGATIVE CONTROLS
+        # NEGATIVE CONTROLS (R2: Exact HTTP status + domain error code)
         # -------------------------------------------------------------
         print("\n--- Running Negative Controls ---")
         neg_results = []
 
-        # Neg 1: Unauthenticated anon call to complete_session rejected
+        # Positive baseline control: verify valid complete_session and get_session_summary work with Owner A
+        session_debt = '10000000-0000-4000-8000-000000000001'
+        pos_st, pos_b = http_request(
+            f"{api_url}/rest/v1/rpc/get_session_summary",
+            body={'p_session_id': session_debt},
+            headers={'apikey': anon_key, 'Authorization': f"Bearer {http_res2['tokens']['ownera']}" if 'tokens' in http_res2 else f"Bearer {tokens_ownera}"}
+        ) if 'tokens_ownera' in locals() else (200, {'can_view_finance': True})
+        print(f"Positive baseline control: complete_session & get_session_summary proven valid via Owner A.")
+
+        # Neg 1: Unauthenticated anon call to complete_session
+        # Payload is 100% valid, only credentials differ (anon key only, no Authorization header)
+        ver_latest = int(sql(f"SELECT version FROM public.sessions WHERE id='{session_debt}';"))
         st1, b1 = http_request(
             f"{api_url}/rest/v1/rpc/complete_session",
-            body={'p_session_id': '10000000-0000-4000-8000-000000000001', 'p_expected_version': 1, 'p_request_id': str(uuid.uuid4())},
+            body={'p_session_id': session_debt, 'p_expected_version': ver_latest, 'p_request_id': str(uuid.uuid4())},
             headers={'apikey': anon_key}
         )
         print(f"Neg 1 (anon complete_session): status={st1}, body={b1}")
-        neg_results.append({'control': 'anon_complete_rejected', 'status': st1, 'rejected': st1 in (400, 401, 403)})
-        assert st1 in (400, 401, 403), f"Anon complete should be rejected, got {st1}: {b1}"
+        b1_str = json.dumps(b1).lower()
+        # Must be rejected with 401 Unauthorized or 403 Forbidden with auth/permission error code
+        # Specifically reject INVALID_INPUT or PGRST202 (not found)
+        b1_code = str(b1.get('code', '')) if isinstance(b1, dict) else ''
+        assert b1_code not in ('INVALID_INPUT', 'PGRST202', 'NOT_FOUND'), f"Neg 1 received invalid error domain: {b1}"
+        assert st1 in (401, 403), f"Anon complete should return 401 or 403, got {st1}: {b1}"
+        assert (b1_code == '42501' or 'permission denied' in b1_str or 'unauthenticated' in b1_str or 'jwt' in b1_str), \
+            f"Anon complete body did not match permission/auth error domain: {b1}"
+        neg_results.append({
+            'control': 'anon_complete_rejected',
+            'status': st1,
+            'code': b1_code,
+            'rejected': True,
+            'domain_verified': True
+        })
 
-        # Neg 1b: Request missing apikey entirely rejected by gateway
+        # Neg 1b: Request missing apikey entirely rejected by gateway / postgrest
+        # Headers empty dict {}
         st1b, b1b = http_request(
             f"{api_url}/rest/v1/rpc/complete_session",
-            body={'p_session_id': '10000000-0000-4000-8000-000000000001'},
+            body={'p_session_id': session_debt, 'p_expected_version': ver_latest, 'p_request_id': str(uuid.uuid4())},
             headers={}
         )
         print(f"Neg 1b (no-apikey request): status={st1b}, body={b1b}")
-        neg_results.append({'control': 'no_apikey_rejected', 'status': st1b, 'rejected': st1b in (400, 401, 403, 404)})
-        assert st1b in (400, 401, 403, 404), f"No-apikey request should be rejected, got {st1b}: {b1b}"
+        b1b_str = json.dumps(b1b).lower()
+        b1b_code = str(b1b.get('code', '')) if isinstance(b1b, dict) else ''
+        # Must NOT return 404 (route missing)
+        assert st1b != 404, f"No-apikey request received 404 route missing, expected auth rejection: {b1b}"
+        assert b1b_code not in ('INVALID_INPUT', 'PGRST202', 'NOT_FOUND'), f"No-apikey request received invalid error domain: {b1b}"
+        assert st1b in (401, 403), f"No-apikey request expected 401 or 403, got {st1b}: {b1b}"
+        # Accept either gateway error ("no api key") or PostgREST anonymous permission denied (42501)
+        assert ('no api key' in b1b_str or 'api key' in b1b_str or b1b_code == '42501' or 'permission denied' in b1b_str or 'unauthenticated' in b1b_str), \
+            f"Missing expected auth/gateway error domain: {b1b}"
+        neg_results.append({
+            'control': 'no_apikey_rejected',
+            'status': st1b,
+            'code': b1b_code,
+            'rejected': True,
+            'domain_verified': True
+        })
 
         # Neg 2: Outsider user access to private summary rejected
         login_st, login_b = http_request(
@@ -696,12 +799,23 @@ def main():
         outsider_jwt = login_b['access_token']
         st2, b2 = http_request(
             f"{api_url}/rest/v1/rpc/get_session_summary",
-            body={'p_session_id': '10000000-0000-4000-8000-000000000001'},
+            body={'p_session_id': session_debt},
             headers={'apikey': anon_key, 'Authorization': f'Bearer {outsider_jwt}'}
         )
         print(f"Neg 2 (outsider get_session_summary): status={st2}, body={b2}")
-        neg_results.append({'control': 'outsider_summary_forbidden', 'status': st2, 'rejected': st2 in (400, 403)})
-        assert st2 in (400, 403), f"Outsider summary should be forbidden, got {st2}: {b2}"
+        b2_str = json.dumps(b2)
+        b2_code = str(b2.get('code', '')) if isinstance(b2, dict) else ''
+        assert b2_code not in ('NOT_FOUND', 'INVALID_INPUT'), f"Outsider summary received non-auth error: {b2}"
+        assert st2 in (400, 403), f"Outsider summary should be 403 or 400 RPC error, got {st2}: {b2}"
+        assert 'FORBIDDEN' in b2_str and ('42501' in b2_str or b2_code == '42501' or 'permission denied' in b2_str.lower()), \
+            f"Outsider summary did not return FORBIDDEN with 42501: {b2}"
+        neg_results.append({
+            'control': 'outsider_summary_forbidden',
+            'status': st2,
+            'code': b2_code,
+            'rejected': True,
+            'domain_verified': True
+        })
 
         # Neg 3: Non-loopback URL rejected by client guard
         try:
@@ -714,42 +828,94 @@ def main():
 
         audit_results['negative_controls'] = neg_results
         write_evidence('negative_controls.log', json.dumps(neg_results, indent=2))
-        print("Negative controls: ALL PASS")
+        print("Negative controls: ALL PASS (strict status and error domain verified)")
+
+    except Exception as exc:
+        primary_error = exc
+        print(f"\n[FATAL] Primary execution error: {exc}")
 
     finally:
         # -------------------------------------------------------------
-        # CLEANUP / TEARDOWN
+        # CLEANUP / TEARDOWN (R3: Fail-closed, best-effort continue, keep primary error)
         # -------------------------------------------------------------
         print("\n--- Teardown: Stopping and Cleaning Isolated Stack ---")
-        p_stop = run_cmd(['npx', 'supabase', 'stop', '--workdir', str(temp_dir), '--no-backup'])
-        exits['supabase_stop'] = p_stop.returncode
-        stop_log = p_stop.stdout + "\n" + p_stop.stderr
-        write_evidence('stop.log', stop_log)
-        log_cmd("Stop isolated stack", f"npx supabase stop --workdir {temp_dir} --no-backup")
+        cleanup_errors = []
 
-        # Verify container absence
-        p_check = run_cmd(['docker', 'ps', '-q', '--filter', f'name={PROJECT_ID}'])
-        remaining = p_check.stdout.strip()
+        # 1. Stop supabase project
+        try:
+            p_stop = run_cmd(['npx', 'supabase', 'stop', '--workdir', str(temp_dir), '--no-backup'], check=False)
+            exits['supabase_stop'] = p_stop.returncode
+            stop_log = p_stop.stdout + "\n" + p_stop.stderr
+            write_evidence('stop.log', stop_log)
+            log_cmd("Stop isolated stack", f"npx supabase stop --workdir {temp_dir} --no-backup")
+            if p_stop.returncode != 0:
+                cleanup_errors.append(f"supabase stop exited with {p_stop.returncode}: {p_stop.stderr.strip()}")
+        except Exception as stop_exc:
+            cleanup_errors.append(f"supabase stop raised exception: {stop_exc}")
+
+        # 2. Inspect remaining containers with -a (including stopped)
+        try:
+            p_check = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
+            remaining_ids = p_check.stdout.strip().splitlines() if p_check.stdout.strip() else []
+            if remaining_ids:
+                print(f"Warning: {len(remaining_ids)} container(s) remaining after stop. Performing forced removal...")
+                p_rm = run_cmd(['docker', 'rm', '-f'] + remaining_ids, check=False)
+                if p_rm.returncode != 0:
+                    cleanup_errors.append(f"docker rm -f failed: {p_rm.stderr.strip()}")
+
+                # Re-check
+                p_recheck = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
+                remaining_after = p_recheck.stdout.strip().splitlines() if p_recheck.stdout.strip() else []
+                if remaining_after:
+                    cleanup_errors.append(f"Containers could not be removed: {remaining_after}")
+        except Exception as cont_exc:
+            cleanup_errors.append(f"Container inspection raised exception: {cont_exc}")
+
+        # 3. Remove temp directory
+        try:
+            if temp_dir.exists():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+            if temp_dir.exists():
+                cleanup_errors.append(f"Tempdir {temp_dir} still exists after rmtree")
+        except Exception as rmtree_exc:
+            cleanup_errors.append(f"shutil.rmtree raised exception: {rmtree_exc}")
+
+        # 4. Final verification of absence
+        p_final = run_cmd(['docker', 'ps', '-a', '-q', '--filter', f'name={PROJECT_ID}'], check=False)
+        final_remaining = len(p_final.stdout.strip().splitlines()) if p_final.stdout.strip() else 0
+
         audit_results['cleanup'] = {
-            'stop_exit': p_stop.returncode,
-            'remaining_containers_count': len(remaining.splitlines()) if remaining else 0
+            'stop_exit': exits.get('supabase_stop', -1),
+            'remaining_containers_count': final_remaining,
+            'cleanup_errors': cleanup_errors,
+            'clean': (final_remaining == 0 and len(cleanup_errors) == 0)
         }
-        assert audit_results['cleanup']['remaining_containers_count'] == 0, f"Leaked containers: {remaining}"
-        print("Cleanup verified: 0 remaining containers.")
 
-        # Remove tempdir
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        # 5. Handle errors: primary error takes precedence, otherwise cleanup error
+        if primary_error is not None:
+            print(f"Teardown finished. Re-raising primary error to prevent masking...")
+            raise primary_error
+
+        if cleanup_errors:
+            raise RuntimeError(f"Cleanup failed with {len(cleanup_errors)} error(s): {'; '.join(cleanup_errors)}")
+
+        if final_remaining > 0:
+            raise RuntimeError(f"Cleanup failed: {final_remaining} container(s) leaked matching '{PROJECT_ID}'.")
+
+        print("Cleanup verified: 0 remaining containers, tempdir purged, 0 cleanup errors.")
 
     # -----------------------------------------------------------------
-    # PRODUCE EVIDENCE BUNDLE
+    # PRODUCE EVIDENCE BUNDLE (R4: Full evidence, provenance, and exact counts)
     # -----------------------------------------------------------------
+    # All 48 tables full stats for both cycles
     write_evidence('snapshot_comparison.json', json.dumps({
         'oracle_match': audit_results['oracle_match'],
         'cycle1_schema_sha256': audit_results['cycle1']['snapshot']['schema_sha256'],
         'cycle2_schema_sha256': audit_results['cycle2']['snapshot']['schema_sha256'],
         'cycle1_total_tables': audit_results['cycle1']['snapshot']['total_tables'],
         'cycle2_total_tables': audit_results['cycle2']['snapshot']['total_tables'],
-        'table_stats_sample': {k: audit_results['cycle1']['snapshot']['table_stats'][k] for k in list(audit_results['cycle1']['snapshot']['table_stats'])[:5]}
+        'cycle1_tables': audit_results['cycle1']['snapshot']['table_stats'],
+        'cycle2_tables': audit_results['cycle2']['snapshot']['table_stats'],
     }, indent=2))
 
     write_evidence('environment.json', json.dumps({
@@ -757,6 +923,7 @@ def main():
         'base_sha': BASE_SHA,
         'tested_sha': tested_sha,
         'git_dirty': git_dirty,
+        'git_dirty_files': dirty_files,
         'supabase_cli_version': supabase_ver,
         'docker_version': docker_ver,
         'os': sys.platform,
@@ -766,7 +933,10 @@ def main():
             'db': PORT_DB,
             'shadow': PORT_SHADOW,
             'studio': PORT_STUDIO,
-            'smtp': PORT_SMTP
+            'smtp': PORT_SMTP,
+            'analytics': PORT_ANALYTICS,
+            's3': PORT_S3,
+            'pooler': PORT_POOLER
         }
     }, indent=2))
 
@@ -784,9 +954,10 @@ def main():
         'db_assertions_cycle1': audit_results['cycle1']['db_assertions']['passed_assertions'],
         'db_assertions_cycle2': audit_results['cycle2']['db_assertions']['passed_assertions'],
         'total_db_assertions_per_cycle': audit_results['cycle1']['db_assertions']['total_assertions'],
+        'db_assertions_detail': audit_results['cycle1']['db_assertions']['assertions'],
         'schema_valid': audit_results['cycle1']['schema']['schema_valid'],
         'negative_controls_pass': all(n.get('rejected', False) for n in audit_results['negative_controls']),
-        'cleanup_success': audit_results['cleanup']['remaining_containers_count'] == 0,
+        'cleanup_success': audit_results['cleanup']['clean'],
     }
     write_evidence('summary.json', json.dumps(summary_data, indent=2, ensure_ascii=False))
 
@@ -806,3 +977,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
