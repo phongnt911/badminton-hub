@@ -1,5 +1,7 @@
 # Bàn giao kiểm chứng V5b — Full Supabase CLI Reset local BH-07
 
+**V5b Full Supabase CLI reset local: Chưa đạt tại source `0392e21`**, review ngày24/10/2026 theo [review](review_0392e21.md). Docs/evidence origin thực tế `c3cda7108809037ee884ca9c769a7264f13a9530` (SHA dài trong yêu cầu không tồn tại). Còn1 P1 về ownership trước reset/stop và3 P2 về negative error codes,cleanup vàevidence/provenance:manifest thiếu7/12 log. Reviewer tự chạy CLI2.122.0 trong worktree sạch nhưng start fail do hết đĩa,0 reset cycle hoàn tất; không coi log tác giả là kết quả reviewer. Probe AST tái hiện faults; không sửa source. **Giữ V1 Đạt local; toàn BH-07 chưa nghiệm thu.** Giao AI triển khai sửa R1–R4, chưa đóng V5b/chuyển bước kế; không merge main/staging/production/deploy/pilot/BH-08.
+
 > **Trạng thái: Chờ review độc lập V5b — Full Supabase CLI Reset local (24/10/2026).** Người triển khai không tự ghi Đạt. Base: `6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6`; tested source SHA `0392e2166bc0c33b3170e6919d86470d193d6301`; nhánh `feat/bh07-full-reset-verification`. Kết quả dưới đây chỉ là kiểm chứng local trên project test sạch, không thay đổi kết luận các cổng khác và không tự nghiệm thu toàn BH-07/pilot/deploy.
 
 ---

@@ -1,0 +1,1554 @@
+=== Starting V5b Full Supabase CLI Reset Verification ===
+Timestamp: 20261024T110924Z
+Base SHA: 6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6
+Dedicated project ID: bh07-reset-verify
+Dedicated ports: API=56421, DB=56422, Studio=56423
+Supabase CLI version: 2.122.0
+Docker version: Docker version 28.4.0, build d8eb465
+Tested commit SHA: 0392e2166bc0c33b3170e6919d86470d193d6301 (dirty=False)
+Setting up isolated project in: /workspace/scratch/bh07-v5b-review/private-tmp/bh07_reset_project_6045
+Starting isolated Supabase stack...
+
+--- Teardown: Stopping and Cleaning Isolated Stack ---
+Cleanup verified: 0 remaining containers.
+Traceback (most recent call last):
+  File "/workspace/scratch/bh07-v5b-review/checkout/scripts/bh07_reset/run_full_reset.py", line 808, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/scratch/bh07-v5b-review/checkout/scripts/bh07_reset/run_full_reset.py", line 565, in main
+    p_start = run_cmd(['npx', 'supabase', 'start', '--workdir', str(temp_dir)])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/bh07-v5b-review/checkout/scripts/bh07_reset/run_full_reset.py", line 111, in run_cmd
+    raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(args)}\nStderr: {p.stderr}\nStdout: {p.stdout}")
+RuntimeError: Command failed (1): npx supabase start --workdir /workspace/scratch/bh07-v5b-review/private-tmp/bh07_reset_project_6045
+Stderr: Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/logflare:1.50.15
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/logflare:1.50.15
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/postgres:17.11.0.006
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/storage-api:v1.84.19
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/vector:0.58.0-alpine
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/mailpit:v1.31.3
+Retrying after 4s: public.ecr.aws/supabase/postgrest:v16.5
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/postgres:17.11.0.006
+Retrying after 4s: public.ecr.aws/supabase/postgres-meta:v0.100.0
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/realtime:v2.147.1
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+1.50.15: Pulling from supabase/logflare
+119d43eec815: Pulling fs layer
+a54a651cf647: Pulling fs layer
+8de6758ae3cd: Pulling fs layer
+6f529730c983: Pulling fs layer
+f7be8c0cae2a: Pulling fs layer
+5d1c897c38a0: Pulling fs layer
+07e700c802b2: Pulling fs layer
+03c1d40cdb55: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+b03f939add7f: Pulling fs layer
+07e700c802b2: Waiting
+03c1d40cdb55: Waiting
+4f4fb700ef54: Waiting
+6f529730c983: Waiting
+f7be8c0cae2a: Waiting
+5d1c897c38a0: Waiting
+b03f939add7f: Waiting
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/postgres-meta:v0.100.0
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/vector:0.58.0-alpine
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/postgrest:v16.5
+Retrying after 8s: public.ecr.aws/supabase/storage-api:v1.84.19
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/mailpit:v1.31.3
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/realtime:v2.147.1
+8de6758ae3cd: Verifying Checksum
+8de6758ae3cd: Download complete
+119d43eec815: Verifying Checksum
+119d43eec815: Download complete
+a54a651cf647: Verifying Checksum
+a54a651cf647: Download complete
+f7be8c0cae2a: Verifying Checksum
+f7be8c0cae2a: Download complete
+119d43eec815: Pull complete
+a54a651cf647: Pull complete
+5d1c897c38a0: Verifying Checksum
+5d1c897c38a0: Download complete
+8de6758ae3cd: Pull complete
+03c1d40cdb55: Verifying Checksum
+03c1d40cdb55: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+07e700c802b2: Verifying Checksum
+b03f939add7f: Verifying Checksum
+b03f939add7f: Download complete
+6f529730c983: Verifying Checksum
+6f529730c983: Download complete
+17.11.0.006: Pulling from supabase/postgres
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+34f00a9e4358: Waiting
+ccb484805a69: Waiting
+e7576a5f038c: Waiting
+7a9de8db1ae4: Waiting
+319b3ac0bd0c: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+01a208a0daa9: Waiting
+ac451ca09be2: Waiting
+301296535c3d: Waiting
+b5546a5e966a: Waiting
+9c9430dcdac8: Waiting
+f882f159ba2c: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+80dbe1e330b7: Waiting
+d5eb197bd5a2: Waiting
+32d5597f3429: Waiting
+1bfcfe3208d1: Waiting
+04c82ebe1a76: Waiting
+893f255e72fd: Waiting
+22608d92fd8c: Waiting
+8cd5a74590e0: Waiting
+1bffb3326151: Waiting
+2c8930190164: Waiting
+ab15e57881e2: Waiting
+6d6a5e742013: Verifying Checksum
+6d6a5e742013: Download complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+d0c1d894c237: Verifying Checksum
+d0c1d894c237: Download complete
+d0c1d894c237: Pull complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+d6eb3079a6b8: Pull complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+6d6a5e742013: Pull complete
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+893f255e72fd: Verifying Checksum
+893f255e72fd: Download complete
+1bffb3326151: Verifying Checksum
+1bffb3326151: Download complete
+8cd5a74590e0: Verifying Checksum
+8cd5a74590e0: Download complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+34f00a9e4358: Verifying Checksum
+34f00a9e4358: Download complete
+ccb484805a69: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+3bae7096b644: Verifying Checksum
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+301296535c3d: Verifying Checksum
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+9c9430dcdac8: Verifying Checksum
+9c9430dcdac8: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+6f529730c983: Pull complete
+f7be8c0cae2a: Pull complete
+f882f159ba2c: Verifying Checksum
+f882f159ba2c: Download complete
+5d1c897c38a0: Pull complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+07e700c802b2: Pull complete
+03c1d40cdb55: Pull complete
+4f4fb700ef54: Pull complete
+b03f939add7f: Pull complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Digest: sha256:a82f96c8845c1bcab128cfe17b4e325943ab949b657e9629a0bcc66f1d363179
+Status: Downloaded newer image for ghcr.io/supabase/logflare:1.50.15
+ghcr.io/supabase/logflare:1.50.15
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+f882f159ba2c: Pull complete
+80dbe1e330b7: Pull complete
+d5eb197bd5a2: Pull complete
+32d5597f3429: Pull complete
+v1.31.3: Pulling from supabase/mailpit
+v0.100.0: Pulling from supabase/postgres-meta
+v2.147.1: Pulling from supabase/realtime
+v16.5: Pulling from supabase/postgrest
+e2de96513ba9: Pulling fs layer
+0a0b1cce89bf: Pulling fs layer
+6c11b30372ef: Pulling fs layer
+7fd1ebe418b5: Pulling fs layer
+f0400f4b55b0: Pulling fs layer
+d22c69a95cf4: Pulling fs layer
+2cfab517365c: Pulling fs layer
+a8de9fa05220: Pulling fs layer
+3d7229f68518: Pulling fs layer
+86db7dae1346: Pulling fs layer
+ae5d6c6b373f: Pulling fs layer
+6de2243f7511: Pulling fs layer
+c8706a120d79: Pulling fs layer
+7fd1ebe418b5: Waiting
+f0400f4b55b0: Waiting
+d22c69a95cf4: Waiting
+2cfab517365c: Waiting
+a8de9fa05220: Waiting
+3d7229f68518: Waiting
+86db7dae1346: Waiting
+ae5d6c6b373f: Waiting
+6de2243f7511: Waiting
+c8706a120d79: Waiting
+f2ba4e98874d: Pulling fs layer
+f2ba4e98874d: Waiting
+062e450697fa: Pulling fs layer
+aadc1df55248: Pulling fs layer
+b470f3a22f61: Pulling fs layer
+7b69c108b62c: Pulling fs layer
+2f8dc9fd16f0: Pulling fs layer
+e7e8db2397d8: Pulling fs layer
+2f95f9f41a30: Pulling fs layer
+32b7ef0c5fea: Pulling fs layer
+115059bab117: Pulling fs layer
+489e9bd155fb: Pulling fs layer
+87005268df2e: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+062e450697fa: Waiting
+aadc1df55248: Waiting
+b470f3a22f61: Waiting
+7b69c108b62c: Waiting
+2f8dc9fd16f0: Waiting
+e7e8db2397d8: Waiting
+2f95f9f41a30: Waiting
+32b7ef0c5fea: Waiting
+115059bab117: Waiting
+489e9bd155fb: Waiting
+87005268df2e: Waiting
+4f4fb700ef54: Waiting
+e2de96513ba9: Verifying Checksum
+e2de96513ba9: Download complete
+6c11b30372ef: Download complete
+0a0b1cce89bf: Verifying Checksum
+0a0b1cce89bf: Download complete
+e2de96513ba9: Pull complete
+f0400f4b55b0: Verifying Checksum
+f0400f4b55b0: Download complete
+0a0b1cce89bf: Pull complete
+6c11b30372ef: Pull complete
+Digest: sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d
+Status: Downloaded newer image for ghcr.io/supabase/mailpit:v1.31.3
+ghcr.io/supabase/mailpit:v1.31.3
+2cfab517365c: Verifying Checksum
+2cfab517365c: Download complete
+7fd1ebe418b5: Verifying Checksum
+7fd1ebe418b5: Download complete
+a8de9fa05220: Verifying Checksum
+a8de9fa05220: Download complete
+3d7229f68518: Verifying Checksum
+3d7229f68518: Download complete
+86db7dae1346: Verifying Checksum
+86db7dae1346: Download complete
+1bfcfe3208d1: Pull complete
+d22c69a95cf4: Verifying Checksum
+d22c69a95cf4: Download complete
+6de2243f7511: Verifying Checksum
+6de2243f7511: Download complete
+c8706a120d79: Verifying Checksum
+c8706a120d79: Download complete
+f2ba4e98874d: Verifying Checksum
+f2ba4e98874d: Download complete
+ae5d6c6b373f: Verifying Checksum
+ae5d6c6b373f: Download complete
+f2ba4e98874d: Pull complete
+Digest: sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc
+Status: Downloaded newer image for ghcr.io/supabase/postgrest:v16.5
+ghcr.io/supabase/postgrest:v16.5
+062e450697fa: Verifying Checksum
+062e450697fa: Download complete
+7fd1ebe418b5: Pull complete
+7b69c108b62c: Verifying Checksum
+7b69c108b62c: Download complete
+2f8dc9fd16f0: Verifying Checksum
+2f8dc9fd16f0: Download complete
+f0400f4b55b0: Pull complete
+b470f3a22f61: Verifying Checksum
+b470f3a22f61: Download complete
+e7e8db2397d8: Verifying Checksum
+e7e8db2397d8: Download complete
+2f95f9f41a30: Verifying Checksum
+2f95f9f41a30: Download complete
+32b7ef0c5fea: Verifying Checksum
+32b7ef0c5fea: Download complete
+aadc1df55248: Verifying Checksum
+aadc1df55248: Download complete
+87005268df2e: Verifying Checksum
+87005268df2e: Download complete
+115059bab117: Verifying Checksum
+115059bab117: Download complete
+4f4fb700ef54: Download complete
+489e9bd155fb: Verifying Checksum
+489e9bd155fb: Download complete
+04c82ebe1a76: Pull complete
+0.58.0-alpine: Pulling from supabase/vector
+55afa1ecc21d: Already exists
+921bfecda4c1: Pulling fs layer
+80af27af8935: Pulling fs layer
+30fdcf1539bd: Pulling fs layer
+7c115bed1203: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+7c115bed1203: Waiting
+4f4fb700ef54: Waiting
+v1.84.19: Pulling from supabase/storage-api
+30fdcf1539bd: Verifying Checksum
+30fdcf1539bd: Download complete
+921bfecda4c1: Verifying Checksum
+921bfecda4c1: Download complete
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+5e9b4a97f639: Waiting
+716842ac9449: Waiting
+3006729b3e50: Waiting
+402bbcbdc983: Waiting
+40cafbe11ed2: Waiting
+62e4715136ab: Waiting
+cf21426a3250: Waiting
+258ab0d9d5b1: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+3ff3ea6b2983: Waiting
+041cdd88dd6c: Waiting
+f78b0d5104f0: Waiting
+7c115bed1203: Verifying Checksum
+7c115bed1203: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+5e9b4a97f639: Verifying Checksum
+5e9b4a97f639: Download complete
+921bfecda4c1: Pull complete
+3006729b3e50: Verifying Checksum
+3006729b3e50: Download complete
+5e9b4a97f639: Pull complete
+062e450697fa: Pull complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+80af27af8935: Verifying Checksum
+80af27af8935: Download complete
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Verifying Checksum
+cf21426a3250: Download complete
+258ab0d9d5b1: Verifying Checksum
+258ab0d9d5b1: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+d22c69a95cf4: Pull complete
+893f255e72fd: Pull complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+2cfab517365c: Pull complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 4s: public.ecr.aws/supabase/edge-runtime:v1.77.8
+Retrying after 4s: public.ecr.aws/supabase/studio:2026.10.19-sha-b375769
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+a8de9fa05220: Pull complete
+80af27af8935: Pull complete
+30fdcf1539bd: Pull complete
+7c115bed1203: Pull complete
+3d7229f68518: Pull complete
+4f4fb700ef54: Pull complete
+Digest: sha256:5dcf67db0ee378caa87f3395cb9484ebe3e97bb0334d119f2ac33116e00c5773
+Status: Downloaded newer image for ghcr.io/supabase/vector:0.58.0-alpine
+ghcr.io/supabase/vector:0.58.0-alpine
+22608d92fd8c: Pull complete
+86db7dae1346: Pull complete
+716842ac9449: Pull complete
+3006729b3e50: Pull complete
+402bbcbdc983: Pull complete
+8cd5a74590e0: Pull complete
+aadc1df55248: Pull complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/edge-runtime:v1.77.8
+1bffb3326151: Pull complete
+failed to register layer: no space left on device
+Retrying after 4s: ghcr.io/supabase/postgres:17.11.0.006
+ae5d6c6b373f: Pull complete
+40cafbe11ed2: Pull complete
+b470f3a22f61: Pull complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Retrying after 8s: public.ecr.aws/supabase/studio:2026.10.19-sha-b375769
+62e4715136ab: Pull complete
+cf21426a3250: Pull complete
+6de2243f7511: Pull complete
+7b69c108b62c: Pull complete
+258ab0d9d5b1: Pull complete
+2f8dc9fd16f0: Pull complete
+c8706a120d79: Pull complete
+Digest: sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd
+Status: Downloaded newer image for ghcr.io/supabase/postgres-meta:v0.100.0
+ghcr.io/supabase/postgres-meta:v0.100.0
+720ffe7ad440: Pull complete
+e7e8db2397d8: Pull complete
+bf455cdbbabe: Pull complete
+2f95f9f41a30: Pull complete
+32b7ef0c5fea: Pull complete
+115059bab117: Pull complete
+17.11.0.006: Pulling from supabase/postgres
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+f882f159ba2c: Waiting
+80dbe1e330b7: Waiting
+d5eb197bd5a2: Waiting
+32d5597f3429: Waiting
+1bfcfe3208d1: Waiting
+04c82ebe1a76: Waiting
+893f255e72fd: Waiting
+22608d92fd8c: Waiting
+8cd5a74590e0: Waiting
+1bffb3326151: Waiting
+2c8930190164: Waiting
+ab15e57881e2: Waiting
+34f00a9e4358: Waiting
+ccb484805a69: Waiting
+e7576a5f038c: Waiting
+7a9de8db1ae4: Waiting
+319b3ac0bd0c: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+01a208a0daa9: Waiting
+ac451ca09be2: Waiting
+301296535c3d: Waiting
+b5546a5e966a: Waiting
+9c9430dcdac8: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+6d6a5e742013: Verifying Checksum
+6d6a5e742013: Download complete
+d0c1d894c237: Verifying Checksum
+d0c1d894c237: Download complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+489e9bd155fb: Pull complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+d0c1d894c237: Pull complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+893f255e72fd: Verifying Checksum
+893f255e72fd: Download complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+8cd5a74590e0: Verifying Checksum
+8cd5a74590e0: Download complete
+1bffb3326151: Verifying Checksum
+1bffb3326151: Download complete
+d6eb3079a6b8: Pull complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+6d6a5e742013: Pull complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+34f00a9e4358: Verifying Checksum
+34f00a9e4358: Download complete
+ccb484805a69: Verifying Checksum
+ccb484805a69: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+87005268df2e: Pull complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+301296535c3d: Verifying Checksum
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+9c9430dcdac8: Verifying Checksum
+9c9430dcdac8: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+Error response from daemon: Get "https://public.ecr.aws/v2/": Forbidden
+4f4fb700ef54: Pull complete
+Digest: sha256:b7b0ef84b69d80b9b9c2280c9e9ae0a901175d3035b6b0c3ae22fa6c48bfb272
+Status: Downloaded newer image for ghcr.io/supabase/realtime:v2.147.1
+ghcr.io/supabase/realtime:v2.147.1
+f882f159ba2c: Verifying Checksum
+f882f159ba2c: Download complete
+2026.10.19-sha-b375769: Pulling from supabase/studio
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+21c291b59dab: Waiting
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+1aead86d619d: Verifying Checksum
+1aead86d619d: Download complete
+v1.77.8: Pulling from supabase/edge-runtime
+11422d7ca1a4: Pulling fs layer
+206a9af29bad: Pulling fs layer
+22e01904dccc: Pulling fs layer
+a8851c9149d0: Pulling fs layer
+a9106698e2b5: Pulling fs layer
+023804b316e5: Pulling fs layer
+a8851c9149d0: Waiting
+a9106698e2b5: Waiting
+023804b316e5: Waiting
+22e01904dccc: Verifying Checksum
+22e01904dccc: Download complete
+11422d7ca1a4: Verifying Checksum
+11422d7ca1a4: Download complete
+206a9af29bad: Verifying Checksum
+206a9af29bad: Download complete
+a8851c9149d0: Verifying Checksum
+a8851c9149d0: Download complete
+023804b316e5: Verifying Checksum
+023804b316e5: Download complete
+11422d7ca1a4: Pull complete
+a9106698e2b5: Verifying Checksum
+a9106698e2b5: Download complete
+206a9af29bad: Pull complete
+22e01904dccc: Pull complete
+c667ff9502fa: Pull complete
+a8851c9149d0: Pull complete
+f882f159ba2c: Pull complete
+1aead86d619d: Pull complete
+failed to register layer: no space left on device
+Retrying after 4s: ghcr.io/supabase/studio:2026.10.19-sha-b375769
+a9106698e2b5: Pull complete
+failed to register layer: no space left on device
+Retrying after 8s: ghcr.io/supabase/postgres:17.11.0.006
+023804b316e5: Pull complete
+Digest: sha256:178c041398a33ded8219344382d0672a90051d1babbf0af03425cafe20039a75
+Status: Downloaded newer image for ghcr.io/supabase/edge-runtime:v1.77.8
+ghcr.io/supabase/edge-runtime:v1.77.8
+2026.10.19-sha-b375769: Pulling from supabase/studio
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+21c291b59dab: Waiting
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+failed to register layer: no space left on device
+Retrying after 4s: ghcr.io/supabase/storage-api:v1.84.19
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+write /var/lib/docker/tmp/GetImageBlob2316326606: no space left on device
+Retrying after 8s: ghcr.io/supabase/studio:2026.10.19-sha-b375769
+17.11.0.006: Pulling from supabase/postgres
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+893f255e72fd: Waiting
+22608d92fd8c: Waiting
+8cd5a74590e0: Waiting
+1bffb3326151: Waiting
+2c8930190164: Waiting
+ab15e57881e2: Waiting
+34f00a9e4358: Waiting
+ccb484805a69: Waiting
+f882f159ba2c: Waiting
+d5eb197bd5a2: Waiting
+80dbe1e330b7: Waiting
+32d5597f3429: Waiting
+e7576a5f038c: Waiting
+7a9de8db1ae4: Waiting
+319b3ac0bd0c: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+01a208a0daa9: Waiting
+ac451ca09be2: Waiting
+301296535c3d: Waiting
+b5546a5e966a: Waiting
+9c9430dcdac8: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+1bfcfe3208d1: Waiting
+04c82ebe1a76: Waiting
+6d6a5e742013: Verifying Checksum
+6d6a5e742013: Download complete
+d0c1d894c237: Verifying Checksum
+d0c1d894c237: Download complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+d0c1d894c237: Pull complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+893f255e72fd: Verifying Checksum
+893f255e72fd: Download complete
+d6eb3079a6b8: Pull complete
+8cd5a74590e0: Verifying Checksum
+8cd5a74590e0: Download complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+6d6a5e742013: Pull complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+1bffb3326151: Verifying Checksum
+1bffb3326151: Download complete
+34f00a9e4358: Verifying Checksum
+34f00a9e4358: Download complete
+ccb484805a69: Verifying Checksum
+ccb484805a69: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+3bae7096b644: Verifying Checksum
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+9c9430dcdac8: Download complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+f882f159ba2c: Verifying Checksum
+f882f159ba2c: Download complete
+v1.84.19: Pulling from supabase/storage-api
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+cf21426a3250: Waiting
+258ab0d9d5b1: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+3ff3ea6b2983: Waiting
+041cdd88dd6c: Waiting
+f78b0d5104f0: Waiting
+402bbcbdc983: Waiting
+40cafbe11ed2: Waiting
+62e4715136ab: Waiting
+3006729b3e50: Verifying Checksum
+3006729b3e50: Download complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+5e9b4a97f639: Verifying Checksum
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Verifying Checksum
+cf21426a3250: Download complete
+5e9b4a97f639: Pull complete
+258ab0d9d5b1: Verifying Checksum
+258ab0d9d5b1: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+716842ac9449: Pull complete
+3006729b3e50: Pull complete
+402bbcbdc983: Pull complete
+2026.10.19-sha-b375769: Pulling from supabase/studio
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+21c291b59dab: Waiting
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+1aead86d619d: Verifying Checksum
+1aead86d619d: Download complete
+40cafbe11ed2: Pull complete
+62e4715136ab: Pull complete
+cf21426a3250: Pull complete
+258ab0d9d5b1: Pull complete
+failed to register layer: no space left on device
+Retrying after 8s: ghcr.io/supabase/storage-api:v1.84.19
+1aead86d619d: Pull complete
+f882f159ba2c: Pull complete
+b11fcad29b50: Pull complete
+80dbe1e330b7: Pull complete
+failed to register layer: no space left on device
+17.11.0.006: Pulling from supabase/postgres
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+8cd5a74590e0: Waiting
+1bffb3326151: Waiting
+2c8930190164: Waiting
+ab15e57881e2: Waiting
+34f00a9e4358: Waiting
+ccb484805a69: Waiting
+e7576a5f038c: Waiting
+7a9de8db1ae4: Waiting
+319b3ac0bd0c: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+01a208a0daa9: Waiting
+ac451ca09be2: Waiting
+301296535c3d: Waiting
+b5546a5e966a: Waiting
+9c9430dcdac8: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+d5eb197bd5a2: Waiting
+32d5597f3429: Waiting
+1bfcfe3208d1: Waiting
+04c82ebe1a76: Waiting
+893f255e72fd: Waiting
+22608d92fd8c: Waiting
+f882f159ba2c: Waiting
+80dbe1e330b7: Waiting
+fb0b6b9da364: Pull complete
+6d6a5e742013: Download complete
+d0c1d894c237: Verifying Checksum
+d0c1d894c237: Download complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+d0c1d894c237: Pull complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+893f255e72fd: Verifying Checksum
+893f255e72fd: Download complete
+d6eb3079a6b8: Pull complete
+6d6a5e742013: Pull complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+8cd5a74590e0: Download complete
+1bffb3326151: Verifying Checksum
+1bffb3326151: Download complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+34f00a9e4358: Download complete
+ccb484805a69: Verifying Checksum
+ccb484805a69: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+3bae7096b644: Verifying Checksum
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+301296535c3d: Verifying Checksum
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+9c9430dcdac8: Verifying Checksum
+9c9430dcdac8: Download complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+v1.84.19: Pulling from supabase/storage-api
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+62e4715136ab: Waiting
+cf21426a3250: Waiting
+258ab0d9d5b1: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+3ff3ea6b2983: Waiting
+041cdd88dd6c: Waiting
+f78b0d5104f0: Waiting
+3006729b3e50: Waiting
+402bbcbdc983: Waiting
+40cafbe11ed2: Waiting
+5e9b4a97f639: Verifying Checksum
+5e9b4a97f639: Download complete
+5e9b4a97f639: Pull complete
+3006729b3e50: Verifying Checksum
+3006729b3e50: Download complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Verifying Checksum
+cf21426a3250: Download complete
+258ab0d9d5b1: Verifying Checksum
+258ab0d9d5b1: Download complete
+f882f159ba2c: Verifying Checksum
+f882f159ba2c: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+716842ac9449: Pull complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+3006729b3e50: Pull complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+402bbcbdc983: Pull complete
+failed to register layer: write /app/node_modules/.pnpm/monaco-editor@0.52.2/node_modules/monaco-editor/esm/vs/editor/contrib/gotoSymbol/browser/symbolNavigation.js: no space left on device
+2026.10.19-sha-b375769: Pulling from supabase/studio
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+21c291b59dab: Waiting
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+40cafbe11ed2: Pull complete
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+1aead86d619d: Verifying Checksum
+1aead86d619d: Download complete
+62e4715136ab: Pull complete
+cf21426a3250: Pull complete
+failed to register layer: write /nix/store/2i90qlw49zb6pwmkd6kh378lkc6yyzc3-postgis-3.3.7/share/postgresql/contrib/postgis-3.3/topology.sql: no space left on device
+Retrying after 4s: supabase/postgres:17.11.0.006
+258ab0d9d5b1: Pull complete
+720ffe7ad440: Pull complete
+1aead86d619d: Pull complete
+bf455cdbbabe: Pull complete
+failed to register layer: no space left on device
+v1.84.19: Pulling from supabase/storage-api
+failed to register layer: no space left on device
+Retrying after 4s: supabase/studio:2026.10.19-sha-b375769
+17.11.0.006: Pulling from supabase/postgres
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+402bbcbdc983: Waiting
+40cafbe11ed2: Waiting
+62e4715136ab: Waiting
+cf21426a3250: Waiting
+258ab0d9d5b1: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+3ff3ea6b2983: Waiting
+041cdd88dd6c: Waiting
+f78b0d5104f0: Waiting
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+d0c1d894c237: Waiting
+04c82ebe1a76: Waiting
+d6eb3079a6b8: Waiting
+893f255e72fd: Waiting
+6d6a5e742013: Waiting
+22608d92fd8c: Waiting
+8cd5a74590e0: Waiting
+f882f159ba2c: Waiting
+1bffb3326151: Waiting
+80dbe1e330b7: Waiting
+2c8930190164: Waiting
+d5eb197bd5a2: Waiting
+32d5597f3429: Waiting
+ab15e57881e2: Waiting
+1bfcfe3208d1: Waiting
+34f00a9e4358: Waiting
+01a208a0daa9: Waiting
+ccb484805a69: Waiting
+ac451ca09be2: Waiting
+e7576a5f038c: Waiting
+301296535c3d: Waiting
+7a9de8db1ae4: Waiting
+b5546a5e966a: Waiting
+319b3ac0bd0c: Waiting
+9c9430dcdac8: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+5e9b4a97f639: Verifying Checksum
+5e9b4a97f639: Download complete
+5e9b4a97f639: Pull complete
+3006729b3e50: Download complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Verifying Checksum
+cf21426a3250: Download complete
+258ab0d9d5b1: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+716842ac9449: Pull complete
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+d0c1d894c237: Verifying Checksum
+d0c1d894c237: Download complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+d0c1d894c237: Pull complete
+6d6a5e742013: Verifying Checksum
+6d6a5e742013: Download complete
+3006729b3e50: Pull complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+402bbcbdc983: Pull complete
+d6eb3079a6b8: Pull complete
+2026.10.19-sha-b375769: Pulling from supabase/studio
+6d6a5e742013: Pull complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+1aead86d619d: Waiting
+b11fcad29b50: Waiting
+fb0b6b9da364: Waiting
+21c291b59dab: Waiting
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+893f255e72fd: Download complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+8cd5a74590e0: Download complete
+1bffb3326151: Download complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+34f00a9e4358: Verifying Checksum
+34f00a9e4358: Download complete
+ccb484805a69: Verifying Checksum
+ccb484805a69: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+3bae7096b644: Verifying Checksum
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+301296535c3d: Verifying Checksum
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+9c9430dcdac8: Verifying Checksum
+9c9430dcdac8: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+40cafbe11ed2: Pull complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+62e4715136ab: Pull complete
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+cf21426a3250: Pull complete
+258ab0d9d5b1: Pull complete
+720ffe7ad440: Pull complete
+1aead86d619d: Verifying Checksum
+1aead86d619d: Download complete
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+f882f159ba2c: Verifying Checksum
+f882f159ba2c: Download complete
+failed to register layer: mkdir /var/lib/docker/vfs/dir/5e893a13a6756587c697c10cf4895afb68caddc29e06d3361d44495b86ff2bbb/usr/local/lib/node_modules/npm/node_modules/minizlib/dist/commonjs: no space left on device
+Retrying after 4s: supabase/storage-api:v1.84.19
+failed to register layer: no space left on device
+Retrying after 8s: supabase/studio:2026.10.19-sha-b375769
+v1.84.19: Pulling from supabase/storage-api
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+258ab0d9d5b1: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+3ff3ea6b2983: Waiting
+041cdd88dd6c: Waiting
+f78b0d5104f0: Waiting
+40cafbe11ed2: Waiting
+62e4715136ab: Waiting
+cf21426a3250: Waiting
+402bbcbdc983: Waiting
+5e9b4a97f639: Verifying Checksum
+5e9b4a97f639: Download complete
+3006729b3e50: Verifying Checksum
+3006729b3e50: Download complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+5e9b4a97f639: Pull complete
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Download complete
+258ab0d9d5b1: Verifying Checksum
+258ab0d9d5b1: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+716842ac9449: Pull complete
+2026.10.19-sha-b375769: Pulling from supabase/studio
+3006729b3e50: Pull complete
+7fd1ebe418b5: Already exists
+f0400f4b55b0: Already exists
+d22c69a95cf4: Already exists
+2cfab517365c: Already exists
+a8de9fa05220: Already exists
+1aead86d619d: Pulling fs layer
+b11fcad29b50: Pulling fs layer
+fb0b6b9da364: Pulling fs layer
+21c291b59dab: Pulling fs layer
+21c291b59dab: Waiting
+fb0b6b9da364: Verifying Checksum
+fb0b6b9da364: Download complete
+402bbcbdc983: Pull complete
+b11fcad29b50: Verifying Checksum
+b11fcad29b50: Download complete
+1aead86d619d: Verifying Checksum
+1aead86d619d: Download complete
+21c291b59dab: Verifying Checksum
+21c291b59dab: Download complete
+40cafbe11ed2: Pull complete
+failed to register layer: no space left on device
+Retrying after 8s: supabase/storage-api:v1.84.19
+f882f159ba2c: Pull complete
+failed to register layer: write /usr/bin/scalar: no space left on device
+80dbe1e330b7: Pull complete
+failed to register layer: no space left on device
+Retrying after 8s: supabase/postgres:17.11.0.006
+v1.84.19: Pulling from supabase/storage-api
+5e9b4a97f639: Pulling fs layer
+716842ac9449: Pulling fs layer
+3006729b3e50: Pulling fs layer
+402bbcbdc983: Pulling fs layer
+40cafbe11ed2: Pulling fs layer
+62e4715136ab: Pulling fs layer
+cf21426a3250: Pulling fs layer
+258ab0d9d5b1: Pulling fs layer
+720ffe7ad440: Pulling fs layer
+bf455cdbbabe: Pulling fs layer
+c667ff9502fa: Pulling fs layer
+3ff3ea6b2983: Pulling fs layer
+041cdd88dd6c: Pulling fs layer
+f78b0d5104f0: Pulling fs layer
+402bbcbdc983: Waiting
+40cafbe11ed2: Waiting
+258ab0d9d5b1: Waiting
+3ff3ea6b2983: Waiting
+720ffe7ad440: Waiting
+bf455cdbbabe: Waiting
+c667ff9502fa: Waiting
+041cdd88dd6c: Waiting
+62e4715136ab: Waiting
+cf21426a3250: Waiting
+f78b0d5104f0: Waiting
+3006729b3e50: Verifying Checksum
+3006729b3e50: Download complete
+5e9b4a97f639: Verifying Checksum
+5e9b4a97f639: Download complete
+402bbcbdc983: Verifying Checksum
+402bbcbdc983: Download complete
+5e9b4a97f639: Pull complete
+62e4715136ab: Verifying Checksum
+62e4715136ab: Download complete
+cf21426a3250: Verifying Checksum
+cf21426a3250: Download complete
+716842ac9449: Verifying Checksum
+716842ac9449: Download complete
+258ab0d9d5b1: Verifying Checksum
+258ab0d9d5b1: Download complete
+bf455cdbbabe: Verifying Checksum
+bf455cdbbabe: Download complete
+720ffe7ad440: Verifying Checksum
+720ffe7ad440: Download complete
+3ff3ea6b2983: Verifying Checksum
+3ff3ea6b2983: Download complete
+041cdd88dd6c: Verifying Checksum
+041cdd88dd6c: Download complete
+f78b0d5104f0: Verifying Checksum
+f78b0d5104f0: Download complete
+716842ac9449: Pull complete
+c667ff9502fa: Verifying Checksum
+c667ff9502fa: Download complete
+40cafbe11ed2: Verifying Checksum
+40cafbe11ed2: Download complete
+17.11.0.006: Pulling from supabase/postgres
+3006729b3e50: Pull complete
+d0c1d894c237: Pulling fs layer
+d6eb3079a6b8: Pulling fs layer
+6d6a5e742013: Pulling fs layer
+f882f159ba2c: Pulling fs layer
+80dbe1e330b7: Pulling fs layer
+d5eb197bd5a2: Pulling fs layer
+32d5597f3429: Pulling fs layer
+1bfcfe3208d1: Pulling fs layer
+04c82ebe1a76: Pulling fs layer
+893f255e72fd: Pulling fs layer
+22608d92fd8c: Pulling fs layer
+8cd5a74590e0: Pulling fs layer
+1bffb3326151: Pulling fs layer
+2c8930190164: Pulling fs layer
+ab15e57881e2: Pulling fs layer
+34f00a9e4358: Pulling fs layer
+ccb484805a69: Pulling fs layer
+e7576a5f038c: Pulling fs layer
+7a9de8db1ae4: Pulling fs layer
+319b3ac0bd0c: Pulling fs layer
+3bae7096b644: Pulling fs layer
+66ffac8f063e: Pulling fs layer
+01a208a0daa9: Pulling fs layer
+ac451ca09be2: Pulling fs layer
+301296535c3d: Pulling fs layer
+b5546a5e966a: Pulling fs layer
+9c9430dcdac8: Pulling fs layer
+a1ad30d8a0de: Pulling fs layer
+f59330250527: Pulling fs layer
+f882f159ba2c: Waiting
+80dbe1e330b7: Waiting
+d5eb197bd5a2: Waiting
+32d5597f3429: Waiting
+1bfcfe3208d1: Waiting
+04c82ebe1a76: Waiting
+893f255e72fd: Waiting
+22608d92fd8c: Waiting
+8cd5a74590e0: Waiting
+1bffb3326151: Waiting
+2c8930190164: Waiting
+ab15e57881e2: Waiting
+34f00a9e4358: Waiting
+ccb484805a69: Waiting
+e7576a5f038c: Waiting
+7a9de8db1ae4: Waiting
+319b3ac0bd0c: Waiting
+3bae7096b644: Waiting
+66ffac8f063e: Waiting
+01a208a0daa9: Waiting
+ac451ca09be2: Waiting
+301296535c3d: Waiting
+b5546a5e966a: Waiting
+9c9430dcdac8: Waiting
+a1ad30d8a0de: Waiting
+f59330250527: Waiting
+6d6a5e742013: Verifying Checksum
+6d6a5e742013: Download complete
+402bbcbdc983: Pull complete
+d6eb3079a6b8: Verifying Checksum
+d6eb3079a6b8: Download complete
+d0c1d894c237: Download complete
+d0c1d894c237: Pull complete
+80dbe1e330b7: Verifying Checksum
+80dbe1e330b7: Download complete
+d5eb197bd5a2: Verifying Checksum
+d5eb197bd5a2: Download complete
+32d5597f3429: Verifying Checksum
+32d5597f3429: Download complete
+d6eb3079a6b8: Pull complete
+1bfcfe3208d1: Verifying Checksum
+1bfcfe3208d1: Download complete
+6d6a5e742013: Pull complete
+04c82ebe1a76: Verifying Checksum
+04c82ebe1a76: Download complete
+893f255e72fd: Download complete
+22608d92fd8c: Verifying Checksum
+22608d92fd8c: Download complete
+8cd5a74590e0: Download complete
+1bffb3326151: Verifying Checksum
+1bffb3326151: Download complete
+2c8930190164: Verifying Checksum
+2c8930190164: Download complete
+ab15e57881e2: Verifying Checksum
+ab15e57881e2: Download complete
+34f00a9e4358: Verifying Checksum
+34f00a9e4358: Download complete
+ccb484805a69: Verifying Checksum
+ccb484805a69: Download complete
+e7576a5f038c: Verifying Checksum
+e7576a5f038c: Download complete
+7a9de8db1ae4: Verifying Checksum
+7a9de8db1ae4: Download complete
+319b3ac0bd0c: Verifying Checksum
+319b3ac0bd0c: Download complete
+3bae7096b644: Verifying Checksum
+3bae7096b644: Download complete
+66ffac8f063e: Verifying Checksum
+66ffac8f063e: Download complete
+01a208a0daa9: Verifying Checksum
+01a208a0daa9: Download complete
+ac451ca09be2: Verifying Checksum
+ac451ca09be2: Download complete
+40cafbe11ed2: Pull complete
+301296535c3d: Verifying Checksum
+301296535c3d: Download complete
+b5546a5e966a: Verifying Checksum
+b5546a5e966a: Download complete
+9c9430dcdac8: Verifying Checksum
+9c9430dcdac8: Download complete
+a1ad30d8a0de: Verifying Checksum
+a1ad30d8a0de: Download complete
+62e4715136ab: Pull complete
+f59330250527: Verifying Checksum
+f59330250527: Download complete
+cf21426a3250: Pull complete
+failed to register layer: no space left on device
+write /var/lib/docker/tmp/GetImageBlob1618145308: no space left on device
+
+Stdout: {"_tag":"Error","error":{"code":"ImagePrepullError","message":"failed to pull docker image from all registries: public.ecr.aws/supabase/postgres:17.11.0.006 attempt 1: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/postgres:17.11.0.006 attempt 2: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/postgres:17.11.0.006 attempt 3: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; ghcr.io/supabase/postgres:17.11.0.006 attempt 1: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\n34f00a9e4358: Waiting\nccb484805a69: Waiting\ne7576a5f038c: Waiting\n7a9de8db1ae4: Waiting\n319b3ac0bd0c: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\n01a208a0daa9: Waiting\nac451ca09be2: Waiting\n301296535c3d: Waiting\nb5546a5e966a: Waiting\n9c9430dcdac8: Waiting\nf882f159ba2c: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\n80dbe1e330b7: Waiting\nd5eb197bd5a2: Waiting\n32d5597f3429: Waiting\n1bfcfe3208d1: Waiting\n04c82ebe1a76: Waiting\n893f255e72fd: Waiting\n22608d92fd8c: Waiting\n8cd5a74590e0: Waiting\n1bffb3326151: Waiting\n2c8930190164: Waiting\nab15e57881e2: Waiting\n6d6a5e742013: Verifying Checksum\n6d6a5e742013: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\nd0c1d894c237: Verifying Checksum\nd0c1d894c237: Download complete\nd0c1d894c237: Pull complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\nd6eb3079a6b8: Pull complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\n6d6a5e742013: Pull complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n893f255e72fd: Verifying Checksum\n893f255e72fd: Download complete\n1bffb3326151: Verifying Checksum\n1bffb3326151: Download complete\n8cd5a74590e0: Verifying Checksum\n8cd5a74590e0: Download complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n34f00a9e4358: Verifying Checksum\n34f00a9e4358: Download complete\nccb484805a69: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\n3bae7096b644: Verifying Checksum\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Verifying Checksum\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\n9c9430dcdac8: Verifying Checksum\n9c9430dcdac8: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\nf882f159ba2c: Verifying Checksum\nf882f159ba2c: Download complete\nf882f159ba2c: Pull complete\n80dbe1e330b7: Pull complete\nd5eb197bd5a2: Pull complete\n32d5597f3429: Pull complete\n1bfcfe3208d1: Pull complete\n04c82ebe1a76: Pull complete\n893f255e72fd: Pull complete\n22608d92fd8c: Pull complete\n8cd5a74590e0: Pull complete\n1bffb3326151: Pull complete\nfailed to register layer: no space left on device; ghcr.io/supabase/postgres:17.11.0.006 attempt 2: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\nf882f159ba2c: Waiting\n80dbe1e330b7: Waiting\nd5eb197bd5a2: Waiting\n32d5597f3429: Waiting\n1bfcfe3208d1: Waiting\n04c82ebe1a76: Waiting\n893f255e72fd: Waiting\n22608d92fd8c: Waiting\n8cd5a74590e0: Waiting\n1bffb3326151: Waiting\n2c8930190164: Waiting\nab15e57881e2: Waiting\n34f00a9e4358: Waiting\nccb484805a69: Waiting\ne7576a5f038c: Waiting\n7a9de8db1ae4: Waiting\n319b3ac0bd0c: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\n01a208a0daa9: Waiting\nac451ca09be2: Waiting\n301296535c3d: Waiting\nb5546a5e966a: Waiting\n9c9430dcdac8: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\n6d6a5e742013: Verifying Checksum\n6d6a5e742013: Download complete\nd0c1d894c237: Verifying Checksum\nd0c1d894c237: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\nd0c1d894c237: Pull complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n893f255e72fd: Verifying Checksum\n893f255e72fd: Download complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n8cd5a74590e0: Verifying Checksum\n8cd5a74590e0: Download complete\n1bffb3326151: Verifying Checksum\n1bffb3326151: Download complete\nd6eb3079a6b8: Pull complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n6d6a5e742013: Pull complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\n34f00a9e4358: Verifying Checksum\n34f00a9e4358: Download complete\nccb484805a69: Verifying Checksum\nccb484805a69: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Verifying Checksum\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\n9c9430dcdac8: Verifying Checksum\n9c9430dcdac8: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\nf882f159ba2c: Verifying Checksum\nf882f159ba2c: Download complete\nf882f159ba2c: Pull complete\nfailed to register layer: no space left on device; ghcr.io/supabase/postgres:17.11.0.006 attempt 3: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\n893f255e72fd: Waiting\n22608d92fd8c: Waiting\n8cd5a74590e0: Waiting\n1bffb3326151: Waiting\n2c8930190164: Waiting\nab15e57881e2: Waiting\n34f00a9e4358: Waiting\nccb484805a69: Waiting\nf882f159ba2c: Waiting\nd5eb197bd5a2: Waiting\n80dbe1e330b7: Waiting\n32d5597f3429: Waiting\ne7576a5f038c: Waiting\n7a9de8db1ae4: Waiting\n319b3ac0bd0c: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\n01a208a0daa9: Waiting\nac451ca09be2: Waiting\n301296535c3d: Waiting\nb5546a5e966a: Waiting\n9c9430dcdac8: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\n1bfcfe3208d1: Waiting\n04c82ebe1a76: Waiting\n6d6a5e742013: Verifying Checksum\n6d6a5e742013: Download complete\nd0c1d894c237: Verifying Checksum\nd0c1d894c237: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\nd0c1d894c237: Pull complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n893f255e72fd: Verifying Checksum\n893f255e72fd: Download complete\nd6eb3079a6b8: Pull complete\n8cd5a74590e0: Verifying Checksum\n8cd5a74590e0: Download complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n6d6a5e742013: Pull complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n1bffb3326151: Verifying Checksum\n1bffb3326151: Download complete\n34f00a9e4358: Verifying Checksum\n34f00a9e4358: Download complete\nccb484805a69: Verifying Checksum\nccb484805a69: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n3bae7096b644: Verifying Checksum\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\n9c9430dcdac8: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\nf882f159ba2c: Verifying Checksum\nf882f159ba2c: Download complete\nf882f159ba2c: Pull complete\n80dbe1e330b7: Pull complete\nfailed to register layer: no space left on device; supabase/postgres:17.11.0.006 attempt 1: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\n8cd5a74590e0: Waiting\n1bffb3326151: Waiting\n2c8930190164: Waiting\nab15e57881e2: Waiting\n34f00a9e4358: Waiting\nccb484805a69: Waiting\ne7576a5f038c: Waiting\n7a9de8db1ae4: Waiting\n319b3ac0bd0c: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\n01a208a0daa9: Waiting\nac451ca09be2: Waiting\n301296535c3d: Waiting\nb5546a5e966a: Waiting\n9c9430dcdac8: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\nd5eb197bd5a2: Waiting\n32d5597f3429: Waiting\n1bfcfe3208d1: Waiting\n04c82ebe1a76: Waiting\n893f255e72fd: Waiting\n22608d92fd8c: Waiting\nf882f159ba2c: Waiting\n80dbe1e330b7: Waiting\n6d6a5e742013: Download complete\nd0c1d894c237: Verifying Checksum\nd0c1d894c237: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\nd0c1d894c237: Pull complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n893f255e72fd: Verifying Checksum\n893f255e72fd: Download complete\nd6eb3079a6b8: Pull complete\n6d6a5e742013: Pull complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n8cd5a74590e0: Download complete\n1bffb3326151: Verifying Checksum\n1bffb3326151: Download complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n34f00a9e4358: Download complete\nccb484805a69: Verifying Checksum\nccb484805a69: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n3bae7096b644: Verifying Checksum\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Verifying Checksum\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\n9c9430dcdac8: Verifying Checksum\n9c9430dcdac8: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\nf882f159ba2c: Verifying Checksum\nf882f159ba2c: Download complete\nfailed to register layer: write /nix/store/2i90qlw49zb6pwmkd6kh378lkc6yyzc3-postgis-3.3.7/share/postgresql/contrib/postgis-3.3/topology.sql: no space left on device; supabase/postgres:17.11.0.006 attempt 2: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\nd0c1d894c237: Waiting\n04c82ebe1a76: Waiting\nd6eb3079a6b8: Waiting\n893f255e72fd: Waiting\n6d6a5e742013: Waiting\n22608d92fd8c: Waiting\n8cd5a74590e0: Waiting\nf882f159ba2c: Waiting\n1bffb3326151: Waiting\n80dbe1e330b7: Waiting\n2c8930190164: Waiting\nd5eb197bd5a2: Waiting\n32d5597f3429: Waiting\nab15e57881e2: Waiting\n1bfcfe3208d1: Waiting\n34f00a9e4358: Waiting\n01a208a0daa9: Waiting\nccb484805a69: Waiting\nac451ca09be2: Waiting\ne7576a5f038c: Waiting\n301296535c3d: Waiting\n7a9de8db1ae4: Waiting\nb5546a5e966a: Waiting\n319b3ac0bd0c: Waiting\n9c9430dcdac8: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\nd0c1d894c237: Verifying Checksum\nd0c1d894c237: Download complete\nd0c1d894c237: Pull complete\n6d6a5e742013: Verifying Checksum\n6d6a5e742013: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\nd6eb3079a6b8: Pull complete\n6d6a5e742013: Pull complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n893f255e72fd: Download complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n8cd5a74590e0: Download complete\n1bffb3326151: Download complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n34f00a9e4358: Verifying Checksum\n34f00a9e4358: Download complete\nccb484805a69: Verifying Checksum\nccb484805a69: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n3bae7096b644: Verifying Checksum\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Verifying Checksum\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\n9c9430dcdac8: Verifying Checksum\n9c9430dcdac8: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\nf882f159ba2c: Verifying Checksum\nf882f159ba2c: Download complete\nf882f159ba2c: Pull complete\n80dbe1e330b7: Pull complete\nfailed to register layer: no space left on device; supabase/postgres:17.11.0.006 attempt 3: 17.11.0.006: Pulling from supabase/postgres\nd0c1d894c237: Pulling fs layer\nd6eb3079a6b8: Pulling fs layer\n6d6a5e742013: Pulling fs layer\nf882f159ba2c: Pulling fs layer\n80dbe1e330b7: Pulling fs layer\nd5eb197bd5a2: Pulling fs layer\n32d5597f3429: Pulling fs layer\n1bfcfe3208d1: Pulling fs layer\n04c82ebe1a76: Pulling fs layer\n893f255e72fd: Pulling fs layer\n22608d92fd8c: Pulling fs layer\n8cd5a74590e0: Pulling fs layer\n1bffb3326151: Pulling fs layer\n2c8930190164: Pulling fs layer\nab15e57881e2: Pulling fs layer\n34f00a9e4358: Pulling fs layer\nccb484805a69: Pulling fs layer\ne7576a5f038c: Pulling fs layer\n7a9de8db1ae4: Pulling fs layer\n319b3ac0bd0c: Pulling fs layer\n3bae7096b644: Pulling fs layer\n66ffac8f063e: Pulling fs layer\n01a208a0daa9: Pulling fs layer\nac451ca09be2: Pulling fs layer\n301296535c3d: Pulling fs layer\nb5546a5e966a: Pulling fs layer\n9c9430dcdac8: Pulling fs layer\na1ad30d8a0de: Pulling fs layer\nf59330250527: Pulling fs layer\nf882f159ba2c: Waiting\n80dbe1e330b7: Waiting\nd5eb197bd5a2: Waiting\n32d5597f3429: Waiting\n1bfcfe3208d1: Waiting\n04c82ebe1a76: Waiting\n893f255e72fd: Waiting\n22608d92fd8c: Waiting\n8cd5a74590e0: Waiting\n1bffb3326151: Waiting\n2c8930190164: Waiting\nab15e57881e2: Waiting\n34f00a9e4358: Waiting\nccb484805a69: Waiting\ne7576a5f038c: Waiting\n7a9de8db1ae4: Waiting\n319b3ac0bd0c: Waiting\n3bae7096b644: Waiting\n66ffac8f063e: Waiting\n01a208a0daa9: Waiting\nac451ca09be2: Waiting\n301296535c3d: Waiting\nb5546a5e966a: Waiting\n9c9430dcdac8: Waiting\na1ad30d8a0de: Waiting\nf59330250527: Waiting\n6d6a5e742013: Verifying Checksum\n6d6a5e742013: Download complete\nd6eb3079a6b8: Verifying Checksum\nd6eb3079a6b8: Download complete\nd0c1d894c237: Download complete\nd0c1d894c237: Pull complete\n80dbe1e330b7: Verifying Checksum\n80dbe1e330b7: Download complete\nd5eb197bd5a2: Verifying Checksum\nd5eb197bd5a2: Download complete\n32d5597f3429: Verifying Checksum\n32d5597f3429: Download complete\nd6eb3079a6b8: Pull complete\n1bfcfe3208d1: Verifying Checksum\n1bfcfe3208d1: Download complete\n6d6a5e742013: Pull complete\n04c82ebe1a76: Verifying Checksum\n04c82ebe1a76: Download complete\n893f255e72fd: Download complete\n22608d92fd8c: Verifying Checksum\n22608d92fd8c: Download complete\n8cd5a74590e0: Download complete\n1bffb3326151: Verifying Checksum\n1bffb3326151: Download complete\n2c8930190164: Verifying Checksum\n2c8930190164: Download complete\nab15e57881e2: Verifying Checksum\nab15e57881e2: Download complete\n34f00a9e4358: Verifying Checksum\n34f00a9e4358: Download complete\nccb484805a69: Verifying Checksum\nccb484805a69: Download complete\ne7576a5f038c: Verifying Checksum\ne7576a5f038c: Download complete\n7a9de8db1ae4: Verifying Checksum\n7a9de8db1ae4: Download complete\n319b3ac0bd0c: Verifying Checksum\n319b3ac0bd0c: Download complete\n3bae7096b644: Verifying Checksum\n3bae7096b644: Download complete\n66ffac8f063e: Verifying Checksum\n66ffac8f063e: Download complete\n01a208a0daa9: Verifying Checksum\n01a208a0daa9: Download complete\nac451ca09be2: Verifying Checksum\nac451ca09be2: Download complete\n301296535c3d: Verifying Checksum\n301296535c3d: Download complete\nb5546a5e966a: Verifying Checksum\nb5546a5e966a: Download complete\n9c9430dcdac8: Verifying Checksum\n9c9430dcdac8: Download complete\na1ad30d8a0de: Verifying Checksum\na1ad30d8a0de: Download complete\nf59330250527: Verifying Checksum\nf59330250527: Download complete\nwrite /var/lib/docker/tmp/GetImageBlob1618145308: no space left on device\nfailed to pull docker image from all registries: public.ecr.aws/supabase/storage-api:v1.84.19 attempt 1: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/storage-api:v1.84.19 attempt 2: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/storage-api:v1.84.19 attempt 3: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; ghcr.io/supabase/storage-api:v1.84.19 attempt 1: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\n5e9b4a97f639: Waiting\n716842ac9449: Waiting\n3006729b3e50: Waiting\n402bbcbdc983: Waiting\n40cafbe11ed2: Waiting\n62e4715136ab: Waiting\ncf21426a3250: Waiting\n258ab0d9d5b1: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n3ff3ea6b2983: Waiting\n041cdd88dd6c: Waiting\nf78b0d5104f0: Waiting\n5e9b4a97f639: Verifying Checksum\n5e9b4a97f639: Download complete\n3006729b3e50: Verifying Checksum\n3006729b3e50: Download complete\n5e9b4a97f639: Pull complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Verifying Checksum\ncf21426a3250: Download complete\n258ab0d9d5b1: Verifying Checksum\n258ab0d9d5b1: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n716842ac9449: Pull complete\n3006729b3e50: Pull complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\n62e4715136ab: Pull complete\ncf21426a3250: Pull complete\n258ab0d9d5b1: Pull complete\n720ffe7ad440: Pull complete\nbf455cdbbabe: Pull complete\nc667ff9502fa: Pull complete\nfailed to register layer: no space left on device; ghcr.io/supabase/storage-api:v1.84.19 attempt 2: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\ncf21426a3250: Waiting\n258ab0d9d5b1: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n3ff3ea6b2983: Waiting\n041cdd88dd6c: Waiting\nf78b0d5104f0: Waiting\n402bbcbdc983: Waiting\n40cafbe11ed2: Waiting\n62e4715136ab: Waiting\n3006729b3e50: Verifying Checksum\n3006729b3e50: Download complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n5e9b4a97f639: Verifying Checksum\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Verifying Checksum\ncf21426a3250: Download complete\n5e9b4a97f639: Pull complete\n258ab0d9d5b1: Verifying Checksum\n258ab0d9d5b1: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\n716842ac9449: Pull complete\n3006729b3e50: Pull complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\n62e4715136ab: Pull complete\ncf21426a3250: Pull complete\n258ab0d9d5b1: Pull complete\nfailed to register layer: no space left on device; ghcr.io/supabase/storage-api:v1.84.19 attempt 3: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\n62e4715136ab: Waiting\ncf21426a3250: Waiting\n258ab0d9d5b1: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n3ff3ea6b2983: Waiting\n041cdd88dd6c: Waiting\nf78b0d5104f0: Waiting\n3006729b3e50: Waiting\n402bbcbdc983: Waiting\n40cafbe11ed2: Waiting\n5e9b4a97f639: Verifying Checksum\n5e9b4a97f639: Download complete\n5e9b4a97f639: Pull complete\n3006729b3e50: Verifying Checksum\n3006729b3e50: Download complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Verifying Checksum\ncf21426a3250: Download complete\n258ab0d9d5b1: Verifying Checksum\n258ab0d9d5b1: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n716842ac9449: Pull complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\n3006729b3e50: Pull complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\n62e4715136ab: Pull complete\ncf21426a3250: Pull complete\n258ab0d9d5b1: Pull complete\n720ffe7ad440: Pull complete\nbf455cdbbabe: Pull complete\nfailed to register layer: no space left on device; supabase/storage-api:v1.84.19 attempt 1: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\n402bbcbdc983: Waiting\n40cafbe11ed2: Waiting\n62e4715136ab: Waiting\ncf21426a3250: Waiting\n258ab0d9d5b1: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n3ff3ea6b2983: Waiting\n041cdd88dd6c: Waiting\nf78b0d5104f0: Waiting\n5e9b4a97f639: Verifying Checksum\n5e9b4a97f639: Download complete\n5e9b4a97f639: Pull complete\n3006729b3e50: Download complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Verifying Checksum\ncf21426a3250: Download complete\n258ab0d9d5b1: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\n716842ac9449: Pull complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\n3006729b3e50: Pull complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\n62e4715136ab: Pull complete\ncf21426a3250: Pull complete\n258ab0d9d5b1: Pull complete\n720ffe7ad440: Pull complete\nfailed to register layer: mkdir /var/lib/docker/vfs/dir/5e893a13a6756587c697c10cf4895afb68caddc29e06d3361d44495b86ff2bbb/usr/local/lib/node_modules/npm/node_modules/minizlib/dist/commonjs: no space left on device; supabase/storage-api:v1.84.19 attempt 2: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\n258ab0d9d5b1: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n3ff3ea6b2983: Waiting\n041cdd88dd6c: Waiting\nf78b0d5104f0: Waiting\n40cafbe11ed2: Waiting\n62e4715136ab: Waiting\ncf21426a3250: Waiting\n402bbcbdc983: Waiting\n5e9b4a97f639: Verifying Checksum\n5e9b4a97f639: Download complete\n3006729b3e50: Verifying Checksum\n3006729b3e50: Download complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n5e9b4a97f639: Pull complete\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Download complete\n258ab0d9d5b1: Verifying Checksum\n258ab0d9d5b1: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n716842ac9449: Pull complete\n3006729b3e50: Pull complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\nfailed to register layer: no space left on device; supabase/storage-api:v1.84.19 attempt 3: v1.84.19: Pulling from supabase/storage-api\n5e9b4a97f639: Pulling fs layer\n716842ac9449: Pulling fs layer\n3006729b3e50: Pulling fs layer\n402bbcbdc983: Pulling fs layer\n40cafbe11ed2: Pulling fs layer\n62e4715136ab: Pulling fs layer\ncf21426a3250: Pulling fs layer\n258ab0d9d5b1: Pulling fs layer\n720ffe7ad440: Pulling fs layer\nbf455cdbbabe: Pulling fs layer\nc667ff9502fa: Pulling fs layer\n3ff3ea6b2983: Pulling fs layer\n041cdd88dd6c: Pulling fs layer\nf78b0d5104f0: Pulling fs layer\n402bbcbdc983: Waiting\n40cafbe11ed2: Waiting\n258ab0d9d5b1: Waiting\n3ff3ea6b2983: Waiting\n720ffe7ad440: Waiting\nbf455cdbbabe: Waiting\nc667ff9502fa: Waiting\n041cdd88dd6c: Waiting\n62e4715136ab: Waiting\ncf21426a3250: Waiting\nf78b0d5104f0: Waiting\n3006729b3e50: Verifying Checksum\n3006729b3e50: Download complete\n5e9b4a97f639: Verifying Checksum\n5e9b4a97f639: Download complete\n402bbcbdc983: Verifying Checksum\n402bbcbdc983: Download complete\n5e9b4a97f639: Pull complete\n62e4715136ab: Verifying Checksum\n62e4715136ab: Download complete\ncf21426a3250: Verifying Checksum\ncf21426a3250: Download complete\n716842ac9449: Verifying Checksum\n716842ac9449: Download complete\n258ab0d9d5b1: Verifying Checksum\n258ab0d9d5b1: Download complete\nbf455cdbbabe: Verifying Checksum\nbf455cdbbabe: Download complete\n720ffe7ad440: Verifying Checksum\n720ffe7ad440: Download complete\n3ff3ea6b2983: Verifying Checksum\n3ff3ea6b2983: Download complete\n041cdd88dd6c: Verifying Checksum\n041cdd88dd6c: Download complete\nf78b0d5104f0: Verifying Checksum\nf78b0d5104f0: Download complete\n716842ac9449: Pull complete\nc667ff9502fa: Verifying Checksum\nc667ff9502fa: Download complete\n40cafbe11ed2: Verifying Checksum\n40cafbe11ed2: Download complete\n3006729b3e50: Pull complete\n402bbcbdc983: Pull complete\n40cafbe11ed2: Pull complete\n62e4715136ab: Pull complete\ncf21426a3250: Pull complete\nfailed to register layer: no space left on device\nfailed to pull docker image from all registries: public.ecr.aws/supabase/studio:2026.10.19-sha-b375769 attempt 1: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/studio:2026.10.19-sha-b375769 attempt 2: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; public.ecr.aws/supabase/studio:2026.10.19-sha-b375769 attempt 3: Error response from daemon: Get \"https://public.ecr.aws/v2/\": Forbidden; ghcr.io/supabase/studio:2026.10.19-sha-b375769 attempt 1: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n21c291b59dab: Waiting\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\n1aead86d619d: Verifying Checksum\n1aead86d619d: Download complete\n1aead86d619d: Pull complete\nfailed to register layer: no space left on device; ghcr.io/supabase/studio:2026.10.19-sha-b375769 attempt 2: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n21c291b59dab: Waiting\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\nwrite /var/lib/docker/tmp/GetImageBlob2316326606: no space left on device; ghcr.io/supabase/studio:2026.10.19-sha-b375769 attempt 3: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n21c291b59dab: Waiting\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\n1aead86d619d: Verifying Checksum\n1aead86d619d: Download complete\n1aead86d619d: Pull complete\nb11fcad29b50: Pull complete\nfb0b6b9da364: Pull complete\nfailed to register layer: write /app/node_modules/.pnpm/monaco-editor@0.52.2/node_modules/monaco-editor/esm/vs/editor/contrib/gotoSymbol/browser/symbolNavigation.js: no space left on device; supabase/studio:2026.10.19-sha-b375769 attempt 1: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n21c291b59dab: Waiting\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\n1aead86d619d: Verifying Checksum\n1aead86d619d: Download complete\n1aead86d619d: Pull complete\nfailed to register layer: no space left on device; supabase/studio:2026.10.19-sha-b375769 attempt 2: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n1aead86d619d: Waiting\nb11fcad29b50: Waiting\nfb0b6b9da364: Waiting\n21c291b59dab: Waiting\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\n1aead86d619d: Verifying Checksum\n1aead86d619d: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\nfailed to register layer: no space left on device; supabase/studio:2026.10.19-sha-b375769 attempt 3: 2026.10.19-sha-b375769: Pulling from supabase/studio\n7fd1ebe418b5: Already exists\nf0400f4b55b0: Already exists\nd22c69a95cf4: Already exists\n2cfab517365c: Already exists\na8de9fa05220: Already exists\n1aead86d619d: Pulling fs layer\nb11fcad29b50: Pulling fs layer\nfb0b6b9da364: Pulling fs layer\n21c291b59dab: Pulling fs layer\n21c291b59dab: Waiting\nfb0b6b9da364: Verifying Checksum\nfb0b6b9da364: Download complete\nb11fcad29b50: Verifying Checksum\nb11fcad29b50: Download complete\n1aead86d619d: Verifying Checksum\n1aead86d619d: Download complete\n21c291b59dab: Verifying Checksum\n21c291b59dab: Download complete\nfailed to register layer: write /usr/bin/scalar: no space left on device"}}
+

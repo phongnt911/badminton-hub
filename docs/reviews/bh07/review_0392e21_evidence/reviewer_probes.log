@@ -1,0 +1,62 @@
+{
+  "negative_error_controls": [
+    {
+      "case": "positive",
+      "expected_accept": true,
+      "actual_accept": true
+    },
+    {
+      "case": "generic_invalid_input",
+      "expected_accept": false,
+      "actual_accept": true
+    },
+    {
+      "case": "outsider_not_found",
+      "expected_accept": false,
+      "actual_accept": true
+    },
+    {
+      "case": "gateway_route_missing",
+      "expected_accept": false,
+      "actual_accept": true
+    }
+  ],
+  "cleanup_controls": [
+    {
+      "case": "positive",
+      "expected_success": true,
+      "reported_remaining_containers": 0,
+      "stopped_container_represented": false,
+      "private_path_still_exists": false,
+      "actual_cleanup_success": true
+    },
+    {
+      "case": "stopped_container_left",
+      "expected_success": false,
+      "reported_remaining_containers": 0,
+      "stopped_container_represented": true,
+      "private_path_still_exists": false,
+      "actual_cleanup_success": true
+    },
+    {
+      "case": "private_directory_left",
+      "expected_success": false,
+      "reported_remaining_containers": 0,
+      "stopped_container_represented": false,
+      "private_path_still_exists": true,
+      "actual_cleanup_success": true
+    }
+  ],
+  "ownership_control": {
+    "preexisting_project": true,
+    "reset_was_attempted": true,
+    "stop_was_attempted": true,
+    "preflight_container_inspect_before_start": false
+  },
+  "stop_failure_control": {
+    "original_error": "OriginalRunFailure",
+    "reported_error": "CleanupStopFailure",
+    "private_path_remains": true,
+    "docker_postcheck_attempted": false
+  }
+}

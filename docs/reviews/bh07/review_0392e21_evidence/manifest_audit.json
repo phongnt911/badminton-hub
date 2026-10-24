@@ -1,0 +1,62 @@
+[
+  {
+    "name": "auth_seed_cycle1.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "auth_seed_cycle2.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "commands.md",
+    "exists": true,
+    "hash_matches": true
+  },
+  {
+    "name": "environment.json",
+    "exists": true,
+    "hash_matches": true
+  },
+  {
+    "name": "exits.json",
+    "exists": true,
+    "hash_matches": true
+  },
+  {
+    "name": "negative_controls.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "reset_cycle1.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "reset_cycle2.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "snapshot_comparison.json",
+    "exists": true,
+    "hash_matches": true
+  },
+  {
+    "name": "start.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "stop.log",
+    "exists": false,
+    "hash_matches": false
+  },
+  {
+    "name": "summary.json",
+    "exists": true,
+    "hash_matches": true
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
+  "reviewed_source_sha": "0392e2166bc0c33b3170e6919d86470d193d6301",
+  "actual_docs_sha": "c3cda7108809037ee884ca9c769a7264f13a9530",
+  "requested_docs_sha_not_found": "c3cda717540236a9b407b489811f97464b73b22e",
+  "reviewer_worktree_source_clean_before_run": true,
+  "cli_version": "2.122.0",
+  "cli_pin_wrapper_only": true,
+  "docker": "28.4.0",
+  "os": "Linux",
+  "live_runner_exit": 1,
+  "completed_reset_cycles": 0,
+  "live_failure": "Supabase start image pull: no space left on device",
+  "manifest_declared": 12,
+  "manifest_present_matching": 5,
+  "manifest_missing": 7,
+  "fault_probe_exit": 0,
+  "probe_means": "faults reproduced; NOT a V5b pass",
+  "verdict": "Chưa đạt",
+  "open_findings": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 3
+  }
+}
