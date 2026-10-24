@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/docs/reviews/bh07/review_3b515f2_evidence/independent_probes.py", line 17, in <module>
+    assert all(x['expected_accept']==x['actual_accept'] for x in rows[:-1]) and rows[-1]['actual_accept'];results['auth_helper']=rows
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

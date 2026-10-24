@@ -1,0 +1,26 @@
+[
+  {
+    "bundle": "full_reset_evidence",
+    "manifest_entries": 12,
+    "exit": 0,
+    "readonly": true
+  },
+  {
+    "bundle": "review_0392e21_evidence",
+    "manifest_entries": 10,
+    "exit": 0,
+    "readonly": true
+  },
+  {
+    "bundle": "review_19ab207_evidence",
+    "manifest_entries": 8,
+    "exit": 0,
+    "readonly": true
+  },
+  {
+    "bundle": "review_3b515f2_evidence",
+    "manifest_entries": 8,
+    "exit": 0,
+    "readonly": true
+  }
+]

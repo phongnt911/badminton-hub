@@ -1,0 +1,26 @@
+{
+  "mode": "Codex directly implemented/self-verified; NOT independent review",
+  "base_sha": "6a13901f06b8ba88975538c8b6104590c9ec31b7",
+  "tested_source_sha": "8e26e066e18a2b73cdedd45e5fd223a201d01a04",
+  "dirty_before_final_checks": false,
+  "red_test_status": "new tests in workingtree; runner still base6a13901 before code fix",
+  "red_exit": 1,
+  "green_exit": 0,
+  "old_unchanged_review_probe_exit": 1,
+  "post_fix_controls_exit": 0,
+  "tests_passed": 11,
+  "analyze_exit": 0,
+  "flutter_exit": 0,
+  "flutter_passed": 240,
+  "flutter_skip": 1,
+  "runtime_full_cli": "NOT RUN insufficient disk659MB",
+  "review_status": "Chờ kiểm chứng sau Codex trực tiếp sửa",
+  "code_scope": [
+    "scripts/bh07_reset/run_full_reset.py",
+    "tests/test_v5b_runner_flaws.py"
+  ],
+  "source_sha256": {
+    "scripts/bh07_reset/run_full_reset.py": "d5e27ce961f31aed212b9f5da300e25f6cd2c65b1572ab0a9bb8468bbec89984",
+    "tests/test_v5b_runner_flaws.py": "576d97f19fd8da43f506fd09e708e415b9af9861cbab4d7dad629f86c37f1d37"
+  }
+}

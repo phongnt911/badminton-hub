@@ -1,0 +1,121 @@
+.FFF....FFFFFFFFFF...
+======================================================================
+FAIL: test_r1_owned_inventory_must_succeed_before_reset (__main__.TestV5bRunnerBehavior.test_r1_owned_inventory_must_succeed_before_reset) (exit_code=1, inventory='')
+Execute main through the reset boundary; no real Docker or database.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 307, in test_r1_owned_inventory_must_succeed_before_reset
+    self.assertEqual(any(a[:3] == ['npx', 'supabase', 'db'] for a in calls), expected_reset)
+AssertionError: True != False
+
+======================================================================
+FAIL: test_r1_owned_inventory_must_succeed_before_reset (__main__.TestV5bRunnerBehavior.test_r1_owned_inventory_must_succeed_before_reset) (exit_code=1, inventory='partial-owned-id')
+Execute main through the reset boundary; no real Docker or database.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 307, in test_r1_owned_inventory_must_succeed_before_reset
+    self.assertEqual(any(a[:3] == ['npx', 'supabase', 'db'] for a in calls), expected_reset)
+AssertionError: True != False
+
+======================================================================
+FAIL: test_r1_owned_inventory_must_succeed_before_reset (__main__.TestV5bRunnerBehavior.test_r1_owned_inventory_must_succeed_before_reset) (exit_code=0, inventory='')
+Execute main through the reset boundary; no real Docker or database.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 307, in test_r1_owned_inventory_must_succeed_before_reset
+    self.assertEqual(any(a[:3] == ['npx', 'supabase', 'db'] for a in calls), expected_reset)
+AssertionError: True != False
+
+======================================================================
+FAIL: test_r1_project_identity_is_unique_per_run (__main__.TestV5bRunnerBehavior.test_r1_project_identity_is_unique_per_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 259, in test_r1_project_identity_is_unique_per_run
+    self.assertTrue(first.startswith('bh07-reset-verify-'))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code='42P01')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code='23505')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code='P0001')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code='UNKNOWN_AUTH_CODE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (code='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 323, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(code=code), self.assertRaises(AssertionError):
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (status=403, message='No API key found in request')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 326, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(status=status, message=text), self.assertRaises(AssertionError):
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (status=401, message='prefix No API key found in request')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 326, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(status=status, message=text), self.assertRaises(AssertionError):
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_r2_gateway_tuple_rejects_every_unmapped_code (__main__.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) (status=401, message='No API key found in request suffix')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_v5b_runner_flaws.py", line 326, in test_r2_gateway_tuple_rejects_every_unmapped_code
+    with self.subTest(status=status, message=text), self.assertRaises(AssertionError):
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.080s
+
+FAILED (failures=13)
