@@ -1,17 +1,13 @@
 {
-  "timestamp": "20261024T114934Z",
+  "timestamp": "20261024T130110Z",
   "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
-  "tested_sha": "19ab207ea75023f8a21d15da01ebc20fc09b0db4",
+  "tested_sha": "b4b1f9f4e688978b5f141208962ccc7e784eebb7",
   "git_dirty": true,
   "git_dirty_files": [
-    "M AGENTS.md",
-    "M docs/reviews/bh07/bh07_readiness.md",
-    "M docs/reviews/bh07/full_reset_evidence/commands.md",
-    "M docs/reviews/bh07/full_reset_evidence/environment.json",
-    "M docs/reviews/bh07/full_reset_evidence/hashes.sha256",
-    "M docs/reviews/bh07/full_reset_evidence/snapshot_comparison.json",
-    "M docs/reviews/bh07/full_reset_evidence/summary.json",
-    "M docs/reviews/bh07/full_reset_handoff.md"
+    "M docs/reviews/bh07/full_reset_evidence/auth_seed_cycle1.log",
+    "M docs/reviews/bh07/full_reset_evidence/auth_seed_cycle2.log",
+    "M scripts/bh07_reset/run_full_reset.py",
+    "M tests/test_v5b_runner_flaws.py"
   ],
   "supabase_cli_version": "2.122.0",
   "docker_version": "Docker version 29.8.2, build 7fc2dff",

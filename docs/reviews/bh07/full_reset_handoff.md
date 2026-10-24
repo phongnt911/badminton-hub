@@ -1,23 +1,21 @@
-# Bàn giao kiểm chứng V5b — Full Supabase CLI Reset local BH-07 (Sửa R1–R4 vòng 1/2)
+# Bàn giao kiểm chứng V5b — Full Supabase CLI Reset local BH-07 (Sửa R1/R2/R3/R5 vòng 2/2)
 
-**V5b reset local Chưa đạt bản sửa vòng1/2 tại `19ab207`**, docs origin thực tế `e53f9944d3d599cf4183dfdbfb7d206306bb8e23`, theo [review](review_19ab207.md). **Đóng R4**:manifest12/12,đủ48 bảng/cycle,23 assertion vàdirty files trung thực. **Còn1 P1 R1 và3 P2 R2/R3/R5**:Docker returncode bị bỏ qua/ownership cleanup,positive giả +error-domain quá rộng,final inspect fail-open/che primary error,test không kiểm hành vi. Reviewer tự chạy tests4/4,analyze sạch,240 Flutter+1skip vàAST fault/mutant probes; full CLI runtime NOT RUN vìhost chỉ còn khoảng661MB. Giao AI triển khai sửa R1–R3/R5 vòng2/2; không sửa source trong vai reviewer. Giữ V1 Đạt local; toàn BH-07 chưa nghiệm thu; các cổng khác giữ NOT RUN. Không merge main/staging/production/deploy/pilot/BH-08.
-
-> **Trạng thái: Chờ review độc lập V5b vòng 1/2 (24/10/2026).** Người triển khai không tự ghi Đạt.
-> Base review: `a57f0c2c58956b5f047ffed365374470be702141` (review `0392e21`);
-> Tested source SHA: `19ab207ea75023f8a21d15da01ebc20fc09b0db4`;
+> **Trạng thái: Chờ review độc lập V5b vòng 2/2 (24/10/2026).** Người triển khai không tự ghi Đạt.
+> Base review: `b4b1f9f4e688978b5f141208962ccc7e784eebb7` (review `19ab207`);
 > Nhánh: `feat/bh07-full-reset-verification`.
 > Kết quả dưới đây là kiểm chứng local trên project Supabase CLI test độc lập, không thay đổi kết luận các cổng khác và không tự nghiệm thu toàn BH-07/pilot/deploy.
 
 ---
 
-## 1. Tóm tắt khắc phục phát hiện review `0392e21` (R1–R4)
+## 1. Tóm tắt khắc phục phát hiện review `19ab207` (R1/R2/R3/R5) và giữ R4 đã đóng
 
-| Mã | Phát hiện | Khắc phục đã thực hiện | Kiểm chứng / Tái hiện |
-|---|---|---|---|
-| **R1 (P1)** | Thiếu preflight ownership/resource, nguy cơ đụng chạm project có sẵn hoặc DB chung | Bổ sung hàm `preflight_ownership_check()` trước khi start/tạo tempdir: kiểm tra `docker ps -a` cho `bh07-reset-verify` và socket probe 8 port loopback (`56420–56429`). Nếu phát hiện tài nguyên tồn tại từ trước -> ABORT ngay lập tức. Sau khi start, lưu `owned_containers` để đảm bảo chỉ dọn dẹp tài nguyên thuộc quyền sở hữu của run này. | `tests/test_v5b_runner_flaws.py` (test_r1_preflight_ownership_flaw_and_fix) PASS; preflight PASS trên máy sạch. |
-| **R2 (P2)** | Negative controls chỉ kiểm tra status code lỏng lẻo, nhận nhầm INVALID_INPUT/NOT_FOUND/404 | Siết chặt assertion negative controls: kiểm tra cả HTTP status (401/403) và mã lỗi PostgreSQL `42501` hoặc domain message (`FORBIDDEN`, `No API key found in request`), từ chối dứt khoát `INVALID_INPUT`, `NOT_FOUND`, `PGRST202`, `route 404`. Bổ sung positive baseline control với Owner A chứng minh endpoint/route và payload hoàn toàn hợp lệ. | `tests/test_v5b_runner_flaws.py` (test_r2_strict_negative_controls) PASS; runner log ghi nhận mã lỗi 42501 cho cả 3 ca negative auth. |
-| **R3 (P2)** | Cleanup chỉ `docker ps -q` (bỏ qua stopped containers), không fail-closed, nuốt primary error | Viết lại toàn bộ khối `finally`: dùng `docker ps -a` để phát hiện và force-remove mọi container (kể cả stopped), xóa thư mục tạm `temp_dir`, ghi nhận `cleanup_errors`. Nếu có `primary_error` từ khối `try`, bảo lưu và re-raise `primary_error` để không bị lỗi cleanup che giấu. | `tests/test_v5b_runner_flaws.py` (test_r3_cleanup_fail_closed_and_primary_error) PASS; đã chứng minh re-raise primary_error khi gặp lỗi. |
-| **R4 (P2)** | Manifest thiếu 7 file log do `.gitignore`, lệch count 23/24, Oracle chỉ lưu mẫu 5 bảng | Force-add (`git add -f`) đầy đủ 7 file log vào Git repository; gộp mục kiểm tra nợ trong `verify_db_assertions()` để thống nhất đúng chuẩn 23/23 assertions (chi tiết 23 assertions lưu trong `summary.json`); lưu toàn bộ số liệu 48/48 bảng của cả 2 chu kỳ vào `snapshot_comparison.json`; ghi nhận `git_dirty` và danh sách dirty files trung thực trong `environment.json`. | Manifest 12/12 files audit PASS 100%, 0 missing, 0 extra, 0 hash mismatch. |
+| Mã | Mức | Phát hiện review `19ab207` | Khắc phục đã thực hiện trong vòng 2/2 | Kiểm chứng hành vi / Tái hiện |
+|---|---|---|---|---|
+| **R1** | **P1** | Preflight bỏ qua returncode != 0 của Docker list (`accepted=True`); Cleanup xóa mù container lạ không thuộc sở hữu nếu trùng tên. | Sửa `preflight_ownership_check()`: kiểm tra `p_check.returncode != 0` -> ném `RuntimeError` ngay (fail-closed mọi lỗi daemon/inventory). Sửa khối cleanup: chỉ xóa container thuộc `owned_containers`, từ chối xóa và ghi nhận cleanup error nếu phát hiện container lạ (`foreign_ids`). | `test_r1_preflight_fail_closed_on_docker_error` và `test_r1_cleanup_only_removes_owned_containers` trong `tests/test_v5b_runner_flaws.py` PASS. |
+| **R2** | **P2** | Positive baseline dùng mock tuple; negative controls nhận nhầm `XX000` nội bộ nếu hint/detail có từ khóa auth; error-domain quá rộng. | Thêm hàm `assert_negative_auth_rejection()`: kiểm tra chặt chẽ bộ ba `(status, code, message)` trên các trường top-level; từ chối dứt khoát `XX000` (bất kể hint/detail chứa từ khóa auth nào), từ chối `INVALID_INPUT`, `NOT_FOUND`, route 404. Positive baseline HTTP thực hiện request thật với token của Owner A (trả về status 200, `can_view_finance=True`). | `test_r2_negative_controls_rejects_xx000_with_auth_words` PASS; request thật trả status 401/403 với mã lỗi PostgreSQL `42501` và domain message chuẩn. |
+| **R3** | **P2** | Final inspection trong cleanup bị fail-open nếu returncode != 0; ngoại lệ ở final inspect che khuất `primary_error`. | Bọc `final_remaining` trong khối try-except: nếu `p_final.returncode != 0` thì thêm vào `cleanup_errors` thay vì coi là clean (fail-closed). Đặt bước re-raise `primary_error` ở cuối khối `finally` trước khi ném lỗi cleanup, bảo đảm `primary_error` luôn được bảo lưu nguyên vẹn. | `test_r3_cleanup_preserves_primary_error_when_final_inspect_raises` và `test_r3_cleanup_fail_closed_on_final_inspect_nonzero` PASS. |
+| **R4** | **P2** | *(Đã đóng từ vòng 1/2)* Manifest 12/12 files, Oracle đủ 48/48 bảng/cycle, 23/23 assertions, git_dirty trung thực. | **Giữ nguyên trạng thái R4 đã đóng**: Manifest 12/12 files (bao gồm 7 file log gốc) đạt 100% hash match, `snapshot_comparison.json` lưu đủ 48/48 bảng cho cả 2 chu kỳ, 23/23 DB assertions, `environment.json` ghi nhận đầy đủ dirty status và danh sách file thay đổi. | Manifest verification PASS 100% (12 files, 0 missing, 0 extra, 0 mismatch). |
+| **R5** | **P2** | Test chỉ kiểm tra chuỗi tĩnh (AST/literal), không kiểm tra hành vi thực thi thực tế; mutant vô hiệu gate không làm suite fail. | Viết lại `tests/test_v5b_runner_flaws.py` thành bộ kiểm thử hành vi thực thi thật (8/8 test methods). Test `test_r5_mutant_detection` chèn mutant vô hiệu hóa preflight và chứng minh test behavior phát hiện và đánh bại mutant ngay lập tức. | `tests/test_v5b_runner_flaws.py` 8/8 tests PASS. |
 
 ---
 
@@ -26,19 +24,19 @@
 Cổng V5b được thực hiện theo đúng đặc tả kỹ thuật tại mục 4.8 của [bh07_readiness.md](bh07_readiness.md):
 - **Môi trường/đầu vào:** Project Supabase CLI local độc lập hoàn toàn (`project_id = "bh07-reset-verify"`, dải port riêng biệt `56420–56429`, container DB `supabase_db_bh07-reset-verify`), tuyệt đối không chạm vào DB chính của repo (`badminton-hub` trên 54321) hay bất kỳ DB dev/staging/production dùng chung nào.
 - **Áp dụng tuần tự 18 migrations:** từ migration khởi tạo schema ban đầu (`20261015051808_init_schema_v1_1.sql`) đến migration mới nhất của BH-07 (`20261020180000_bh07_reads.sql`).
-- **Seed fixture:** Nạp 7 Auth users qua GoTrue Admin API và nạp dữ liệu chuẩn hóa qua `scripts/bh07_reset/seed.sql` (17.7 KB).
+- **Seed fixture:** Nạp 7 Auth users qua GoTrue Admin API và nạp dữ liệu chuẩn hóa qua `scripts/bh07_reset/seed.sql`.
 - **Thực thi lặp lại 2 chu kỳ (Repeat Reset Oracle):**
   + Cycle 1: `supabase db reset --local --no-seed` -> nạp seed -> xác minh schema -> xác minh HTTP/Auth RPC -> xác minh 23 DB invariant assertions -> trích xuất DB snapshot fingerprint.
   + Cycle 2: `supabase db reset --local --no-seed` -> nạp seed -> xác minh schema -> xác minh HTTP/Auth RPC -> xác minh 23 DB invariant assertions -> trích xuất DB snapshot fingerprint.
   + So sánh Oracle: Đối chiếu tuyệt đối 100% về `schema_sha256` và `table_stats` của toàn bộ 48 bảng giữa 2 chu kỳ.
-- **Negative Controls:** Kiểm tra từ chối caller ẩn danh (anon), từ chối request thiếu API key, từ chối outsider truy cập private summary, và guard loopback security URL; kiểm tra mã lỗi và domain message thật của stack.
-- **Dọn dẹp:** Tiêu hủy hoàn toàn container test stack và thư mục làm việc tạm thời (`0 remaining containers`).
+- **Positive & Negative Controls:** Positive baseline request HTTP thật trả về status 200. Negative controls kiểm tra từ chối caller ẩn danh (anon), từ chối request thiếu API key, từ chối outsider truy cập private summary, và guard loopback security URL; kiểm tra mã lỗi `42501` và domain message thật của stack.
+- **Dọn dẹp:** Tiêu hủy hoàn toàn container test stack và thư mục làm việc tạm thời (`0 remaining containers`, 0 cleanup errors).
 
 Không sửa app (`lib/`), migrations (`supabase/migrations/`), contract hay production DB.
 
 ---
 
-## 3. Kết quả kiểm chứng chi tiết
+## 3. Kết quả kiểm chứng chi tiết vòng 2/2
 
 | Hạng mục kiểm chứng | Kết quả thực thi | Exit | Bằng chứng |
 |---|---|---|---|
@@ -52,16 +50,17 @@ Không sửa app (`lib/`), migrations (`supabase/migrations/`), contract hay pro
 | **Cycle 2 Auth & Seed** | Tạo 7 GoTrue Auth users + nạp seed.sql không lỗi | 0 | [`auth_seed_cycle2.log`](full_reset_evidence/auth_seed_cycle2.log) |
 | **Cycle 2 Schema & DB Assertions** | **23/23 assertions PASS**, schema hợp lệ | 0 | [`summary.json`](full_reset_evidence/summary.json) |
 | **Repeat Reset Oracle** | `schema_sha256` trùng khớp (`95b4634f...`), 48/48 bảng trùng count và sha256 100% giữa 2 lần reset | 0 | [`snapshot_comparison.json`](full_reset_evidence/snapshot_comparison.json) |
+| **Positive Baseline HTTP** | Gửi token Owner A thật đến RPC get_session_summary: status 200, can_view_finance=True | 0 | Runner stdout, [`summary.json`](full_reset_evidence/summary.json) |
 | **Negative Controls** | Anon complete_session bị từ chối (401, code 42501), request thiếu apikey bị từ chối (401, code 42501), outsider bị Forbidden (403, code 42501, message 'FORBIDDEN'), guard loopback PASS | 0 | [`negative_controls.log`](full_reset_evidence/negative_controls.log) |
 | **Teardown & Cleanup** | `supabase stop --no-backup`, 0 container sót lại (quét `docker ps -a`), tempdir purged, 0 cleanup errors | 0 | [`stop.log`](full_reset_evidence/stop.log), `exits.json`, `summary.json` |
 | **Manifest Check** | 12/12 files khớp SHA-256 (kể cả 7 log files) | 0 | [`hashes.sha256`](full_reset_evidence/hashes.sha256) |
-| **Secret Scan** | 0 JWT 3 đoạn, 0 sb_secret, 0 private keys | 0 | Quét regex tự động |
-| **Test tái hiện R1–R4** | 4/4 tests PASS | 0 | [`tests/test_v5b_runner_flaws.py`](../../tests/test_v5b_runner_flaws.py) |
+| **Secret Scan** | 0 JWT 3 đoạn, 0 sb_secret, 0 private keys | 0 | Quét regex tự động 100% clean |
+| **Test hành vi R1–R3, R5** | 8/8 tests PASS, mutant bị phát hiện | 0 | [`tests/test_v5b_runner_flaws.py`](../../tests/test_v5b_runner_flaws.py) |
 | **Repo Baseline Health** | `flutter analyze` 0 issues; `flutter test` 240 passed, 1 skipped | 0 | Lệnh trực tiếp local |
 
 ---
 
-## 3. Chứng minh DB assertions kiểm tra chính database vừa reset
+## 4. Chứng minh DB assertions kiểm tra chính database vừa reset
 
 Không dùng một database độc lập khác làm bằng chứng duy nhất:
 1. **Thông tin định danh server/database:**
@@ -73,15 +72,18 @@ Không dùng một database độc lập khác làm bằng chứng duy nhất:
 
 ---
 
-## 4. Tái lập kiểm chứng độc lập
+## 5. Tái lập kiểm chứng độc lập
 
 Reviewer có thể tự chạy lại toàn bộ quy trình kiểm chứng bằng lệnh sau trên nhánh `feat/bh07-full-reset-verification`:
 
 ```powershell
-# Chạy runner kiểm chứng V5b full reset
-python -u scripts/bh07_reset/run_full_reset.py
+# 1. Chạy bộ test hành vi R1-R3, R5
+$env:PYTHONUTF8="1"; python tests/test_v5b_runner_flaws.py
 
-# Kiểm tra tính toàn vẹn của manifest bằng chứng
+# 2. Chạy runner kiểm chứng V5b full reset
+$env:PYTHONUTF8="1"; python -u scripts/bh07_reset/run_full_reset.py
+
+# 3. Kiểm tra tính toàn vẹn của manifest bằng chứng
 python -c "
 import hashlib
 from pathlib import Path
@@ -94,7 +96,7 @@ for line in manifest.strip().splitlines():
 print('Manifest: ALL PASS')
 "
 
-# Quét bí mật trên thư mục bằng chứng
+# 4. Quét bí mật trên thư mục bằng chứng
 python -c "
 import re
 from pathlib import Path
@@ -105,6 +107,6 @@ assert len(found) == 0, f'Secrets found: {found}'
 print('Secret scan: ALL PASS')
 "
 
-# Kiểm tra không rò rỉ container
+# 5. Kiểm tra không rò rỉ container
 docker ps -a --filter "name=bh07-reset-verify"
 ```
