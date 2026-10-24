@@ -1,5 +1,7 @@
 # Bàn giao kiểm chứng V5b — Full Supabase CLI Reset local BH-07 (Sửa R1–R4 vòng 1/2)
 
+**V5b reset local Chưa đạt bản sửa vòng1/2 tại `19ab207`**, docs origin thực tế `e53f9944d3d599cf4183dfdbfb7d206306bb8e23`, theo [review](review_19ab207.md). **Đóng R4**:manifest12/12,đủ48 bảng/cycle,23 assertion vàdirty files trung thực. **Còn1 P1 R1 và3 P2 R2/R3/R5**:Docker returncode bị bỏ qua/ownership cleanup,positive giả +error-domain quá rộng,final inspect fail-open/che primary error,test không kiểm hành vi. Reviewer tự chạy tests4/4,analyze sạch,240 Flutter+1skip vàAST fault/mutant probes; full CLI runtime NOT RUN vìhost chỉ còn khoảng661MB. Giao AI triển khai sửa R1–R3/R5 vòng2/2; không sửa source trong vai reviewer. Giữ V1 Đạt local; toàn BH-07 chưa nghiệm thu; các cổng khác giữ NOT RUN. Không merge main/staging/production/deploy/pilot/BH-08.
+
 > **Trạng thái: Chờ review độc lập V5b vòng 1/2 (24/10/2026).** Người triển khai không tự ghi Đạt.
 > Base review: `a57f0c2c58956b5f047ffed365374470be702141` (review `0392e21`);
 > Tested source SHA: `19ab207ea75023f8a21d15da01ebc20fc09b0db4`;

@@ -1,0 +1,9 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.017s
+
+OK
+[R1 Verified] Preflight ownership check is installed and called before project preparation.
+[R2 Verified] Strict negative controls reject invalid error domains and require auth error proof.
+[R3 Verified] Cleanup inspects all stopped containers, cleans tempdir, and re-raises primary error.
+[R4 Verified] verify_db_assertions contains exactly 23 assertions, and full 48 tables are saved.

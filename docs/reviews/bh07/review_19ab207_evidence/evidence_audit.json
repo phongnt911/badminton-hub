@@ -1,0 +1,13 @@
+{
+  "manifest_entries": 12,
+  "missing": [],
+  "extra": [],
+  "hash_mismatch": [],
+  "secret_hits": [],
+  "strict_utf8_lf": true,
+  "oracle_tables_each_cycle": 48,
+  "all_48_counts_match": true,
+  "schema_hashes_match": true,
+  "recorded_assertions_each_cycle": 23,
+  "runtime_rerun": "NOT RUN insufficient disk (661MB available); prior full CLI pull failed for space"
+}

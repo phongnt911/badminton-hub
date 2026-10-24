@@ -1,0 +1,32 @@
+{
+  "base_review": "a57f0c2c58956b5f047ffed365374470be702141",
+  "tested_source": "19ab207ea75023f8a21d15da01ebc20fc09b0db4",
+  "actual_docs_head": "e53f9944d3d599cf4183dfdbfb7d206306bb8e23",
+  "requested_docs_head_not_found": "e53f99479b18a667ec3ec5caae5dd271b8be8ea4",
+  "dirty_before_review": false,
+  "author_tests_exit": 0,
+  "author_tests_count": 4,
+  "independent_fault_probes_exit": 0,
+  "probe_meaning": "faults reproduced; not V5b PASS",
+  "manifest_audit_exit": 0,
+  "analyze_exit": 0,
+  "flutter_test_exit": 0,
+  "flutter_passed": 240,
+  "flutter_skipped": 1,
+  "runtime_cli": "NOT RUN insufficient disk",
+  "closed_findings": [
+    "R4"
+  ],
+  "open_findings": {
+    "P0": 0,
+    "P1": [
+      "R1"
+    ],
+    "P2": [
+      "R2",
+      "R3",
+      "R5"
+    ]
+  },
+  "verdict": "Chưa đạt V5b vòng1/2"
+}

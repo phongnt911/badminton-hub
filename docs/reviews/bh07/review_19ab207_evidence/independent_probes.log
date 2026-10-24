@@ -1,0 +1,144 @@
+{
+  "preflight": [
+    {
+      "case": "positive",
+      "expected_accept": true,
+      "actual_accept": true
+    },
+    {
+      "case": "existing_container",
+      "expected_accept": false,
+      "actual_accept": false
+    },
+    {
+      "case": "docker_list_failure",
+      "expected_accept": false,
+      "actual_accept": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "case": "positive",
+      "expected_accept": true,
+      "actual_accept": true,
+      "pos_st_without_owner_http": 200,
+      "summary_rpc_count": 1,
+      "owner_summary_positive_http_calls": 0
+    },
+    {
+      "case": "old_invalid_input",
+      "expected_accept": false,
+      "actual_accept": false,
+      "pos_st_without_owner_http": null,
+      "summary_rpc_count": 0,
+      "owner_summary_positive_http_calls": 0
+    },
+    {
+      "case": "xx000_with_auth_words_in_hint",
+      "expected_accept": false,
+      "actual_accept": true,
+      "pos_st_without_owner_http": 200,
+      "summary_rpc_count": 1,
+      "owner_summary_positive_http_calls": 0
+    }
+  ],
+  "cleanup": [
+    {
+      "case": "positive",
+      "error": null,
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [],
+        "clean": true
+      },
+      "removed_container_ids": [],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": false
+    },
+    {
+      "case": "inspection_nonzero",
+      "error": null,
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [],
+        "clean": true
+      },
+      "removed_container_ids": [],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": false
+    },
+    {
+      "case": "unowned_container_seen",
+      "error": null,
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [],
+        "clean": true
+      },
+      "removed_container_ids": [
+        "foreign-id"
+      ],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": false
+    },
+    {
+      "case": "final_inspect_raises_with_primary",
+      "error": "FinalInspectError",
+      "cleanup": null,
+      "removed_container_ids": [],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": false
+    },
+    {
+      "case": "private_delete_failure",
+      "error": "RuntimeError",
+      "cleanup": {
+        "stop_exit": 0,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [
+          "Tempdir /tmp/v5b-r1-fault-uw4r5hrk/work still exists after rmtree"
+        ],
+        "clean": false
+      },
+      "removed_container_ids": [],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": true
+    },
+    {
+      "case": "stop_failure_preserves_primary",
+      "error": "PrimaryError",
+      "cleanup": {
+        "stop_exit": 1,
+        "remaining_containers_count": 0,
+        "cleanup_errors": [
+          "supabase stop exited with 1: synthetic stop error"
+        ],
+        "clean": false
+      },
+      "removed_container_ids": [],
+      "owned_container_ids": [
+        "owned-id"
+      ],
+      "private_path_remains": false
+    }
+  ],
+  "test_suite_mutant": {
+    "mutation": "preflight returns PASS before all checks",
+    "tests_run": 4,
+    "suite_still_passes": true,
+    "expected_suite_pass": false
+  }
+}
