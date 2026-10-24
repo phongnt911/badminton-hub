@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "verdict": "Đạt local V5b full reset Supabase CLI",
+  "tested_sha": "0392e2166bc0c33b3170e6919d86470d193d6301",
+  "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
+  "cycles_executed": 2,
+  "oracle_repeat_match": true,
+  "db_assertions_cycle1": 24,
+  "db_assertions_cycle2": 24,
+  "total_db_assertions_per_cycle": 24,
+  "schema_valid": true,
+  "negative_controls_pass": true,
+  "cleanup_success": true
+}

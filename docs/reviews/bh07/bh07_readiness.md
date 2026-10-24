@@ -33,6 +33,7 @@
 | **Browser — response Owner trả trễ** | Owner→Cohost và Owner→Member khi response tài chính về sau login actor mới; privacy/copy/Cohost count-only/Member empty | Late source `c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a`; source sau sửa control `417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c`; [review](review_c4ce99b.md), [evidence](late_response_evidence/), [closure evidence](browser_closure_evidence/) | **Đạt local theo tự review/tự sửa, KHÔNG độc lập.** 2/2 ca UI, 21 control +2 mutant, 41 regression, 9 probe, 9 verifier, manifest 52/44 PASS; kế thừa 11 baseline +2 late. **Giới hạn:** chỉ hai lịch trễ cụ thể; không đo private Dart heap; không mobile/browser khác; không bảo đảm mọi cache/RPC/race. |
 | **Backup/restore local** | Rehearsal cô lập: source stack, dump/restore PostgreSQL/Auth, ACL/replay smoke, cleanup fail-closed, manifest readonly | Source `282f978ba2afaa58e3f5810f282bdfd0febf334d`; docs/evidence `986baac29d506282740f477a5fb5ba94e15c496b`; base review `f216ae1fb220f140b091abd5acd2969333ec7f53`; [review](review_282f978.md), [evidence](backup_restore_cleanup_r2_evidence/), [runbook](../../26_BH07_OPERATIONS_REHEARSAL.md) | **Đạt local vòng 2/2**, đóng R1 cleanup. Reviewer tự chạy 14/14 control, 13/13 rehearsal Linux, analyze sạch, 240 Flutter +1 skip, 23 DB, manifest 16/16 readonly. **Giới hạn:** review không hoàn toàn độc lập với lịch sử tác giả; local Docker/PostgreSQL fixture; không managed Supabase/PITR/offsite/encryption/retention, concurrent writers, staging/production/restore thật. |
 | **V1 — review độc lập Browser/late response (chốt24/10/2026)** | 11 baseline UI +2 ca response Owner trả trễ; controls,privacy/retry/same-SPA/provenance | Reviewer tested `6283dbb3b1ae217e87130acb4ed5efae5bf170c7`; report/evidence `448c50ff8f87d46f984a523b993c1e748a9d05b4`; [review độc lập](review_6283dbb.md), [evidence](review_6283dbb_evidence/), [chốt điều phối](v1_acceptance_448c50f.md) | **Đạt V1 local** theo lần chạy reviewer khác. Điều phối từng sửa baseline, chỉ audit evidence/manifest/source, không chạy UI mới. Giữ bản tự kiểm lịch sử không độc lập; không private heap/mobile/managed/staging/pilot hoặc full reset. |
+| **V5b — Full Supabase reset local** | Reset lặp lại hai lần từ 18 migrations + seed, kiểm schema, HTTP Auth/RPC, 23 DB invariants, Oracle match, negative controls | Source `0392e2166bc0c33b3170e6919d86470d193d6301`; [bàn giao](full_reset_handoff.md), [evidence](full_reset_evidence/); nhánh `feat/bh07-full-reset-verification` | **Chờ review độc lập V5b** (Đạt local theo AI triển khai tự kiểm; 2/2 chu kỳ exit 0, Oracle match 48 tables, 23 DB assertions, clean teardown; không tự ghi verdict review). |
 | **Hồ sơ readiness (tài liệu này)** | Ma trận cổng, phân biệt local/NOT RUN, kế hoạch kiểm chứng, cập nhật điểm tiếp tục | Base gốc `b91a350e619529d389af3edf6d4a06408af8d200`; base review vòng sửa `fdf7113ff46517a4c148fbcfcce5fea960686481`; nhánh `feat/bh07-readiness` | **Đạt docs-only vòng2/2 theo reviewer** tại31fced4 ([review](review_31fced4.md)). Không có bằng chứng runtime mới; chỉ là tài liệu quyết định. |
 | **Toàn BH-07 / pilot** | Nghiệm thu toàn bộ cổng, staging/production, thiết bị, tải, pilot | Chưa có bằng chứng đầy đủ | **NOT RUN / chưa nghiệm thu.** Không được suy từ bất kỳ dòng “Đạt local” phía trên. |
 
@@ -47,6 +48,7 @@ Cập nhật24/10/2026: V1 đã Đạt local, được đưa khỏi danh sách N
 - **Concurrency HTTP:** đã có replay/competition/drop-response trên stack HTTP local.
 - **Browser:** đã có Flutter Web + Chromium + Supabase local, thao tác UI thật và control âm; kết luận tự kiểm lịch sử không độc lập; V1 mới đã có review độc lập và chốt local ngày24/10/2026.
 - **Backup/restore:** đã có rehearsal local cô lập, restore DB/Auth, smoke ACL/replay và cleanup fail-closed.
+- **Full Supabase reset local:** đã chạy lặp lại 2 chu kỳ từ 18 migrations + seed, xác minh schema, HTTP Auth/RPC, 23 DB invariants và Oracle match trên project test CLI cô lập; đang Chờ review độc lập.
 
 ### 3.2. Những gì vẫn NOT RUN
 
@@ -60,7 +62,7 @@ Cập nhật24/10/2026: V1 đã Đạt local, được đưa khỏi danh sách N
 | PITR/offsite/encryption/retention | Chưa cấu hình/chứng minh trên managed service | Bằng chứng PITR, offsite copy, encryption at rest/in transit, retention/rotation và test restore | V3 (mục 4.5) |
 | Backup với concurrent writers | Rehearsal dừng writer trước snapshot | Backup dưới tải ghi đồng thời, kiểm tính nhất quán và committed data | V4 (mục 4.6) |
 | Staging/production restore thật | Chưa chạy restore/deploy ngoài local | Restore staging trước, sau đó production chỉ khi có phê duyệt riêng; smoke HTTP/ACL/app | V5 (mục 4.7) |
-| Full Supabase reset từ migration | Chưa dựng lại toàn bộ DB local/staging từ zero trong gói này | Project sạch, migration + seed, 23 DB + HTTP smoke, reset lặp lại được; xóa project test | V5b (mục 4.8) |
+| Full Supabase reset từ migration | Đang Chờ review độc lập sau khi AI triển khai tự chạy 2 chu kỳ local | Reviewer độc lập tự chạy runner tái lập, kiểm exit, log, manifest, và so sánh snapshot | V5b (mục 4.8) |
 | Banking/VietQR/webhook thật | Ngoài phạm vi BH-07 hiện hành và chưa có sandbox evidence | Sandbox bank/webhook, idempotency, signature, reconciliation; không dùng tiền thật | V6 (mục 4.9) — Ngoài phạm vi |
 | Rehearsal tải thật/pilot | Chưa có tải production-like hoặc người dùng pilot | SLO/RTO/RPO, kịch bản lỗi, rollback drill, dữ liệu ẩn danh và sign-off | V7 (mục 4.10) |
 | Nghiệm thu toàn BH-07 | Chưa có ma trận đầy đủ với mọi cổng PASS | Tất cả cổng bắt buộc PASS; cổng vận hành chưa chạy phải có văn bản chấp nhận rủi ro còn lại của chủ dự án | V8 (mục 4.11) |
@@ -142,6 +144,8 @@ Nguyên tắc phân định quyền hạn:
 - **Rollback:** khôi phục snapshot trước restore, redeploy build trước, tắt traffic nếu chưa chắc; giữ nguyên chứng cứ.
 
 ### 4.8. V5b — Full Supabase reset từ migration trên project test sạch
+
+**Trạng thái hiện hành: Chờ review độc lập V5b ngày24/10/2026** theo [bàn giao](full_reset_handoff.md), source `0392e2166bc0c33b3170e6919d86470d193d6301`, [evidence](full_reset_evidence/). AI triển khai tự chạy 2 chu kỳ reset đạt exit 0, Oracle match 48 tables, 23 DB assertions, clean teardown.
 
 - **Môi trường/đầu vào:** Môi trường local Docker Supabase CLI cô lập hoàn toàn hoặc project test trắng tạo riêng (TUYỆT ĐỐI KHÔNG dùng DB dev/staging/production có dữ liệu chung); thư mục `supabase/migrations/` đầy đủ tuần tự từ ban đầu đến migration mới nhất của BH-07; seed fixture tối thiểu chuẩn hóa.
 - **Phụ trách:** Backend / DBA / infra engineer phụ trách kỹ thuật; reviewer độc lập verify exit code và log.
@@ -254,6 +258,7 @@ Nguyên tắc phân định quyền hạn:
 | Backup — tested | `282f978ba2afaa58e3f5810f282bdfd0febf334d` | Cleanup R1 vòng 2/2 |
 | Backup — docs/evidence | `986baac29d506282740f477a5fb5ba94e15c496b` | Review chốt local |
 | Backup — base review | `f216ae1fb220f140b091abd5acd2969333ec7f53` | Review R1 vòng 1/2 |
+| V5b — tested | `0392e2166bc0c33b3170e6919d86470d193d6301` | Runner/fixture reset local trên project test cô lập |
 
 ## 8. Kiểm tra tính nhất quán trong lượt này
 

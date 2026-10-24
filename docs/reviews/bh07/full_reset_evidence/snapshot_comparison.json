@@ -1,0 +1,29 @@
+{
+  "oracle_match": true,
+  "cycle1_schema_sha256": "95b4634fc26289e5600ad821d8f80a7b83da8b860eaaacaae62641d46c7fde54",
+  "cycle2_schema_sha256": "95b4634fc26289e5600ad821d8f80a7b83da8b860eaaacaae62641d46c7fde54",
+  "cycle1_total_tables": 48,
+  "cycle2_total_tables": 48,
+  "table_stats_sample": {
+    "auth.audit_log_entries": {
+      "count": 14,
+      "sha256": "8f3257c6ea01a4adb0d4988c4203891791296ed2633738f3f792c41ce1c18174"
+    },
+    "auth.custom_oauth_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.flow_state": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.identities": {
+      "count": 7,
+      "sha256": "81bcfd43077aa2b2fbd27904be26867bbf84d178d6394d67db5a2a7664c090a7"
+    },
+    "auth.instances": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

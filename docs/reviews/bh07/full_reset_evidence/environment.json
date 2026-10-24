@@ -1,0 +1,17 @@
+{
+  "timestamp": "20261024T062133Z",
+  "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
+  "tested_sha": "0392e2166bc0c33b3170e6919d86470d193d6301",
+  "git_dirty": true,
+  "supabase_cli_version": "2.122.0",
+  "docker_version": "Docker version 29.8.2, build 7fc2dff",
+  "os": "win32",
+  "project_id": "bh07-reset-verify",
+  "ports": {
+    "api": 56421,
+    "db": 56422,
+    "shadow": 56420,
+    "studio": 56423,
+    "smtp": 56424
+  }
+}
