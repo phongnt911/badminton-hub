@@ -1,6 +1,8 @@
 # Badminton Hub
 
-**Hồ sơ readiness BH-07 Đạt docs-only vòng2/2 tại `31fced4`**, đóng R1–R4 theo [review chốt](docs/reviews/bh07/review_31fced4.md). Reviewer kiểm406 link,31 SHA mục7,13/13 dòng NOT RUN map kế hoạch; diff9 file docs-only, whitespace sạch. Không chạy runtime mới, không đổi verdict/evidence cũ; Browser final vẫn không độc lập, backup giữ giới hạn lịch sử tác giả. **Toàn BH-07 chưa nghiệm thu.** Điểm tiếp: giao V1 cho reviewer/QA không tham gia sửa Browser tự kiểm baseline/response trễ local; không phải mở lại sửa readiness. Các cổng V1–V8 chưa chạy giữ NOT RUN; acceptance không biến test thành PASS. Không merge main/deploy/pilot/BH-08.
+**V1 Browser/Offline/Reopen và response Owner trả trễ Đạt local, đã chốt điều phối ngày24/10/2026**, reviewer tested `6283dbb`, report/evidence `448c50f`, theo [chốt V1](docs/reviews/bh07/v1_acceptance_448c50f.md) và [review độc lập](docs/reviews/bh07/review_6283dbb.md). Điều phối verify52/52,44/44,48/48 readonly, đối chiếu source/hash/driver recipe và kết quả reviewer11 baseline+2late,41negative,21+2mutant,9verifier. Codex điều phối từng sửa baseline, không gọi lượt chốt này là review UI độc lập mới; bằng chứng V1 mới do reviewer/QA khác chạy. Giữ lịch sử browser tự review không độc lập. **Toàn BH-07 chưa nghiệm thu.** V2/V2b/V3/V4/V5/V5b/V6/V7/V8 giữ NOT RUN; không merge main/staging/production/deploy/pilot/BH-08. Điểm tiếp đề xuất giao AI triển khai V5b full reset trên project local test sạch, không môi trường dùng chung.
+
+**(Lịch sử chốt readiness 23/10/2026) Hồ sơ readiness BH-07 Đạt docs-only vòng2/2 tại `31fced4`**, đóng R1–R4 theo [review chốt](docs/reviews/bh07/review_31fced4.md). Reviewer kiểm406 link,31 SHA mục7,13/13 dòng NOT RUN map kế hoạch; diff9 file docs-only, whitespace sạch. Không chạy runtime mới, không đổi verdict/evidence cũ; Browser final vẫn không độc lập, backup giữ giới hạn lịch sử tác giả. **Toàn BH-07 chưa nghiệm thu.** Điểm tiếp: giao V1 cho reviewer/QA không tham gia sửa Browser tự kiểm baseline/response trễ local; không phải mở lại sửa readiness. Các cổng V1–V8 chưa chạy giữ NOT RUN; acceptance không biến test thành PASS. Không merge main/deploy/pilot/BH-08.
 
 **(Lịch sử bàn giao trước chốt) Hồ sơ readiness BH-07 (docs-only) đang Chờ review độc lập vòng 2/2 sau sửa R1–R4 theo review bc63673**, base review `fdf7113ff46517a4c148fbcfcce5fea960686481` (base gốc `b91a350`), nhánh `feat/bh07-readiness`; ma trận cổng, tách Đạt local/NOT RUN và kế hoạch kiểm chứng tại [hồ sơ](docs/reviews/bh07/bh07_readiness.md). Không nghiệm thu toàn BH-07, không merge main/deploy/pilot, không tự chuyển BH-08; các cổng NOT RUN chỉ mở khi chủ dự án giao và có môi trường được phép.
 
@@ -42,7 +44,7 @@ Ngày23/10/2026: Gói **Browser / Offline / Reopen và response Owner trả tr�
 | BH-04 | 44 PASS | Đã triển khai |
 | BH-05 | 90 PASS | Đạt tích hợp; giữ lịch sử review/hồi quy main |
 | BH-06 | 84 PASS; tích hợp 7, nâng cấp 3 | Đạt tích hợp local; đã merge main |
-| BH-07 | A/B/C/D, HTTP/Auth, concurrency, browser và backup/restore local có evidence; readiness docs-only | **Hồ sơ readiness Đạt docs-only vòng2/2 tại31fced4; browser final không độc lập; toàn BH-07/pilot chưa nghiệm thu** |
+| BH-07 | A/B/C/D, HTTP/Auth, concurrency, browser và backup/restore local có evidence; readiness docs-only | **Hồ sơ readiness Đạt docs-only vòng2/2 tại31fced4; browser tự kiểm lịch sử không độc lập; V1 mới Đạt local theo448c50f; toàn BH-07/pilot chưa nghiệm thu** |
 
 Baseline reviewer BH-06: analyze sạch, **190 Flutter +335 DB hồi quy +7 tích hợp +3 nâng cấp +2 probe PASS**. Các nhóm là bằng chứng local riêng biệt, không phải HTTP/e2e. Merge main giữ nguyên code/test/migration đã review; phân biệt kiểm tra mới với bằng chứng DB trước merge trong báo cáo merge.
 

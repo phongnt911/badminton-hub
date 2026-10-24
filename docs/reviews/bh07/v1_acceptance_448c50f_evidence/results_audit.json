@@ -1,0 +1,88 @@
+{
+  "baseline": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "late_passed": 2,
+  "negative_correct": 41,
+  "late_controls_correct": 21,
+  "verifier_readonly_correct": 9,
+  "manager_mutant_detected": true,
+  "late_mutants_in_log": 2,
+  "late_timeline_and_delivery_hash_valid": true,
+  "baseline_screenshots": [
+    {
+      "name": "01_owner_ui_authenticated.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "61eb86c102d90d2c50ca7fffc47d9908af686189f2cd8791397e22bb0b2d0407"
+    },
+    {
+      "name": "02_session_ui_started.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "cdb3f6382b53900090844d80941fe63473b4d8eb0d8bec8ddfeee48d47de5683"
+    },
+    {
+      "name": "03_player_attendance_checked.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "521f8af5810cfacc7073fefeb406e0a8de83b406b9727bee36bfbd0e507a180e"
+    },
+    {
+      "name": "04_session_finance_finalized.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "9694ca15627ac504956ccf979cb8f633d537fef3253cfc9de22d5dbf1c642ea9"
+    },
+    {
+      "name": "05_offline_mutation_error.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "732e77b5172bf886b81de0b063da9960d11c069542531f0d7502aeb8fc856e6a"
+    },
+    {
+      "name": "06_retry_mutation_success.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "a55da2c5bbf44321a69560dca68299b8b783251cc27d8c1569ef290fc8c16c1e"
+    },
+    {
+      "name": "07_summary_manager_clipboard.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "b15de533a65614900f680c5d7e402b5d850d023101c327c39eda3ec1f409094b"
+    },
+    {
+      "name": "08_cohost_summary_null_finances.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "e3a8388a246226bf4b142688e097e808b5bdc059738e042ff27188adfa4b0de5"
+    },
+    {
+      "name": "09_history_filtered_club.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "f847a71e6872b7cefb9be7324c348c0482ad2b530540400d5a147020708d1979"
+    },
+    {
+      "name": "10_member_isolated_history.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "af89e8b9c73f12d5cd0627fc98ec5e3d1220c434e800edd562a5c450abe3eae4"
+    },
+    {
+      "name": "11_reopen_persisted_session.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "2c171cf16af85abd1068837da097cd5f3b1e0be040d1678450af712ac2a469d9"
+    },
+    {
+      "name": "12_logout_clean_guest_state.png",
+      "width": 1264,
+      "height": 805,
+      "sha256": "293712cad651558bb53b44f885c029e719a7451705338fac2caf7054757fca41"
+    }
+  ]
+}

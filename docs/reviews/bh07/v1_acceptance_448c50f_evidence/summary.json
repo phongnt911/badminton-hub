@@ -1,0 +1,14 @@
+{
+  "reviewed_report_evidence_sha": "448c50ff8f87d46f984a523b993c1e748a9d05b4",
+  "reviewer_tested_checkout": "6283dbb3b1ae217e87130acb4ed5efae5bf170c7",
+  "coordinator_precheck_dirty": false,
+  "coordinator_participated_in_original_browser_fix": true,
+  "independent_ui_run_by_other_reviewer": true,
+  "new_coordinator_browser_run": false,
+  "verdict": "Đạt V1 local; toàn BH-07 chưa nghiệm thu",
+  "open_findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0
+  }
+}

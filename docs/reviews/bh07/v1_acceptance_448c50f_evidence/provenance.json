@@ -1,0 +1,11 @@
+{
+  "git_source_hashes_match": 11,
+  "app_trees_equal_at_reference_shas": true,
+  "browser_script_tree_417ee30_to_6283dbb_unchanged": true,
+  "adapted_driver_recorded_sha256": "25c7a2f9eac84ab2149b997025c1df9338610cd8a29dbf55976d72be33a693c7",
+  "adaptation_recipe_hashes": {
+    "LF": "251c074e47f95a08cd7a3977f1092f4a67c400643bfa098f3a3eb059cfe687d2",
+    "CRLF": "25c7a2f9eac84ab2149b997025c1df9338610cd8a29dbf55976d72be33a693c7"
+  },
+  "recipe_reproduces_recorded_driver": true
+}

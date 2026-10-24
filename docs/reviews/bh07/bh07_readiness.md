@@ -13,7 +13,7 @@
 
 1. Các phần triển khai BH-07 A, B, C, D đã có kết luận **Đạt local** theo review độc lập, với source/tested SHA riêng.
 2. Hai gói kiểm chứng HTTP/Auth và Concurrency HTTP/Auth đã **Đạt local** theo review độc lập; không thay thế kiểm thử tải, staging hoặc production.
-3. Browser/Offline/Reopen và hai ca response Owner trả trễ đã **đóng công việc local**, nhưng kết luận cuối do Codex tự review/tự sửa, **không độc lập**. Đây là giới hạn phải giữ khi đọc ma trận.
+3. Browser/Offline/Reopen và hai ca response Owner trả trễ trước đây đóng theo Codex tự review/tự sửa **không độc lập**; lịch sử đó giữ nguyên. Ngày24/10/2026, V1 có [review độc lập mới](review_6283dbb.md) do reviewer khác chạy, đã [chốt Đạt local](v1_acceptance_448c50f.md). Codex điều phối không tự nhận là reviewer UI độc lập của lượt này.
 4. Backup/restore cleanup R1 đã **Đạt local vòng 2/2**; review chốt có giới hạn độc lập với lịch sử tác giả. Đây là rehearsal local, không phải backup managed Supabase, PITR, offsite, encryption/retention hoặc restore staging/production.
 5. **Toàn BH-07 chưa nghiệm thu.** Các cổng còn NOT RUN được liệt kê ở mục 3; kế hoạch kiểm chứng ở mục 4 chỉ là kế hoạch, không phải bằng chứng đã chạy.
 6. Quyền chốt kỹ thuật thuộc về reviewer độc lập; chủ dự án nắm quyền quyết định phạm vi, phê duyệt thao tác môi trường và chấp nhận rủi ro còn lại bằng văn bản. Việc chấp nhận rủi ro không biến một cổng NOT RUN thành PASS và không cấp phép deploy.
@@ -32,24 +32,26 @@
 | **Browser / Offline / Reopen** | Flutter Web trên Chromium thật: start→complete→history/summary; 4 actor; offline/retry; F5/reopen; logout/cache; SPA route | Baseline source `a6d58aff3f1726484146a6c89aa7d559bb684d6d`, tự review local; [self-review](self_review_a6d58af.md), [evidence chính](browser_codex_fix_evidence/), [evidence tự review](self_review_a6d58af_evidence/), [closure](review_c4ce99b.md); gói `a62f509`/[browser_evidence](browser_evidence/) chỉ là lịch sử trước sửa, không dùng làm evidence chính | **Đạt local theo tự review/tự sửa, KHÔNG độc lập.** `browser_codex_fix_evidence/summary.json` xác nhận `tested_source_sha=a6d58aff3f1726484146a6c89aa7d559bb684d6d`; 11/11 browser, 12 ảnh khác hash, analyze sạch, 240 Flutter +1 skip, 23 DB; các control/mutant sau sửa PASS. **Giới hạn:** Chromium/SPA cụ thể; không mobile, browser khác, private Dart heap, deep link OS-level hoặc tải thật. |
 | **Browser — response Owner trả trễ** | Owner→Cohost và Owner→Member khi response tài chính về sau login actor mới; privacy/copy/Cohost count-only/Member empty | Late source `c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a`; source sau sửa control `417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c`; [review](review_c4ce99b.md), [evidence](late_response_evidence/), [closure evidence](browser_closure_evidence/) | **Đạt local theo tự review/tự sửa, KHÔNG độc lập.** 2/2 ca UI, 21 control +2 mutant, 41 regression, 9 probe, 9 verifier, manifest 52/44 PASS; kế thừa 11 baseline +2 late. **Giới hạn:** chỉ hai lịch trễ cụ thể; không đo private Dart heap; không mobile/browser khác; không bảo đảm mọi cache/RPC/race. |
 | **Backup/restore local** | Rehearsal cô lập: source stack, dump/restore PostgreSQL/Auth, ACL/replay smoke, cleanup fail-closed, manifest readonly | Source `282f978ba2afaa58e3f5810f282bdfd0febf334d`; docs/evidence `986baac29d506282740f477a5fb5ba94e15c496b`; base review `f216ae1fb220f140b091abd5acd2969333ec7f53`; [review](review_282f978.md), [evidence](backup_restore_cleanup_r2_evidence/), [runbook](../../26_BH07_OPERATIONS_REHEARSAL.md) | **Đạt local vòng 2/2**, đóng R1 cleanup. Reviewer tự chạy 14/14 control, 13/13 rehearsal Linux, analyze sạch, 240 Flutter +1 skip, 23 DB, manifest 16/16 readonly. **Giới hạn:** review không hoàn toàn độc lập với lịch sử tác giả; local Docker/PostgreSQL fixture; không managed Supabase/PITR/offsite/encryption/retention, concurrent writers, staging/production/restore thật. |
+| **V1 — review độc lập Browser/late response (chốt24/10/2026)** | 11 baseline UI +2 ca response Owner trả trễ; controls,privacy/retry/same-SPA/provenance | Reviewer tested `6283dbb3b1ae217e87130acb4ed5efae5bf170c7`; report/evidence `448c50ff8f87d46f984a523b993c1e748a9d05b4`; [review độc lập](review_6283dbb.md), [evidence](review_6283dbb_evidence/), [chốt điều phối](v1_acceptance_448c50f.md) | **Đạt V1 local** theo lần chạy reviewer khác. Điều phối từng sửa baseline, chỉ audit evidence/manifest/source, không chạy UI mới. Giữ bản tự kiểm lịch sử không độc lập; không private heap/mobile/managed/staging/pilot hoặc full reset. |
 | **Hồ sơ readiness (tài liệu này)** | Ma trận cổng, phân biệt local/NOT RUN, kế hoạch kiểm chứng, cập nhật điểm tiếp tục | Base gốc `b91a350e619529d389af3edf6d4a06408af8d200`; base review vòng sửa `fdf7113ff46517a4c148fbcfcce5fea960686481`; nhánh `feat/bh07-readiness` | **Đạt docs-only vòng2/2 theo reviewer** tại31fced4 ([review](review_31fced4.md)). Không có bằng chứng runtime mới; chỉ là tài liệu quyết định. |
 | **Toàn BH-07 / pilot** | Nghiệm thu toàn bộ cổng, staging/production, thiết bị, tải, pilot | Chưa có bằng chứng đầy đủ | **NOT RUN / chưa nghiệm thu.** Không được suy từ bất kỳ dòng “Đạt local” phía trên. |
 
 ## 3. Phân biệt Đạt local với NOT RUN
+
+Cập nhật24/10/2026: V1 đã Đạt local, được đưa khỏi danh sách NOT RUN bên dưới; các cổng còn lại không đổi.
 
 ### 3.1. Những gì đã có bằng chứng local
 
 - **A/B/C/D:** code, migration/RPC, provider và UI đã được review theo từng phần; regression local và DB cô lập đã chạy.
 - **HTTP/Auth:** đã có token/JWT/PostgREST/GoTrue thật trên stack Linux cô lập, không dùng mock Auth cho assertion HTTP.
 - **Concurrency HTTP:** đã có replay/competition/drop-response trên stack HTTP local.
-- **Browser:** đã có Flutter Web + Chromium + Supabase local, thao tác UI thật và control âm; kết luận cuối không độc lập.
+- **Browser:** đã có Flutter Web + Chromium + Supabase local, thao tác UI thật và control âm; kết luận tự kiểm lịch sử không độc lập; V1 mới đã có review độc lập và chốt local ngày24/10/2026.
 - **Backup/restore:** đã có rehearsal local cô lập, restore DB/Auth, smoke ACL/replay và cleanup fail-closed.
 
 ### 3.2. Những gì vẫn NOT RUN
 
 | Cổng còn thiếu | Vì sao chưa thể coi là Đạt | Bằng chứng cần có trước khi đóng | Kế hoạch kiểm chứng tương ứng |
 |---|---|---|---|
-| Review độc lập gói Browser/response trễ | Kết luận cuối do Codex tự review/tự sửa | Reviewer độc lập tự chạy lại baseline, 2 ca trễ, control/mutant, kiểm privacy/ACL và provenance | V1 (mục 4.2) |
 | Mobile iOS/Android thật | Chưa có thiết bị/emulator được nghiệm thu | Build thật, thao tác start→complete→history, offline/reopen, deep link, không rò dữ liệu | V2 (mục 4.3) |
 | Browser khác/OS khác | Chỉ có Chromium/SPA cụ thể | Chrome/Firefox/Safari/Edge trên desktop/mobile, tối thiểu matrix đã chốt | V2 (mục 4.3) |
 | Offline/reopen/deep link ngoài phạm vi browser đã chạy | Chưa kiểm OS-level, cold start, link trước/sau login | Kịch bản mất mạng, retry cùng intent, F5/cold start, deep link và logout | V2 (mục 4.3) |
@@ -81,6 +83,8 @@ Nguyên tắc phân định quyền hạn:
 - **Rollback:** revert commit docs trên nhánh; không đụng source/evidence cũ.
 
 ### 4.2. V1 — Review độc lập Browser/Offline/Reopen và response trễ
+
+**Trạng thái hiện hành: Đạt local ngày24/10/2026** theo [review](review_6283dbb.md), [chốt điều phối](v1_acceptance_448c50f.md). Các bước dưới đây giữ làm recipe/phạm vi đã kiểm; không đồng nghĩa private heap/device khác/managed Supabase/full reset đã chạy.
 
 - **Môi trường/đầu vào:** checkout sạch source `417ee30cf1fa2da4c64b03e0474d6c8c4a1dca6c` (sau sửa control) và `c4ce99bcd9a9b02c4b794c8eb5ab51e43c06155a` cho hai ca trễ; Flutter Web + Chromium + Supabase local; tài khoản Owner/Cohost/Member/Finance; manifest và control đã công bố.
 - **Phụ trách:** Reviewer độc lập/QA chốt kết luận kỹ thuật; người triển khai chỉ hỗ trợ tái lập môi trường, không tự chốt.
@@ -200,7 +204,7 @@ Nguyên tắc phân định quyền hạn:
 ## 5. Thứ tự thực hiện đề xuất
 
 1. **R0:** review hồ sơ này, chốt các trạng thái và điểm tiếp tục.
-2. **V1:** review độc lập browser/response trễ — rủi ro cao nhất vì kết luận hiện tại không độc lập.
+2. **V1 đã Đạt local** theo reviewer độc lập khác và chốt điều phối24/10/2026. Bước local tiếp theo đề xuất là V5b full reset project test sạch, trước các bước cần môi trường thật được giao riêng.
 3. **V3/V4:** managed backup/PITR/retention và concurrent writers — cổng vận hành còn trống lớn nhất.
 4. **V5/V5b:** staging restore/deploy và full reset; production chỉ sau phê duyệt riêng.
 5. **V2/V2b:** mobile/browser khác/offline/deep link và đo heap/cache — có thể chạy song song V3/V4 nếu đủ thiết bị/công cụ.
@@ -213,7 +217,7 @@ Nguyên tắc phân định quyền hạn:
 | Rủi ro | Tác động | Biện pháp |
 |---|---|---|
 | Đọc “Đạt local” thành “Đạt BH-07” | Merge/deploy/pilot sớm | Giữ nhãn **local** và bảng NOT RUN ở mọi tài liệu trạng thái; reviewer kiểm lại |
-| Browser final không độc lập | Bỏ sót lỗi privacy/retry/ACL | V1 bắt buộc reviewer độc lập tự chạy lại, không dựa log tác giả |
+| Browser final không độc lập | Bỏ sót lỗi privacy/retry/ACL | V1 đã có reviewer khác tự chạy và chốt local24/10/2026; giữ giới hạn, không suy sang private heap/device khác |
 | Backup local không đại diện managed Supabase | Mất dữ liệu/PITR khi sự cố thật | V3/V4 trên managed staging và restore cô lập trước production |
 | Nhầm lẫn quyền chốt review và quyền duyệt rủi ro | Bỏ qua vai trò reviewer hoặc tự động hóa quyền deploy | Quy định rõ: reviewer độc lập chốt kỹ thuật Đạt/Chưa đạt; chủ dự án duyệt scope, acceptance rủi ro và môi trường |
 | Biến chấp nhận rủi ro thành test PASS giả | Giảm tiêu chuẩn chất lượng khi deploy | Khẳng định bất biến: acceptance rủi ro không đổi NOT RUN thành PASS trên ma trận kỹ thuật |
