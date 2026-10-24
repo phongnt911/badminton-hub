@@ -21,7 +21,6 @@ This script executes a 100% isolated, local Supabase CLI reset verification:
 import datetime
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import shutil
@@ -41,7 +40,8 @@ ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE_DIR = ROOT / 'docs/reviews/bh07/full_reset_evidence'
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
-PROJECT_ID = 'bh07-reset-verify'
+# A failed inventory may still stop this run's project, never another run's project.
+PROJECT_ID = f'bh07-reset-verify-{uuid.uuid4().hex[:16]}'
 CONTAINER_DB = f'supabase_db_{PROJECT_ID}'
 CONTAINER_KONG = f'supabase_kong_{PROJECT_ID}'
 
@@ -298,9 +298,9 @@ def assert_negative_auth_rejection(control_name: str, status: int, body: dict, e
             if 'permission denied' not in message.lower() and 'unauthenticated' not in message.lower():
                 raise AssertionError(f"[{control_name}] Expected permission denied message for 42501, got '{message}': {body}")
         else:
-            # Gateway Kong variant
-            if 'no api key found in request' not in message.lower() and message != 'No API key found in request':
-                raise AssertionError(f"[{control_name}] Expected gateway 'No API key found in request', got '{message}': {body}")
+            # Kong's documented variant has no SQLSTATE/code field and returns 401.
+            if status != 401 or 'code' in body or message.casefold() != 'no api key found in request':
+                raise AssertionError(f"[{control_name}] Unmapped gateway status/code/message: {status} {body}")
 
     elif expected_type == 'outsider_summary':
         # Authenticated outsider user calling private session summary:
@@ -673,7 +673,7 @@ def main():
     print(f"Tested commit SHA: {tested_sha} (dirty={git_dirty}, files={len(dirty_files)})")
 
     # Temp workspace
-    temp_dir = Path(tempfile.gettempdir()) / f"bh07_reset_project_{os.getpid()}"
+    temp_dir = Path(tempfile.gettempdir()) / PROJECT_ID
     print(f"Setting up isolated project in: {temp_dir}")
     prepare_project_dir(temp_dir)
     log_cmd("Prepare isolated project directory", f"prepare_project_dir({temp_dir}) with dedicated ports {PORT_API}-{PORT_POOLER}")
@@ -694,7 +694,11 @@ def main():
 
         # Track owned containers
         p_owned = run_cmd(['docker', 'ps', '-a', '--filter', f'name={PROJECT_ID}', '--format', '{{.ID}}'], check=False)
+        if p_owned.returncode != 0:
+            raise RuntimeError(f"Owned container inventory failed (exit {p_owned.returncode}); refusing reset")
         owned_containers = p_owned.stdout.strip().splitlines() if p_owned.stdout.strip() else []
+        if not owned_containers:
+            raise RuntimeError("Owned container inventory is empty; refusing reset")
         print(f"Owned project containers initialized ({len(owned_containers)} containers): {owned_containers}")
 
         # Get status

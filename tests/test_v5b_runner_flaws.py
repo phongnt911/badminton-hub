@@ -248,6 +248,84 @@ class TestV5bRunnerBehavior(unittest.TestCase):
 
             self.assertIsInstance(raised, PrimaryTestError, f"Expected PrimaryTestError to be re-raised, got {type(raised)}: {raised}")
 
+    def test_r1_project_identity_is_unique_per_run(self):
+        assignment = next(
+            n for n in self.tree.body if isinstance(n, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == 'PROJECT_ID' for t in n.targets)
+        )
+        expression = compile(ast.Expression(assignment.value), str(RUNNER_SRC), 'eval')
+        first = eval(expression, {'uuid': uuid})
+        second = eval(expression, {'uuid': uuid})
+        self.assertTrue(first.startswith('bh07-reset-verify-'))
+        self.assertNotEqual(first, second)
+
+    def test_r1_owned_inventory_must_succeed_before_reset(self):
+        """Execute main through the reset boundary; no real Docker or database."""
+        class ResetBoundary(Exception):
+            pass
+
+        main_node = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
+        for exit_code, inventory, expected_reset in (
+            (0, 'owned-id', True),
+            (1, '', False),
+            (1, 'partial-owned-id', False),
+            (0, '', False),
+        ):
+            with self.subTest(exit_code=exit_code, inventory=inventory), tempfile.TemporaryDirectory() as td:
+                calls = []
+
+                def command(args, **kwargs):
+                    calls.append(args)
+                    if args[:3] == ['npx', 'supabase', 'db']:
+                        raise ResetBoundary('No actual reset is performed')
+                    if args[:3] == ['npx', 'supabase', 'status']:
+                        return SimpleNamespace(returncode=0, stdout=json.dumps({
+                            'API_URL': 'http://127.0.0.1:56421',
+                            'ANON_KEY': 'synthetic', 'SERVICE_ROLE_KEY': 'synthetic',
+                        }), stderr='')
+                    if args[:2] == ['docker', 'ps']:
+                        if '{{.ID}}' in args:
+                            return SimpleNamespace(returncode=exit_code, stdout=inventory, stderr='synthetic failure')
+                        return SimpleNamespace(returncode=0, stdout='', stderr='')
+                    return SimpleNamespace(returncode=0, stdout='', stderr='')
+
+                env = make_preflight_env()
+                env.update({
+                    'run_cmd': command, 'STAMP': 'synthetic', 'BASE_SHA': 'synthetic',
+                    'Path': Path, 'tempfile': SimpleNamespace(gettempdir=lambda: td),
+                    'os': os, 'json': json, 'urllib': urllib, 'shutil': shutil,
+                    'prepare_project_dir': lambda p: p.mkdir(parents=True),
+                    'write_evidence': lambda *a: None, 'log_cmd': lambda *a: None,
+                    'exits': {}, 'audit_results': {},
+                })
+                exec(compile(ast.Module(body=[main_node], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+                raised = None
+                try:
+                    env['main']()
+                except Exception as error:
+                    raised = error
+                self.assertEqual(any(a[:3] == ['npx', 'supabase', 'db'] for a in calls), expected_reset)
+                self.assertIsInstance(raised, ResetBoundary if expected_reset else RuntimeError)
+
+    def test_r2_gateway_tuple_rejects_every_unmapped_code(self):
+        helper = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef)
+                      and n.name == 'assert_negative_auth_rejection')
+        env = {}
+        exec(compile(ast.Module(body=[helper], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+        verify = env['assert_negative_auth_rejection']
+        message = 'No API key found in request'
+        verify('gateway', 401, {'message': message}, 'no_apikey')
+        for status in (401, 403):
+            verify('postgrest', status, {
+                'code': '42501', 'message': 'permission denied for function complete_session',
+            }, 'no_apikey')
+        for code in ('42P01', '23505', 'P0001', 'UNKNOWN_AUTH_CODE', None, ''):
+            with self.subTest(code=code), self.assertRaises(AssertionError):
+                verify('unknown', 401, {'code': code, 'message': message}, 'no_apikey')
+        for status, text in ((403, message), (401, 'prefix ' + message), (401, message + ' suffix')):
+            with self.subTest(status=status, message=text), self.assertRaises(AssertionError):
+                verify('invalid-gateway', status, {'message': text}, 'no_apikey')
+
     def test_r5_mutant_detection(self):
         """R5: Demonstrates that neutralizing the preflight gate causes behavioral tests to FAIL."""
         with tempfile.TemporaryDirectory() as td:
