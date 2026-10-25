@@ -1,0 +1,49 @@
+{
+  "source": "8c107e9692b89f4a0aadeafc0ae139736f9b2622",
+  "base": "a55c2d2416f37a0bb8ac985e80bdee579b40774b",
+  "docs_evidence_tip": "b036e9e65c3065e90454a6e645960599e633757b",
+  "reviewer_platform": "linux",
+  "clean_before_checks": true,
+  "prior_baseline_authorship_disclosed": true,
+  "reviewer_commands": {
+    "python_unittest": {
+      "exit": 0,
+      "tests": 21
+    },
+    "flutter_analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_no_pub": {
+      "exit": 0,
+      "passed": 240,
+      "skipped": 1
+    },
+    "strict_qa_bundle_verify": {
+      "exit": 0,
+      "files": 17
+    },
+    "audit_final": {
+      "exit": 0
+    },
+    "docker_ps_local": {
+      "exit": 0,
+      "matching_containers": 0
+    }
+  },
+  "full_cli_reviewer_rerun": {
+    "status": "NOT RUN",
+    "available_disk_mb_approx": 653,
+    "reason": "Insufficient disk; rerun optional in request. No images pulled or stack started. Never overwrite supplied QA evidence."
+  },
+  "qa_runtime_evidence_audited": {
+    "cycles": 2,
+    "migration_count_per_cycle": 18,
+    "db_assertions_per_cycle": 23,
+    "http_records_per_cycle": 16,
+    "oracle_scope": "schema_sha256_and_row_counts",
+    "tables": 48,
+    "cleanup_success_recorded": true
+  },
+  "verdict_scope": "V5b local; QA runtime audited, not reexecuted by reviewer; not full BH07 acceptance"
+}

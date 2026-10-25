@@ -1,0 +1,24 @@
+M	AGENTS.md
+M	docs/09_IMPLEMENTATION_PLAN.md
+M	docs/reviews/bh07/bh07_readiness.md
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/auth_seed_cycle1.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/auth_seed_cycle2.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/commands.md
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/db_assertions_cycle1.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/db_assertions_cycle2.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/environment.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/exits.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/hashes.sha256
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/http_audit_cycle1.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/http_audit_cycle2.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/manifest_readonly.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/negative_controls.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/reset_cycle1.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/reset_cycle2.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/snapshot_comparison.json
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/start.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/stop.log
+A	docs/reviews/bh07/full_reset_8c107e9_evidence/summary.json
+M	docs/reviews/bh07/full_reset_handoff.md
+
+Source tree diff 8c107e9..docs tip:
