@@ -1,0 +1,38 @@
+{
+  "tested_source_sha": "ccad24cf67eabb5c17de285792fe96bca21714aa",
+  "git_dirty": true,
+  "timestamp": "2026-10-25T15:09:34.225472+00:00",
+  "environment": {
+    "os": "win32",
+    "dart_version": "Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
+    "flutter_version": "Flutter 3.47.6 \u00e2\u20ac\u00a2 channel stable \u00e2\u20ac\u00a2 https://github.com/flutter/flutter.git"
+  },
+  "gate": "V2b \u2014 Private Dart Heap / In-Memory Retention & Isolation",
+  "ast_audit": {
+    "verdict": "CLEAN",
+    "static_mutables_found": 0,
+    "provider_lifecycle_proper_disposal": true
+  },
+  "heap_test_suite": {
+    "verdict": "PASS",
+    "tests_total": 7,
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "sanitized": true,
+  "sanitization_notes": "100% sanitized. Contains no raw bank account numbers, passwords, JWTs or PII.",
+  "methodology": "Dart VM WeakReference and Finalizer lifecycle tracking combined with generational garbage collection allocation pressure. Directly probes object retention in the Dart application instance across Owner -> Logout -> Cohost -> Member lifecycle.",
+  "limitations": "Measured in Dart VM Runtime Test Harness under Windows 64-bit environment. Full Chrome DevTools Protocol .heapsnapshot dump on production Web build is NOT RUN due to headless CLI environment constraints. State remains Ch\u1edd review."
+}

@@ -1,0 +1,48 @@
+{
+  "total_dart_files_scanned": 38,
+  "static_mutable_collections_found": 0,
+  "static_mutable_details": [],
+  "providers_lifecycle_audit": {
+    "auth_provider.dart": {
+      "file": "lib/providers/auth_provider.dart",
+      "has_auth_listener": false,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "NONE"
+    },
+    "finance_provider.dart": {
+      "file": "lib/providers/finance_provider.dart",
+      "has_auth_listener": true,
+      "removes_auth_listener_on_dispose": true,
+      "has_clear_all_method": true,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "NONE"
+    },
+    "session_provider.dart": {
+      "file": "lib/providers/session_provider.dart",
+      "has_auth_listener": true,
+      "removes_auth_listener_on_dispose": true,
+      "has_clear_all_method": true,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "NONE"
+    },
+    "club_provider.dart": {
+      "file": "lib/providers/club_provider.dart",
+      "has_auth_listener": true,
+      "removes_auth_listener_on_dispose": true,
+      "has_clear_all_method": true,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "NONE"
+    }
+  },
+  "overall_ast_verdict": "CLEAN"
+}
