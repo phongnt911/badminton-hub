@@ -1,8 +1,8 @@
 {
   "status": "PASS",
   "verdict": "Người triển khai tự sửa/tự kiểm — Chờ review",
-  "tested_source_sha": "cad3fa0a7c57410af648ef214c02289021c1deea",
-  "base_review_sha": "e00db30d018da86f8fa94250a000f0bf825fc139",
+  "tested_source_sha": "8c107e9692b89f4a0aadeafc0ae139736f9b2622",
+  "base_review_sha": "a55c2d2416f37a0bb8ac985e80bdee579b40774b",
   "baseline_origin_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
   "cycles_executed": 2,
   "oracle_scope": "schema_sha256_and_row_counts",
