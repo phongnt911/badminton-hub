@@ -1,0 +1,4 @@
+{
+  "wrong_exact_target_mutant_rejected": true,
+  "assertion": "Assertion failed: Confirmed payments count matches fixture + http cash (count=2)"
+}

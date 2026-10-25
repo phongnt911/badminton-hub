@@ -1,0 +1,39 @@
+{
+  "source": "8c107e9692b89f4a0aadeafc0ae139736f9b2622",
+  "docs_tip": "8d48cdc6feb60b7b6479bb8792f1e8a759aa4cf8",
+  "base_requested": "a55c2d22b27bc89d53f58a74b0fa038ff31c0396",
+  "base_actual": "a55c2d2416f37a0bb8ac985e80bdee579b40774b",
+  "clean_before_checks": true,
+  "runtime_source_equal_docs_tree": true,
+  "platform": "linux",
+  "prior_baseline_authorship_disclosed": true,
+  "exits": {
+    "python_unittest": 0,
+    "analyze_no_pub": 0,
+    "flutter_test_no_pub": 0,
+    "strict_verify": 0,
+    "requested_full_runner_invalid_base": 1,
+    "independent_probes": 0,
+    "mutant_control": 0
+  },
+  "counts": {
+    "python_tests_pass": 21,
+    "flutter_tests_pass": 240,
+    "flutter_skip": 1,
+    "analyze_issues": 0,
+    "manifest_files": 17,
+    "reviewer_full_cli_cycles": 0
+  },
+  "full_cli_corrected_base": {
+    "status": "NOT RUN",
+    "reason": "654 MB free disk; no image pulls or reset attempted. Author runtime is not reviewer runtime."
+  },
+  "docker_inventory_before_and_after_probes": {
+    "matching_containers": 0,
+    "new_containers_created": 0
+  },
+  "source_hashes": {
+    "scripts/bh07_reset/run_full_reset.py": "1c972b11036cbc115052638f7b292e7ea1988921810858ef2a40ce05441a7009",
+    "tests/test_v5b_runner_flaws.py": "536944f61653c01f16266ca0a1a7b8ea15a934dc6a1b8f2f55ac5da7544650f3"
+  }
+}

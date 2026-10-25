@@ -1,0 +1,45 @@
+{
+  "environment.json": {
+    "base_review_sha": "a55c2d2416f37a0bb8ac985e80bdee579b40774b",
+    "tested_source_sha": "8c107e9692b89f4a0aadeafc0ae139736f9b2622",
+    "git_dirty": false
+  },
+  "summary.json": {
+    "tested_source_sha": "8c107e9692b89f4a0aadeafc0ae139736f9b2622",
+    "base_review_sha": "a55c2d2416f37a0bb8ac985e80bdee579b40774b",
+    "cycles_executed": 2,
+    "oracle_scope": "schema_sha256_and_row_counts",
+    "oracle_schema_match": true,
+    "oracle_row_counts_match": true,
+    "oracle_different_data_tables_count": 24,
+    "db_assertions_cycle1": 23,
+    "db_assertions_cycle2": 23,
+    "negative_controls_pass": true,
+    "cleanup_success": true
+  },
+  "snapshot_comparison.json": {
+    "oracle_scope": "schema_sha256_and_row_counts",
+    "oracle_schema_match": true
+  },
+  "exits.json": {
+    "supabase_start": 0,
+    "reset_cycle1": 0,
+    "reset_cycle2": 0,
+    "supabase_stop": 0
+  },
+  "cycle1": {
+    "db_details": 23,
+    "db_pass": 23,
+    "http_records": 16,
+    "http_all_pass": true,
+    "migrations_in_log": 18
+  },
+  "cycle2": {
+    "db_details": 23,
+    "db_pass": 23,
+    "http_records": 16,
+    "http_all_pass": true,
+    "migrations_in_log": 18
+  },
+  "five_historical_dirs_unchanged": true
+}

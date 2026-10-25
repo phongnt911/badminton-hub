@@ -1,0 +1,12 @@
+=== Starting V5b Full Supabase CLI Reset Verification ===
+Timestamp: 20261025T140254Z
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/scripts/bh07_reset/run_full_reset.py", line 1377, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/badminton-hub/scripts/bh07_reset/run_full_reset.py", line 966, in main
+    base_review_sha = resolve_base_review(sys.argv[1:])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/badminton-hub/scripts/bh07_reset/run_full_reset.py", line 230, in resolve_base_review
+    raise ValueError(f"Base review commit SHA '{sha}' is invalid or does not exist in repository git history.")
+ValueError: Base review commit SHA 'a55c2d22b27bc89d53f58a74b0fa038ff31c0396' is invalid or does not exist in repository git history.

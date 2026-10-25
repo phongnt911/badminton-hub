@@ -1,0 +1,38 @@
+{
+  "timeout_raised": true,
+  "parent_and_grandchild": {
+    "elapsed_seconds": 1.0020438810024643,
+    "runner_group": 11142,
+    "command_group": 11148,
+    "group_isolated": true,
+    "post_timeout_states": {
+      "11148": "absent",
+      "11149": "Z"
+    },
+    "all_not_running": true
+  },
+  "sql_calls": [
+    {
+      "timeout": 60,
+      "check": true,
+      "stdin_supplied": true
+    },
+    {
+      "timeout": 60,
+      "check": false,
+      "stdin_supplied": true
+    },
+    {
+      "timeout": 60,
+      "check": true,
+      "stdin_supplied": true
+    },
+    {
+      "timeout": 60,
+      "check": false,
+      "stdin_supplied": true
+    }
+  ],
+  "actual_base_resolves": true,
+  "invalid_requested_base_rejected": true
+}

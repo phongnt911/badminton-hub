@@ -1,0 +1,2 @@
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+ALL CHECKS PASSED: 17/17 files verified, 0 secret/JWT outside allowlist, strict UTF-8 LF.
