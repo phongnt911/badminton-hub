@@ -1,0 +1,25 @@
+{
+  "manifest_entries": 4,
+  "matching_present": 3,
+  "missing": [
+    "heap_test_run.log"
+  ],
+  "mismatch": [],
+  "before": {
+    "summary.json": "5ade4f79841c19ba250804af1c62c9f62f6cacf4796207054c5d0f3d88dbd673",
+    "ast_memory_audit.json": "6dbc7206f318d027699b35c6d959e104415fc39381fcd7e0ce60762502b6eb56",
+    "hashes.sha256": "cbf852c0f5001037c85bc594044027b177706e0817329a8122049d65b7d0bba2",
+    "heap_verification_report.md": "c1bcd1189c9913bd65b0ee809a1388c745d829baf9b6c83862a20763fbfbdcfc"
+  },
+  "after": {
+    "summary.json": "5ade4f79841c19ba250804af1c62c9f62f6cacf4796207054c5d0f3d88dbd673",
+    "ast_memory_audit.json": "6dbc7206f318d027699b35c6d959e104415fc39381fcd7e0ce60762502b6eb56",
+    "hashes.sha256": "cbf852c0f5001037c85bc594044027b177706e0817329a8122049d65b7d0bba2",
+    "heap_verification_report.md": "c1bcd1189c9913bd65b0ee809a1388c745d829baf9b6c83862a20763fbfbdcfc"
+  },
+  "readonly": true,
+  "verify_exit": 1,
+  "actual_docs_sha": "eb4362bcec70e0922204b6a1040b02cbdb0f0924",
+  "source_parent": "aca3f08a80d359ad1a69c444f428c6b8f5142cc8",
+  "runtime_tree_changed_after_source": false
+}

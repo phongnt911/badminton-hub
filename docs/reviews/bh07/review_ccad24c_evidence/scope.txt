@@ -1,0 +1,6 @@
+A	scripts/bh07_heap/audit_ast_memory.py
+A	scripts/bh07_heap/clean_and_manifest.py
+A	scripts/bh07_heap/run_heap_verification.py
+A	test/integration/bh07_heap_verification_test.dart
+
+lib/supabase diff:

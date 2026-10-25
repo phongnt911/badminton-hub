@@ -1,0 +1,45 @@
+{
+  "source": "ccad24cf67eabb5c17de285792fe96bca21714aa",
+  "base": "aca3f08a80d359ad1a69c444f428c6b8f5142cc8",
+  "docs_sha_requested": "eb4362b083832ffc9fe6d3be9f67a21394a17ef0",
+  "actual_origin_docs_sha": "eb4362bcec70e0922204b6a1040b02cbdb0f0924",
+  "clean_before_tests": true,
+  "platform": "linux",
+  "flutter": "3.47.7",
+  "author_environment": "Windows Flutter3.47.6",
+  "commands": {
+    "heap_test_no_pub": {
+      "exit": 0,
+      "passed": 7
+    },
+    "analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_no_pub": {
+      "exit": 0,
+      "passed": 247,
+      "skipped": 1
+    },
+    "ast_cli_disposable_copy": {
+      "exit": 0,
+      "scanned": 38,
+      "json_identical_to_author": true
+    },
+    "probes": {
+      "exit": 0
+    },
+    "verify_author_bundle": {
+      "exit": 1,
+      "reason": "missing heap_test_run.log"
+    }
+  },
+  "full_heap_profile_app_runtime": "NOT RUN; no real app/Auth/repository/widget graph measured by handed-off harness",
+  "optional_full_orchestrator": "NOT RUN to preserve author evidence; constituent commands replayed independently; summary failure probe isolated",
+  "source_hashes": {
+    "scripts/bh07_heap/clean_and_manifest.py": "7b576cbdd80647e0a838992c67c4c2634311583869a8012ff6968365934cfb89",
+    "scripts/bh07_heap/audit_ast_memory.py": "06b3079f2ebcadb1ad9f392c6ff7c8b4cf66fff3c060d1618b4c23e35d38d6de",
+    "scripts/bh07_heap/run_heap_verification.py": "429c7947b1c9482d3b1f141d7485e5382df34b1e71d58084e31b6596c07b8d71",
+    "test/integration/bh07_heap_verification_test.dart": "8ebd5faa445c8da5fd93f18c4270b75ce8b98ed8e7c4699b49bc3cd0c516d115"
+  }
+}
