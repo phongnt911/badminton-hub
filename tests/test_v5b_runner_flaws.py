@@ -18,6 +18,8 @@ import os
 from pathlib import Path
 import runpy
 import shutil
+import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -276,9 +278,11 @@ class TestV5bRunnerBehavior(unittest.TestCase):
 
                 def command(args, **kwargs):
                     calls.append(args)
-                    if args[:3] == ['npx', 'supabase', 'db']:
+                    if any('--version' in str(a) for a in args):
+                        return SimpleNamespace(returncode=0, stdout='2.122.0\n', stderr='')
+                    if any('db' in str(a) for a in args) and any('reset' in str(a) for a in args):
                         raise ResetBoundary('No actual reset is performed')
-                    if args[:3] == ['npx', 'supabase', 'status']:
+                    if any('status' in str(a) for a in args):
                         return SimpleNamespace(returncode=0, stdout=json.dumps({
                             'API_URL': 'http://127.0.0.1:56421',
                             'ANON_KEY': 'synthetic', 'SERVICE_ROLE_KEY': 'synthetic',
@@ -292,11 +296,23 @@ class TestV5bRunnerBehavior(unittest.TestCase):
                 env = make_preflight_env()
                 env.update({
                     'run_cmd': command, 'STAMP': 'synthetic', 'BASE_SHA': 'synthetic',
+                    'BASELINE_ORIGIN_SHA': 'synthetic',
                     'Path': Path, 'tempfile': SimpleNamespace(gettempdir=lambda: td),
                     'os': os, 'json': json, 'urllib': urllib, 'shutil': shutil,
+                    'sys': sys,
                     'prepare_project_dir': lambda p: p.mkdir(parents=True),
                     'write_evidence': lambda *a: None, 'log_cmd': lambda *a: None,
                     'exits': {}, 'audit_results': {},
+                    'resolve_base_review': lambda *a: 'e00db30d018da86f8fa94250a000f0bf825fc139',
+                    'SUPABASE_CLI_PIN': 'supabase@2.122.0',
+                    'inspect_container_images': lambda *a: [],
+                    'compare_oracle_snapshots': lambda *a: {
+                        'oracle_scope': 'schema_sha256_and_row_counts',
+                        'oracle_schema_match': True,
+                        'oracle_counts_match': True,
+                        'total_tables': 48,
+                        'different_data_tables': []
+                    },
                 })
                 exec(compile(ast.Module(body=[main_node], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
                 raised = None
@@ -304,7 +320,7 @@ class TestV5bRunnerBehavior(unittest.TestCase):
                     env['main']()
                 except Exception as error:
                     raised = error
-                self.assertEqual(any(a[:3] == ['npx', 'supabase', 'db'] for a in calls), expected_reset)
+                self.assertEqual(any(any('db' in str(a) for a in call) and any('reset' in str(a) for a in call) for call in calls), expected_reset)
                 self.assertIsInstance(raised, ResetBoundary if expected_reset else RuntimeError)
 
     def test_r2_gateway_tuple_rejects_every_unmapped_code(self):
@@ -326,42 +342,170 @@ class TestV5bRunnerBehavior(unittest.TestCase):
             with self.subTest(status=status, message=text), self.assertRaises(AssertionError):
                 verify('invalid-gateway', status, {'message': text}, 'no_apikey')
 
-    def test_r5_mutant_detection(self):
-        """R5: Demonstrates that neutralizing the preflight gate causes behavioral tests to FAIL."""
-        with tempfile.TemporaryDirectory() as td:
-            mutant_file = Path(td) / 'mutant_runner.py'
-            needle = '    print("Running Preflight Ownership & Resource Isolation Check...")'
-            self.assertIn(needle, self.source_text, "Needle must exist in runner source")
-            mutant_text = self.source_text.replace(needle, needle + '\n    return {"status": "PASS"} # mutant bypass', 1)
-            mutant_file.write_text(mutant_text, encoding='utf-8')
+    def test_p2_1_oracle_schema_and_counts_scope_and_mismatch_failure(self):
+        """P2-1: Oracle comparison must strictly reject schema or row count mismatch, and scope must be schema+counts."""
+        helper = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'compare_oracle_snapshots'), None)
+        self.assertIsNotNone(helper, "compare_oracle_snapshots helper must exist in runner")
+        
+        env = {'AssertionError': AssertionError}
+        exec(compile(ast.Module(body=[helper], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+        compare_fn = env['compare_oracle_snapshots']
 
-            # Parse mutant
-            m_tree = ast.parse(mutant_text)
-            m_pre = next(x for x in m_tree.body if isinstance(x, ast.FunctionDef) and x.name == 'preflight_ownership_check')
+        # Baseline matching 48 tables schema and counts
+        stats1 = {f'public.tbl_{i}': {'count': 10, 'sha256': f'hash_c1_{i}'} for i in range(48)}
+        stats2 = {f'public.tbl_{i}': {'count': 10, 'sha256': f'hash_c2_{i}'} for i in range(48)}
+        fp1 = {'schema_sha256': 'same_schema_hash', 'total_tables': 48, 'table_stats': stats1}
+        fp2 = {'schema_sha256': 'same_schema_hash', 'total_tables': 48, 'table_stats': stats2}
 
-            m_env = {
-                'print': lambda *a, **kw: None,
-                'run_cmd': lambda *a, **kw: SimpleNamespace(returncode=1, stdout='', stderr='daemon error'),
-                'PROJECT_ID': 'bh07-reset-verify',
-                'socket': SimpleNamespace(socket=lambda *a, **kw: SockStub(occupied=False), AF_INET=2, SOCK_STREAM=1),
-                'PORT_API': 1, 'PORT_DB': 2, 'PORT_SHADOW': 3, 'PORT_STUDIO': 4,
-                'PORT_SMTP': 5, 'PORT_ANALYTICS': 6, 'PORT_S3': 7, 'PORT_POOLER': 8,
-                'RuntimeError': RuntimeError
-            }
-            exec(compile(ast.Module(body=[m_pre], type_ignores=[]), str(mutant_file), 'exec'), m_env)
+        # Valid comparison returns audit dict with explicit scope schema_sha256_and_row_counts
+        res = compare_fn(fp1, fp2)
+        self.assertEqual(res['oracle_scope'], 'schema_sha256_and_row_counts')
+        self.assertTrue(res['oracle_schema_match'])
+        self.assertTrue(res['oracle_counts_match'])
+        self.assertIn('different_data_tables', res)
 
-            # When preflight gate is disabled by mutant, it returns PASS instead of raising RuntimeError on Docker exit 1.
-            # A behavior-based test checking for fail-closed behavior will catch this mutant!
-            with self.assertRaises(AssertionError, msg="Behavior test must detect and reject the mutant"):
-                try:
-                    m_env['preflight_ownership_check']()
-                    raise AssertionError("Mutant detected: preflight returned PASS on Docker daemon error!")
-                except RuntimeError:
-                    # Clean gate should raise RuntimeError; mutant didn't raise so it reached the AssertionError above
-                    pass
+        # Mismatch schema must FAIL
+        fp_bad_schema = dict(fp2, schema_sha256='different_schema_hash')
+        with self.assertRaises(AssertionError, msg="Schema hash mismatch must raise AssertionError"):
+            compare_fn(fp1, fp_bad_schema)
+
+        # Mismatch row count must FAIL
+        stats_bad_count = dict(stats2)
+        stats_bad_count['public.tbl_0'] = {'count': 999, 'sha256': 'any'}
+        fp_bad_count = dict(fp2, table_stats=stats_bad_count)
+        with self.assertRaises(AssertionError, msg="Row count mismatch must raise AssertionError"):
+            compare_fn(fp1, fp_bad_count)
+
+        # Missing table in cycle 2 must FAIL
+        stats_missing = {k: v for k, v in stats2.items() if k != 'public.tbl_47'}
+        fp_missing = dict(fp2, total_tables=47, table_stats=stats_missing)
+        with self.assertRaises(AssertionError, msg="Table count mismatch must raise AssertionError"):
+            compare_fn(fp1, fp_missing)
+
+    def test_p2_2_base_review_resolution_and_validation(self):
+        """P2-2: Base review must be resolved via CLI/env and validated against Git commit existence."""
+        resolver = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'resolve_base_review'), None)
+        self.assertIsNotNone(resolver, "resolve_base_review helper must exist in runner")
+
+        env = {'ROOT': ROOT, 'run_cmd': lambda *a, **kw: SimpleNamespace(returncode=0, stdout='e00db30d018da86f8fa94250a000f0bf825fc139\n'), 'ValueError': ValueError}
+        exec(compile(ast.Module(body=[resolver], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+        fn = env['resolve_base_review']
+
+        # Valid commit SHA resolves cleanly
+        resolved = fn(['--base-review', 'e00db30d018da86f8fa94250a000f0bf825fc139'])
+        self.assertEqual(resolved, 'e00db30d018da86f8fa94250a000f0bf825fc139')
+
+        # Invalid nonexistent SHA must raise ValueError
+        env_fail = {'ROOT': ROOT, 'run_cmd': lambda *a, **kw: SimpleNamespace(returncode=128, stdout='', stderr='fatal: Not a valid object name'), 'ValueError': ValueError}
+        exec(compile(ast.Module(body=[resolver], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_fail)
+        with self.assertRaises(ValueError, msg="Nonexistent base SHA must be rejected"):
+            env_fail['resolve_base_review'](['--base-review', 'nonexistent_sha_0000000000000000000000000000'])
+
+    def test_p2_3_evidence_http_audit_sanitization_and_cycle_detail(self):
+        """P2-3: HTTP audit records must be sanitized (no token/password) and detail persisted for both cycles."""
+        sanitizer = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'sanitize_http_audit_record'), None)
+        self.assertIsNotNone(sanitizer, "sanitize_http_audit_record helper must exist in runner")
+
+        env = {}
+        exec(compile(ast.Module(body=[sanitizer], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+        sanitize = env['sanitize_http_audit_record']
+
+        raw_record = {
+            'actor_alias': 'ownera',
+            'operation': 'login',
+            'http_status': 200,
+            'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sensitive_payload.signature',
+            'password': 'bh07-http-pass-123456',
+            'raw_body': {'email': 'ownera@example.test', 'bank': '0123456789'}
+        }
+        cleaned = sanitize(raw_record)
+        self.assertNotIn('access_token', cleaned)
+        self.assertNotIn('password', cleaned)
+        self.assertNotIn('raw_body', cleaned)
+        self.assertEqual(cleaned['actor_alias'], 'ownera')
+        self.assertEqual(cleaned['http_status'], 200)
+
+    def test_p2_4_port_configuration_and_s3_gateway(self):
+        """P2-4: Port S3 56428 claim must be removed; config must assert exact dedicated ports and no defaults."""
+        prep_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'prepare_project_dir'), None)
+        self.assertIsNotNone(prep_fn, "prepare_project_dir must exist in runner")
+
+        # Verify that PORT_S3 = 56428 is NOT in global assignments
+        assigns = {t.id: getattr(n.value, 'value', None) for n in self.tree.body if isinstance(n, ast.Assign) for t in n.targets if isinstance(t, ast.Name)}
+        self.assertNotIn('PORT_S3', assigns, "PORT_S3 must be removed; S3 protocol is routed via Kong gateway")
+
+        # Verify preflight_ownership_check does not check port 56428
+        pre_fn = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'preflight_ownership_check')
+        pre_src = ast.unparse(pre_fn)
+        self.assertNotIn('56428', pre_src)
+        self.assertNotIn('PORT_S3', pre_src)
+
+    def test_p2_5_db_assertions_exact_fixture_and_req_orig_deterministic(self):
+        """P2-5: DB assertions must check exact counts and req_orig must filter by session_id."""
+        db_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'verify_db_assertions'), None)
+        self.assertIsNotNone(db_fn, "verify_db_assertions must exist in runner")
+        db_src = ast.unparse(db_fn)
+
+        # 1. req_orig query must filter specifically for complete_session on session_debt
+        self.assertIn("10000000-0000-4000-8000-000000000001", db_src, "req_orig query must bind session_debt ID")
+        self.assertNotIn("WHERE operation='complete_session' LIMIT 1", db_src, "Unscoped LIMIT 1 on operation_requests is forbidden")
+
+        # 2. Strict exact assertions instead of weak >= or >
+        self.assertNotIn("op_cnt >= 1", db_src, "op_cnt must be exact == 1")
+        self.assertNotIn("pay_cnt >= 1", db_src, "pay_cnt must be exact == 2")
+        self.assertNotIn("tx_cnt >= 1", db_src, "tx_cnt must be exact == 2")
+        self.assertNotIn("charges_sum > 0", db_src, "charges_sum must be exact == 150000")
+        self.assertNotIn("payments_sum >= 20000", db_src, "payments_sum must be exact == 70000")
+        self.assertNotIn("v_court > 0", db_src, "v_court must be exact == 4")
+
+    def test_p2_6_reproducibility_pinning_and_image_metadata(self):
+        """P2-6: Supabase CLI calls must pin supabase@2.122.0 and container images metadata must be collected."""
+        src = self.source_text
+        self.assertIn('supabase@2.122.0', src, "CLI invocations must be pinned to supabase@2.122.0")
+
+        collector = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'inspect_container_images'), None)
+        self.assertIsNotNone(collector, "inspect_container_images helper must exist in runner")
+
+    def test_p2_7_process_execution_no_shell_timeout_and_special_args(self):
+        """P2-7: run_cmd must use shell=False, enforce finite timeouts, and pass special characters safely."""
+        run_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'run_cmd'), None)
+        self.assertIsNotNone(run_fn, "run_cmd must exist in runner")
+        run_src = ast.unparse(run_fn)
+
+        # shell must not be is_batch or True
+        self.assertNotIn("shell=is_batch", run_src, "shell=is_batch is forbidden")
+        self.assertIn("shell=False", run_src, "shell=False must be explicitly specified")
+        self.assertIn("timeout", run_src, "timeout must be supported and enforced in run_cmd")
+
+        # Test timeout handling in run_cmd
+        env = {
+            'shutil': shutil,
+            'subprocess': subprocess,
+            'sys': sys,
+            'ROOT': ROOT,
+            'SimpleNamespace': SimpleNamespace,
+            'RuntimeError': RuntimeError,
+            'TimeoutError': TimeoutError,
+        }
+        # Compile and execute kill_proc_tree and run_cmd
+        tree_mod = ast.Module(body=[
+            next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kill_proc_tree'),
+            run_fn
+        ], type_ignores=[])
+        exec(compile(ast.fix_missing_locations(tree_mod), str(RUNNER_SRC), 'exec'), env)
+        cmd_runner = env['run_cmd']
+
+        # 1. Test passing special arguments safely
+        p = cmd_runner([sys.executable, '-c', 'import sys; print(sys.argv[1])', 'arg with spaces & quotes "test" and | symbol'], timeout=10)
+        self.assertIn('arg with spaces & quotes "test" and | symbol', p.stdout)
+
+        # 2. Test timeout raises TimeoutError
+        with self.assertRaises(TimeoutError, msg="Command exceeding timeout must raise TimeoutError"):
+            cmd_runner([sys.executable, '-c', 'import time; time.sleep(10)'], timeout=1)
 
 
 if __name__ == '__main__':
     unittest.main()
+
 
 

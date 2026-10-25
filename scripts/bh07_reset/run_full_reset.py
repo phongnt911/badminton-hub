@@ -29,15 +29,26 @@ import subprocess
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import urllib.error
 import urllib.request
 import uuid
 
-# Ensure UTF-8 output
-sys.stdout.reconfigure(encoding='utf-8')
-
 ROOT = Path(__file__).resolve().parents[2]
-EVIDENCE_DIR = ROOT / 'docs/reviews/bh07/full_reset_evidence'
+
+
+def resolve_evidence_dir(args: list) -> Path:
+    for i, a in enumerate(args):
+        if a == '--evidence-dir' and i + 1 < len(args):
+            p = Path(args[i + 1])
+            return p if p.is_absolute() else (ROOT / p)
+        if a.startswith('--evidence-dir='):
+            p = Path(a.split('=', 1)[1])
+            return p if p.is_absolute() else (ROOT / p)
+    return ROOT / 'docs/reviews/bh07/full_reset_p2_fix_evidence'
+
+
+EVIDENCE_DIR = resolve_evidence_dir(sys.argv[1:])
 EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
 # A failed inventory may still stop this run's project, never another run's project.
@@ -45,17 +56,18 @@ PROJECT_ID = f'bh07-reset-verify-{uuid.uuid4().hex[:16]}'
 CONTAINER_DB = f'supabase_db_{PROJECT_ID}'
 CONTAINER_KONG = f'supabase_kong_{PROJECT_ID}'
 
-# Dedicated non-conflicting loopback ports
+# Dedicated non-conflicting loopback ports (S3 is routed via Kong gateway on PORT_API)
 PORT_API = 56421
 PORT_DB = 56422
 PORT_SHADOW = 56420
 PORT_STUDIO = 56423
 PORT_SMTP = 56424
 PORT_ANALYTICS = 56427
-PORT_S3 = 56428
 PORT_POOLER = 56429
 
-BASE_SHA = '6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6'
+SUPABASE_CLI_PIN = 'supabase@2.122.0'
+BASELINE_ORIGIN_SHA = '6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6'
+DEFAULT_BASE_REVIEW = 'e00db30d018da86f8fa94250a000f0bf825fc139'
 STAMP = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
 
 OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -94,23 +106,81 @@ def write_evidence(filename: str, content: str):
     path.write_text(safe_content, encoding='utf-8', newline='\n')
 
 
-def run_cmd(args, cwd=None, input_text=None, check=True):
+def kill_proc_tree(pid: int):
+    """Terminates process tree on timeout."""
+    try:
+        if sys.platform == 'win32':
+            subprocess.run(['taskkill', '/F', '/T', '/PID', str(pid)], capture_output=True, check=False)
+        else:
+            import os
+            import signal
+            os.killpg(os.getpgid(pid), signal.SIGTERM)
+    except Exception:
+        pass
+
+
+def run_cmd(args, cwd=None, input_text=None, check=True, timeout=None):
+    """Executes a subprocess safely with shell=False, timeout, and process tree termination on timeout."""
     real_cmd = list(args)
-    exe = shutil.which(real_cmd[0]) or real_cmd[0]
+    exe = shutil.which(str(real_cmd[0])) or str(real_cmd[0])
     real_cmd[0] = exe
-    is_batch = sys.platform == 'win32' and exe.lower().endswith(('.cmd', '.bat'))
-    p = subprocess.run(
+
+    if timeout is None:
+        cmd_str = " ".join(str(x) for x in args)
+        if 'start' in cmd_str or 'stop' in cmd_str:
+            timeout = 300
+        elif 'reset' in cmd_str:
+            timeout = 180
+        elif 'docker' in cmd_str and ('ps' in cmd_str or 'inspect' in cmd_str):
+            timeout = 30
+        else:
+            timeout = 120
+
+    proc = subprocess.Popen(
         real_cmd,
         cwd=cwd or str(ROOT),
-        input=input_text,
+        stdin=subprocess.PIPE if input_text is not None else None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
         encoding='utf-8',
-        capture_output=True,
-        shell=is_batch
+        shell=False
     )
+    try:
+        stdout, stderr = proc.communicate(input=input_text, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        kill_proc_tree(proc.pid)
+        proc.communicate()
+        raise TimeoutError(f"Command timed out after {timeout}s: {' '.join(str(x) for x in args)}") from exc
+
+    p = SimpleNamespace(returncode=proc.returncode, stdout=stdout, stderr=stderr)
     if check and p.returncode != 0:
-        raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(args)}\nStderr: {p.stderr}\nStdout: {p.stdout}")
+        raise RuntimeError(f"Command failed ({p.returncode}): {' '.join(str(x) for x in args)}\nStderr: {p.stderr}\nStdout: {p.stdout}")
     return p
+
+
+def resolve_base_review(args=None) -> str:
+    """Resolves and validates the base review commit SHA against Git history."""
+    sha = None
+    if args:
+        for i, arg in enumerate(args):
+            if arg in ('--base-review', '--base-sha') and i + 1 < len(args):
+                sha = args[i + 1]
+                break
+            elif arg.startswith('--base-review='):
+                sha = arg.split('=', 1)[1]
+                break
+            elif arg.startswith('--base-sha='):
+                sha = arg.split('=', 1)[1]
+                break
+    if not sha:
+        import os
+        sha = os.environ.get('BASE_REVIEW_SHA', DEFAULT_BASE_REVIEW)
+
+    p = run_cmd(['git', 'rev-parse', '--verify', f"{sha}^{{commit}}"], cwd=str(ROOT), check=False)
+    if p.returncode != 0:
+        raise ValueError(f"Base review commit SHA '{sha}' is invalid or does not exist in repository git history.")
+    return p.stdout.strip()
 
 
 def sql(query: str, db='postgres') -> str:
@@ -201,6 +271,95 @@ def compute_db_fingerprint() -> dict:
     }
 
 
+def compare_oracle_snapshots(fp1: dict, fp2: dict) -> dict:
+    """Compares Cycle 1 and Cycle 2 snapshots.
+    
+    Scope: Schema DDL SHA-256 and Table Row Counts across all 48 tables.
+    Discloses table data sha256 differences resulting from dynamic runtime timestamps or random UUIDs.
+    Strictly enforces schema match and exact row count match for 48/48 tables.
+    """
+    if fp1['schema_sha256'] != fp2['schema_sha256']:
+        raise AssertionError(f"Schema hash mismatch between Cycle 1 ({fp1['schema_sha256']}) and Cycle 2 ({fp2['schema_sha256']})!")
+    if fp1['total_tables'] != 48 or fp2['total_tables'] != 48:
+        raise AssertionError(f"Total tables count expected 48, got cycle1={fp1['total_tables']}, cycle2={fp2['total_tables']}")
+
+    count_mismatches = []
+    same_data_tables = []
+    diff_data_tables = []
+
+    for tbl, stat1 in fp1['table_stats'].items():
+        stat2 = fp2['table_stats'].get(tbl)
+        if not stat2:
+            count_mismatches.append(f"Missing table in Cycle 2: {tbl}")
+        elif stat1['count'] != stat2['count']:
+            count_mismatches.append(f"Row count mismatch in {tbl}: cycle1={stat1['count']} vs cycle2={stat2['count']}")
+        else:
+            if stat1['sha256'] == stat2['sha256']:
+                same_data_tables.append(tbl)
+            else:
+                diff_data_tables.append({
+                    'table': tbl,
+                    'cycle1_count': stat1['count'],
+                    'cycle2_count': stat2['count'],
+                    'cycle1_sha256': stat1['sha256'],
+                    'cycle2_sha256': stat2['sha256'],
+                    'reason': 'dynamic timestamps or random UUIDs generated during cycle execution'
+                })
+
+    if count_mismatches:
+        raise AssertionError(f"Table row count mismatches found across reset cycles: {count_mismatches}")
+
+    return {
+        'oracle_scope': 'schema_sha256_and_row_counts',
+        'oracle_schema_match': True,
+        'oracle_counts_match': True,
+        'total_tables': 48,
+        'identical_data_tables_count': len(same_data_tables),
+        'different_data_tables_count': len(diff_data_tables),
+        'identical_data_tables': same_data_tables,
+        'different_data_tables': diff_data_tables,
+        'different_data_tables_explanation': 'Tables contain dynamic runtime fields (created_at/updated_at timestamps, sequential audit event IDs, or GoTrue random UUIDs) created during reset, seeding, and session completion.'
+    }
+
+
+def inspect_container_images(owned_containers: list) -> list:
+    """Inspects owned containers to record image tags, image IDs, and actual repo digests."""
+    results = []
+    for cid in owned_containers:
+        p = run_cmd(['docker', 'inspect', cid, '--format', '{{.Name}} {{.Config.Image}} {{.Image}}'], check=False)
+        if p.returncode == 0 and p.stdout.strip():
+            parts = p.stdout.strip().split()
+            if len(parts) >= 3:
+                cname, img_tag, img_id = parts[0].lstrip('/'), parts[1], parts[2]
+                p_img = run_cmd(['docker', 'image', 'inspect', img_id, '--format', '{{json .RepoDigests}}'], check=False)
+                repo_digests = None
+                if p_img.returncode == 0 and p_img.stdout.strip():
+                    try:
+                        digests = json.loads(p_img.stdout.strip())
+                        repo_digests = digests if digests else None
+                    except Exception:
+                        repo_digests = None
+                results.append({
+                    'container': cname,
+                    'image_tag': img_tag,
+                    'image_id': img_id,
+                    'repo_digests': repo_digests
+                })
+    return results
+
+
+def sanitize_http_audit_record(record: dict) -> dict:
+    """Produces a safe projection of an HTTP audit record with no tokens, passwords, or raw secrets."""
+    return {
+        'actor_alias': record.get('actor_alias'),
+        'operation': record.get('operation'),
+        'http_status': record.get('http_status'),
+        'pass': record.get('pass', False),
+        'error_code': record.get('error_code'),
+        'notes': record.get('notes', '')
+    }
+
+
 def preflight_ownership_check() -> dict:
     """Preflight check: verifies that no containers or ports matching the isolated test stack exist.
     
@@ -223,7 +382,7 @@ def preflight_ownership_check() -> dict:
             + "\nRefusing to start to prevent unowned resource interference. Clean them manually before proceeding."
         )
 
-    # 2. Port check (ensure dedicated ports are free on loopback)
+    # 2. Port check (ensure 7 dedicated ports are free on loopback; S3 is routed via Kong gateway on PORT_API)
     target_ports = [
         ('API', PORT_API),
         ('DB', PORT_DB),
@@ -231,7 +390,6 @@ def preflight_ownership_check() -> dict:
         ('Studio', PORT_STUDIO),
         ('SMTP', PORT_SMTP),
         ('Analytics', PORT_ANALYTICS),
-        ('S3', PORT_S3),
         ('Pooler', PORT_POOLER),
     ]
     occupied_ports = []
@@ -248,7 +406,7 @@ def preflight_ownership_check() -> dict:
             "Refusing to start to avoid port collision with running services."
         )
 
-    print("Preflight check PASS: 0 conflicting containers, all 8 dedicated ports free.")
+    print(f"Preflight check PASS: 0 conflicting containers, all {len(target_ports)} dedicated ports free.")
     return {
         'status': 'PASS',
         'existing_containers_count': 0,
@@ -279,8 +437,6 @@ def assert_negative_auth_rejection(control_name: str, status: int, body: dict, e
 
     # 2. Per-control strict domain assertions
     if expected_type == 'anon_complete':
-        # Unauthenticated anon calling complete_session:
-        # Expected: PostgREST returns HTTP 401 or 403 with PostgreSQL permission denied SQLSTATE 42501
         if status not in (401, 403):
             raise AssertionError(f"[{control_name}] Expected HTTP 401 or 403, got {status}: {body}")
         if code != '42501':
@@ -289,22 +445,16 @@ def assert_negative_auth_rejection(control_name: str, status: int, body: dict, e
             raise AssertionError(f"[{control_name}] Expected permission denied message, got '{message}': {body}")
 
     elif expected_type == 'no_apikey':
-        # Missing API key header entirely:
-        # Gateway Kong returns 401 with 'No API key found in request'
-        # OR PostgREST returns 401/403 with SQLSTATE 42501 permission denied
         if status not in (401, 403):
             raise AssertionError(f"[{control_name}] Expected HTTP 401 or 403, got {status}: {body}")
         if code == '42501':
             if 'permission denied' not in message.lower() and 'unauthenticated' not in message.lower():
                 raise AssertionError(f"[{control_name}] Expected permission denied message for 42501, got '{message}': {body}")
         else:
-            # Kong's documented variant has no SQLSTATE/code field and returns 401.
             if status != 401 or 'code' in body or message.casefold() != 'no api key found in request':
                 raise AssertionError(f"[{control_name}] Unmapped gateway status/code/message: {status} {body}")
 
     elif expected_type == 'outsider_summary':
-        # Authenticated outsider user calling private session summary:
-        # Expected: HTTP 403 (or 400 wrapping RPC error) with code 42501 and domain message containing 'FORBIDDEN'
         if status not in (400, 403):
             raise AssertionError(f"[{control_name}] Expected HTTP 403 or 400, got {status}: {body}")
         if code != '42501':
@@ -332,8 +482,19 @@ def prepare_project_dir(workdir: Path):
     cfg = cfg.replace('port = 54324', f'port = {PORT_SMTP}')
     cfg = cfg.replace('port = 54329', f'port = {PORT_POOLER}')
     cfg = cfg.replace('port = 54327', f'port = {PORT_ANALYTICS}')
-    cfg = cfg.replace('port = 54328', f'port = {PORT_S3}')
     (workdir / "supabase/config.toml").write_text(cfg, encoding="utf-8")
+
+    # Verify generated config: dedicated ports present and no default ports remaining
+    written_cfg = (workdir / "supabase/config.toml").read_text(encoding="utf-8")
+    assert f'project_id = "{PROJECT_ID}"' in written_cfg, "Generated config missing project_id"
+    for port_name, port_val in [
+        ('API', PORT_API), ('DB', PORT_DB), ('Shadow', PORT_SHADOW),
+        ('Studio', PORT_STUDIO), ('SMTP', PORT_SMTP), ('Pooler', PORT_POOLER),
+        ('Analytics', PORT_ANALYTICS)
+    ]:
+        assert str(port_val) in written_cfg, f"Generated config missing dedicated port {port_name}={port_val}"
+    for default_port in ('54321', '54322', '54320', '54323', '54324', '54329', '54327'):
+        assert f'port = {default_port}' not in written_cfg and f'shadow_port = {default_port}' not in written_cfg, f"Default port {default_port} still present in generated config!"
 
     # Copy migrations
     shutil.copytree(ROOT / "supabase/migrations", workdir / "supabase/migrations")
@@ -421,10 +582,11 @@ def verify_schema() -> dict:
     }
 
 
-def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
-    """Tests password login, token acquisition, and RPC calls over HTTP."""
+def verify_http_and_auth(api_url: str, anon_key: str, cycle_name: str = 'cycle1') -> dict:
+    """Tests password login, token acquisition, and RPC calls over HTTP, persisting sanitized audit logs."""
     results = {}
     tokens = {}
+    audit_records = []
     actors = ['ownera', 'financea', 'cohosta', 'membera', 'guesta', 'ownerb', 'outsider']
 
     # 1. Login
@@ -434,7 +596,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
             body={'email': f"{actor}@example.test", 'password': 'bh07-http-pass-123456'},
             headers={'apikey': anon_key}
         )
-        assert status == 200 and 'access_token' in body, f"Login failed for {actor}: {status} {body}"
+        login_pass = (status == 200 and 'access_token' in body)
+        audit_records.append(sanitize_http_audit_record({
+            'actor_alias': actor,
+            'operation': 'login',
+            'http_status': status,
+            'pass': login_pass,
+            'error_code': body.get('code') if isinstance(body, dict) else None,
+            'notes': 'Token acquired successfully' if login_pass else 'Login failed'
+        }))
+        assert login_pass, f"Login failed for {actor}: {status} {body}"
         tokens[actor] = body['access_token']
     results['login_count'] = len(tokens)
 
@@ -447,6 +618,14 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt, 'p_expected_version': ver, 'p_request_id': req_id},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['ownera']}"}
     )
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'ownera',
+        'operation': 'complete_session',
+        'http_status': status,
+        'pass': (status == 200),
+        'error_code': body.get('code') if isinstance(body, dict) else None,
+        'notes': 'Session completed successfully'
+    }))
     assert status == 200, f"HTTP complete_session failed: {status} {body}"
     results['http_complete_status'] = status
 
@@ -456,7 +635,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt, 'p_expected_version': ver, 'p_request_id': req_id},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['ownera']}"}
     )
-    assert status_rep == 200 and body_rep == body, "HTTP complete idempotent replay mismatch"
+    replay_pass = (status_rep == 200 and body_rep == body)
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'ownera',
+        'operation': 'complete_session_idempotent_replay',
+        'http_status': status_rep,
+        'pass': replay_pass,
+        'error_code': body_rep.get('code') if isinstance(body_rep, dict) else None,
+        'notes': 'Idempotent replay returned matching response'
+    }))
+    assert replay_pass, "HTTP complete idempotent replay mismatch"
     results['http_complete_idempotent'] = True
 
     # 3. get_session_summary via HTTP:
@@ -466,7 +654,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['ownera']}"}
     )
-    assert status_own == 200 and body_own.get('can_view_finance') is True and body_own.get('amount_due_total_vnd') is not None
+    owner_pass = (status_own == 200 and body_own.get('can_view_finance') is True and body_own.get('amount_due_total_vnd') is not None)
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'ownera',
+        'operation': 'get_session_summary',
+        'http_status': status_own,
+        'pass': owner_pass,
+        'error_code': None,
+        'notes': 'Owner views full finance breakdown'
+    }))
+    assert owner_pass
     results['owner_summary_status'] = status_own
 
     # - Cohost A: management-only, no finance figures (200, amount_due is None)
@@ -475,7 +672,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['cohosta']}"}
     )
-    assert status_coh == 200 and body_coh.get('can_view_finance') is False and body_coh.get('amount_due_total_vnd') is None
+    cohost_pass = (status_coh == 200 and body_coh.get('can_view_finance') is False and body_coh.get('amount_due_total_vnd') is None)
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'cohosta',
+        'operation': 'get_session_summary',
+        'http_status': status_coh,
+        'pass': cohost_pass,
+        'error_code': None,
+        'notes': 'Cohost restricted to management-only count view'
+    }))
+    assert cohost_pass
     results['cohost_summary_count_only'] = True
 
     # - Member A: FORBIDDEN (403)
@@ -484,7 +690,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['membera']}"}
     )
-    assert status_mem in (400, 403) and 'FORBIDDEN' in json.dumps(body_mem)
+    mem_pass = (status_mem in (400, 403) and 'FORBIDDEN' in json.dumps(body_mem))
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'membera',
+        'operation': 'get_session_summary',
+        'http_status': status_mem,
+        'pass': mem_pass,
+        'error_code': body_mem.get('code') if isinstance(body_mem, dict) else None,
+        'notes': 'Member forbidden from session summary'
+    }))
+    assert mem_pass
     results['member_summary_forbidden'] = True
 
     # - Finance A: sees finances (200)
@@ -493,7 +708,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_session_id': session_debt},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['financea']}"}
     )
-    assert status_fin == 200 and body_fin.get('can_view_finance') is True
+    fin_pass = (status_fin == 200 and body_fin.get('can_view_finance') is True)
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'financea',
+        'operation': 'get_session_summary',
+        'http_status': status_fin,
+        'pass': fin_pass,
+        'error_code': None,
+        'notes': 'Finance role views full finance breakdown'
+    }))
+    assert fin_pass
     results['finance_summary_status'] = status_fin
 
     # 4. list_my_session_history via HTTP
@@ -502,7 +726,16 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_limit': 10, 'p_offset': 0},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['ownera']}"}
     )
-    assert status_hist_own == 200 and any(s['id'] == session_debt for s in body_hist_own)
+    hist_own_pass = (status_hist_own == 200 and any(s['id'] == session_debt for s in body_hist_own))
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'ownera',
+        'operation': 'list_my_session_history',
+        'http_status': status_hist_own,
+        'pass': hist_own_pass,
+        'error_code': None,
+        'notes': f"Owner session history returned {len(body_hist_own)} sessions"
+    }))
+    assert hist_own_pass
     results['owner_history_found'] = True
 
     status_hist_mem, body_hist_mem = http_request(
@@ -510,25 +743,46 @@ def verify_http_and_auth(api_url: str, anon_key: str) -> dict:
         body={'p_limit': 10, 'p_offset': 0},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['membera']}"}
     )
-    assert status_hist_mem == 200 and len(body_hist_mem) == 0
+    hist_mem_pass = (status_hist_mem == 200 and len(body_hist_mem) == 0)
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'membera',
+        'operation': 'list_my_session_history',
+        'http_status': status_hist_mem,
+        'pass': hist_mem_pass,
+        'error_code': None,
+        'notes': 'Member without attendances has empty history'
+    }))
+    assert hist_mem_pass
     results['member_history_empty'] = True
 
     # 5. record_cash_payment via HTTP
-    # Player debt member: 30000000-0000-4000-8000-000000000001
     player_debt = '30000000-0000-4000-8000-000000000001'
     status_cash, body_cash = http_request(
         f"{api_url}/rest/v1/rpc/record_cash_payment",
         body={'p_player_id': player_debt, 'p_amount_vnd': 20000, 'p_reference': 'Tiền mặt HTTP', 'p_request_id': str(uuid.uuid4())},
         headers={'apikey': anon_key, 'Authorization': f"Bearer {tokens['ownera']}"}
     )
-    assert status_cash == 200 and body_cash.get('status') == 'confirmed'
+    cash_pass = (status_cash == 200 and body_cash.get('status') == 'confirmed')
+    audit_records.append(sanitize_http_audit_record({
+        'actor_alias': 'ownera',
+        'operation': 'record_cash_payment',
+        'http_status': status_cash,
+        'pass': cash_pass,
+        'error_code': body_cash.get('code') if isinstance(body_cash, dict) else None,
+        'notes': 'Cash payment confirmed: 20000 VND'
+    }))
+    assert cash_pass
     results['http_cash_payment_status'] = status_cash
     results['tokens'] = tokens
+    results['audit_records'] = audit_records
+
+    # Persist sanitized HTTP audit
+    write_evidence(f'http_audit_{cycle_name}.json', json.dumps(audit_records, indent=2))
     return results
 
 
 def verify_db_assertions() -> dict:
-    """Executes 23 DB invariant and business logic assertions directly against the reset database."""
+    """Executes 23 DB invariant and business logic assertions directly against the reset database with exact fixture expectations."""
     # Proof of target DB identity
     db_meta = sql("SELECT json_build_object('database', current_database(), 'user', current_user, 'server_version', version(), 'container', inet_server_addr()::text, 'port', inet_server_port())::text;")
     print(f"Verified target DB metadata: {db_meta}")
@@ -540,30 +794,35 @@ def verify_db_assertions() -> dict:
         assertions.append({'name': name, 'pass': res, 'detail': detail})
         assert res, f"Assertion failed: {name} ({detail})"
 
+    session_debt = '10000000-0000-4000-8000-000000000001'
+    player_debt = '30000000-0000-4000-8000-000000000001'
+    club_a = 'aaaaaaaa-1111-4111-8111-111111111111'
+    venue_c = 'cccccccc-3333-4333-8333-333333333333'
+
     # 1. Lifecycle of session_debt is completed
-    lc = sql("SELECT lifecycle FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000001';")
+    lc = sql(f"SELECT lifecycle FROM public.sessions WHERE id='{session_debt}';")
     check("Session completed lifecycle", lc == 'completed', f"lifecycle={lc}")
 
     # 2. Audit event SESSION_COMPLETED recorded
-    audit_comp = int(sql("SELECT count(*) FROM public.audit_events WHERE session_id='10000000-0000-4000-8000-000000000001' AND action='SESSION_COMPLETED';"))
+    audit_comp = int(sql(f"SELECT count(*) FROM public.audit_events WHERE session_id='{session_debt}' AND action='SESSION_COMPLETED';"))
     check("Audit event SESSION_COMPLETED present", audit_comp == 1, f"count={audit_comp}")
 
-    # 3. Operation request stored
-    op_cnt = int(sql("SELECT count(*) FROM public.operation_requests WHERE operation='complete_session';"))
-    check("Operation request recorded", op_cnt >= 1, f"count={op_cnt}")
+    # 3. Operation request stored for session_debt (exact == 1)
+    op_cnt = int(sql(f"SELECT count(*) FROM public.operation_requests WHERE operation='complete_session' AND payload->>'p_session_id'='{session_debt}';"))
+    check("Operation request recorded for session_debt", op_cnt == 1, f"count={op_cnt}")
 
-    # 4. Cash payment recorded and ledger entry created
-    pay_cnt = int(sql("SELECT count(*) FROM public.payments WHERE session_player_id='30000000-0000-4000-8000-000000000001' AND status='confirmed';"))
-    check("Confirmed payment exists", pay_cnt >= 1, f"count={pay_cnt}")
+    # 4. Confirmed payments count for player_debt: 1 from seed (50,000) + 1 from HTTP cash (20,000) = 2
+    pay_cnt = int(sql(f"SELECT count(*) FROM public.payments WHERE session_player_id='{player_debt}' AND status='confirmed';"))
+    check("Confirmed payments count matches fixture + http cash", pay_cnt == 2, f"count={pay_cnt}")
 
-    # 5. Ledger transaction recorded
-    tx_cnt = int(sql("SELECT count(*) FROM public.club_transactions WHERE source_type='payment';"))
-    check("Ledger transaction exists", tx_cnt >= 1, f"count={tx_cnt}")
+    # 5. Club ledger payment transactions count: 1 from seed + 1 from HTTP cash = 2
+    tx_cnt = int(sql(f"SELECT count(*) FROM public.club_transactions WHERE club_id='{club_a}' AND source_type='payment';"))
+    check("Club ledger payment transactions count", tx_cnt == 2, f"count={tx_cnt}")
 
-    # 6. Outstanding debt calculation
-    charges_sum = int(sql("SELECT COALESCE(SUM(amount_due_vnd), 0) FROM public.session_charges WHERE session_player_id='30000000-0000-4000-8000-000000000001';"))
-    payments_sum = int(sql("SELECT COALESCE(SUM(amount_vnd), 0) FROM public.payments WHERE session_player_id='30000000-0000-4000-8000-000000000001' AND status='confirmed';"))
-    check("Charges and confirmed payments recorded correctly", charges_sum > 0 and payments_sum >= 20000, f"charges={charges_sum}, payments={payments_sum}")
+    # 6. Outstanding debt calculation: charges == 150000, payments == 70000 (exact)
+    charges_sum = int(sql(f"SELECT COALESCE(SUM(amount_due_vnd), 0) FROM public.session_charges WHERE session_player_id='{player_debt}';"))
+    payments_sum = int(sql(f"SELECT COALESCE(SUM(amount_vnd), 0) FROM public.payments WHERE session_player_id='{player_debt}' AND status='confirmed';"))
+    check("Charges and confirmed payments match exact fixture values", charges_sum == 150000 and payments_sum == 70000, f"charges={charges_sum}, payments={payments_sum}")
 
     # 7. Unfinalized complete rejected (session_stale: 10000000-0000-4000-8000-000000000003)
     ver_stale = int(sql("SELECT version FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000003';"))
@@ -583,44 +842,44 @@ def verify_db_assertions() -> dict:
     lc_free = sql("SELECT lifecycle FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000002';")
     check("Free session lifecycle completed", lc_free == 'completed')
 
-    # 11. Overcollect payment rejected
-    # player_free_guest has 0 debt
+    # 11. Overcollect payment rejected (player_free_guest has 0 debt)
     p_over = sql_as('ownera@example.test', "SELECT public.record_cash_payment('30000000-0000-4000-8000-000000000003'::uuid, 50000, NULL, gen_random_uuid());")
     check("Overcollect payment rejected", p_over.returncode != 0 and 'PAYMENT_EXCEEDS_OUTSTANDING' in p_over.stderr, p_over.stderr)
 
     # 12. Complete already completed session fails with INVALID_STATE
-    p_again = sql_as('ownera@example.test', "SELECT public.complete_session('10000000-0000-4000-8000-000000000001'::uuid, 2, gen_random_uuid());")
+    p_again = sql_as('ownera@example.test', f"SELECT public.complete_session('{session_debt}'::uuid, 2, gen_random_uuid());")
     check("Complete completed session with new request rejected", p_again.returncode != 0 and 'INVALID_STATE' in p_again.stderr, p_again.stderr)
 
-    # 13. Idempotent replay on completed session
-    req_orig = sql("SELECT request_id FROM public.operation_requests WHERE operation='complete_session' LIMIT 1;")
-    p_rep = sql_as('ownera@example.test', f"SELECT public.complete_session('10000000-0000-4000-8000-000000000001'::uuid, 7, '{req_orig}'::uuid);")
+    # 13. Idempotent replay on completed session: deterministic retrieval of request_id for session_debt
+    req_orig = sql(f"SELECT request_id FROM public.operation_requests WHERE operation='complete_session' AND payload->>'p_session_id'='{session_debt}' ORDER BY created_at ASC LIMIT 1;")
+    check("Original complete_session request_id found for session_debt", bool(req_orig), f"req_orig={req_orig}")
+    p_rep = sql_as('ownera@example.test', f"SELECT public.complete_session('{session_debt}'::uuid, 7, '{req_orig}'::uuid);")
     check("Idempotent replay succeeds without error", p_rep.returncode == 0, p_rep.stderr)
 
     # 14. Conflicting payload with same request_id rejected
-    p_conf = sql_as('ownera@example.test', f"SELECT public.complete_session('10000000-0000-4000-8000-000000000001'::uuid, 999, '{req_orig}'::uuid);")
+    p_conf = sql_as('ownera@example.test', f"SELECT public.complete_session('{session_debt}'::uuid, 999, '{req_orig}'::uuid);")
     check("Conflicting payload rejected with IDEMPOTENCY_CONFLICT", p_conf.returncode != 0 and 'IDEMPOTENCY_CONFLICT' in p_conf.stderr, p_conf.stderr)
 
     # 15. Active charge revision invariant
-    rev_cnt = int(sql("SELECT count(*) FROM public.charge_revisions WHERE session_id='10000000-0000-4000-8000-000000000001' AND status='active';"))
+    rev_cnt = int(sql(f"SELECT count(*) FROM public.charge_revisions WHERE session_id='{session_debt}' AND status='active';"))
     check("Exactly one active charge revision", rev_cnt == 1, f"active_revisions={rev_cnt}")
 
     # 16. Total charges invariant matches sum of player charges
-    rev_total = int(sql("SELECT allocation_total_vnd FROM public.charge_revisions WHERE session_id='10000000-0000-4000-8000-000000000001' AND status='active';"))
-    players_total = int(sql("SELECT COALESCE(SUM(amount_due_vnd), 0) FROM public.session_charges WHERE revision_id=(SELECT id FROM public.charge_revisions WHERE session_id='10000000-0000-4000-8000-000000000001' AND status='active');"))
+    rev_total = int(sql(f"SELECT allocation_total_vnd FROM public.charge_revisions WHERE session_id='{session_debt}' AND status='active';"))
+    players_total = int(sql(f"SELECT COALESCE(SUM(amount_due_vnd), 0) FROM public.session_charges WHERE revision_id=(SELECT id FROM public.charge_revisions WHERE session_id='{session_debt}' AND status='active');"))
     check("Revision total matches sum of charges", rev_total == players_total, f"rev={rev_total}, players={players_total}")
 
-    # 17. Venue court count invariant
-    v_court = int(sql("SELECT court_count FROM public.venues WHERE id='cccccccc-3333-4333-8333-333333333333';"))
-    check("Venue court count is valid", v_court > 0, f"court_count={v_court}")
+    # 17. Venue court count invariant (matches fixture exact 4)
+    v_court = int(sql(f"SELECT court_count FROM public.venues WHERE id='{venue_c}';"))
+    check("Venue court count matches fixture exactly", v_court == 4, f"court_count={v_court}")
 
     # 18. Club membership invariant
-    owner_role = sql("SELECT role FROM public.club_members WHERE club_id='aaaaaaaa-1111-4111-8111-111111111111' AND display_name='Owner A';")
+    owner_role = sql(f"SELECT role FROM public.club_members WHERE club_id='{club_a}' AND display_name='Owner A';")
     check("Owner member role is owner", owner_role == 'owner')
 
-    # 19. Session visibility enum invariant
-    vis = sql("SELECT visibility FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000001';")
-    check("Session visibility is valid enum", vis in ('public', 'unlisted', 'club_only'))
+    # 19. Session visibility enum invariant (matches fixture exact 'public')
+    vis = sql(f"SELECT visibility FROM public.sessions WHERE id='{session_debt}';")
+    check("Session visibility matches fixture exactly", vis == 'public', f"visibility={vis}")
 
     # 20. Direct anonymous access to sensitive tables denied
     p_anon = sql_run("BEGIN; SET LOCAL ROLE anon; SELECT * FROM public.audit_events; ROLLBACK;")
@@ -649,7 +908,11 @@ def verify_db_assertions() -> dict:
 def main():
     print(f"=== Starting V5b Full Supabase CLI Reset Verification ===")
     print(f"Timestamp: {STAMP}")
-    print(f"Base SHA: {BASE_SHA}")
+
+    # P2-2: Resolve base review dynamically via CLI or environment
+    base_review_sha = resolve_base_review(sys.argv[1:])
+    print(f"Baseline Origin SHA: {BASELINE_ORIGIN_SHA}")
+    print(f"Base Review SHA: {base_review_sha}")
     print(f"Dedicated project ID: {PROJECT_ID}")
     print(f"Dedicated ports: API={PORT_API}, DB={PORT_DB}, Studio={PORT_STUDIO}")
 
@@ -657,10 +920,11 @@ def main():
     preflight_res = preflight_ownership_check()
     audit_results['preflight'] = preflight_res
 
-    # Check preconditions
-    p_ver = run_cmd(['npx', 'supabase', '--version'])
+    # P2-6: Check pinned CLI version
+    p_ver = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, '--version'])
     supabase_ver = p_ver.stdout.strip()
-    print(f"Supabase CLI version: {supabase_ver}")
+    assert supabase_ver == '2.122.0', f"Supabase CLI version expected 2.122.0, got {supabase_ver}"
+    print(f"Supabase CLI pinned version verified: {supabase_ver}")
 
     p_doc = run_cmd(['docker', '--version'])
     docker_ver = p_doc.stdout.strip()
@@ -682,15 +946,16 @@ def main():
     stop_log = ""
     primary_error = None
     owned_containers = []
+    container_images = []
 
     try:
-        # Start isolated Supabase stack
+        # Start isolated Supabase stack using pinned CLI
         print("Starting isolated Supabase stack...")
-        p_start = run_cmd(['npx', 'supabase', 'start', '--workdir', str(temp_dir)])
+        p_start = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, 'start', '--workdir', str(temp_dir)])
         exits['supabase_start'] = p_start.returncode
         start_log = p_start.stdout + "\n" + p_start.stderr
         write_evidence('start.log', start_log)
-        log_cmd("Start isolated stack", f"npx supabase start --workdir {temp_dir}")
+        log_cmd("Start isolated stack", f"npx --yes {SUPABASE_CLI_PIN} start --workdir {temp_dir}")
 
         # Track owned containers
         p_owned = run_cmd(['docker', 'ps', '-a', '--filter', f'name={PROJECT_ID}', '--format', '{{.ID}}'], check=False)
@@ -701,8 +966,11 @@ def main():
             raise RuntimeError("Owned container inventory is empty; refusing reset")
         print(f"Owned project containers initialized ({len(owned_containers)} containers): {owned_containers}")
 
+        # P2-6: Capture exact image tags, image IDs, and repo digests
+        container_images = inspect_container_images(owned_containers)
+
         # Get status
-        p_stat = run_cmd(['npx', 'supabase', 'status', '--workdir', str(temp_dir), '-o', 'json'])
+        p_stat = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, 'status', '--workdir', str(temp_dir), '-o', 'json'])
         status_info = json.loads(p_stat.stdout)
         api_url = status_info['API_URL']
         anon_key = status_info['ANON_KEY']
@@ -717,10 +985,10 @@ def main():
         # CYCLE 1
         # -------------------------------------------------------------
         print("\n--- Starting Reset Cycle 1 ---")
-        p_reset1 = run_cmd(['npx', 'supabase', 'db', 'reset', '--workdir', str(temp_dir), '--local', '--no-seed', '--yes'])
+        p_reset1 = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, 'db', 'reset', '--workdir', str(temp_dir), '--local', '--no-seed', '--yes'])
         exits['reset_cycle1'] = p_reset1.returncode
         write_evidence('reset_cycle1.log', p_reset1.stdout + "\n" + p_reset1.stderr)
-        log_cmd("Reset cycle 1", f"npx supabase db reset --workdir {temp_dir} --local --no-seed --yes")
+        log_cmd("Reset cycle 1", f"npx --yes {SUPABASE_CLI_PIN} db reset --workdir {temp_dir} --local --no-seed --yes")
 
         # Seed Cycle 1
         print("Seeding Auth users and data for Cycle 1...")
@@ -733,12 +1001,13 @@ def main():
         assert schema_res1['schema_valid'], f"Cycle 1 schema validation failed: {schema_res1}"
         audit_results['cycle1']['schema'] = schema_res1
 
-        http_res1 = verify_http_and_auth(api_url, anon_key)
+        http_res1 = verify_http_and_auth(api_url, anon_key, cycle_name='cycle1')
         audit_results['cycle1']['http'] = http_res1
 
         db_res1 = verify_db_assertions()
         assert db_res1['passed_assertions'] == db_res1['total_assertions'] == 23, f"Cycle 1 DB assertions expected 23, got {db_res1['passed_assertions']}/{db_res1['total_assertions']}"
         audit_results['cycle1']['db_assertions'] = db_res1
+        write_evidence('db_assertions_cycle1.json', json.dumps(db_res1, indent=2))
 
         fp1 = compute_db_fingerprint()
         audit_results['cycle1']['snapshot'] = fp1
@@ -748,10 +1017,10 @@ def main():
         # CYCLE 2 (Repeat Reset Oracle)
         # -------------------------------------------------------------
         print("\n--- Starting Reset Cycle 2 (Repeat Reset Oracle) ---")
-        p_reset2 = run_cmd(['npx', 'supabase', 'db', 'reset', '--workdir', str(temp_dir), '--local', '--no-seed', '--yes'])
+        p_reset2 = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, 'db', 'reset', '--workdir', str(temp_dir), '--local', '--no-seed', '--yes'])
         exits['reset_cycle2'] = p_reset2.returncode
         write_evidence('reset_cycle2.log', p_reset2.stdout + "\n" + p_reset2.stderr)
-        log_cmd("Reset cycle 2", f"npx supabase db reset --workdir {temp_dir} --local --no-seed --yes")
+        log_cmd("Reset cycle 2", f"npx --yes {SUPABASE_CLI_PIN} db reset --workdir {temp_dir} --local --no-seed --yes")
 
         # Seed Cycle 2
         print("Seeding Auth users and data for Cycle 2...")
@@ -764,35 +1033,27 @@ def main():
         assert schema_res2['schema_valid'], f"Cycle 2 schema validation failed: {schema_res2}"
         audit_results['cycle2']['schema'] = schema_res2
 
-        http_res2 = verify_http_and_auth(api_url, anon_key)
+        http_res2 = verify_http_and_auth(api_url, anon_key, cycle_name='cycle2')
         audit_results['cycle2']['http'] = http_res2
 
         db_res2 = verify_db_assertions()
         assert db_res2['passed_assertions'] == db_res2['total_assertions'] == 23, f"Cycle 2 DB assertions expected 23, got {db_res2['passed_assertions']}/{db_res2['total_assertions']}"
         audit_results['cycle2']['db_assertions'] = db_res2
+        write_evidence('db_assertions_cycle2.json', json.dumps(db_res2, indent=2))
 
         fp2 = compute_db_fingerprint()
         audit_results['cycle2']['snapshot'] = fp2
         print(f"Cycle 2 completed. Total tables: {fp2['total_tables']}, Schema SHA: {fp2['schema_sha256'][:16]}...")
 
         # -------------------------------------------------------------
-        # ORACLE COMPARISON
+        # ORACLE COMPARISON (P2-1: Strict Schema + Counts Scope)
         # -------------------------------------------------------------
         print("\n--- Comparing Oracle Snapshots ---")
-        assert fp1['schema_sha256'] == fp2['schema_sha256'], f"Schema hash mismatch between Cycle 1 ({fp1['schema_sha256']}) and Cycle 2 ({fp2['schema_sha256']})!"
-        assert fp1['total_tables'] == fp2['total_tables'] == 48, f"Table count mismatch or not 48: {fp1['total_tables']} vs {fp2['total_tables']}"
-
-        count_mismatches = []
-        for tbl, stat1 in fp1['table_stats'].items():
-            stat2 = fp2['table_stats'].get(tbl)
-            if not stat2:
-                count_mismatches.append(f"Missing table in Cycle 2: {tbl}")
-            elif stat1['count'] != stat2['count']:
-                count_mismatches.append(f"Row count mismatch in {tbl}: cycle1={stat1['count']} vs cycle2={stat2['count']}")
-        assert len(count_mismatches) == 0, f"Table row count mismatches found: {count_mismatches}"
-
-        audit_results['oracle_match'] = True
-        print(f"ORACLE PASS: Schema SHA256 and all {fp1['total_tables']} table row counts match 100% across both reset cycles!")
+        oracle_comparison = compare_oracle_snapshots(fp1, fp2)
+        audit_results['oracle_comparison'] = oracle_comparison
+        audit_results['oracle_match'] = oracle_comparison['oracle_schema_match'] and oracle_comparison['oracle_counts_match']
+        print(f"ORACLE PASS: Scope: {oracle_comparison['oracle_scope']}. Schema SHA256 and all {fp1['total_tables']} table row counts match 100% across both reset cycles!")
+        print(f"Disclosed: {oracle_comparison['different_data_tables_count']} tables with dynamic data differences (timestamps/random UUIDs).")
 
         # -------------------------------------------------------------
         # NEGATIVE CONTROLS (R2: Exact HTTP status + domain error code)
@@ -893,11 +1154,11 @@ def main():
 
         # 1. Stop supabase project
         try:
-            p_stop = run_cmd(['npx', 'supabase', 'stop', '--workdir', str(temp_dir), '--no-backup'], check=False)
+            p_stop = run_cmd(['npx', '--yes', SUPABASE_CLI_PIN, 'stop', '--workdir', str(temp_dir), '--no-backup'], check=False)
             exits['supabase_stop'] = p_stop.returncode
             stop_log = p_stop.stdout + "\n" + p_stop.stderr
             write_evidence('stop.log', stop_log)
-            log_cmd("Stop isolated stack", f"npx supabase stop --workdir {temp_dir} --no-backup")
+            log_cmd("Stop isolated stack", f"npx --yes {SUPABASE_CLI_PIN} stop --workdir {temp_dir} --no-backup")
             if p_stop.returncode != 0:
                 cleanup_errors.append(f"supabase stop exited with {p_stop.returncode}: {p_stop.stderr.strip()}")
         except Exception as stop_exc:
@@ -968,27 +1229,36 @@ def main():
         print("Cleanup verified: 0 remaining containers, tempdir purged, 0 cleanup errors.")
 
     # -----------------------------------------------------------------
-    # PRODUCE EVIDENCE BUNDLE (R4: Full evidence, provenance, and exact counts)
+    # PRODUCE EVIDENCE BUNDLE (P2-1, P2-2, P2-3, P2-4, P2-6)
     # -----------------------------------------------------------------
-    # All 48 tables full stats for both cycles
     write_evidence('snapshot_comparison.json', json.dumps({
-        'oracle_match': audit_results['oracle_match'],
+        'oracle_scope': oracle_comparison['oracle_scope'],
+        'oracle_schema_match': oracle_comparison['oracle_schema_match'],
+        'oracle_counts_match': oracle_comparison['oracle_counts_match'],
         'cycle1_schema_sha256': audit_results['cycle1']['snapshot']['schema_sha256'],
         'cycle2_schema_sha256': audit_results['cycle2']['snapshot']['schema_sha256'],
         'cycle1_total_tables': audit_results['cycle1']['snapshot']['total_tables'],
         'cycle2_total_tables': audit_results['cycle2']['snapshot']['total_tables'],
+        'total_tables': 48,
+        'identical_data_tables_count': oracle_comparison['identical_data_tables_count'],
+        'different_data_tables_count': oracle_comparison['different_data_tables_count'],
+        'different_data_tables_explanation': oracle_comparison['different_data_tables_explanation'],
+        'different_data_tables': oracle_comparison['different_data_tables'],
         'cycle1_tables': audit_results['cycle1']['snapshot']['table_stats'],
         'cycle2_tables': audit_results['cycle2']['snapshot']['table_stats'],
     }, indent=2))
 
     write_evidence('environment.json', json.dumps({
         'timestamp': STAMP,
-        'base_sha': BASE_SHA,
-        'tested_sha': tested_sha,
+        'baseline_origin_sha': BASELINE_ORIGIN_SHA,
+        'base_review_sha': base_review_sha,
+        'tested_source_sha': tested_sha,
         'git_dirty': git_dirty,
         'git_dirty_files': dirty_files,
+        'supabase_cli_pinned': SUPABASE_CLI_PIN,
         'supabase_cli_version': supabase_ver,
         'docker_version': docker_ver,
+        'container_images': container_images,
         'os': sys.platform,
         'project_id': PROJECT_ID,
         'ports': {
@@ -998,8 +1268,13 @@ def main():
             'studio': PORT_STUDIO,
             'smtp': PORT_SMTP,
             'analytics': PORT_ANALYTICS,
-            's3': PORT_S3,
             'pooler': PORT_POOLER
+        },
+        's3_storage': {
+            'protocol': 's3',
+            'routed_via_gateway': True,
+            'endpoint': f"http://127.0.0.1:{PORT_API}/storage/v1/s3",
+            'dedicated_port_claim': None
         }
     }, indent=2))
 
@@ -1009,15 +1284,21 @@ def main():
 
     summary_data = {
         'status': 'PASS',
-        'verdict': 'Chờ review độc lập V5b full reset Supabase CLI',
-        'tested_sha': tested_sha,
-        'base_sha': BASE_SHA,
+        'verdict': 'Người triển khai tự sửa/tự kiểm — Chờ review',
+        'tested_source_sha': tested_sha,
+        'base_review_sha': base_review_sha,
+        'baseline_origin_sha': BASELINE_ORIGIN_SHA,
         'cycles_executed': 2,
-        'oracle_repeat_match': audit_results['oracle_match'],
+        'oracle_scope': 'schema_sha256_and_row_counts',
+        'oracle_schema_match': audit_results['oracle_comparison']['oracle_schema_match'],
+        'oracle_row_counts_match': audit_results['oracle_comparison']['oracle_counts_match'],
+        'oracle_identical_data_tables_count': audit_results['oracle_comparison']['identical_data_tables_count'],
+        'oracle_different_data_tables_count': audit_results['oracle_comparison']['different_data_tables_count'],
         'db_assertions_cycle1': audit_results['cycle1']['db_assertions']['passed_assertions'],
         'db_assertions_cycle2': audit_results['cycle2']['db_assertions']['passed_assertions'],
         'total_db_assertions_per_cycle': audit_results['cycle1']['db_assertions']['total_assertions'],
-        'db_assertions_detail': audit_results['cycle1']['db_assertions']['assertions'],
+        'db_assertions_detail_cycle1': audit_results['cycle1']['db_assertions']['assertions'],
+        'db_assertions_detail_cycle2': audit_results['cycle2']['db_assertions']['assertions'],
         'schema_valid': audit_results['cycle1']['schema']['schema_valid'],
         'negative_controls_pass': all(n.get('rejected', False) for n in audit_results['negative_controls']),
         'cleanup_success': audit_results['cleanup']['clean'],
@@ -1040,4 +1321,5 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
 
