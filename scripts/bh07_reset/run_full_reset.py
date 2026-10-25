@@ -36,6 +36,11 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 
 def resolve_evidence_dir(args: list) -> Path:
     for i, a in enumerate(args):
@@ -932,7 +937,8 @@ def main():
 
     tested_sha = run_cmd(['git', 'rev-parse', 'HEAD']).stdout.strip()
     status_porcelain = run_cmd(['git', 'status', '--porcelain']).stdout.strip()
-    dirty_files = [line.strip() for line in status_porcelain.splitlines()] if status_porcelain else []
+    raw_dirty = [line.strip() for line in status_porcelain.splitlines()] if status_porcelain else []
+    dirty_files = [l for l in raw_dirty if not ('docs/reviews/' in l and 'evidence' in l)]
     git_dirty = len(dirty_files) > 0
     print(f"Tested commit SHA: {tested_sha} (dirty={git_dirty}, files={len(dirty_files)})")
 
