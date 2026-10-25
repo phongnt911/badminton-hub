@@ -21,9 +21,11 @@ This script executes a 100% isolated, local Supabase CLI reset verification:
 import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -112,14 +114,40 @@ def write_evidence(filename: str, content: str):
 
 
 def kill_proc_tree(pid: int):
-    """Terminates process tree on timeout."""
+    """Terminates process tree on timeout with group isolation and bounded deadline."""
+    import os
+    import signal
+    import time
     try:
         if sys.platform == 'win32':
-            subprocess.run(['taskkill', '/F', '/T', '/PID', str(pid)], capture_output=True, check=False)
+            subprocess.run(['taskkill', '/F', '/T', '/PID', str(pid)], capture_output=True, check=False, timeout=5)
         else:
-            import os
-            import signal
-            os.killpg(os.getpgid(pid), signal.SIGTERM)
+            try:
+                pgid = os.getpgid(pid)
+                parent_pgid = os.getpgrp()
+                target_pgid = pgid if pgid != parent_pgid else None
+                if target_pgid is not None:
+                    try:
+                        os.killpg(target_pgid, signal.SIGTERM)
+                    except ProcessLookupError:
+                        return
+                    time.sleep(0.5)
+                    try:
+                        os.killpg(target_pgid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                else:
+                    try:
+                        os.kill(pid, signal.SIGTERM)
+                    except ProcessLookupError:
+                        return
+                    time.sleep(0.5)
+                    try:
+                        os.kill(pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+            except ProcessLookupError:
+                pass
     except Exception:
         pass
 
@@ -141,21 +169,36 @@ def run_cmd(args, cwd=None, input_text=None, check=True, timeout=None):
         else:
             timeout = 120
 
-    proc = subprocess.Popen(
-        real_cmd,
-        cwd=cwd or str(ROOT),
-        stdin=subprocess.PIPE if input_text is not None else None,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding='utf-8',
-        shell=False
-    )
+    popen_kwargs = {
+        'cwd': cwd or str(ROOT),
+        'stdin': subprocess.PIPE if input_text is not None else None,
+        'stdout': subprocess.PIPE,
+        'stderr': subprocess.PIPE,
+        'text': True,
+        'encoding': 'utf-8',
+        'shell': False,
+    }
+    if sys.platform == 'win32':
+        popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs['start_new_session'] = True
+
+    proc = subprocess.Popen(real_cmd, **popen_kwargs)
     try:
         stdout, stderr = proc.communicate(input=input_text, timeout=timeout)
     except subprocess.TimeoutExpired as exc:
         kill_proc_tree(proc.pid)
-        proc.communicate()
+        try:
+            proc.communicate(timeout=2)
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+            try:
+                proc.communicate(timeout=1)
+            except Exception:
+                pass
         raise TimeoutError(f"Command timed out after {timeout}s: {' '.join(str(x) for x in args)}") from exc
 
     p = SimpleNamespace(returncode=proc.returncode, stdout=stdout, stderr=stderr)
@@ -188,34 +231,39 @@ def resolve_base_review(args=None) -> str:
     return p.stdout.strip()
 
 
-def sql(query: str, db='postgres') -> str:
+def sql(query: str, db='postgres', timeout=60) -> str:
     """Executes a SQL query inside the dedicated Supabase test container."""
     p = run_cmd(
         ['docker', 'exec', '-i', CONTAINER_DB, 'psql', '-U', 'postgres', '-d', db, '-At', '-v', 'ON_ERROR_STOP=1'],
-        input_text=query
+        input_text=query,
+        timeout=timeout
     )
     return p.stdout.strip()
 
 
-def sql_run(query: str, db='postgres'):
-    return subprocess.run(
+def sql_run(query: str, db='postgres', timeout=60):
+    return run_cmd(
         ['docker', 'exec', '-i', CONTAINER_DB, 'psql', '-U', 'postgres', '-d', db, '-At', '-v', 'ON_ERROR_STOP=1'],
-        input=query, text=True, encoding='utf-8', capture_output=True
+        input_text=query,
+        check=False,
+        timeout=timeout
     )
 
 
-def sql_as(actor_email: str, query: str, db='postgres', role='authenticated'):
+def sql_as(actor_email: str, query: str, db='postgres', role='authenticated', timeout=60):
     """Executes a SQL query within the session context of a specific Auth user."""
-    actor_uid = sql(f"SELECT id::text FROM auth.users WHERE email='{actor_email}';", db=db)
+    actor_uid = sql(f"SELECT id::text FROM auth.users WHERE email='{actor_email}';", db=db, timeout=timeout)
     sql_script = f"""BEGIN;
 SELECT set_config('request.jwt.claim.sub', '{actor_uid}', true);
 SET LOCAL ROLE {role};
 {query}
 COMMIT;
 """
-    return subprocess.run(
+    return run_cmd(
         ['docker', 'exec', '-i', CONTAINER_DB, 'psql', '-U', 'postgres', '-d', db, '-At', '-v', 'ON_ERROR_STOP=1'],
-        input=sql_script, text=True, encoding='utf-8', capture_output=True
+        input_text=sql_script,
+        check=False,
+        timeout=timeout
     )
 
 

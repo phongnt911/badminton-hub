@@ -503,6 +503,206 @@ class TestV5bRunnerBehavior(unittest.TestCase):
         with self.assertRaises(TimeoutError, msg="Command exceeding timeout must raise TimeoutError"):
             cmd_runner([sys.executable, '-c', 'import time; time.sleep(10)'], timeout=1)
 
+    def test_h1_parent_and_sibling_survive_child_timeout(self):
+        """H1: Subprocess timeout must isolate process group and not kill parent or sibling."""
+        run_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'run_cmd'), None)
+        run_src = ast.unparse(run_fn)
+        self.assertIn("start_new_session", run_src, "run_cmd must set start_new_session=True on POSIX to prevent killing parent/runner group")
+
+        # Runtime test: Start a sibling background process
+        sibling = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(5)'])
+        try:
+            env = {
+                'shutil': shutil,
+                'subprocess': subprocess,
+                'sys': sys,
+                'ROOT': ROOT,
+                'SimpleNamespace': SimpleNamespace,
+                'RuntimeError': RuntimeError,
+                'TimeoutError': TimeoutError,
+            }
+            tree_mod = ast.Module(body=[
+                next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kill_proc_tree'),
+                run_fn
+            ], type_ignores=[])
+            exec(compile(ast.fix_missing_locations(tree_mod), str(RUNNER_SRC), 'exec'), env)
+            cmd_runner = env['run_cmd']
+
+            with self.assertRaises(TimeoutError):
+                cmd_runner([sys.executable, '-c', 'import time; time.sleep(10)'], timeout=0.2)
+
+            self.assertIsNone(sibling.poll(), "Sibling process must still be running after child timeout")
+        finally:
+            sibling.terminate()
+            sibling.wait()
+
+    def test_h2_child_ignoring_sigterm_terminated_within_deadline(self):
+        """H2: Child ignoring SIGTERM must be force-killed within bounded deadline (< 2.5s)."""
+        run_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'run_cmd'), None)
+        env = {
+            'shutil': shutil,
+            'subprocess': subprocess,
+            'sys': sys,
+            'ROOT': ROOT,
+            'SimpleNamespace': SimpleNamespace,
+            'RuntimeError': RuntimeError,
+            'TimeoutError': TimeoutError,
+        }
+        tree_mod = ast.Module(body=[
+            next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'kill_proc_tree'),
+            run_fn
+        ], type_ignores=[])
+        exec(compile(ast.fix_missing_locations(tree_mod), str(RUNNER_SRC), 'exec'), env)
+        cmd_runner = env['run_cmd']
+
+        import time
+        start_t = time.time()
+        code = 'import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN) if hasattr(signal, "SIGTERM") else None; time.sleep(60)'
+        with self.assertRaises(TimeoutError):
+            cmd_runner([sys.executable, '-c', code], timeout=0.2)
+        elapsed = time.time() - start_t
+        self.assertLess(elapsed, 2.5, f"Timeout handling took too long ({elapsed}s); child ignoring SIGTERM must be killed promptly")
+
+    def test_h2_sql_helpers_have_timeout_and_use_run_cmd(self):
+        """H2: sql_run and sql_as must route through run_cmd with finite timeout, never raw unconstrained subprocess.run."""
+        sql_run_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'sql_run'), None)
+        sql_as_fn = next((n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'sql_as'), None)
+        self.assertIsNotNone(sql_run_fn)
+        self.assertIsNotNone(sql_as_fn)
+
+        run_src = ast.unparse(sql_run_fn)
+        as_src = ast.unparse(sql_as_fn)
+
+        self.assertNotIn("subprocess.run", run_src, "sql_run must route through run_cmd, not raw subprocess.run")
+        self.assertNotIn("subprocess.run", as_src, "sql_as must route through run_cmd, not raw subprocess.run")
+        self.assertIn("timeout", run_src, "sql_run must accept or pass timeout")
+        self.assertIn("timeout", as_src, "sql_as must accept or pass timeout")
+
+    def test_h5_db_assertions_behavior_catches_wrong_counts_and_aggregates(self):
+        """H5: verify_db_assertions must execute and reject wrong counts, wrong aggregates, and mutated predicates."""
+        db_fn = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'verify_db_assertions')
+
+        def make_db_env(fixture_overrides=None):
+            overrides = fixture_overrides or {}
+            def sql_stub(query, db='postgres', **kw):
+                if "FROM public.sessions WHERE id=" in query and "lifecycle" in query:
+                    return "completed"
+                if "FROM public.audit_events WHERE session_id=" in query:
+                    return "1"
+                if "FROM public.operation_requests WHERE operation='complete_session' AND result->>'id'=" in query:
+                    if "count(*)" in query:
+                        return str(overrides.get('op_cnt', 1))
+                    if "request_id" in query:
+                        return "req-orig-uuid-1"
+                if "FROM public.payments WHERE session_player_id=" in query:
+                    if "count(*)" in query:
+                        return str(overrides.get('pay_cnt', 2))
+                    if "SUM(amount_vnd)" in query:
+                        return str(overrides.get('payments_sum', 70000))
+                if "FROM public.club_transactions WHERE club_id=" in query and "count(*)" in query:
+                    return str(overrides.get('tx_cnt', 2))
+                if "FROM public.session_charges WHERE session_player_id=" in query:
+                    return str(overrides.get('charges_sum', 150000))
+                if "FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000003'" in query:
+                    return "1"
+                if "FROM public.sessions WHERE id='10000000-0000-4000-8000-000000000002'" in query:
+                    if "version" in query: return "1"
+                    if "lifecycle" in query: return "completed"
+                if "FROM public.session_charges WHERE revision_id=" in query:
+                    return "300000"
+                if "FROM public.charge_revisions WHERE session_id=" in query:
+                    if "count(*)" in query: return "1"
+                    if "allocation_total_vnd" in query: return "300000"
+                    if "SELECT id FROM" in query: return "rev-id-1"
+                if "FROM public.venues WHERE id=" in query:
+                    return str(overrides.get('court_count', 4))
+                if "FROM public.club_members WHERE club_id=" in query:
+                    return "owner"
+                if "FROM public.sessions WHERE id=" in query and "visibility" in query:
+                    return str(overrides.get('visibility', 'public'))
+                if "FROM public.payments p LEFT JOIN" in query:
+                    return "0"
+                if "FROM public.club_transactions ct LEFT JOIN" in query:
+                    return "0"
+                if "json_build_object('database'" in query:
+                    return json.dumps({"database": "postgres", "user": "postgres", "server_version": "PG17", "container": None, "port": None})
+                raise ValueError(f"Unmapped query in sql_stub: {query}")
+
+            def sql_as_stub(actor, query, **kw):
+                if "complete_session" in query and "10000000-0000-4000-8000-000000000003" in query:
+                    return SimpleNamespace(returncode=1, stderr="ERROR: BILLING_STALE")
+                if "complete_session" in query and "10000000-0000-4000-8000-000000000004" in query:
+                    return SimpleNamespace(returncode=1, stderr="ERROR: VERSION_CONFLICT")
+                if "complete_session" in query and "10000000-0000-4000-8000-000000000002" in query:
+                    return SimpleNamespace(returncode=0, stderr="")
+                if "record_cash_payment" in query and "30000000-0000-4000-8000-000000000003" in query:
+                    return SimpleNamespace(returncode=1, stderr="ERROR: PAYMENT_EXCEEDS_OUTSTANDING")
+                if "complete_session" in query and "999" in query:
+                    return SimpleNamespace(returncode=1, stderr="ERROR: IDEMPOTENCY_CONFLICT")
+                if "complete_session" in query and "req-orig-uuid-1" in query:
+                    return SimpleNamespace(returncode=0, stderr="")
+                if "complete_session" in query and "2, gen_random_uuid()" in query:
+                    return SimpleNamespace(returncode=1, stderr="ERROR: INVALID_STATE")
+                return SimpleNamespace(returncode=0, stderr="")
+
+            def sql_run_stub(query, **kw):
+                return SimpleNamespace(returncode=1, stderr="ERROR: permission denied")
+
+            env = {
+                'sql': sql_stub,
+                'sql_as': sql_as_stub,
+                'sql_run': sql_run_stub,
+                'json': json,
+                'print': lambda *a, **kw: None,
+                'AssertionError': AssertionError,
+            }
+            return env
+
+        # 1. Positive baseline: Standard fixture values must succeed with 23 passed assertions
+        env_pos = make_db_env()
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_pos)
+        res = env_pos['verify_db_assertions']()
+        self.assertEqual(res['passed_assertions'], 23)
+
+        # 2. Exact count mismatch: pay_cnt == 999 must raise AssertionError
+        env_wrong_pay = make_db_env({'pay_cnt': 999})
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_wrong_pay)
+        with self.assertRaises(AssertionError, msg="pay_cnt != 2 must fail"):
+            env_wrong_pay['verify_db_assertions']()
+
+        # 3. Duplicate payments count (pay_cnt == 3) must raise AssertionError
+        env_dup_pay = make_db_env({'pay_cnt': 3})
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_dup_pay)
+        with self.assertRaises(AssertionError, msg="Duplicate pay_cnt must fail"):
+            env_dup_pay['verify_db_assertions']()
+
+        # 4. Wrong aggregate: charges_sum == 160000 must raise AssertionError
+        env_wrong_charges = make_db_env({'charges_sum': 160000})
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_wrong_charges)
+        with self.assertRaises(AssertionError, msg="Wrong charges_sum must fail"):
+            env_wrong_charges['verify_db_assertions']()
+
+        # 5. Wrong aggregate: payments_sum == 50000 must raise AssertionError
+        env_wrong_payments = make_db_env({'payments_sum': 50000})
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_wrong_payments)
+        with self.assertRaises(AssertionError, msg="Wrong payments_sum must fail"):
+            env_wrong_payments['verify_db_assertions']()
+
+        # 6. Wrong transaction count: tx_cnt == 3 must raise AssertionError
+        env_wrong_tx = make_db_env({'tx_cnt': 3})
+        exec(compile(ast.Module(body=[db_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_wrong_tx)
+        with self.assertRaises(AssertionError, msg="Wrong tx_cnt must fail"):
+            env_wrong_tx['verify_db_assertions']()
+
+        # 7. Mutant probe: Mutating source pay_cnt == 2 to pay_cnt == 999 must cause failure against standard fixture
+        mutant_src = RUNNER_SRC.read_text(encoding='utf-8').replace('pay_cnt == 2', 'pay_cnt == 999')
+        mutant_tree = ast.parse(mutant_src)
+        mutant_fn = next(n for n in mutant_tree.body if isinstance(n, ast.FunctionDef) and n.name == 'verify_db_assertions')
+        env_mutant = make_db_env()
+        exec(compile(ast.Module(body=[mutant_fn], type_ignores=[]), str(RUNNER_SRC), 'exec'), env_mutant)
+        with self.assertRaises(AssertionError, msg="Mutant pay_cnt == 999 must fail against standard fixture"):
+            env_mutant['verify_db_assertions']()
+
 
 if __name__ == '__main__':
     unittest.main()
