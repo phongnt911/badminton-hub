@@ -1,0 +1,128 @@
+{
+  "target_db_metadata": {
+    "database": "postgres",
+    "user": "postgres",
+    "server_version": "PostgreSQL 17.11 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "container": null,
+    "port": null
+  },
+  "total_assertions": 23,
+  "passed_assertions": 23,
+  "assertions": [
+    {
+      "name": "Session completed lifecycle",
+      "pass": true,
+      "detail": "lifecycle=completed"
+    },
+    {
+      "name": "Audit event SESSION_COMPLETED present",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "Operation request recorded for session_debt",
+      "pass": true,
+      "detail": "count=1"
+    },
+    {
+      "name": "Confirmed payments count matches fixture + http cash",
+      "pass": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "Club ledger payment transactions count",
+      "pass": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "Charges and confirmed payments match exact fixture values",
+      "pass": true,
+      "detail": "charges=150000, payments=70000"
+    },
+    {
+      "name": "Unfinalized complete rejected",
+      "pass": true,
+      "detail": "ERROR:  BILLING_STALE: B\u1ea3n ch\u1ed1t ph\u00ed \u0111\u00e3 l\u1ed7i th\u1eddi, c\u1ea7n ch\u1ed1t l\u1ea1i tr\u01b0\u1edbc\nCONTEXT:  PL/pgSQL function assert_billing_current(uuid) line 10 at RAISE\nPL/pgSQL function complete_session(uuid,bigint,uuid) line 42 at assignment\n"
+    },
+    {
+      "name": "Version conflict rejected",
+      "pass": true,
+      "detail": "ERROR:  VERSION_CONFLICT: Bu\u1ed5i ch\u01a1i \u0111\u00e3 thay \u0111\u1ed5i, c\u1ea7n t\u1ea3i l\u1ea1i\nCONTEXT:  PL/pgSQL function complete_session(uuid,bigint,uuid) line 37 at RAISE\n"
+    },
+    {
+      "name": "Free session completed ok",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Free session lifecycle completed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Overcollect payment rejected",
+      "pass": true,
+      "detail": "ERROR:  PAYMENT_EXCEEDS_OUTSTANDING: S\u1ed1 ti\u1ec1n v\u01b0\u1ee3t qu\u00e1 kho\u1ea3n c\u00f2n ph\u1ea3i thu (0)\nCONTEXT:  PL/pgSQL function record_cash_payment(uuid,bigint,text,uuid) line 59 at RAISE\n"
+    },
+    {
+      "name": "Complete completed session with new request rejected",
+      "pass": true,
+      "detail": "ERROR:  INVALID_STATE: Ch\u1ec9 k\u1ebft th\u00fac bu\u1ed5i \u0111ang di\u1ec5n ra\nCONTEXT:  PL/pgSQL function complete_session(uuid,bigint,uuid) line 34 at RAISE\n"
+    },
+    {
+      "name": "Idempotent replay succeeds without error",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Conflicting payload rejected with IDEMPOTENCY_CONFLICT",
+      "pass": true,
+      "detail": "ERROR:  IDEMPOTENCY_CONFLICT: request_id reused with different payload\nCONTEXT:  PL/pgSQL function check_idempotency(text,uuid,text) line 21 at RAISE\nSQL statement \"SELECT is_replay, saved_result                              FROM public.check_idempotency('complete_session', p_request_id, v_payload_hash)\"\nPL/pgSQL function complete_session(uuid,bigint,uuid) line 27 at SQL statement\n"
+    },
+    {
+      "name": "Exactly one active charge revision",
+      "pass": true,
+      "detail": "active_revisions=1"
+    },
+    {
+      "name": "Revision total matches sum of charges",
+      "pass": true,
+      "detail": "rev=300000, players=300000"
+    },
+    {
+      "name": "Venue court count matches fixture exactly",
+      "pass": true,
+      "detail": "court_count=4"
+    },
+    {
+      "name": "Owner member role is owner",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Session visibility matches fixture exactly",
+      "pass": true,
+      "detail": "visibility=public"
+    },
+    {
+      "name": "Anon direct query to audit_events denied",
+      "pass": true,
+      "detail": "ERROR:  permission denied for table audit_events\nHINT:  Grant the required privileges to the current role with: GRANT SELECT ON public.audit_events TO anon;\n"
+    },
+    {
+      "name": "Anon direct query to operation_requests denied",
+      "pass": true,
+      "detail": "ERROR:  permission denied for table operation_requests\nHINT:  Grant the required privileges to the current role with: GRANT SELECT ON public.operation_requests TO anon;\n"
+    },
+    {
+      "name": "Zero orphaned payments",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Zero orphaned club transactions",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

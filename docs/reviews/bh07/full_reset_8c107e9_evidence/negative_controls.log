@@ -1,0 +1,27 @@
+[
+  {
+    "control": "anon_complete_rejected",
+    "status": 401,
+    "code": "42501",
+    "rejected": true,
+    "domain_verified": true
+  },
+  {
+    "control": "no_apikey_rejected",
+    "status": 401,
+    "code": "42501",
+    "rejected": true,
+    "domain_verified": true
+  },
+  {
+    "control": "outsider_summary_forbidden",
+    "status": 403,
+    "code": "42501",
+    "rejected": true,
+    "domain_verified": true
+  },
+  {
+    "control": "loopback_guard",
+    "rejected": true
+  }
+]

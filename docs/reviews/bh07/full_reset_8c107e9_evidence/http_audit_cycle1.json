@@ -1,0 +1,130 @@
+[
+  {
+    "actor_alias": "ownera",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "financea",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "cohosta",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "membera",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "guesta",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "ownerb",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "outsider",
+    "operation": "login",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Token acquired successfully"
+  },
+  {
+    "actor_alias": "ownera",
+    "operation": "complete_session",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Session completed successfully"
+  },
+  {
+    "actor_alias": "ownera",
+    "operation": "complete_session_idempotent_replay",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Idempotent replay returned matching response"
+  },
+  {
+    "actor_alias": "ownera",
+    "operation": "get_session_summary",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Owner views full finance breakdown"
+  },
+  {
+    "actor_alias": "cohosta",
+    "operation": "get_session_summary",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Cohost restricted to management-only count view"
+  },
+  {
+    "actor_alias": "membera",
+    "operation": "get_session_summary",
+    "http_status": 403,
+    "pass": true,
+    "error_code": "42501",
+    "notes": "Member forbidden from session summary"
+  },
+  {
+    "actor_alias": "financea",
+    "operation": "get_session_summary",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Finance role views full finance breakdown"
+  },
+  {
+    "actor_alias": "ownera",
+    "operation": "list_my_session_history",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Owner session history returned 4 sessions"
+  },
+  {
+    "actor_alias": "membera",
+    "operation": "list_my_session_history",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Member without attendances has empty history"
+  },
+  {
+    "actor_alias": "ownera",
+    "operation": "record_cash_payment",
+    "http_status": 200,
+    "pass": true,
+    "error_code": null,
+    "notes": "Cash payment confirmed: 20000 VND"
+  }
+]
