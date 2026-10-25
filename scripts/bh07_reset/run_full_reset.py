@@ -808,7 +808,7 @@ def verify_db_assertions() -> dict:
     check("Audit event SESSION_COMPLETED present", audit_comp == 1, f"count={audit_comp}")
 
     # 3. Operation request stored for session_debt (exact == 1)
-    op_cnt = int(sql(f"SELECT count(*) FROM public.operation_requests WHERE operation='complete_session' AND payload->>'p_session_id'='{session_debt}';"))
+    op_cnt = int(sql(f"SELECT count(*) FROM public.operation_requests WHERE operation='complete_session' AND result->>'id'='{session_debt}';"))
     check("Operation request recorded for session_debt", op_cnt == 1, f"count={op_cnt}")
 
     # 4. Confirmed payments count for player_debt: 1 from seed (50,000) + 1 from HTTP cash (20,000) = 2
@@ -851,7 +851,7 @@ def verify_db_assertions() -> dict:
     check("Complete completed session with new request rejected", p_again.returncode != 0 and 'INVALID_STATE' in p_again.stderr, p_again.stderr)
 
     # 13. Idempotent replay on completed session: deterministic retrieval of request_id for session_debt
-    req_orig = sql(f"SELECT request_id FROM public.operation_requests WHERE operation='complete_session' AND payload->>'p_session_id'='{session_debt}' ORDER BY created_at ASC LIMIT 1;")
+    req_orig = sql(f"SELECT request_id FROM public.operation_requests WHERE operation='complete_session' AND result->>'id'='{session_debt}' ORDER BY created_at ASC, request_id ASC LIMIT 1;")
     check("Original complete_session request_id found for session_debt", bool(req_orig), f"req_orig={req_orig}")
     p_rep = sql_as('ownera@example.test', f"SELECT public.complete_session('{session_debt}'::uuid, 7, '{req_orig}'::uuid);")
     check("Idempotent replay succeeds without error", p_rep.returncode == 0, p_rep.stderr)
