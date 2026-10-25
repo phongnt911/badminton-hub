@@ -1,3 +1,14 @@
+// =============================================================================
+// BH-07 V2b: Provider In-Memory State Purge & WeakReference Retention Test
+// (Bằng chứng bổ trợ cấp Provider — KHÔNG thay thế App Profile Heap Snapshot)
+//
+// PHẠM VI KIỂM CHỨNG:
+// - Kiểm tra cơ chế giải phóng state (clearAll) và thu hồi GC đối với các root DTO
+//   nhạy cảm của Owner trên cây Provider (FinanceProvider, SessionProvider, ClubProvider).
+// - Môi trường: Dart VM Test Runtime với FakeAuth và Mock Repositories.
+// - Phần đo App Profile Heap Snapshot trên Flutter Web/Desktop thật được ghi nhận là NOT RUN.
+// =============================================================================
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -20,6 +31,7 @@ class MockFinanceRepository extends Mock implements FinanceRepository {}
 class MockSessionRepository extends Mock implements SessionRepository {}
 class MockClubRepository extends Mock implements ClubRepository {}
 
+/// FakeAuth cung cấp sự kiện thay đổi phiên đăng nhập cho Provider harness trong test
 class FakeAuth extends Mock implements AuthProvider {
   final callbacks = <VoidCallback>[];
   User? user;
@@ -282,7 +294,7 @@ void main() {
     clubRepo = MockClubRepository();
     auth = FakeAuth();
 
-    // Dựng toàn bộ providers trong CÙNG MỘT APPLICATION INSTANCE
+    // Dựng Provider harness trong Dart VM Test Runtime (bằng chứng bổ trợ cấp Provider)
     financeProvider = FinanceProvider(repository: financeRepo, auth: auth);
     sessionProvider = SessionProvider(repository: sessionRepo, auth: auth);
     clubProvider = ClubProvider(repository: clubRepo, auth: auth);
@@ -294,7 +306,7 @@ void main() {
     clubProvider.dispose();
   });
 
-  group('V2b — Private Dart Heap / In-Memory Retention & Isolation Verification', () {
+  group('V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence)', () {
     test('Baseline Epoch: Initial providers state is empty, zero retained objects', () {
       expect(financeProvider.paymentInstructions, isNull);
       expect(financeProvider.finance, isNull);

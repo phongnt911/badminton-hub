@@ -3,10 +3,13 @@
 Manifest and security audit script for BH-07 V2b Private Heap evidence.
 
 Modes:
-  --verify (default): Read-only audit. Fails if files are altered, missing, extra,
+  --verify (default): Strict read-only audit. Fails if files are altered, missing, extra,
+                      if manifest/evidence has CRLF/BOM/invalid UTF-8/malformed entries,
                       or if non-sanitized secrets/JWTs are found.
   --generate:         Normalizes text to UTF-8 LF without BOM, scans for secrets,
-                      and writes hashes.sha256.
+                      and writes hashes.sha256 in strict UTF-8 LF format.
+  --test-controls:    Runs synthetic verify controls (positive, manifest_crlf,
+                      hash_mismatch, missing, extra) to ensure verifier soundness.
 """
 
 import argparse
@@ -20,7 +23,7 @@ import sys
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 DEFAULT_EVIDENCE_DIR = os.path.join(PROJECT_ROOT, 'docs/reviews/bh07/private_heap_evidence')
 DEFAULT_MANIFEST_PATH = os.path.join(DEFAULT_EVIDENCE_DIR, 'hashes.sha256')
-TEXT_EXTS = {'.log', '.json', '.md', '.txt'}
+TEXT_EXTS = {'.log', '.json', '.md', '.txt', '.sha256'}
 
 ALLOWED_JWTS = {
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
@@ -39,6 +42,8 @@ SECRET_PATTERNS = [
     (re.compile(r'PRIVATE KEY-----'), 'Private Key Header'),
     (re.compile(r'password\s*[:=]\s*[\'"][^\'"]+[\'"]', re.I), 'Hardcoded Password'),
 ]
+
+MANIFEST_ENTRY_RE = re.compile(r'^[a-f0-9]{64}  [a-zA-Z0-9_.\-/]+$')
 
 
 def decode_base64url_json(segment):
@@ -112,27 +117,60 @@ def compute_hashes(evidence_dir):
 
 
 def verify_manifest(evidence_dir, manifest_path):
+    """
+    Xác thực nghiêm ngặt read-only:
+    - hashes.sha256 không chứa BOM, không chứa CRLF (b'\r'), strict UTF-8 LF.
+    - Định dạng từng dòng đúng cú pháp sha256sum: <64 hex>  <relative_path>.
+    - Không trùng lặp đường dẫn.
+    - Khớp hoàn toàn (không thiếu file, không dư file, không sai hash).
+    - Toàn bộ text files không chứa BOM, CRLF, hay secrets.
+    """
     if not os.path.exists(manifest_path):
         print(f"FAIL: Manifest not found at {manifest_path}", file=sys.stderr)
         return False
 
-    with open(manifest_path, 'r', encoding='utf-8') as fp:
-        lines = fp.readlines()
+    errors = []
+
+    # 1. Đọc manifest dưới dạng binary để kiểm tra BOM / CRLF
+    with open(manifest_path, 'rb') as fp:
+        raw_manifest = fp.read()
+
+    if raw_manifest.startswith(b'\xef\xbb\xbf'):
+        errors.append("BOM detected in manifest (hashes.sha256)")
+    if b'\r' in raw_manifest:
+        errors.append("CRLF detected in manifest (hashes.sha256)")
+
+    try:
+        manifest_text = raw_manifest.decode('utf-8')
+    except UnicodeDecodeError as e:
+        errors.append(f"Non-UTF8 encoding in manifest: {e}")
+        manifest_text = ""
 
     expected = {}
-    for line in lines:
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
-        parts = line.split(None, 1)
-        if len(parts) == 2:
-            sha, rel_name = parts
-            expected[rel_name.strip()] = sha.strip()
+    if manifest_text:
+        lines = manifest_text.split('\n')
+        # Bỏ dòng rỗng cuối nếu file kết thúc bằng \n
+        if lines and lines[-1] == '':
+            lines.pop()
 
+        for idx, line in enumerate(lines, 1):
+            if not line:
+                errors.append(f"Manifest line {idx} is empty")
+                continue
+            if not MANIFEST_ENTRY_RE.match(line):
+                errors.append(f"Manifest line {idx} is malformed: '{line}' (must be <64-hex><2-spaces><path>)")
+                continue
+
+            parts = line.split('  ', 1)
+            sha, rel_name = parts[0], parts[1]
+            if rel_name in expected:
+                errors.append(f"Duplicate path in manifest: {rel_name}")
+            expected[rel_name] = sha
+
+    # 2. So sánh file hashes
     current_records = compute_hashes(evidence_dir)
     actual = {rel: sha for rel, sha in current_records}
 
-    errors = []
     for rel, exp_sha in expected.items():
         if rel not in actual:
             errors.append(f"MISSING file: {rel}")
@@ -143,7 +181,7 @@ def verify_manifest(evidence_dir, manifest_path):
         if rel not in expected:
             errors.append(f"EXTRA file not in manifest: {rel}")
 
-    # Check UTF-8 LF and secrets
+    # 3. Quét kiểm tra strict UTF-8 LF và secrets cho tất cả các file trong thư mục
     for root, _, files in os.walk(evidence_dir):
         for name in files:
             path = os.path.join(root, name)
@@ -183,11 +221,55 @@ def generate_manifest(evidence_dir, manifest_path):
     records = compute_hashes(evidence_dir)
     lines = [f"{sha}  {rel}\n" for rel, sha in records]
 
-    with open(manifest_path, 'w', encoding='utf-8', newline='\n') as fp:
-        fp.writelines(lines)
+    with open(manifest_path, 'wb') as fp:
+        fp.write(''.join(lines).encode('utf-8'))
 
     print(f"Generated manifest with {len(records)} entries at {manifest_path}")
     return True
+
+
+def run_self_controls():
+    """Tự kiểm tra các control của verifier tương tự probes.py."""
+    import tempfile
+    import shutil
+    from pathlib import Path
+
+    print("Running verifier self-controls...")
+    with tempfile.TemporaryDirectory(prefix='verify-self-check-') as d:
+        d = Path(d)
+        source = d / 'synthetic_valid_bundle'
+        source.mkdir()
+        (source / 'summary.json').write_bytes(b'{}\n')
+        h = hashlib.sha256((source / 'summary.json').read_bytes()).hexdigest()
+        (source / 'hashes.sha256').write_bytes(f"{h}  summary.json\n".encode('utf-8'))
+
+        cases = ['positive', 'manifest_crlf', 'hash_mismatch', 'missing', 'extra']
+        for case in cases:
+            p = d / ('ev_' + case)
+            shutil.copytree(source, p)
+            mf = p / 'hashes.sha256'
+            if case == 'manifest_crlf':
+                mf.write_bytes(mf.read_bytes().replace(b'\n', b'\r\n'))
+            elif case == 'hash_mismatch':
+                (p / 'summary.json').write_bytes(b'{"changed": true}\n')
+            elif case == 'missing':
+                (p / 'summary.json').unlink()
+            elif case == 'extra':
+                (p / 'extra.txt').write_bytes(b'synthetic extra\n')
+
+            before = {x.name: hashlib.sha256(x.read_bytes()).hexdigest() for x in p.iterdir()}
+            ok = verify_manifest(str(p), str(p / 'hashes.sha256'))
+            after = {x.name: hashlib.sha256(x.read_bytes()).hexdigest() for x in p.iterdir()}
+
+            assert before == after, f"Case {case} mutated files!"
+            if case == 'positive':
+                assert ok is True, f"Positive case failed verify"
+                print("  [PASS] verify_control: positive exit 0, readonly")
+            else:
+                assert ok is False, f"Negative case {case} passed verify unexpectedly!"
+                print(f"  [PASS] verify_control: {case} exit 1, readonly")
+
+    print("All verifier self-controls passed successfully!")
 
 
 def main():
@@ -195,7 +277,12 @@ def main():
     parser.add_argument('--verify', action='store_true', default=False, help="Read-only audit")
     parser.add_argument('--generate', action='store_true', default=False, help="Generate hashes.sha256")
     parser.add_argument('--dir', default=DEFAULT_EVIDENCE_DIR, help="Evidence directory")
+    parser.add_argument('--test-controls', action='store_true', default=False, help="Run verifier self-controls")
     args = parser.parse_args()
+
+    if args.test_controls:
+        run_self_controls()
+        sys.exit(0)
 
     manifest_path = os.path.join(args.dir, 'hashes.sha256')
 
