@@ -1,3 +1,5 @@
+**Hiện hành 25/10/2026 — V5b Chưa đạt tại `cad3fa0`**, docs/evidence `55716e2`, theo [review](review_cad3fa0.md). Còn 1 P1 H1 (timeout POSIX giết group cha) và 4 P2 H2–H5 (đường treo timeout/SQL, claim manifest lịch sử, CRLF, test exact fixture yếu). Analyze 0 issue, 240 Flutter +1 skip; suite Python nguyên lệnh bị SIGTERM, 16 test còn lại PASS; manifest mới 17/17 hash nhưng strict LF FAIL. Full CLI reviewer NOT RUN do thiếu đĩa và lỗi timeout; không dùng runtime tác giả thay lần chạy mới. Codex từng sửa baseline, đã công bố giới hạn độc lập. V1 giữ Đạt local; toàn BH-07 chưa nghiệm thu; không merge main/staging/production/deploy/pilot/BH-08.
+
 # Hồ sơ readiness BH-07 — ma trận cổng và kế hoạch kiểm chứng
 
 **Trạng thái: Đạt docs-only vòng2/2 tại31fced4 theo [review chốt](review_31fced4.md); đóng R1–R4. Tài liệu chỉ đọc/ghi docs, không phải nghiệm thu toàn BH-07, không cấp phép merge main, deploy, staging, production hoặc pilot.**

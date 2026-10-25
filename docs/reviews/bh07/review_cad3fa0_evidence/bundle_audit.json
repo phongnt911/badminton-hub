@@ -1,0 +1,127 @@
+{
+  "full_reset_p2_fix_evidence": {
+    "hashes.sha256": {
+      "entries": 17,
+      "present_matching": 17,
+      "missing": [],
+      "mismatch": []
+    },
+    "encoding_defects": [
+      {
+        "file": "manifest_readonly.json",
+        "bom": false,
+        "cr_count": 39,
+        "crlf_count": 39
+      },
+      {
+        "file": "hashes.sha256",
+        "bom": false,
+        "cr_count": 17,
+        "crlf_count": 17
+      }
+    ],
+    "secret_pattern_files": [],
+    "before_after_equal": true,
+    "directory_fingerprint_before": "fadca76291f0ab77cd075ded0f10fbf8f696308ec43ed983e63c5de7ee51ed5f",
+    "directory_fingerprint_after": "fadca76291f0ab77cd075ded0f10fbf8f696308ec43ed983e63c5de7ee51ed5f"
+  },
+  "full_reset_evidence": {
+    "hashes.sha256": {
+      "entries": 12,
+      "present_matching": 12,
+      "missing": [],
+      "mismatch": []
+    },
+    "encoding_defects": [],
+    "secret_pattern_files": [],
+    "changed_since_review_base": false,
+    "before_after_equal": true,
+    "directory_fingerprint_before": "2da2083478f2ddbb367024ff44f06bf5347070304e1641a4b097389f20d63e71",
+    "directory_fingerprint_after": "2da2083478f2ddbb367024ff44f06bf5347070304e1641a4b097389f20d63e71"
+  },
+  "codex_v5b_fix_evidence": {
+    "hashes.sha256": {
+      "entries": 10,
+      "present_matching": 10,
+      "missing": [],
+      "mismatch": []
+    },
+    "encoding_defects": [],
+    "secret_pattern_files": [],
+    "changed_since_review_base": false,
+    "before_after_equal": true,
+    "directory_fingerprint_before": "518b75b5336bb46cfb567cd6f80184e5d9be04d207c5a009b93cf6229245c8c7",
+    "directory_fingerprint_after": "518b75b5336bb46cfb567cd6f80184e5d9be04d207c5a009b93cf6229245c8c7"
+  },
+  "review_8e26e06_evidence": {
+    "hashes.sha256": {
+      "entries": 12,
+      "present_matching": 5,
+      "missing": [
+        "auth_seed_cycle1.log",
+        "auth_seed_cycle2.log",
+        "negative_controls.log",
+        "reset_cycle1.log",
+        "reset_cycle2.log",
+        "start.log",
+        "stop.log"
+      ],
+      "mismatch": []
+    },
+    "bundle_hashes.sha256": {
+      "entries": 32,
+      "present_matching": 18,
+      "missing": [
+        "auth_seed_cycle1.log",
+        "auth_seed_cycle2.log",
+        "codex_fix_controls.log",
+        "full_reset_runtime.log",
+        "independent_probes.log",
+        "negative_controls.log",
+        "reset_cycle1.log",
+        "reset_cycle2.log",
+        "runtime_manifest_verify.log",
+        "start.log",
+        "stop.log",
+        "tests_11.log",
+        "tests_11_raw.log",
+        "verify_manifests.log"
+      ],
+      "mismatch": []
+    },
+    "encoding_defects": [],
+    "secret_pattern_files": [],
+    "changed_since_review_base": false,
+    "before_after_equal": true,
+    "directory_fingerprint_before": "a235d77124a7ffdfb805a602b38f1a461751960b0b4201344348dd715e3c184b",
+    "directory_fingerprint_after": "a235d77124a7ffdfb805a602b38f1a461751960b0b4201344348dd715e3c184b"
+  },
+  "review_19ab207_evidence": {
+    "hashes.sha256": {
+      "entries": 8,
+      "present_matching": 8,
+      "missing": [],
+      "mismatch": []
+    },
+    "encoding_defects": [],
+    "secret_pattern_files": [],
+    "changed_since_review_base": false,
+    "before_after_equal": true,
+    "directory_fingerprint_before": "980a47d1e2d05250d6179fa4434a831af39758f5dd2b7418f96d52200cd2ca47",
+    "directory_fingerprint_after": "980a47d1e2d05250d6179fa4434a831af39758f5dd2b7418f96d52200cd2ca47"
+  },
+  "review_3b515f2_evidence": {
+    "hashes.sha256": {
+      "entries": 8,
+      "present_matching": 8,
+      "missing": [],
+      "mismatch": []
+    },
+    "encoding_defects": [],
+    "secret_pattern_files": [],
+    "changed_since_review_base": false,
+    "before_after_equal": true,
+    "directory_fingerprint_before": "ca07384aa4f7586f8cecaa0ad2433cba0c49acf959652ae5cade02c0a3439031",
+    "directory_fingerprint_after": "ca07384aa4f7586f8cecaa0ad2433cba0c49acf959652ae5cade02c0a3439031"
+  }
+}

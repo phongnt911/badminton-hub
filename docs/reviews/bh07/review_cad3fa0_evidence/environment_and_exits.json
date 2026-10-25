@@ -1,0 +1,57 @@
+{
+  "reviewed_source": "cad3fa0a7c57410af648ef214c02289021c1deea",
+  "docs_tip": "55716e2f82425ee449adf4210420c998ae1fb651",
+  "base_review": "e00db30d018da86f8fa94250a000f0bf825fc139",
+  "clean_before_checks": true,
+  "source_tree_equal_source_and_docs": true,
+  "reviewer_platform": "linux",
+  "prior_codex_authorship_disclosed": true,
+  "commands": {
+    "unittest_direct": {
+      "exit": 143,
+      "completed": false,
+      "output": "......"
+    },
+    "unittest_in_isolated_group": {
+      "returncode": -15,
+      "completed": false
+    },
+    "remaining_tests_excluding_p2_7": {
+      "run": 16,
+      "pass": 16
+    },
+    "analyze_original": "stopped while resolving dependencies without sandbox network",
+    "analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_original": "stopped waiting startup lock",
+    "flutter_test_no_pub_sandbox": {
+      "exit": 1,
+      "reason": "loopback bind denied"
+    },
+    "flutter_test_no_pub_local": {
+      "exit": 0,
+      "passed": 240,
+      "skipped": 1
+    },
+    "strict_readonly_verify": {
+      "exit": 1,
+      "causes": [
+        "hashes.sha256 CRLF",
+        "manifest_readonly.json CRLF"
+      ],
+      "extra_messages_are_parser_cascade": true
+    },
+    "full_cli_reset": {
+      "status": "NOT RUN",
+      "reason": "657 MB disk available; unsafe timeout P1; no image pull/reset attempted",
+      "cycles": 0
+    }
+  },
+  "app_backend_diff_empty": true,
+  "source_sha256": {
+    "scripts/bh07_reset/run_full_reset.py": "4cadeaa1baea1bd1ec7a54d0af40950a9bab071e4294ca986c750f678111af6d",
+    "tests/test_v5b_runner_flaws.py": "23518d78be5480993174293de893dd98ee433c0e88aaaa860ac073e0adb05f58"
+  }
+}

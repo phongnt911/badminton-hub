@@ -1,0 +1,484 @@
+00:00 +0: loading /workspace/badminton-hub/test/core/app_config_test.dart
+00:00 +0 -1: loading /workspace/badminton-hub/test/core/app_config_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/core/app_config_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -1: loading /workspace/badminton-hub/test/core/app_routes_test.dart
+00:00 +0 -2: loading /workspace/badminton-hub/test/core/app_routes_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/core/app_routes_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -2: loading /workspace/badminton-hub/test/core/session_summary_text_test.dart
+00:00 +0 -3: loading /workspace/badminton-hub/test/core/session_summary_text_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/core/session_summary_text_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -3: loading /workspace/badminton-hub/test/core/time_utils_test.dart
+00:00 +0 -4: loading /workspace/badminton-hub/test/core/time_utils_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/core/time_utils_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -4: loading /workspace/badminton-hub/test/data/auth_repository_test.dart
+00:00 +0 -5: loading /workspace/badminton-hub/test/data/auth_repository_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/data/auth_repository_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -5: loading /workspace/badminton-hub/test/data/bh07_repository_test.dart
+00:00 +0 -6: loading /workspace/badminton-hub/test/data/bh07_repository_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/data/bh07_repository_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -6: loading /workspace/badminton-hub/test/models/club_model_test.dart
+00:00 +0 -7: loading /workspace/badminton-hub/test/models/club_model_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/models/club_model_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -7: loading /workspace/badminton-hub/test/models/session_test.dart
+00:00 +0 -8: loading /workspace/badminton-hub/test/models/session_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/models/session_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -8: loading /workspace/badminton-hub/test/models/finance_test.dart
+00:00 +0 -9: loading /workspace/badminton-hub/test/models/finance_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/models/finance_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -9: loading /workspace/badminton-hub/test/providers/auth_provider_test.dart
+00:00 +0 -10: loading /workspace/badminton-hub/test/providers/auth_provider_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/providers/auth_provider_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -10: loading /workspace/badminton-hub/test/providers/club_provider_test.dart
+00:00 +0 -11: loading /workspace/badminton-hub/test/providers/club_provider_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/providers/club_provider_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -11: loading /workspace/badminton-hub/test/providers/club_session_retry_test.dart
+00:00 +0 -12: loading /workspace/badminton-hub/test/providers/club_session_retry_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/providers/club_session_retry_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -12: loading /workspace/badminton-hub/test/providers/session_provider_test.dart
+00:00 +0 -13: loading /workspace/badminton-hub/test/providers/session_provider_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/providers/session_provider_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -13: loading /workspace/badminton-hub/test/providers/finance_provider_test.dart
+00:00 +0 -14: loading /workspace/badminton-hub/test/providers/finance_provider_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/providers/finance_provider_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -14: loading /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart
+00:00 +0 -15: loading /workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/schema/schema_v1_1_migration_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -15: loading /workspace/badminton-hub/test/screens/auth_screen_test.dart
+00:00 +0 -16: loading /workspace/badminton-hub/test/screens/auth_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/auth_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -16: loading /workspace/badminton-hub/test/screens/clubs_screen_test.dart
+00:00 +0 -17: loading /workspace/badminton-hub/test/screens/clubs_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/clubs_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -17: loading /workspace/badminton-hub/test/screens/public_read_test.dart
+00:00 +0 -18: loading /workspace/badminton-hub/test/screens/public_read_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/public_read_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -18: loading /workspace/badminton-hub/test/screens/session_detail_screen_test.dart
+00:00 +0 -19: loading /workspace/badminton-hub/test/screens/session_detail_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/session_detail_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -19: loading /workspace/badminton-hub/test/screens/sessions_screen_test.dart
+00:00 +0 -20: loading /workspace/badminton-hub/test/screens/sessions_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/sessions_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -20: loading /workspace/badminton-hub/test/screens/session_summary_screen_test.dart
+00:00 +0 -21: loading /workspace/badminton-hub/test/screens/session_summary_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/session_summary_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -21: loading /workspace/badminton-hub/test/screens/session_history_screen_test.dart
+00:00 +0 -22: loading /workspace/badminton-hub/test/screens/session_history_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/session_history_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -22: loading /workspace/badminton-hub/test/screens/session_finance_screen_test.dart
+00:00 +0 -23: loading /workspace/badminton-hub/test/screens/session_finance_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/session_finance_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -23: loading /workspace/badminton-hub/test/screens/club_fund_screen_test.dart
+00:00 +0 -24: loading /workspace/badminton-hub/test/screens/club_fund_screen_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/screens/club_fund_screen_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -24: loading /workspace/badminton-hub/test/widget_test.dart
+00:00 +0 -25: loading /workspace/badminton-hub/test/widget_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/widget_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -25: loading /workspace/badminton-hub/test/integration/bh07_full_flow_test.dart
+00:00 +0 -26: loading /workspace/badminton-hub/test/integration/bh07_full_flow_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/integration/bh07_full_flow_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -26: loading /workspace/badminton-hub/test/integration/bh07_http_auth_test.dart
+00:00 +0 -27: loading /workspace/badminton-hub/test/integration/bh07_http_auth_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/integration/bh07_http_auth_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -27: loading /workspace/badminton-hub/test/integration/bh06_finance_flow_test.dart
+00:00 +0 -28: loading /workspace/badminton-hub/test/integration/bh06_finance_flow_test.dart [E]
+  Failed to load "/workspace/badminton-hub/test/integration/bh06_finance_flow_test.dart": Failed to create server socket (OS Error: Operation not permitted, errno = 1), address = 127.0.0.1, port = 0
+  dart:io-patch/socket_patch.dart 1248:7                           _NativeSocket.bind
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2195:12                          _RawServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:io-patch/socket_patch.dart 2515:12                          _ServerSocket.bind.<fn>
+  ===== asynchronous gap ===========================
+  dart:_http/http_impl.dart 3479:24                                _HttpServer.bind.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_tester_device.dart 89:15  FlutterTesterTestDevice.start
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/flutter_platform.dart 679:51      FlutterPlatform._startTest.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/async_guard.dart 108:24           asyncGuard.<fn>
+  
+00:00 +0 -28: Some tests failed.
+
+Failing tests:
+  /workspace/badminton-hub/test/core/app_config_test.dart: loading /workspace/badminton-hub/test/core/app_config_test.dart
+  /workspace/badminton-hub/test/core/app_routes_test.dart: loading /workspace/badminton-hub/test/core/app_routes_test.dart
+  /workspace/badminton-hub/test/core/session_summary_text_test.dart: loading /workspace/badminton-hub/test/core/session_summary_text_test.dart
+  /workspace/badminton-hub/test/core/time_utils_test.dart: loading /workspace/badminton-hub/test/core/time_utils_test.dart
+  ... and 24 more

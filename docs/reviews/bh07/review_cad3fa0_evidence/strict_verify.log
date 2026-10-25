@@ -1,0 +1,22 @@
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 19 error(s):
+  [X] hashes.sha256 contains CRLF/CR
+  [X] EXTRA FILE (not in manifest): auth_seed_cycle1.log
+  [X] EXTRA FILE (not in manifest): auth_seed_cycle2.log
+  [X] EXTRA FILE (not in manifest): commands.md
+  [X] EXTRA FILE (not in manifest): db_assertions_cycle1.json
+  [X] EXTRA FILE (not in manifest): db_assertions_cycle2.json
+  [X] EXTRA FILE (not in manifest): environment.json
+  [X] EXTRA FILE (not in manifest): exits.json
+  [X] EXTRA FILE (not in manifest): http_audit_cycle1.json
+  [X] EXTRA FILE (not in manifest): http_audit_cycle2.json
+  [X] EXTRA FILE (not in manifest): manifest_readonly.json
+  [X] CRLF/CR DETECTED in manifest_readonly.json
+  [X] EXTRA FILE (not in manifest): negative_controls.log
+  [X] EXTRA FILE (not in manifest): reset_cycle1.log
+  [X] EXTRA FILE (not in manifest): reset_cycle2.log
+  [X] EXTRA FILE (not in manifest): snapshot_comparison.json
+  [X] EXTRA FILE (not in manifest): start.log
+  [X] EXTRA FILE (not in manifest): stop.log
+  [X] EXTRA FILE (not in manifest): summary.json

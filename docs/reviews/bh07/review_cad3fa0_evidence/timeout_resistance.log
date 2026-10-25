@@ -1,0 +1,7 @@
+{
+  "bounded": false,
+  "requested_timeout_seconds": 0.2,
+  "supervisor_deadline_seconds": 2,
+  "supervisor_killed_only_own_probe_group": true,
+  "returncode_after_forced_cleanup": -9
+}

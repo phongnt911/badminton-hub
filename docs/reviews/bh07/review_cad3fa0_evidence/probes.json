@@ -1,0 +1,24 @@
+{
+  "remaining_tests": {
+    "run": 16,
+    "failures": 0,
+    "errors": 0
+  },
+  "timeout_group": {
+    "runner_group": 9339,
+    "child_group": 9339,
+    "same_group": true
+  },
+  "timeout_error_with_safe_probe_cleanup": true,
+  "sql_calls": [
+    {
+      "timeout_provided": false,
+      "shell": false
+    },
+    {
+      "timeout_provided": false,
+      "shell": false
+    }
+  ],
+  "wrong_exact_target_mutant_accepted_by_authored_test": true
+}

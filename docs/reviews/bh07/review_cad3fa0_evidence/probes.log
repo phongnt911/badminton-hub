@@ -1,0 +1,60 @@
+test_p2_1_oracle_schema_and_counts_scope_and_mismatch_failure (<run_path>.TestV5bRunnerBehavior.test_p2_1_oracle_schema_and_counts_scope_and_mismatch_failure)
+P2-1: Oracle comparison must strictly reject schema or row count mismatch, and scope must be schema+counts. ... ok
+test_p2_2_base_review_resolution_and_validation (<run_path>.TestV5bRunnerBehavior.test_p2_2_base_review_resolution_and_validation)
+P2-2: Base review must be resolved via CLI/env and validated against Git commit existence. ... ok
+test_p2_3_evidence_http_audit_sanitization_and_cycle_detail (<run_path>.TestV5bRunnerBehavior.test_p2_3_evidence_http_audit_sanitization_and_cycle_detail)
+P2-3: HTTP audit records must be sanitized (no token/password) and detail persisted for both cycles. ... ok
+test_p2_4_port_configuration_and_s3_gateway (<run_path>.TestV5bRunnerBehavior.test_p2_4_port_configuration_and_s3_gateway)
+P2-4: Port S3 56428 claim must be removed; config must assert exact dedicated ports and no defaults. ... ok
+test_p2_5_db_assertions_exact_fixture_and_req_orig_deterministic (<run_path>.TestV5bRunnerBehavior.test_p2_5_db_assertions_exact_fixture_and_req_orig_deterministic)
+P2-5: DB assertions must check exact counts and req_orig must filter by session_id. ... ok
+test_p2_6_reproducibility_pinning_and_image_metadata (<run_path>.TestV5bRunnerBehavior.test_p2_6_reproducibility_pinning_and_image_metadata)
+P2-6: Supabase CLI calls must pin supabase@2.122.0 and container images metadata must be collected. ... ok
+test_r1_cleanup_only_touches_owned_containers (<run_path>.TestV5bRunnerBehavior.test_r1_cleanup_only_touches_owned_containers)
+R1: cleanup must ONLY remove owned containers; foreign containers must NOT be deleted. ... ok
+test_r1_owned_inventory_must_succeed_before_reset (<run_path>.TestV5bRunnerBehavior.test_r1_owned_inventory_must_succeed_before_reset)
+Execute main through the reset boundary; no real Docker or database. ... ok
+test_r1_preflight_fail_closed_on_docker_error (<run_path>.TestV5bRunnerBehavior.test_r1_preflight_fail_closed_on_docker_error)
+R1: preflight_ownership_check must fail-closed if Docker inspection exits nonzero. ... ok
+test_r1_preflight_fail_closed_on_existing_containers (<run_path>.TestV5bRunnerBehavior.test_r1_preflight_fail_closed_on_existing_containers)
+R1: preflight_ownership_check must raise RuntimeError if pre-existing containers exist. ... ok
+test_r1_preflight_fail_closed_on_occupied_port (<run_path>.TestV5bRunnerBehavior.test_r1_preflight_fail_closed_on_occupied_port)
+R1: preflight_ownership_check must raise RuntimeError if dedicated ports are occupied. ... ok
+test_r1_preflight_passes_on_clean_inventory (<run_path>.TestV5bRunnerBehavior.test_r1_preflight_passes_on_clean_inventory)
+R1: preflight_ownership_check returns PASS on a clean environment. ... ok
+test_r1_project_identity_is_unique_per_run (<run_path>.TestV5bRunnerBehavior.test_r1_project_identity_is_unique_per_run) ... ok
+test_r2_gateway_tuple_rejects_every_unmapped_code (<run_path>.TestV5bRunnerBehavior.test_r2_gateway_tuple_rejects_every_unmapped_code) ... ok
+test_r2_negative_controls_rejects_xx000_with_auth_words (<run_path>.TestV5bRunnerBehavior.test_r2_negative_controls_rejects_xx000_with_auth_words)
+R2: negative control predicate must reject XX000 internal error even if hint has auth words. ... ok
+test_r3_cleanup_preserves_primary_error_when_final_inspect_raises (<run_path>.TestV5bRunnerBehavior.test_r3_cleanup_preserves_primary_error_when_final_inspect_raises)
+R3: If final inspect raises an exception, primary_error must still be preserved and re-raised. ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.100s
+
+OK
+
+{
+  "remaining_tests": {
+    "run": 16,
+    "failures": 0,
+    "errors": 0
+  },
+  "timeout_group": {
+    "runner_group": 9339,
+    "child_group": 9339,
+    "same_group": true
+  },
+  "timeout_error_with_safe_probe_cleanup": true,
+  "sql_calls": [
+    {
+      "timeout_provided": false,
+      "shell": false
+    },
+    {
+      "timeout_provided": false,
+      "shell": false
+    }
+  ],
+  "wrong_exact_target_mutant_accepted_by_authored_test": true
+}
