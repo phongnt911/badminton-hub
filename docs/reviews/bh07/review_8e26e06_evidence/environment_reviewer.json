@@ -1,0 +1,47 @@
+{
+  "reviewer": "QA/reviewer khác, không tham gia sửa 8e26e06",
+  "reviewed_at_utc": "2026-10-25T02:36:17.259661+00:00",
+  "host_os": "Windows-11-10.0.26100-SP0",
+  "python": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+  "supabase_cli": "2.122.0",
+  "docker": "Docker version 29.8.2, build 7fc2dff",
+  "docker_server": "29.8.2",
+  "postgres_runtime": "PostgreSQL 17.11",
+  "source_commit": "8e26e066e18a2b73cdedd45e5fd223a201d01a04",
+  "docs_tip": "20f2605",
+  "runtime_environment_json": {
+    "timestamp": "20261025T023034Z",
+    "base_sha": "6e5dba6c1b67c06bf98283b6bacac47ae2be3dc6",
+    "tested_sha": "8e26e066e18a2b73cdedd45e5fd223a201d01a04",
+    "git_dirty": false,
+    "git_dirty_files": [],
+    "supabase_cli_version": "2.122.0",
+    "docker_version": "Docker version 29.8.2, build 7fc2dff",
+    "os": "win32",
+    "project_id": "bh07-reset-verify-ddcc615aacfe4e5c",
+    "ports": {
+      "api": 56421,
+      "db": 56422,
+      "shadow": 56420,
+      "studio": 56423,
+      "smtp": 56424,
+      "analytics": 56427,
+      "s3": 56428,
+      "pooler": 56429
+    }
+  },
+  "runtime_project_id": "bh07-reset-verify-ddcc615aacfe4e5c",
+  "source_worktree": "C:\\Users\\POTA\\Documents\\GitHub\\Open-Multi-agent-Pipeline\\.review-bh07\\worktree-8e26e06",
+  "source_worktree_clean_before_run": true,
+  "runtime_evidence_files": 12,
+  "full_reset_exit": 0,
+  "free_disk_before_run_gb": 81.79,
+  "docker_images_observed": {
+    "postgres_17.11.0.006": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+    "postgres_17.11.0.004": "sha256:b15d862126dd2dac02da524696ccfde2dcce2ceaee0a58973b2727befe492706",
+    "gotrue_v2.197.0": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+    "postgrest_v16.5": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+  },
+  "image_digest_binding": false,
+  "note": "environment.json records CLI/Docker strings but not Docker image digests; old runtime schema_sha256=95b4634f..., new runtime=745aa053..., despite byte-identical reset_cycle1.log. Likely image drift (17.11.0.004 vs .006); not provable from bundle."
+}

@@ -1,0 +1,39 @@
+{
+  "script_exit": 0,
+  "script_http_assertions_passed": true,
+  "positive_baseline": "get_session_summary with Owner A token asserted status 200 and can_view_finance=True (run_full_reset.py:803-813)",
+  "login_actors": 7,
+  "http_complete_session_asserted": "status 200 and idempotent replay equal (run_full_reset.py:441-460)",
+  "summary_acl_asserted": "Owner 200, Cohost count-only, Member 400/403 FORBIDDEN, Finance 200 (run_full_reset.py:462-497)",
+  "history_asserted": "Owner finds session, Member empty (run_full_reset.py:499-514)",
+  "cash_payment_asserted": "status 200 and confirmed (run_full_reset.py:516-525)",
+  "negative_controls": [
+    {
+      "control": "anon_complete_rejected",
+      "status": 401,
+      "code": "42501",
+      "rejected": true,
+      "domain_verified": true
+    },
+    {
+      "control": "no_apikey_rejected",
+      "status": 401,
+      "code": "42501",
+      "rejected": true,
+      "domain_verified": true
+    },
+    {
+      "control": "outsider_summary_forbidden",
+      "status": 403,
+      "code": "42501",
+      "rejected": true,
+      "domain_verified": true
+    },
+    {
+      "control": "loopback_guard",
+      "rejected": true
+    }
+  ],
+  "raw_http_response_log_persisted": false,
+  "note": "Script exited 0, so all in-code HTTP assertions passed; however the evidence bundle does not persist per-request status/body details, so an auditor cannot re-check the exact statuses without rerunning."
+}

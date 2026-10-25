@@ -1,0 +1,395 @@
+{
+  "oracle_match": true,
+  "cycle1_schema_sha256": "745aa0535c0642c3350bec2388bb41e828848197abfb1cbf82f4d7a866734fc2",
+  "cycle2_schema_sha256": "745aa0535c0642c3350bec2388bb41e828848197abfb1cbf82f4d7a866734fc2",
+  "cycle1_total_tables": 48,
+  "cycle2_total_tables": 48,
+  "cycle1_tables": {
+    "auth.audit_log_entries": {
+      "count": 14,
+      "sha256": "13d2b6626efd1cc7d0103b4e18d19ed621314461d9c530999b4b0e7d7f5a8748"
+    },
+    "auth.custom_oauth_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.flow_state": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.identities": {
+      "count": 7,
+      "sha256": "5cda16af47d073b9873bec926082170ff2145c18cf5c4e0bb20099f2e94b8d6a"
+    },
+    "auth.instances": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_amr_claims": {
+      "count": 7,
+      "sha256": "48553d90222cd64b9e83a0a73b58938afa2a6ce42732e82da77e10b0b1e01906"
+    },
+    "auth.mfa_challenges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_factors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_recovery_code_sets": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_recovery_codes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_authorizations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_client_states": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_clients": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_consents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.one_time_tokens": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.refresh_tokens": {
+      "count": 7,
+      "sha256": "0367d62a2744792cc953bec539be54f39ea87527e9495d1e0839e441d186ce3d"
+    },
+    "auth.saml_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.saml_relay_states": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.schema_migrations": {
+      "count": 82,
+      "sha256": "fa3d717a7439ab527d3055cc714f1306a2258ea2f617ebf9bd9f82d1cd953645"
+    },
+    "auth.scim_tokens": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.scim_users": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.sessions": {
+      "count": 7,
+      "sha256": "e301fcf004f96ec8cabda88723606c03780d7d56f22c4ebbbd98ee9f5d444f63"
+    },
+    "auth.sso_domains": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.sso_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.users": {
+      "count": 7,
+      "sha256": "34e8dd8bfd8f23a59e20d99827de9fce2c9689479b76d57f809b2b75b149c05b"
+    },
+    "auth.webauthn_challenges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.webauthn_credentials": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.app_roles": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.audit_events": {
+      "count": 3,
+      "sha256": "0aa84f7d8a962dc60c387b77a6c5b352a6b75a8fdfe935892d24b5694fa4f453"
+    },
+    "public.charge_revisions": {
+      "count": 9,
+      "sha256": "ab007059771c643f9d1cfc79cdb8d5e29c1c163d63fddbacf3efd23b9f4376a8"
+    },
+    "public.club_bank_accounts": {
+      "count": 1,
+      "sha256": "749e25690c809bbf79503e60eeaf981b0789ae3fb3ebcce25c21b2af7416b8f4"
+    },
+    "public.club_members": {
+      "count": 5,
+      "sha256": "ba7b9f637431386284da4173e12b0a7ebee904187e15c69454a64ab9782d8512"
+    },
+    "public.club_transactions": {
+      "count": 4,
+      "sha256": "da168548cea20b0252786441b3105f4c23a2abc5a111e2e77571ee720c7bc711"
+    },
+    "public.clubs": {
+      "count": 2,
+      "sha256": "da47736f205e203ecb4629c9c6a00a7b97f831a699229de7444c428a9972bbe8"
+    },
+    "public.host_bank_accounts": {
+      "count": 1,
+      "sha256": "eaa301bcef5248a38ecf62b2d070875eeb2b88a2908f3a27f97f0ce9c6118c0b"
+    },
+    "public.member_contacts": {
+      "count": 1,
+      "sha256": "1c8fec895ff3999906fb0b2066d6f3fdd0d0de5f94840f3658137e1a63efe34a"
+    },
+    "public.operation_requests": {
+      "count": 3,
+      "sha256": "83828195a10dfae39b9717c1903c9da19642c484315655e19c8c5d184cf687e4"
+    },
+    "public.payments": {
+      "count": 2,
+      "sha256": "fa9be6962f010492a011e7c87b9862f2f1e1282651238a794956089b9698776f"
+    },
+    "public.profile_private": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.profiles": {
+      "count": 7,
+      "sha256": "b57be9e47e5cf1f5fb651e406b54f4c9744995a5e0a5cb440b4fc8d8e8e14849"
+    },
+    "public.session_charges": {
+      "count": 10,
+      "sha256": "dc4bc31e322b05f60b6d2a14b92b1080ce7363130cbd20c6bbe5277e7883bfc5"
+    },
+    "public.session_expenses": {
+      "count": 2,
+      "sha256": "6e5ef6aa61d27d829ed8c9a13be124a75fe4a194477c5faa42f638f21225e516"
+    },
+    "public.session_player_contacts": {
+      "count": 4,
+      "sha256": "7fceb6e1428a00fbb4fdd30710a9e0e4364bd59689689923d771ff8ba0fef583"
+    },
+    "public.session_players": {
+      "count": 10,
+      "sha256": "3d9175b05485f4e840d1ebf3cd6f3216d11ec4f1716586bb419fd0438ef76d6b"
+    },
+    "public.session_staff": {
+      "count": 1,
+      "sha256": "24d86d394d436ed70660ecf40b55641f289a410fffc2a5eaabd5d321b81e7115"
+    },
+    "public.sessions": {
+      "count": 12,
+      "sha256": "1d6728fed8f8075989bfa10572692027f4a3531c8d5c0e03aa0a75a9bca8899b"
+    },
+    "public.venues": {
+      "count": 1,
+      "sha256": "88766f8bd8b29fea82841b7f658cbd7995bca8707def8dc5a1a02cbe37fb22a8"
+    },
+    "public.waitlist_invitations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "cycle2_tables": {
+    "auth.audit_log_entries": {
+      "count": 14,
+      "sha256": "07cd8c7a3defccfff8b8c29b37f19c1d17229c47ba3c51a501ace9dd7a5ac717"
+    },
+    "auth.custom_oauth_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.flow_state": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.identities": {
+      "count": 7,
+      "sha256": "07a5f75a87b7120572cd82eefff7c74ed72803f577f9c3de63008357bd6ddb50"
+    },
+    "auth.instances": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_amr_claims": {
+      "count": 7,
+      "sha256": "b783c2053132be4e7bbd29fb171bb04b58bf7c4cfde07157c1c95ae224373b63"
+    },
+    "auth.mfa_challenges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_factors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_recovery_code_sets": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.mfa_recovery_codes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_authorizations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_client_states": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_clients": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.oauth_consents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.one_time_tokens": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.refresh_tokens": {
+      "count": 7,
+      "sha256": "b452e80c08f3b92e9be69326eab9f84a621bc663f8c657ebc82de32dc2a994b8"
+    },
+    "auth.saml_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.saml_relay_states": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.schema_migrations": {
+      "count": 82,
+      "sha256": "fa3d717a7439ab527d3055cc714f1306a2258ea2f617ebf9bd9f82d1cd953645"
+    },
+    "auth.scim_tokens": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.scim_users": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.sessions": {
+      "count": 7,
+      "sha256": "c3fdce8c30d09123171f56ef2ca96c2944188c6ff23794d479761341f8d41502"
+    },
+    "auth.sso_domains": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.sso_providers": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.users": {
+      "count": 7,
+      "sha256": "80cf5705c6daf08a3a7e9dda714fc321a57131f9c367490ef96b8df8b1d8aa8d"
+    },
+    "auth.webauthn_challenges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "auth.webauthn_credentials": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.app_roles": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.audit_events": {
+      "count": 3,
+      "sha256": "506e6406102f70f3ad21d75ec68240b01698b58d629ff52dddc66693e76d3350"
+    },
+    "public.charge_revisions": {
+      "count": 9,
+      "sha256": "24e16c8e1234de6415675547c664f06ee3f81eb1c164f095fd25c602c10966dd"
+    },
+    "public.club_bank_accounts": {
+      "count": 1,
+      "sha256": "ffcbdeae3ede76db873b36fa8f31441e724307ef3ecf19c3fff9e4c4ccfd7cc9"
+    },
+    "public.club_members": {
+      "count": 5,
+      "sha256": "caa0539a270f820f5ed6c16c06d23043d7a6b45cf391c64bde20fb56cf70069c"
+    },
+    "public.club_transactions": {
+      "count": 4,
+      "sha256": "d118799586270c891de0f16c1036cf399593b4285102a625648515f12f1bb8ad"
+    },
+    "public.clubs": {
+      "count": 2,
+      "sha256": "2f811c44f208c1dc2347c215d0e015d5788ec51b86cf29395d67180ef27d2ad6"
+    },
+    "public.host_bank_accounts": {
+      "count": 1,
+      "sha256": "5cd1bedb56015d5765c658ab91b4fdc2b920229968d5e08d5d3b301c5bc46a22"
+    },
+    "public.member_contacts": {
+      "count": 1,
+      "sha256": "0f6967528b5307844ba0b30318e94513298e19d6cf46db2068e9356dafe7e6bd"
+    },
+    "public.operation_requests": {
+      "count": 3,
+      "sha256": "a02baabf2d3deec9b99795fa782f19d1373f223fdd67bab92c97fe754651a3ce"
+    },
+    "public.payments": {
+      "count": 2,
+      "sha256": "66f96cb40cb8ab5450a1b9e1d1e52adc09c9c996b66ea2e9bd8c6ea4cc22f005"
+    },
+    "public.profile_private": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "public.profiles": {
+      "count": 7,
+      "sha256": "592877cc450fa2752732194754f604970ba2e561f63a09efd7beb4c6168e4114"
+    },
+    "public.session_charges": {
+      "count": 10,
+      "sha256": "ffcbc2b1f4a0767d74f80cd9d719746017a8cfd5d16f401c1018ba0f9cccb220"
+    },
+    "public.session_expenses": {
+      "count": 2,
+      "sha256": "4ecfbbd04601d2c202b6aad863c7360fe558dcbc5f1220c565685da4b8e2d814"
+    },
+    "public.session_player_contacts": {
+      "count": 4,
+      "sha256": "6ae2fbb3f3547950c9b30abeab58ba2cafd40108e2380ece82e834d4d8825f68"
+    },
+    "public.session_players": {
+      "count": 10,
+      "sha256": "031c9260f203493828b6ed28857dde37954b0fe0723089c2a8b94ba908eb5ec8"
+    },
+    "public.session_staff": {
+      "count": 1,
+      "sha256": "003e808c3b0e45b85e85cc25cdc5d5d4a04bd8b615067bcfe2b75c7715cf5caf"
+    },
+    "public.sessions": {
+      "count": 12,
+      "sha256": "e4008ccf5f3b1b061c1aeed4299474c3c7de64266e773b355b9486eb42a2d59d"
+    },
+    "public.venues": {
+      "count": 1,
+      "sha256": "0bfa9178c3af37868a4b843a77962d9123b7860508e535be7a82e978e037e083"
+    },
+    "public.waitlist_invitations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

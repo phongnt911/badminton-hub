@@ -1,0 +1,66 @@
+# Scope / provenance — review 8e26e06
+captured_at=2026-10-25T09:36:32.5365623+07:00
+
+## Reviewed commits
+source=8e26e066e18a2b73cdedd45e5fd223a201d01a04
+docs_tip=20f2605
+branch_tip=20f26059688d5f623ccc9e26982bc3589e171e35
+branch=feat/bh07-full-reset-verification
+
+## Source diff 6a13901..8e26e06 (must be runner + tests only)
+ scripts/bh07_reset/run_full_reset.py | 16 +++++---
+ tests/test_v5b_runner_flaws.py       | 78 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 88 insertions(+), 6 deletions(-)
+
+scripts/bh07_reset/run_full_reset.py
+tests/test_v5b_runner_flaws.py
+
+## Source worktree status after runtime (evidence overwritten in worktree only)
+ M docs/reviews/bh07/full_reset_evidence/auth_seed_cycle1.log
+ M docs/reviews/bh07/full_reset_evidence/auth_seed_cycle2.log
+ M docs/reviews/bh07/full_reset_evidence/commands.md
+ M docs/reviews/bh07/full_reset_evidence/environment.json
+ M docs/reviews/bh07/full_reset_evidence/hashes.sha256
+ M docs/reviews/bh07/full_reset_evidence/snapshot_comparison.json
+ M docs/reviews/bh07/full_reset_evidence/stop.log
+ M docs/reviews/bh07/full_reset_evidence/summary.json
+
+## Source worktree diff names (runtime evidence paths only, source code unchanged)
+docs/reviews/bh07/full_reset_evidence/auth_seed_cycle1.log
+docs/reviews/bh07/full_reset_evidence/auth_seed_cycle2.log
+docs/reviews/bh07/full_reset_evidence/commands.md
+docs/reviews/bh07/full_reset_evidence/environment.json
+docs/reviews/bh07/full_reset_evidence/hashes.sha256
+docs/reviews/bh07/full_reset_evidence/snapshot_comparison.json
+docs/reviews/bh07/full_reset_evidence/stop.log
+docs/reviews/bh07/full_reset_evidence/summary.json
+
+## White-space check for source diff
+
+## Migrations at 8e26e06
+count=18
+20261015051808_init_schema_v1_1.sql
+20261015133247_bh03_clubs_and_members.sql
+20261015140216_bh03_identity_retry_session_fixes.sql
+20261015151445_pre_bh04_hardening.sql
+20261015163000_bh04_sessions.sql
+20261015163001_bh04_review_fixes.sql
+20261015170500_bh05_registrations.sql
+20261016090000_bh05_review_fixes.sql
+20261016091000_bh05_a3_cancel_revokes_invitations.sql
+20261016100000_bh05_start_session.sql
+20261016110000_bh06_expenses_finalize.sql
+20261016120000_bh06_payments_ledger.sql
+20261016130000_bh06_reads.sql
+20261016140000_bh06a_review_round1.sql
+20261020100000_bh06_integration_receiver.sql
+20261020160000_bh06_integration_receiver_backfill.sql
+20261020170000_bh06_finance_session_version.sql
+20261020180000_bh07_reads.sql
+
+## Source SHA-256 at 8e26e06
+scripts/bh07_reset/run_full_reset.py  d5e27ce961f31aed212b9f5da300e25f6cd2c65b1572ab0a9bb8468bbec89984
+tests/test_v5b_runner_flaws.py  576d97f19fd8da43f506fd09e708e415b9af9861cbab4d7dad629f86c37f1d37
+
+## Old evidence bundles unchanged in docs tip (git status for those paths)
+<clean>

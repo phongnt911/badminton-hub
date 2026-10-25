@@ -1,0 +1,28 @@
+{
+  "runtime_manifest_entries": 12,
+  "runtime_manifest_ok": true,
+  "bad": [],
+  "reviewer_artifacts_not_in_runtime_manifest": [
+    "README.md",
+    "bundle_hashes.sha256",
+    "cleanup_check.txt",
+    "codex_fix_controls.log",
+    "db_assertions_audit.json",
+    "environment_reviewer.json",
+    "full_reset_runtime.log",
+    "hashes.sha256",
+    "http_auth_audit.json",
+    "independent_probes.log",
+    "independent_probes.py",
+    "manifest_readonly.json",
+    "oracle_audit.json",
+    "reviewer_commands.md",
+    "runtime_manifest_verify.json",
+    "runtime_manifest_verify.log",
+    "scope.txt",
+    "source_hashes.json",
+    "tests_11.log",
+    "tests_11_raw.log",
+    "verify_manifests.log"
+  ]
+}

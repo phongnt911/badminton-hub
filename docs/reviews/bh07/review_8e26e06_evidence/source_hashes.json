@@ -1,0 +1,4 @@
+{
+  "scripts/bh07_reset/run_full_reset.py": "d5e27ce961f31aed212b9f5da300e25f6cd2c65b1572ab0a9bb8468bbec89984",
+  "tests/test_v5b_runner_flaws.py": "576d97f19fd8da43f506fd09e708e415b9af9861cbab4d7dad629f86c37f1d37"
+}
