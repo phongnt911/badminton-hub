@@ -9,7 +9,7 @@
       "removes_auth_listener_on_dispose": false,
       "has_clear_all_method": false,
       "proper_dispose": true,
-      "stream_subscriptions_tracked": 0,
+      "stream_subscriptions_tracked": 1,
       "un_cancelled_subscriptions": [],
       "leak_risk": "NONE"
     },
