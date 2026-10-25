@@ -1,0 +1,20 @@
+Running verifier self-controls...
+PASS: Verified 1 files in manifest. All strict UTF-8 LF, clean hashes, zero secret leaks.
+  [PASS] verify_control: positive exit 0, readonly
+  [PASS] verify_control: manifest_crlf exit 1, readonly
+  [PASS] verify_control: hash_mismatch exit 1, readonly
+  [PASS] verify_control: missing exit 1, readonly
+  [PASS] verify_control: extra exit 1, readonly
+All verifier self-controls passed successfully!
+=== VERIFY FAIL ===
+  - CRLF detected in manifest (hashes.sha256)
+  - Manifest line 1 is malformed: 'ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356  summary.json
+' (must be <64-hex><2-spaces><path>)
+  - EXTRA file not in manifest: summary.json
+  - CRLF detected: hashes.sha256
+=== VERIFY FAIL ===
+  - HASH MISMATCH on summary.json: expected ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356, got 818061a01e60a5edab1573a5440b43991085eb8b978ce6afe6b4a4d548959191
+=== VERIFY FAIL ===
+  - MISSING file: summary.json
+=== VERIFY FAIL ===
+  - EXTRA file not in manifest: extra.txt

@@ -1,0 +1,9 @@
+00:00 +0: loading /workspace/badminton-hub/test/integration/bh07_heap_verification_test.dart
+00:00 +0: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects
+00:00 +1: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap
+00:00 +2: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N4: Late-arriving response after logout is dropped & GC-collected
+00:00 +3: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected
+00:01 +4: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle
+00:01 +5: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:01 +6: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:02 +7: All tests passed!

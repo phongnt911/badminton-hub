@@ -1,0 +1,7 @@
+Running AST memory audit self-controls...
+  [PASS] static_control: typed_static_list detected 1 issue(s)
+  [PASS] static_control: inferred_static_constructor detected 1 issue(s)
+  [PASS] static_control: global_list detected 1 issue(s)
+  [PASS] subscription_control: nullable_uncancelled correctly flagged as HIGH
+  [PASS] subscription_control: remove_outside_dispose correctly flagged as HIGH
+All AST self-controls passed successfully!
