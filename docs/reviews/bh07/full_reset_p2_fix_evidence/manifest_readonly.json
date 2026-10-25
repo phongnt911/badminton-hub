@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-25T11:48:33.317497+07:00",
+  "bundles": [
+    {
+      "bundle": "full_reset_evidence",
+      "manifest_entries": 12,
+      "all_hashes_match": true,
+      "missing_or_mismatch": [],
+      "extra_files": []
+    },
+    {
+      "bundle": "codex_v5b_fix_evidence",
+      "manifest_entries": 10,
+      "all_hashes_match": true,
+      "missing_or_mismatch": [],
+      "extra_files": []
+    },
+    {
+      "bundle": "review_8e26e06_evidence",
+      "manifest_entries": 12,
+      "all_hashes_match": true,
+      "missing_or_mismatch": [],
+      "extra_files": []
+    },
+    {
+      "bundle": "review_19ab207_evidence",
+      "manifest_entries": 8,
+      "all_hashes_match": true,
+      "missing_or_mismatch": [],
+      "extra_files": []
+    },
+    {
+      "bundle": "review_3b515f2_evidence",
+      "manifest_entries": 8,
+      "all_hashes_match": true,
+      "missing_or_mismatch": [],
+      "extra_files": []
+    }
+  ]
+}
