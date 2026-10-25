@@ -852,7 +852,7 @@ def verify_db_assertions() -> dict:
 
     # 13. Idempotent replay on completed session: deterministic retrieval of request_id for session_debt
     req_orig = sql(f"SELECT request_id FROM public.operation_requests WHERE operation='complete_session' AND result->>'id'='{session_debt}' ORDER BY created_at ASC, request_id ASC LIMIT 1;")
-    check("Original complete_session request_id found for session_debt", bool(req_orig), f"req_orig={req_orig}")
+    assert bool(req_orig), f"Original complete_session request_id found for session_debt: {req_orig}"
     p_rep = sql_as('ownera@example.test', f"SELECT public.complete_session('{session_debt}'::uuid, 7, '{req_orig}'::uuid);")
     check("Idempotent replay succeeds without error", p_rep.returncode == 0, p_rep.stderr)
 
