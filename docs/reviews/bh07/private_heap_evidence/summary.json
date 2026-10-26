@@ -1,20 +1,24 @@
 {
-  "tested_source_sha": "33ad6e6fd7e33b8495ec9dda0732df1b6df2096b",
+  "tested_source_sha": "ab3d9c88c7c99fd4a60cbca81a512e305259dc4b",
   "git_dirty": false,
   "git_dirty_paths": [],
   "source_hashes": {
     "test/integration/bh07_heap_verification_test.dart": "e76c1958727603d8734c1ec65b177a57aabea88be6de4041ca990cb57f3a4d30",
-    "scripts/bh07_heap/audit_ast_memory.py": "b24ce7f37308c48ea7d4bd4eced012a25655e6c48b1f0df8737c51102137d3e9",
+    "scripts/bh07_heap/audit_ast_memory.py": "816566447b3ac06d2da0606a650e2a0faa0d2e3c582c5dce82d12b53f05be095",
     "scripts/bh07_heap/clean_and_manifest.py": "017d7c650fc10a34178911b81164c63e84e803724812f4241ac50db15b36f9c4",
-    "scripts/bh07_heap/run_heap_verification.py": "273cc0c13d14eb5299f07f571be636904532ea8eefbddd88a7c40e2bef5b2210"
+    "scripts/bh07_heap/run_heap_verification.py": "ba89e85ff5b585fc17ff68b1ba15c764229783e6e06d79aedc99de0b72599384"
   },
-  "timestamp": "2026-10-25T15:32:45.990983+00:00",
+  "timestamp": "2026-10-26T03:23:06.939243+00:00",
   "environment": {
     "os": "win32",
     "dart_version": "Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
     "flutter_version": "Flutter 3.47.6 \u00e2\u20ac\u00a2 channel stable \u00e2\u20ac\u00a2 https://github.com/flutter/flutter.git"
   },
   "gate": "V2b \u2014 Private Dart Heap / In-Memory Retention & Isolation",
+  "provenance": {
+    "git_cleanliness": "CLEAN",
+    "errors": []
+  },
   "ast_audit": {
     "verdict": "CLEAN",
     "static_mutables_found": 0,
@@ -22,9 +26,13 @@
   },
   "heap_test_suite": {
     "verdict": "PASS",
+    "tests_expected": 7,
     "tests_total": 7,
     "tests_passed": 7,
     "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_missing": [],
+    "identity_coverage": "VERIFIED",
     "controls": {
       "baseline_initial_empty": "PASS",
       "owner_positive_retention_p1": "PASS",
@@ -44,6 +52,6 @@
   },
   "sanitized": true,
   "sanitization_notes": "100% sanitized. Contains no raw bank account numbers, passwords, JWTs or PII.",
-  "methodology": "Dart VM WeakReference and Finalizer lifecycle tracking combined with generational garbage collection allocation pressure on Provider/VM harness. Directly probes object retention across Owner -> Logout -> Cohost -> Member lifecycle.",
-  "limitations": "Measured in Dart VM Runtime Test Harness under Windows 64-bit environment. Full Chrome DevTools Protocol .heapsnapshot dump on production Web build is NOT RUN. Does NOT prove full app profile heap cleanliness beyond Provider harness scope. State remains Ch\u1edd review."
+  "methodology": "Dart VM WeakReference target observation combined with generational garbage collection allocation pressure on Provider/VM harness. Directly probes object retention across Owner -> Logout -> Cohost -> Member lifecycle.",
+  "limitations": "Measured in Dart VM Runtime Test Harness under Windows 64-bit environment. Full Chrome DevTools Protocol .heapsnapshot dump on production Web build is NOT RUN. Does NOT prove full app profile heap cleanliness beyond Provider harness scope. WeakReference target null means the harness no longer references the object; it is not a proof that every copy is gone from RAM. State remains Ch\u1edd review."
 }

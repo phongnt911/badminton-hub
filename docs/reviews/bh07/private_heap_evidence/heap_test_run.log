@@ -1,10 +1,23 @@
-=== FLUTTER TEST HEAP VERIFICATION LOG ===
-00:00 +0: loading C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart
-00:00 +0: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects
-00:00 +1: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap
-00:00 +2: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N4: Late-arriving response after logout is dropped & GC-collected
-00:00 +3: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected
-00:00 +4: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle
-00:01 +5: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
-00:01 +6: V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
-00:01 +7: All tests passed!
+=== FLUTTER TEST JSON EVENTS (--reporter json) ===
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":23592,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":0}
+{"count":1,"time":2,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":943}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":7,"line":null,"column":null,"url":null},"type":"group","time":944}
+{"group":{"id":3,"suiteID":0,"parentID":2,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence)","metadata":{"skip":false,"skipReason":null},"testCount":7,"line":309,"column":3,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"group","time":944}
+{"test":{"id":4,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":310,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":944}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":956}
+{"test":{"id":5,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":319,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":956}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1488}
+{"test":{"id":6,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N4: Late-arriving response after logout is dropped & GC-collected","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":410,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":1488}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1662}
+{"test":{"id":7,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":429,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":1662}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":1830}
+{"test":{"id":8,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":445,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":1830}
+{"testID":8,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2159}
+{"test":{"id":9,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":468,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":2159}
+{"testID":9,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2482}
+{"test":{"id":10,"name":"V2b â€” Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":493,"column":5,"url":"file:///C:/Users/POTA/Documents/GitHub/badminton-hub/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":2483}
+{"testID":10,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":2654}
+{"success":true,"type":"done","time":2677}

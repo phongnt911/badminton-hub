@@ -244,8 +244,8 @@ def _verdict_from_text(test_ok, output):
     skipped = int(counts.group(2)) if counts and counts.group(2) else 0
     failed = int(counts.group(3)) if counts and counts.group(3) else 0
     results = {}
-    if passed:
-        results['<unidentified passing test>'] = 'success'
+    for i in range(passed):
+        results[f'<unidentified passing test {i}>'] = 'success'
     for i in range(failed):
         results[f'<unidentified failing test {i}>'] = 'failure'
 

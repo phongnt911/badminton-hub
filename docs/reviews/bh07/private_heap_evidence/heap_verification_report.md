@@ -1,8 +1,11 @@
 # Báo Cáo Kiểm Chứng Cổng V2b — Private Dart Heap / In-Memory Retention BH-07
 
-- **Ngày thực thi:** 2026-10-25T15:32:45.990983+00:00
-- **Tested Source SHA:** `33ad6e6fd7e33b8495ec9dda0732df1b6df2096b`
+- **Ngày thực thi:** 2026-10-26T03:23:06.939243+00:00
+- **Tested Source SHA:** `ab3d9c88c7c99fd4a60cbca81a512e305259dc4b`
 - **Git Dirty:** `False`
+- **Git Cleanliness:** `CLEAN`
+- **Provenance Errors:**
+  - None
 - **Dirty Paths:**
   - None (Clean checkout)
 - **Gate:** `V2b — Đo private Dart heap/cache sau đổi actor`
@@ -20,9 +23,10 @@ Mục tiêu cổng V2b theo `docs/reviews/bh07/bh07_readiness.md` mục 4.4:
 4. Có baseline đối chứng, positive controls, negative controls và mutant controls.
 
 ### Phân định phạm vi rõ ràng (Khắc phục HP1):
-- **Phần Provider / VM Test Harness (Bằng chứng bổ trợ):** Đạt 7/7 kiểm thử `WeakReference` và `Finalizer` trên `FinanceProvider`, `SessionProvider`, `ClubProvider`. Xác nhận 100% các root DTO nhạy cảm bị GC thu hồi sau logout.
+- **Phần Provider / VM Test Harness (Bằng chứng bổ trợ):** Đạt 7/7 kiểm thử `WeakReference` trên `FinanceProvider`, `SessionProvider`, `ClubProvider`. Kết quả chỉ nói về việc Provider/harness còn tham chiếu DTO hay không, không phải toàn bộ app profile.
 - **Phần App Profile Heap Snapshot / Chrome DevTools Protocol:** **NOT RUN** do môi trường kiểm thử headless chưa có công cụ dump heapsnapshot của toàn bộ ứng dụng Flutter Web/Desktop thật.
 - **Nguyên tắc:** Tuyệt đối không suy diễn từ kết quả Provider harness hoặc UI sạch thành toàn bộ ứng dụng profile đã sạch.
+
 
 ---
 
@@ -47,11 +51,11 @@ Mục tiêu cổng V2b theo `docs/reviews/bh07/bh07_readiness.md` mục 4.4:
 
 - **Tổng số file Dart quét:** 38 files trong `lib/`.
 - **Static mutable collections found:** 0
-- **Provider Lifecycle & Stream Disposal:**
-  - `finance_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `session_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `club_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `auth_provider.dart`: StreamSubscription `_authSubscription` được `cancel()` trong `dispose()`. Leak risk: **NONE**.
+- **Provider Lifecycle & Stream Disposal (từ ast_memory_audit.json):**
+  - `auth_provider.dart`: Leak risk **NONE**, removeListener trong dispose=False, uncancelled=[]
+  - `club_provider.dart`: Leak risk **NONE**, removeListener trong dispose=True, uncancelled=[]
+  - `finance_provider.dart`: Leak risk **NONE**, removeListener trong dispose=True, uncancelled=[]
+  - `session_provider.dart`: Leak risk **NONE**, removeListener trong dispose=True, uncancelled=[]
 
 ---
 
