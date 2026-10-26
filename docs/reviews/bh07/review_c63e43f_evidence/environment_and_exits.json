@@ -1,0 +1,67 @@
+{
+  "tested_source": "996c4266e6a38324dfc7e3a4b19ee50be101087b",
+  "docs_evidence": "c63e43f113e95d8cf56ff79504802e249f38d4a7",
+  "base_review": "01bfd160820eb7cda7198da4e0c1bb5d6810b795",
+  "reviewer_platform": "Linux Flutter3.47.7",
+  "author_platform": "Windows Flutter3.47.6",
+  "primary_clean_before_checks": true,
+  "full_runner_worktree_source": "996c4266e6a38324dfc7e3a4b19ee50be101087b",
+  "full_runner_source_clean_at_capture": true,
+  "commands": {
+    "full_runner": {
+      "exit": 0,
+      "passed": 7,
+      "identity_coverage": "VERIFIED"
+    },
+    "unittest": {
+      "exit": 0,
+      "tests": 33
+    },
+    "ast_self": {
+      "exit": 0,
+      "controls": 12
+    },
+    "verifier_self": {
+      "exit": 0,
+      "controls": 5
+    },
+    "author_verify": {
+      "exit": 0,
+      "files": 4,
+      "readonly": true
+    },
+    "duplicate_probe_unchanged": {
+      "exit": 0,
+      "exact_duplicate_verdict": "FAIL",
+      "exact_duplicate_coverage": "UNVERIFIED",
+      "duplicate_test_id": 999,
+      "main_boundary_control_exit": 1
+    },
+    "protocol_probe_unchanged": {
+      "exit": 0
+    },
+    "old_probes_unchanged": {
+      "exit": 0
+    },
+    "old_extra_controls_unchanged": {
+      "exit": 0
+    },
+    "analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_no_pub": {
+      "exit": 0,
+      "passed": 247,
+      "skipped": 1
+    },
+    "multiplicity_trace": {
+      "exit": 0,
+      "records_before_validator": 8,
+      "same_full_name_records": 2
+    }
+  },
+  "no_implementation_edits": true,
+  "closure_scope": "Provider/tooling HP3-C only; app-profile V2b NOT RUN",
+  "next_gate_not_executed": true
+}

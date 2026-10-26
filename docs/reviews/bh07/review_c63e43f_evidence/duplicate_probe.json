@@ -1,0 +1,110 @@
+{
+  "positive_real_seven": {
+    "suite_verdict": "PASS",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "missing_expected_testDone": {
+    "suite_verdict": "FAIL",
+    "tests_passed": 6,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [
+      "Baseline Epoch: Initial providers state is empty, zero retained objects"
+    ],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
+    "identity_coverage": "INCOMPLETE",
+    "controls": {
+      "baseline_initial_empty": "NOT_RUN",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "different_group_duplicate": {
+    "parsed": {
+      "suite_verdict": "FAIL",
+      "tests_passed": 7,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "tests_expected": 7,
+      "tests_missing": [],
+      "tests_unexpected": [],
+      "tests_duplicate": [
+        "Other group Baseline Epoch: Initial providers state is empty, zero retained objects [testID 999]"
+      ],
+      "identity_coverage": "UNVERIFIED",
+      "controls": {
+        "baseline_initial_empty": "PASS",
+        "owner_positive_retention_p1": "PASS",
+        "post_logout_negative_purge_n1": "PASS",
+        "cohost_switch_isolation_n2": "PASS",
+        "member_switch_isolation_n3": "PASS",
+        "late_response_after_logout_n4": "PASS",
+        "late_response_after_switch_n5": "PASS",
+        "mutant_static_leak_detected_m1": "PASS",
+        "mutant_failed_clear_detected_m2": "PASS",
+        "session_club_purged_on_logout": "PASS"
+      }
+    },
+    "markdown_claims_7_of_7": false,
+    "visible_test_done_count": 8,
+    "main_boundary_control_exit": 1
+  },
+  "exact_full_name_duplicate": {
+    "parsed": {
+      "suite_verdict": "FAIL",
+      "tests_passed": 7,
+      "tests_failed": 0,
+      "tests_skipped": 0,
+      "tests_expected": 7,
+      "tests_missing": [],
+      "tests_unexpected": [],
+      "tests_duplicate": [
+        "V2b \u2014 Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects [testID 999]"
+      ],
+      "identity_coverage": "UNVERIFIED",
+      "controls": {
+        "baseline_initial_empty": "PASS",
+        "owner_positive_retention_p1": "PASS",
+        "post_logout_negative_purge_n1": "PASS",
+        "cohost_switch_isolation_n2": "PASS",
+        "member_switch_isolation_n3": "PASS",
+        "late_response_after_logout_n4": "PASS",
+        "late_response_after_switch_n5": "PASS",
+        "mutant_static_leak_detected_m1": "PASS",
+        "mutant_failed_clear_detected_m2": "PASS",
+        "session_club_purged_on_logout": "PASS"
+      }
+    },
+    "markdown_claims_7_of_7": false,
+    "visible_test_done_count": 8,
+    "main_boundary_control_exit": 1
+  }
+}

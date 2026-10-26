@@ -1,0 +1,106 @@
+{
+  "real_full_runner_raw": {
+    "suite_verdict": "PASS",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "same_run_json_only_positive": {
+    "suite_verdict": "PASS",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "real_flutter_skip_protocol": {
+    "testID": 3,
+    "result": "success",
+    "skipped": true,
+    "hidden": false,
+    "type": "testDone",
+    "time": 1690
+  },
+  "one_real_protocol_skip": {
+    "suite_verdict": "FAIL",
+    "tests_passed": 6,
+    "tests_failed": 0,
+    "tests_skipped": 1,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
+    "identity_coverage": "INCOMPLETE",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "NOT_RUN",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "unknown_extra_identity": {
+    "suite_verdict": "FAIL",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [
+      "unrecognized extra test [testID 999]"
+    ],
+    "tests_duplicate": [],
+    "identity_coverage": "UNVERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "skip_markdown_claims_7_of_7": false,
+  "unknown_extra_markdown_claims_7_of_7": false
+}

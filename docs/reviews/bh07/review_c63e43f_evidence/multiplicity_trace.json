@@ -1,0 +1,41 @@
+{
+  "records_before_validator": 8,
+  "distinct_test_ids": 8,
+  "same_full_name_records": [
+    {
+      "id": 4,
+      "name": "V2b \u00e2\u20ac\u201d Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects",
+      "result": "success"
+    },
+    {
+      "id": 999,
+      "name": "V2b \u00e2\u20ac\u201d Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects",
+      "result": "success"
+    }
+  ],
+  "validator_result": {
+    "suite_verdict": "FAIL",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [
+      "V2b \u00e2\u20ac\u201d Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects [testID 999]"
+    ],
+    "identity_coverage": "UNVERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  }
+}
