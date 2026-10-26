@@ -167,11 +167,18 @@ EXPECTED_TESTS = {
 }
 CONTROL_NAMES = [c for owned in EXPECTED_TESTS.values() for c in owned]
 _RESULT_MAP = {'success': 'PASS', 'failure': 'FAIL', 'error': 'FAIL', 'skipped': 'NOT_RUN'}
+# Event types của `flutter test --reporter json`; dùng để nhận diện stream protocol thật.
+_JSON_EVENT_TYPES = {'start', 'suite', 'allSuites', 'group', 'testStart', 'testDone', 'print', 'error', 'done'}
 
 
 def _parse_json_events(output):
-    """Đọc event testStart/testDone của `flutter test --reporter json` thành {tên test: result}."""
-    names, done = {}, {}
+    """Đọc event testStart/testDone trên toàn stream; diagnostics/pub output xen kẽ bị bỏ qua.
+
+    Trả về (results, saw_protocol): `results` là {tên test: result chuẩn hoá} với test bị skip
+    thành 'skipped' theo cờ `skipped` thật của protocol; `saw_protocol` cho biết stream có
+    event JSON hợp lệ hay không (để không rơi về text parser khi event bị thiếu).
+    """
+    names, done, saw_protocol = {}, {}, False
     for line in (output or '').splitlines():
         line = line.strip()
         if not line.startswith('{'):
@@ -180,22 +187,29 @@ def _parse_json_events(output):
             event = json.loads(line)
         except json.JSONDecodeError:
             continue
-        kind = event.get('type')
+        if not isinstance(event, dict) or event.get('type') not in _JSON_EVENT_TYPES:
+            continue
+        saw_protocol = True
+        kind = event['type']
         if kind == 'testStart':
             test = event.get('test') or {}
             names[test.get('id')] = test.get('name', '')
         elif kind == 'testDone':
-            done[event.get('testID')] = (event.get('result', 'error'), bool(event.get('hidden')))
+            done[event.get('testID')] = (
+                event.get('result', 'error'),
+                bool(event.get('skipped')),
+                bool(event.get('hidden')),
+            )
 
     results = {}
-    for test_id, (result, hidden) in done.items():
+    for test_id, (result, skipped, hidden) in done.items():
         name = names.get(test_id)
         if name and not hidden:
-            results[name] = result
-    return results
+            results[name] = 'skipped' if skipped else result
+    return results, saw_protocol
 
 
-def _suite_report(verdict, results, controls, coverage, missing=None):
+def _suite_report(verdict, results, controls, coverage, missing=None, unexpected=None, duplicates=None):
     if missing is None:
         missing = [name for name in EXPECTED_TESTS if name not in results]
     return {
@@ -205,35 +219,50 @@ def _suite_report(verdict, results, controls, coverage, missing=None):
         'tests_skipped': sum(1 for r in results.values() if r == 'skipped'),
         'tests_expected': len(EXPECTED_TESTS),
         'tests_missing': missing,
+        'tests_unexpected': list(unexpected or []),
+        'tests_duplicate': list(duplicates or []),
         'identity_coverage': coverage,
         'controls': controls,
     }
 
 
 def _verdict_from_results(results, test_ok):
-    def outcome_for(expected_name):
-        # `flutter test --reporter json` prefix tên test bằng tên group, nên so khớp theo hậu tố.
-        for name, result in results.items():
-            if name == expected_name or name.endswith(expected_name):
-                return _RESULT_MAP.get(result, 'FAIL')
-        return 'NOT_RUN'
+    """Map visible test results về đúng 7 expected identity; lạ/trùng không được tính là coverage."""
+    matched, unexpected, duplicates = {}, [], []
+    for name, result in results.items():
+        owners = [e for e in EXPECTED_TESTS if name == e or name.endswith(e)]
+        if not owners:
+            unexpected.append(name)
+        elif len(owners) > 1 or owners[0] in matched:
+            duplicates.append(name)
+        else:
+            matched[owners[0]] = result
 
     controls = {}
-    missing = []
+    missing, skipped_identities = [], []
     for name, owned in EXPECTED_TESTS.items():
-        outcome = outcome_for(name)
-        if outcome == 'NOT_RUN':
+        outcome = _RESULT_MAP.get(matched.get(name), 'NOT_RUN')
+        if name not in matched:
             missing.append(name)
+        elif outcome == 'NOT_RUN':
+            skipped_identities.append(name)
         for control in owned:
             controls[control] = outcome
 
     if not results:
+        coverage = 'NONE'
         verdict = 'NOT_RUN'
-    elif missing or not test_ok or any(v != 'PASS' for v in controls.values()):
-        verdict = 'FAIL'
     else:
-        verdict = 'PASS'
-    return _suite_report(verdict, results, controls, 'VERIFIED' if not missing else 'INCOMPLETE', missing)
+        if missing or skipped_identities:
+            coverage = 'INCOMPLETE'
+        elif unexpected or duplicates:
+            coverage = 'UNVERIFIED'
+        else:
+            coverage = 'VERIFIED'
+        clean = (not missing and not skipped_identities and not unexpected and not duplicates and test_ok
+                 and all(v == 'PASS' for v in controls.values()))
+        verdict = 'PASS' if clean else 'FAIL'
+    return _suite_report(verdict, matched, controls, coverage, missing, unexpected, duplicates)
 
 
 def _verdict_from_text(test_ok, output):
@@ -264,11 +293,13 @@ def _verdict_from_text(test_ok, output):
 def parse_test_results(test_ok, test_output):
     """
     Phân tích kết quả thực tế: đủ 7 test identity và từng control phải PASS thì suite mới PASS.
-    Không fallback thành 7, không gán toàn PASS từ một marker chung.
+    Chế độ JSON được chọn khi stream có event protocol hợp lệ ở bất kỳ dòng nào, không dựa
+    vào ký tự đầu output (Flutter in diagnostics/pub output trước JSON).
     """
     output = test_output or ''
-    if output.lstrip().startswith('{'):
-        return _verdict_from_results(_parse_json_events(output), test_ok)
+    results, saw_protocol = _parse_json_events(output)
+    if saw_protocol:
+        return _verdict_from_results(results, test_ok)
     return _verdict_from_text(test_ok, output)
 
 
@@ -334,6 +365,8 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
             'tests_failed': tests_failed,
             'tests_skipped': results['tests_skipped'],
             'tests_missing': results['tests_missing'],
+            'tests_unexpected': results['tests_unexpected'],
+            'tests_duplicate': results['tests_duplicate'],
             'identity_coverage': results['identity_coverage'],
             'controls': controls
         },
@@ -372,8 +405,10 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         suite_claim = f"Đạt {tests_passed}/{results['tests_expected']} kiểm thử `WeakReference`"
     else:
         report_conclusion = (f"**FAIL / INCOMPLETE** (Suite verdict: {suite_verdict}, AST: {overall_ast_verdict}, "
-                             f"Provenance: {'UNKNOWN' if prov_errors else 'OK'}).")
-        suite_claim = f"{tests_passed}/{results['tests_expected']} kiểm thử `WeakReference` PASS (verdict {suite_verdict})"
+                             f"Provenance: {'UNKNOWN' if prov_errors else 'OK'}, "
+                             f"identity coverage: {results['identity_coverage']}).")
+        suite_claim = (f"{tests_passed}/{results['tests_expected']} kiểm thử `WeakReference` success "
+                       f"(verdict {suite_verdict}, coverage {results['identity_coverage']})")
 
     if cleanliness == 'UNKNOWN':
         dirty_section = "  - UNKNOWN (không đọc được `git status`; không phải checkout sạch đã chứng minh)"
@@ -388,6 +423,8 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         for name, info in sorted((ast_data.get('providers_lifecycle_audit') or {}).items())
     ) or '  - (không có dữ liệu provider trong ast_memory_audit.json)'
     scanned_files = ast_data.get('total_dart_files_scanned', 'UNKNOWN')
+    unexpected_section = ', '.join(results['tests_unexpected']) or 'None'
+    duplicate_section = ', '.join(results['tests_duplicate']) or 'None'
 
     report_md = f"""# Báo Cáo Kiểm Chứng Cổng V2b — Private Dart Heap / In-Memory Retention BH-07
 
@@ -399,6 +436,10 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
 {prov_section}
 - **Dirty Paths:**
 {dirty_section}
+- **Suite Verdict:** `{suite_verdict}` — **Identity Coverage:** `{results['identity_coverage']}`
+- **Tests:** {tests_passed}/{results['tests_expected']} passed, {results['tests_failed']} failed, {results['tests_skipped']} skipped, missing: {len(results['tests_missing'])}
+- **Unexpected visible identities:** {unexpected_section}
+- **Duplicate identities:** {duplicate_section}
 - **Gate:** `V2b — Đo private Dart heap/cache sau đổi actor`
 - **Kết luận:** {report_conclusion}
 
