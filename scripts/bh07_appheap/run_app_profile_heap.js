@@ -31,8 +31,10 @@ const PASSWORDS = { ownera: 'bh07-http-pass-123456', cohosta: 'bh07-http-pass-12
 const PY = process.platform === 'win32' ? 'python' : 'python3';
 
 const { CdpClient } = require(DRIVER);
+const { hashArtifacts, snapshotArtifacts, assertArtifactsFresh, assertPortFree, assertServedMatches } = require('./build_guard');
 const CHROME_PATH = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const DEBUG_PORT = 9337;
+const BUILD_DIR = path.join(ROOT, 'build/web');
 // Two actor paths, one document each: the renderer reliably survives four heap
 // snapshots, so Owner -> logout -> Cohost and Owner -> logout -> Member each get
 // their own same-document run instead of one six-snapshot chain.
@@ -141,17 +143,25 @@ async function buildProfile(env) {
     '--dart-define=APP_ENV=test',
     `--dart-define=SUPABASE_URL=${env.API_URL}`,
     `--dart-define=SUPABASE_ANON_KEY=${env.ANON_KEY}`];
+  const before = snapshotArtifacts(BUILD_DIR);
+  const startedAt = Date.now();
   log('building Flutter web profile bundle (dart-defines not printed)');
-  const started = Date.now();
   run(process.platform === 'win32' ? 'flutter.bat' : 'flutter', args, { shell: process.platform === 'win32' });
-  const indexHtml = path.join(ROOT, 'build/web/index.html');
-  if (!fs.existsSync(indexHtml)) throw new Error('flutter build web produced no build/web/index.html');
-  return { mode: 'profile', build_ms: Date.now() - started };
+  if (!fs.existsSync(path.join(BUILD_DIR, 'index.html'))) throw new Error('flutter build web produced no build/web/index.html');
+  // Provenance: these hashes are the artifacts the server must answer with (review AH5).
+  assertArtifactsFresh(BUILD_DIR, startedAt, before);
+  return {
+    mode: 'profile',
+    build_ms: Date.now() - startedAt,
+    started_at: new Date(startedAt).toISOString(),
+    artifacts_root: 'build/web',
+    artifacts: hashArtifacts(BUILD_DIR),
+  };
 }
 
 function startServer() {
   const proc = spawn(PY, ['-m', 'http.server', String(WEB_PORT), '--bind', '127.0.0.1',
-    '--directory', path.join(ROOT, 'build/web')], { cwd: ROOT, stdio: 'ignore' });
+    '--directory', BUILD_DIR], { cwd: ROOT, stdio: 'ignore' });
   return proc;
 }
 
@@ -314,8 +324,10 @@ async function main() {
     fs.writeFileSync(sentinelsPath, JSON.stringify(oracleSentinels));
 
     if (reuseBuild) {
-      summary.environment.build = { mode: 'profile', build_ms: 0, reused: true };
+      // A build this run did not produce cannot prove profile provenance (review AH5).
+      throw new Error('--reuse-build is not accepted: the run must build the profile artifact it measures');
     } else {
+      await assertPortFree(WEB_PORT);
       summary.environment.build = await buildProfile(env);
     }
     summary.environment.flutter = run(process.platform === 'win32' ? 'flutter.bat' : 'flutter', ['--version'], { shell: process.platform === 'win32' })
@@ -323,6 +335,8 @@ async function main() {
 
     server = startServer();
     await waitForServer();
+    // The served bytes must be the artifact we hashed, not a leftover server's build.
+    summary.environment.build.served_match = await assertServedMatches(WEB_URL, BUILD_DIR);
 
     for (let cycle = 1; cycle <= cycles; cycle++) {
       const actor = ACTORS[(cycle - 1) % ACTORS.length];
@@ -414,6 +428,7 @@ function writeEvidence(summary) {
   fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
   fs.writeFileSync(path.join(OUT, 'run.log'), logLines.join('\n') + '\n');
 
+  const build = (summary.environment || {}).build || {};
   const lines = [
     '# V2b — app-profile heap / in-memory retention after actor switch',
     '',
@@ -423,7 +438,8 @@ function writeEvidence(summary) {
     `- Tested source: \`${summary.tested_source_sha}\` (git dirty: ${summary.git_dirty})`,
     `- Measurement surface: ${summary.measurement_surface}`,
     `- Oracle: ${summary.oracle}`,
-    `- Build: ${JSON.stringify((summary.environment || {}).build || {})}`,
+    `- Build: mode=${build.mode || 'n/a'} reused=${build.reused || false} `
+      + `artifacts=${Object.keys(build.artifacts || {}).length} served_match=${build.served_match || false}`,
     `- Chrome: ${(summary.environment || {}).chrome || 'n/a'}; Flutter: ${(summary.environment || {}).flutter || 'n/a'}`,
     '',
     '## Sentinels (values never published)',

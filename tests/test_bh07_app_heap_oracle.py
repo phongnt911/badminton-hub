@@ -2,8 +2,8 @@
 
 The oracle decides whether Owner-private sentinel strings are still reachable in the
 live V8 heap. A wrong oracle turns "no evidence" into "clean", so these controls pin
-the three ways it can lie: a missing sentinel, an unusable snapshot, and a failed
-cleanup being read as a pass.
+every way it can lie: a missing sentinel, an unusable snapshot, a snapshot that is
+JSON-shaped but structurally broken, and a failed cleanup being read as a pass.
 
 Run: python -m unittest tests.test_bh07_app_heap_oracle -v
 """
@@ -22,57 +22,129 @@ ORACLE = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ORACLE)
 
 SENTINELS = {'bank': 'SENTINEL-BANK-998877', 'probe': 'SENTINEL-PROBE-ALIVE'}
-PAD = '"pad":"' + 'x' * 5000 + '",'
+NODE_FIELDS = ['type', 'name', 'id', 'self_size', 'edge_count']
+NODE_TYPES = [['hidden', 'array', 'string', 'object'], 'string', 'number', 'number', 'number']
+EDGE_FIELDS = ['type', 'name_or_index', 'to_node']
+EDGE_TYPES = [['context', 'element', 'property'], 'string_or_number', 'node']
+FILLER = 'z' * 4200
 
 
-def snapshot_body(strings, complete=True):
-    body = ('{"snapshot":{"meta":{}},' + PAD + '"nodes":[],"edges":[],"strings":['
-            + ','.join(json.dumps(s) for s in strings) + ']}')
-    return body if complete else body[:-40]
+def snapshot_body(strings, node_units=2, edge_units=2, node_count=None, edge_count=None,
+                  meta=None, drop_tail=0, extra_top_level=(), strings_last=True):
+    """Build a structurally valid V8-shaped snapshot so controls test logic, not luck."""
+    meta = meta if meta is not None else {
+        'node_fields': NODE_FIELDS,
+        'node_types': NODE_TYPES,
+        'edge_fields': EDGE_FIELDS,
+        'edge_types': EDGE_TYPES,
+    }
+    nodes = [0] * (node_units * len(NODE_FIELDS))
+    edges = [0] * (edge_units * len(EDGE_FIELDS))
+    counts = {
+        'node_count': node_units if node_count is None else node_count,
+        'edge_count': edge_units if edge_count is None else edge_count,
+        'trace_function_count': 0,
+    }
+    head = {'snapshot': {'meta': meta, **counts}}
+    body = json.dumps({**head, 'nodes': nodes, 'edges': edges,
+                       'traces': [], 'samples': [], 'locations': []}, separators=(',', ':'))
+    tail = json.dumps({'strings': strings + [FILLER]}, separators=(',', ':'))[1:-1]
+    if strings_last:
+        out = body[:-1] + ',' + tail + '}'
+    else:
+        out = json.dumps({**head, 'strings': strings, 'nodes': nodes, 'edges': edges},
+                         separators=(',', ':'))
+    for key, value in extra_top_level:
+        out = out[:-1] + ',' + json.dumps({key: value}, separators=(',', ':'))[1:-1] + '}'
+    return out[:-drop_tail] if drop_tail else out
 
 
 class ScanControls(unittest.TestCase):
-    def scan(self, strings, complete=True):
+    def scan(self, body):
         with tempfile.NamedTemporaryFile('wb', suffix='.heapsnapshot', delete=False) as fp:
-            fp.write(snapshot_body(strings, complete).encode('utf-8'))
+            fp.write(body.encode('utf-8'))
             path = fp.name
         try:
             return ORACLE.scan(path, SENTINELS)
         finally:
             Path(path).unlink()
 
-    def test_present_sentinel_is_detected(self):
-        result = self.scan(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE', 'unrelated'])
-        self.assertTrue(result['ok'])
+    def assert_unusable(self, result, hint=''):
+        self.assertFalse(result['ok'], f'{hint}: expected unusable snapshot, got {result}')
+        self.assertTrue(result.get('error'), f'{hint}: unusable snapshot must explain why')
+
+    def test_valid_snapshot_detects_present_sentinel(self):
+        result = self.scan(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        self.assertTrue(result['ok'], result)
         self.assertTrue(result['sentinels']['bank']['present'])
         self.assertEqual(result['sentinels']['bank']['occurrences'], 1)
         self.assertFalse(result['sentinels'].get('expense', {}).get('present', False))
 
-    def test_absent_sentinel_is_reported_absent(self):
-        result = self.scan(['SENTINEL-PROBE-ALIVE', 'unrelated'])
-        self.assertTrue(result['ok'])
+    def test_valid_snapshot_reports_absent_sentinel(self):
+        result = self.scan(snapshot_body(['SENTINEL-PROBE-ALIVE', 'unrelated']))
+        self.assertTrue(result['ok'], result)
         self.assertFalse(result['sentinels']['bank']['present'])
 
-    def test_truncated_snapshot_is_not_read_as_absent(self):
-        result = self.scan(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE'], complete=False)
-        self.assertFalse(result['ok'])
-        self.assertEqual(result['error'], 'snapshot_incomplete_or_unparsable')
+    def test_sentinel_deep_inside_large_string_table_is_found(self):
+        strings = ['pad-%d' % i for i in range(2000)] + ['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']
+        result = self.scan(snapshot_body(strings))
+        self.assertTrue(result['ok'], result)
+        self.assertTrue(result['sentinels']['bank']['present'])
 
-    def test_empty_snapshot_is_not_read_as_absent(self):
+    def test_invalid_literal_snapshot_fails(self):
+        # Reviewer fixture: every substring marker and a closing brace, but not JSON.
+        body = ('{"snapshot":BROKEN,' + 'x' * 5000
+                + ',"nodes":[],"edges":[],"strings":["SENTINEL-PROBE-ALIVE"]}')
+        self.assert_unusable(self.scan(body), 'invalid literal')
+
+    def test_truncated_snapshot_fails(self):
+        self.assert_unusable(self.scan(snapshot_body(['SENTINEL-PROBE-ALIVE'], drop_tail=40)), 'truncated')
+
+    def test_trailing_garbage_fails(self):
+        self.assert_unusable(self.scan(snapshot_body(['SENTINEL-PROBE-ALIVE']) + 'garbage'), 'trailing garbage')
+
+    def test_node_count_mismatch_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'], node_units=3, node_count=2)
+        self.assert_unusable(self.scan(body), 'node_count mismatch')
+
+    def test_edge_count_mismatch_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'], edge_units=3, edge_count=7)
+        self.assert_unusable(self.scan(body), 'edge_count mismatch')
+
+    def test_missing_chunk_mid_stream_fails(self):
+        # A whole run of node numbers is gone; every marker and the tail still match.
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'], node_units=4)
+        broken = body.replace('0,0,0,0,0,0,0,0,0,0,', '0,0,0,0,', 1)
+        self.assertNotEqual(broken, body)
+        self.assert_unusable(self.scan(broken), 'missing chunk')
+
+    def test_unterminated_string_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'])
+        broken = body.replace('"SENTINEL-PROBE-ALIVE"', '"SENTINEL-PROBE-ALIVE', 1)
+        self.assert_unusable(self.scan(broken), 'unterminated string')
+
+    def test_metadata_without_v8_fields_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'], meta={})
+        self.assert_unusable(self.scan(body), 'empty meta')
+
+    def test_metadata_with_inconsistent_types_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'],
+                             meta={'node_fields': NODE_FIELDS, 'node_types': NODE_TYPES[:2],
+                                   'edge_fields': EDGE_FIELDS, 'edge_types': EDGE_TYPES})
+        self.assert_unusable(self.scan(body), 'node_types length mismatch')
+
+    def test_strings_not_last_fails(self):
+        body = snapshot_body(['SENTINEL-PROBE-ALIVE'], strings_last=False)
+        self.assert_unusable(self.scan(body), 'strings not last')
+
+    def test_empty_snapshot_fails(self):
         with tempfile.NamedTemporaryFile('wb', suffix='.heapsnapshot', delete=False) as fp:
             path = fp.name
         try:
             result = ORACLE.scan(path, SENTINELS)
         finally:
             Path(path).unlink()
-        self.assertFalse(result['ok'])
-
-    def test_sentinel_split_across_read_chunks_is_still_found(self):
-        # A 1 MiB read boundary must not hide a live sentinel.
-        filler = 'y' * (ORACLE.CHUNK - 6)
-        result = self.scan([filler, 'SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE'])
-        self.assertTrue(result['ok'])
-        self.assertTrue(result['sentinels']['bank']['present'])
+        self.assert_unusable(result, 'empty file')
 
 
 class DecideControls(unittest.TestCase):
@@ -111,12 +183,20 @@ class DecideControls(unittest.TestCase):
 
     def test_unusable_snapshot_fails(self):
         scans = self.scans({'baseline': False, 'owner_active': True, 'post_logout': False})
-        scans['post_logout'] = {'ok': False, 'error': 'snapshot_incomplete_or_unparsable'}
+        scans['post_logout'] = {'ok': False, 'error': 'snapshot_structurally_invalid'}
         self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
 
     def test_missing_epoch_fails(self):
         scans = self.scans({'baseline': False, 'owner_active': True})
         self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_unexpected_epoch_fails(self):
+        # An extra epoch cannot hide a leak or pad a short cycle.
+        scans = self.scans({'baseline': False, 'owner_active': True, 'post_logout': False})
+        scans['post_actor'] = scans['post_logout']
+        verdict = ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        self.assertTrue(any('post_actor' in f for f in verdict['findings']))
 
     def test_failed_cleanup_fails(self):
         scans = self.scans({'baseline': False, 'owner_active': True, 'post_logout': False})

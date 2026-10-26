@@ -1,9 +1,14 @@
 """Sentinel oracle for BH-07 app-profile V8 heap snapshots (Chrome DevTools Protocol).
 
 Snapshot files are large and contain private app data. This module never copies or
-publishes them: it streams each dump once, counts synthetic sentinel strings and
-returns counts plus a truncated SHA-256 so a reviewer can compare runs without the
-raw heap ever leaving the machine.
+publishes them: it reads each dump once, proves it is a complete V8 snapshot, counts
+synthetic sentinel strings and returns counts plus a truncated SHA-256 so a reviewer
+can compare runs without the raw heap ever leaving the machine.
+
+A dump that is truncated, has a missing run of bytes, is not JSON, or whose node/edge
+tables disagree with the snapshot metadata is *unusable*: the oracle then refuses to
+answer instead of reporting "sentinel absent", because absent-from-a-broken-dump is
+not evidence that the data was collected.
 
 The oracle is deliberately dumb about *why* a string is present. Presence means the
 string is reachable in the live JS heap at that epoch; absence means it was collected.
@@ -16,57 +21,225 @@ Usage:
 import argparse
 import hashlib
 import json
+import os
+import re
 import sys
 
-# A real Chrome heap snapshot is a single JSON object with these top-level arrays.
-# If they are missing the dump is truncated/aborted, and "sentinel absent" would be a
-# false green, so scan() must refuse it instead of reporting zeros.
-STRUCTURE_MARKERS = (b'"nodes":[', b'"edges":[', b'"strings":[')
+# V8 writes one JSON object whose top-level arrays are the heap tables. `strings` is
+# always written last, so it must end the document; anything after it is corruption.
+SNAPSHOT_KEYS = ('nodes', 'edges', 'strings')
+ARRAY_KEY_RE = {key: re.compile(rb'"%s"\s*:\s*\[' % key.encode()) for key in SNAPSHOT_KEYS}
+MIDDLE_KEYS_RE = re.compile(
+    rb'(?:\s*,\s*"(?:traces|trace_function_infos|trace_tree|samples|locations)"\s*:\s*\[[^\]]*\])*\s*,?\s*')
+INT_TOKEN_RE = re.compile(rb'-?\d+')
+STRING_TOKEN_RE = re.compile(rb'"(?:[^"\\\x00-\x1f]|\\.)*"')
+META_REQUIRED = ('meta', 'node_count', 'edge_count')
+META_FIELDS = ('node_fields', 'node_types', 'edge_fields', 'edge_types')
 MIN_SNAPSHOT_BYTES = 4096
+MAX_SNAPSHOT_BYTES = 2 << 30
 CHUNK = 1 << 20
 
 
-def scan(path, sentinels):
-    """Count sentinel occurrences in one heap snapshot without loading it into memory."""
-    encoded = {name: value.encode('utf-8') for name, value in sentinels.items()}
-    overlap = max([len(v) for v in encoded.values()] + [len(m) for m in STRUCTURE_MARKERS] + [16])
-    counts = {name: 0 for name in encoded}
-    flags = {marker: False for marker in STRUCTURE_MARKERS}
-    size = 0
-    sha = hashlib.sha256()
-    head = b''
-    tail = b''
-    carry = b''
-    with open(path, 'rb') as fp:
-        while True:
-            chunk = fp.read(CHUNK)
-            if not chunk:
-                break
-            size += len(chunk)
-            sha.update(chunk)
-            if len(head) < 64:
-                head += chunk[:64 - len(head)]
-            tail = chunk[-16:]
-            window = carry + chunk
-            for name, value in encoded.items():
-                counts[name] += window.count(value)
-            for marker in STRUCTURE_MARKERS:
-                if not flags[marker] and marker in window:
-                    flags[marker] = True
-            carry = window[-overlap:]
+def _metadata(buf):
+    """Strictly parse the small `"snapshot"` object at the start of the dump."""
+    if not buf.startswith(b'{"snapshot"'):
+        return None, 'snapshot_does_not_start_with_snapshot_object', 0
+    brace = buf.find(b'{', len(b'{"snapshot"'))
+    if brace < 0:
+        return None, 'snapshot_metadata_missing', 0
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(brace, min(len(buf), brace + (1 << 20))):
+        char = buf[index:index + 1]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == b'\\':
+                escaped = True
+            elif char == b'"':
+                in_string = False
+            continue
+        if char == b'"':
+            in_string = True
+        elif char == b'{':
+            depth += 1
+        elif char == b'}':
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(buf[brace:index + 1]), None, index + 1
+                except json.JSONDecodeError as exc:
+                    return None, f'snapshot_metadata_invalid_json: {exc.msg}', 0
+    return None, 'snapshot_metadata_unterminated', 0
 
-    complete = (head.startswith(b'{"snapshot"') and size >= MIN_SNAPSHOT_BYTES
-                and tail.rstrip().endswith(b'}') and all(flags.values()))
+
+def _array_span(buf, key, start):
+    """Return (key_start, open, close) byte offsets of the first `"key":[ ... ]`."""
+    match = ARRAY_KEY_RE[key].search(buf, start)
+    if not match:
+        return None
+    open_index = match.end() - 1
+    # The string table contains `]` inside its literals, so it needs a real scan.
+    close_index = _string_table_close(buf, open_index) if key == 'strings' else buf.find(b']', open_index)
+    if close_index < 0:
+        return None
+    return match.start(), open_index, close_index
+
+
+def _string_table_close(buf, open_index):
+    """Offset of the `]` closing the string table, ignoring `]` inside literals."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(open_index, len(buf)):
+        char = buf[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == 0x5C:
+                escaped = True
+            elif char == 0x22:
+                in_string = False
+            continue
+        if char == 0x22:
+            in_string = True
+        elif char == 0x5B:
+            depth += 1
+        elif char == 0x5D:
+            depth -= 1
+            if depth == 0:
+                return index
+    return -1
+
+
+def _int_elements(segment):
+    """Count the integers of a flat numeric table, rejecting anything else."""
+    if not segment.strip():
+        return 0
+    parts = segment.split(b',')
+    for part in parts:
+        if not INT_TOKEN_RE.fullmatch(part.strip()):
+            return None
+    return len(parts)
+
+
+def _string_elements(segment):
+    """Count the JSON string literals of the string table, rejecting anything else."""
+    if not segment.strip():
+        return 0
+    tokens = STRING_TOKEN_RE.findall(segment)
+    if not tokens:
+        return None
+    leftover = STRING_TOKEN_RE.sub(b'', segment).strip(b' \t\r\n,')
+    if leftover:
+        return None
+    return len(tokens)
+
+
+def validate(buf):
+    """Prove the dump is a complete, self-consistent V8 snapshot (no full JSON parse)."""
+    if len(buf) < MIN_SNAPSHOT_BYTES:
+        return False, 'snapshot_too_small', {}
+    if len(buf) > MAX_SNAPSHOT_BYTES:
+        return False, 'snapshot_too_large', {}
+
+    meta, error, cursor = _metadata(buf)
+    if meta is None:
+        return False, error, {}
+    for key in META_REQUIRED:
+        if key not in meta:
+            return False, f'snapshot_metadata_missing_{key}', {}
+    if not isinstance(meta['meta'], dict):
+        return False, 'snapshot_metadata_meta_not_object', {}
+    fields = meta['meta']
+    for key in META_FIELDS:
+        if not isinstance(fields.get(key), list) or not fields[key]:
+            return False, f'snapshot_metadata_missing_{key}', {}
+    for name, type_name in (('node_fields', 'node_types'), ('edge_fields', 'edge_types')):
+        if len(fields[type_name]) != len(fields[name]):
+            return False, f'snapshot_metadata_{type_name}_length_mismatch', {}
+    if not isinstance(meta['node_count'], int) or not isinstance(meta['edge_count'], int):
+        return False, 'snapshot_metadata_counts_not_integer', {}
+    if meta['node_count'] < 0 or meta['edge_count'] < 0:
+        return False, 'snapshot_metadata_counts_negative', {}
+
+    spans = {}
+    for key in SNAPSHOT_KEYS:
+        span = _array_span(buf, key, cursor)
+        if span is None:
+            return False, f'snapshot_table_missing_{key}', {}
+        spans[key] = span
+        cursor = span[2] + 1
+    if not (spans['nodes'][1] < spans['edges'][1] < spans['strings'][1]):
+        return False, 'snapshot_tables_out_of_order', {}
+
+    # Nothing but traces/samples/locations may sit between the edge and string tables.
+    if not MIDDLE_KEYS_RE.fullmatch(buf[spans['edges'][2] + 1:spans['strings'][0]]):
+        return False, 'snapshot_unexpected_content_between_tables', {}
+
+    # The string table is last: only the closing brace may follow it.
+    if buf.rindex(b']') != spans['strings'][2] or not re.fullmatch(rb'\s*\}\s*', buf[spans['strings'][2] + 1:]):
+        return False, 'snapshot_does_not_end_with_string_table', {}
+
+    node_elements = _int_elements(buf[spans['nodes'][1] + 1:spans['nodes'][2]])
+    edge_elements = _int_elements(buf[spans['edges'][1] + 1:spans['edges'][2]])
+    string_elements = _string_elements(buf[spans['strings'][1] + 1:spans['strings'][2]])
+    if node_elements is None:
+        return False, 'snapshot_node_table_not_integers', {}
+    if edge_elements is None:
+        return False, 'snapshot_edge_table_not_integers', {}
+    if string_elements is None:
+        return False, 'snapshot_string_table_not_strings', {}
+    if string_elements == 0:
+        return False, 'snapshot_string_table_empty', {}
+
+    expected_nodes = meta['node_count'] * len(fields['node_fields'])
+    expected_edges = meta['edge_count'] * len(fields['edge_fields'])
+    if node_elements != expected_nodes:
+        return False, f'snapshot_node_count_mismatch: {node_elements} != {expected_nodes}', {}
+    if edge_elements != expected_edges:
+        return False, f'snapshot_edge_count_mismatch: {edge_elements} != {expected_edges}', {}
+
+    return True, None, {
+        'node_count': meta['node_count'],
+        'edge_count': meta['edge_count'],
+        'string_count': string_elements,
+        'size_bytes': len(buf),
+    }
+
+
+def scan(path, sentinels):
+    """Validate one heap snapshot and count sentinel occurrences inside it."""
+    encoded = {name: value.encode('utf-8') for name, value in sentinels.items()}
+    size = os.path.getsize(path)
+    if size > MAX_SNAPSHOT_BYTES:
+        return {
+            'ok': False,
+            'error': 'snapshot_too_large',
+            'size_bytes': size,
+            'sha256_12': None,
+            'sentinels': {name: {'present': None, 'occurrences': None} for name in encoded},
+        }
+    with open(path, 'rb') as fp:
+        buf = fp.read()
+
+    ok, error, details = validate(buf)
+    counts = {name: buf.count(value) for name, value in encoded.items()}
     result = {
-        'ok': complete,
-        'size_bytes': size,
-        'sha256_12': sha.hexdigest()[:12],
+        'ok': ok,
+        'size_bytes': len(buf),
+        'sha256_12': hashlib.sha256(buf).hexdigest()[:12],
         'sentinels': {name: {'present': count > 0, 'occurrences': count}
                       for name, count in counts.items()},
     }
-    if not complete:
-        result['error'] = 'snapshot_incomplete_or_unparsable'
-        result['structure'] = {m.decode(): flags[m] for m in STRUCTURE_MARKERS}
+    if details:
+        result['structure'] = details
+    if not ok:
+        result['error'] = error
+        # Never let a caller read "sentinel absent" out of an unusable dump.
+        for name in result['sentinels']:
+            result['sentinels'][name]['present'] = None
     return result
 
 
@@ -83,6 +256,10 @@ def decide(scans, expectations, cleanup_ok, mode):
         verdict_ok = False
     if not cleanup_ok:
         findings.append('heap dump cleanup not verified')
+        verdict_ok = False
+
+    for epoch in sorted(set(scans) - set(expectations)):
+        findings.append(f'{epoch}: unexpected snapshot epoch')
         verdict_ok = False
 
     for epoch, expected in expectations.items():
@@ -124,20 +301,27 @@ def self_test():
         return tmp.name
 
     sentinel = {'bank': 'SENTINEL-BANK-123', 'probe': 'SENTINEL-PROBE-ALIVE'}
-    pad = b'"pad":"' + b'x' * 5000 + b'",'
+    meta = {
+        'meta': {'node_fields': ['type', 'name'], 'node_types': [['object'], 'string'],
+                 'edge_fields': ['type'], 'edge_types': [['property']]},
+        'node_count': 2, 'edge_count': 1, 'trace_function_count': 0,
+    }
+    pad = '"pad":"' + 'x' * 5000 + '",'
 
     def snapshot(strings):
-        body = (b'{"snapshot":{"meta":{}},' + pad + b'"nodes":[],"edges":[],"strings":['
-                + b','.join(b'"' + s.encode() + b'"' for s in strings) + b']}')
-        return body
+        return (b'{"snapshot":' + json.dumps(meta, separators=(',', ':')).encode()
+                + b',' + pad.encode() + b'"nodes":[0,0,0,0],"edges":[0],'
+                + b'"strings":[' + b','.join(b'"' + s.encode() + b'"' for s in strings) + b']}')
 
     cases = []
     path = write(snapshot(['SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE', 'other']))
     cases.append(('positive_present', scan(path, sentinel), True, True))
     path = write(snapshot(['SENTINEL-PROBE-ALIVE', 'other']))
     cases.append(('negative_absent', scan(path, sentinel), False, True))
-    path = write(snapshot(['SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE'])[:-40])
+    path = write(snapshot(['SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE'])[:-2])
     cases.append(('truncated_is_not_absent', scan(path, sentinel), None, False))
+    path = write(b'{"snapshot":BROKEN,' + b'x' * 5000 + b',"nodes":[],"edges":[],"strings":["a"]}')
+    cases.append(('invalid_json_is_not_absent', scan(path, sentinel), None, False))
     path = write(b'')
     cases.append(('empty_is_not_absent', scan(path, sentinel), None, False))
 
