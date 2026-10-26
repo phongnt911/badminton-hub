@@ -1,13 +1,13 @@
-[2026-10-26T05:50:16.064Z] building Flutter web profile bundle (dart-defines not printed)
-[2026-10-26T05:51:02.440Z] cycle 1: actor path Owner -> logout -> cohost
-[2026-10-26T05:51:08.885Z] c1_baseline: snapshot 58337657 bytes sha=b7af1df93088 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:51:35.271Z] c1_owner_active: snapshot 83644962 bytes sha=58ea5804d674 ok=true present={"bank":true,"probe":true,"expense":false}
-[2026-10-26T05:52:00.914Z] c1_post_logout: snapshot 69240102 bytes sha=1a4010b7fe12 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:52:27.084Z] c1_post_cohost: snapshot 81355237 bytes sha=d10fbe9d3980 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:52:27.259Z] cycle 2: actor path Owner -> logout -> member
-[2026-10-26T05:52:33.792Z] c2_baseline: snapshot 58329272 bytes sha=fe25f6852289 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:53:00.533Z] c2_owner_active: snapshot 84345277 bytes sha=1a179ca49760 ok=true present={"bank":true,"probe":true,"expense":false}
-[2026-10-26T05:53:26.327Z] c2_post_logout: snapshot 69743938 bytes sha=1f7fb2a4ff68 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:53:48.837Z] c2_post_member: snapshot 73929215 bytes sha=97cd99659c71 ok=true present={"bank":false,"probe":true,"expense":false}
-[2026-10-26T05:53:49.029Z] chrome stderr: DevTools listening on ws://<redacted>
-[2026-10-26T05:53:49.029Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-26T11:25:36.606Z] building Flutter web profile bundle (dart-defines not printed)
+[2026-10-26T11:26:28.887Z] cycle 1: actor path Owner -> logout -> cohost
+[2026-10-26T11:26:42.751Z] c1_baseline: snapshot 58414388 bytes sha=35fd5a35e3ca ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:27:18.118Z] c1_owner_active: snapshot 84037436 bytes sha=f49ae02f751f ok=true present={"bank":true,"probe":true,"expense":false}
+[2026-10-26T11:27:51.337Z] c1_post_logout: snapshot 69258978 bytes sha=99ba1a5b2d49 ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:28:26.229Z] c1_post_cohost: snapshot 82317587 bytes sha=3852b92e2732 ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:28:26.418Z] cycle 2: actor path Owner -> logout -> member
+[2026-10-26T11:28:39.500Z] c2_baseline: snapshot 58326149 bytes sha=4062854ebdfe ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:29:14.176Z] c2_owner_active: snapshot 83941045 bytes sha=3b75780647e9 ok=true present={"bank":true,"probe":true,"expense":false}
+[2026-10-26T11:29:47.106Z] c2_post_logout: snapshot 69379107 bytes sha=67446555bb72 ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:30:17.108Z] c2_post_member: snapshot 73596863 bytes sha=7a4d6d280731 ok=true present={"bank":false,"probe":true,"expense":false}
+[2026-10-26T11:30:17.298Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-26T11:30:17.298Z] chrome stderr: DevTools listening on ws://<redacted>

@@ -3,10 +3,10 @@
 - Gate: V2b — app-profile Dart heap / in-memory retention after actor switch
 - Reference: docs/reviews/bh07/bh07_readiness.md §4.4
 - Status: **RUN** (verdict PASS)
-- Tested source: `bb2d2130276ad31824acc650a02ecee4b6ba95a6` (git dirty: false)
+- Tested source: `249f12ed5b8ba042de1d48e9d5e06ffe7c125ada` (git dirty: false)
 - Measurement surface: Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)
 - Oracle: fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency
-- Build: {"mode":"profile","build_ms":44925}
+- Build: mode=profile reused=false artifacts=39 served_match=true
 - Chrome: Chrome/155.0.8059.85; Flutter: Flutter 3.47.6 • channel stable • https://github.com/flutter/flutter.git
 
 ## Sentinels (values never published)
@@ -15,20 +15,20 @@
 | --- | --- | --- | --- |
 | bank | club bank account number (Owner-private) | 10 | 65dce15efcc4 |
 | expense | posted session expense title (Owner-private) | 16 | 41a394dd2dcd |
-| probe | detector sanity marker set on window | 25 | 16d8da2f71d6 |
+| probe | detector sanity marker set on window | 25 | 3d6cdcd6437c |
 
 ## Cycles
 
 | cycle | actor path | same document | epoch | snapshot bytes | snapshot sha256[:12] | present sentinels |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Owner -> logout -> cohost | true | baseline | 58337657 | b7af1df93088 | probe |
-| 1 | Owner -> logout -> cohost | true | owner_active | 83644962 | 58ea5804d674 | bank, probe |
-| 1 | Owner -> logout -> cohost | true | post_logout | 69240102 | 1a4010b7fe12 | probe |
-| 1 | Owner -> logout -> cohost | true | post_actor | 81355237 | d10fbe9d3980 | probe |
-| 2 | Owner -> logout -> member | true | baseline | 58329272 | fe25f6852289 | probe |
-| 2 | Owner -> logout -> member | true | owner_active | 84345277 | 1a179ca49760 | bank, probe |
-| 2 | Owner -> logout -> member | true | post_logout | 69743938 | 1f7fb2a4ff68 | probe |
-| 2 | Owner -> logout -> member | true | post_actor | 73929215 | 97cd99659c71 | probe |
+| 1 | Owner -> logout -> cohost | true | baseline | 58414388 | 35fd5a35e3ca | probe |
+| 1 | Owner -> logout -> cohost | true | owner_active | 84037436 | f49ae02f751f | bank, probe |
+| 1 | Owner -> logout -> cohost | true | post_logout | 69258978 | 99ba1a5b2d49 | probe |
+| 1 | Owner -> logout -> cohost | true | post_actor | 82317587 | 3852b92e2732 | probe |
+| 2 | Owner -> logout -> member | true | baseline | 58326149 | 4062854ebdfe | probe |
+| 2 | Owner -> logout -> member | true | owner_active | 83941045 | 3b75780647e9 | bank, probe |
+| 2 | Owner -> logout -> member | true | post_logout | 69379107 | 67446555bb72 | probe |
+| 2 | Owner -> logout -> member | true | post_actor | 73596863 | 7a4d6d280731 | probe |
 
 ## Findings
 
