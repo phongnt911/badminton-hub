@@ -317,11 +317,13 @@ async function main() {
       bank: sentinels.bank, expense: sentinels.expense, probe: sentinels.probe,
     });
     summary.sentinels = {
-      bank: { sha256_12: sha12(sentinels.bank), length: sentinels.bank.length, kind: 'club bank account number (Owner-private)' },
+      // `available` is explicit so the auditor never has to guess why a length/hash is
+      // missing (review 76334e2 AH8).
+      bank: { available: true, sha256_12: sha12(sentinels.bank), length: sentinels.bank.length, kind: 'club bank account number (Owner-private)' },
       expense: sentinels.expense
-        ? { sha256_12: sha12(sentinels.expense), length: sentinels.expense.length, kind: 'posted session expense title (Owner-private)' }
-        : { kind: 'not available in fixtures', sha256_12: null },
-      probe: { sha256_12: sha12(sentinels.probe), length: sentinels.probe.length, kind: 'detector sanity marker set on window' },
+        ? { available: true, sha256_12: sha12(sentinels.expense), length: sentinels.expense.length, kind: 'posted session expense title (Owner-private)' }
+        : { available: false, kind: 'not available in fixtures' },
+      probe: { available: true, sha256_12: sha12(sentinels.probe), length: sentinels.probe.length, kind: 'detector sanity marker set on window' },
     };
     const sentinelsPath = path.join(DUMPS, 'sentinels.json');
     const oracleSentinels = { bank: sentinels.bank, probe: sentinels.probe };

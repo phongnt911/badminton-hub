@@ -12,6 +12,9 @@ not evidence that the data was collected.
 
 The oracle is deliberately dumb about *why* a string is present. Presence means the
 string is reachable in the live JS heap at that epoch; absence means it was collected.
+Presence is counted on the **decoded** string table of the parsed snapshot, so a value
+written literally and the same value written with JSON unicode escapes agree (review
+76334e2).
 
 Usage:
   python heap_oracle.py scan --snapshot <file> --sentinels <sentinels.json> [--out <file>]
@@ -139,6 +142,27 @@ def _structure(doc):
     }
 
 
+def parse_snapshot(buf):
+    """Parse once and return (document, error, details) so callers reuse the decode.
+
+    Review 76334e2 AH7: counting raw bytes made "ABC" and "\\u0041\\u0042\\u0043" disagree
+    even though they are the same JSON value. Presence is decided from the parsed string
+    table, never from the serialized representation.
+    """
+    if len(buf) < MIN_SNAPSHOT_BYTES:
+        return None, 'snapshot_too_small', {}
+    if len(buf) > MAX_SNAPSHOT_BYTES:
+        return None, 'snapshot_too_large', {}
+    doc, error = _parse(buf)
+    if error:
+        return None, error, {}
+    ok, error, details = _structure(doc)
+    if not ok:
+        return None, error, {}
+    details['size_bytes'] = len(buf)
+    return doc, None, details
+
+
 def validate(buf):
     """Prove the dump is a complete V8 snapshot by parsing its whole JSON grammar.
 
@@ -147,23 +171,28 @@ def validate(buf):
     only reliable gate is the grammar itself, so the dump must parse as one JSON object
     (duplicate keys rejected), with the V8 tables in order and the counts matching.
     """
-    if len(buf) < MIN_SNAPSHOT_BYTES:
-        return False, 'snapshot_too_small', {}
-    if len(buf) > MAX_SNAPSHOT_BYTES:
-        return False, 'snapshot_too_large', {}
-    doc, error = _parse(buf)
-    if error:
-        return False, error, {}
-    ok, error, details = _structure(doc)
-    if not ok:
-        return False, error, {}
-    details['size_bytes'] = len(buf)
-    return True, None, details
+    doc, error, details = parse_snapshot(buf)
+    return doc is not None, error, details
+
+
+def count_sentinels(strings, sentinels):
+    """Substring-count each sentinel in the decoded string table (exact, case-sensitive).
+
+    V8 keeps every JS string in the `strings` table, so this is the complete set of
+    values reachable at that epoch. Matching policy: a sentinel counts when it appears
+    anywhere inside a decoded string value; occurrences are summed per value, which makes
+    the result independent of how JSON escaped the characters.
+    """
+    counts = {name: 0 for name in sentinels}
+    for value in strings:
+        for name, needle in sentinels.items():
+            if needle in value:
+                counts[name] += value.count(needle)
+    return counts
 
 
 def scan(path, sentinels):
-    """Validate one heap snapshot and count sentinel occurrences inside it."""
-    encoded = {name: value.encode('utf-8') for name, value in sentinels.items()}
+    """Validate one heap snapshot and count sentinel occurrences in its decoded strings."""
     size = os.path.getsize(path)
     if size > MAX_SNAPSHOT_BYTES:
         return {
@@ -171,27 +200,27 @@ def scan(path, sentinels):
             'error': 'snapshot_too_large',
             'size_bytes': size,
             'sha256_12': None,
-            'sentinels': {name: {'present': None, 'occurrences': None} for name in encoded},
+            'sentinels': {name: {'present': None, 'occurrences': None} for name in sentinels},
         }
     with open(path, 'rb') as fp:
         buf = fp.read()
 
-    ok, error, details = validate(buf)
-    counts = {name: buf.count(value) for name, value in encoded.items()}
+    doc, error, details = parse_snapshot(buf)
     result = {
-        'ok': ok,
+        'ok': doc is not None,
         'size_bytes': len(buf),
         'sha256_12': hashlib.sha256(buf).hexdigest()[:12],
-        'sentinels': {name: {'present': count > 0, 'occurrences': count}
-                      for name, count in counts.items()},
     }
     if details:
         result['structure'] = details
-    if not ok:
+    if doc is None:
         result['error'] = error
         # Never let a caller read "sentinel absent" out of an unusable dump.
-        for name in result['sentinels']:
-            result['sentinels'][name]['present'] = None
+        result['sentinels'] = {name: {'present': None, 'occurrences': None} for name in sentinels}
+        return result
+    counts = count_sentinels(doc.get('strings') or [], sentinels)
+    result['sentinels'] = {name: {'present': count > 0, 'occurrences': count}
+                           for name, count in counts.items()}
     return result
 
 

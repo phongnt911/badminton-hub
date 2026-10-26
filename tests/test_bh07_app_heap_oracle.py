@@ -206,6 +206,76 @@ class ReviewerGrammarControls(unittest.TestCase):
         self.assertEqual(result['sentinels']['bank']['occurrences'], 1)
 
 
+class RepresentationControls(unittest.TestCase):
+    """Review 76334e2 AH7: the same decoded string must give the same presence.
+
+    `json.loads` treats "ABC" and "\\u0041\\u0042\\u0043" as one value, so a raw-byte
+    count silently reports "absent" for the escaped representation — a false negative on
+    a *valid* snapshot. Presence must come from the decoded string table.
+    """
+
+    EPOCHS = ('baseline', 'owner_active', 'post_logout', 'post_actor')
+
+    @staticmethod
+    def escaped(text):
+        return ''.join('\\u%04x' % ord(char) for char in text)
+
+    def escaped_body(self, strings):
+        body = snapshot_body(strings)
+        return body.replace('"SENTINEL-BANK-998877"', '"' + self.escaped('SENTINEL-BANK-998877') + '"')
+
+    def test_escaped_and_literal_documents_are_equal(self):
+        body = snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE'])
+        escaped = self.escaped_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE'])
+        self.assertNotEqual(body, escaped)
+        self.assertEqual(json.loads(body), json.loads(escaped))
+        self.assertIn('SENTINEL-BANK-998877', json.loads(escaped)['strings'])
+
+    def test_escaped_representation_detects_present_sentinel(self):
+        literal = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        escaped = scan_body(self.escaped_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        self.assertTrue(literal['ok'], literal)
+        self.assertTrue(escaped['ok'], escaped)
+        self.assertTrue(literal['sentinels']['bank']['present'], literal)
+        self.assertTrue(escaped['sentinels']['bank']['present'], escaped)
+        self.assertEqual(literal['sentinels']['bank']['occurrences'],
+                         escaped['sentinels']['bank']['occurrences'])
+
+    def test_escaped_absence_passes_clean_cycle(self):
+        scans = {epoch: scan_body(snapshot_body(['SENTINEL-PROBE-ALIVE'])) for epoch in self.EPOCHS}
+        scans['owner_active'] = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        scans['post_actor'] = scan_body(self.escaped_body(['SENTINEL-PROBE-ALIVE']))
+        expectations = {epoch: {'probe': True, 'bank': epoch == 'owner_active'} for epoch in self.EPOCHS}
+        verdict = ORACLE.decide(scans, expectations, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'PASS', verdict)
+
+    def test_retained_escaped_bank_fails_cycle(self):
+        scans = {epoch: scan_body(snapshot_body(['SENTINEL-PROBE-ALIVE'])) for epoch in self.EPOCHS}
+        scans['owner_active'] = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        # Same retained value, only the JSON representation differs.
+        scans['post_actor'] = scan_body(self.escaped_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        expectations = {epoch: {'probe': True, 'bank': epoch == 'owner_active'} for epoch in self.EPOCHS}
+        verdict = ORACLE.decide(scans, expectations, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'FAIL', verdict)
+        self.assertTrue(any('post_actor' in finding for finding in verdict['findings']), verdict)
+
+    def test_retained_literal_bank_fails_cycle(self):
+        scans = {epoch: scan_body(snapshot_body(['SENTINEL-PROBE-ALIVE'])) for epoch in self.EPOCHS}
+        scans['owner_active'] = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        scans['post_actor'] = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        expectations = {epoch: {'probe': True, 'bank': epoch == 'owner_active'} for epoch in self.EPOCHS}
+        self.assertEqual(ORACLE.decide(scans, expectations, True, 'profile')['verdict'], 'FAIL')
+
+    def test_mixed_representations_in_one_cycle_agree(self):
+        scans = {epoch: scan_body(snapshot_body(['SENTINEL-PROBE-ALIVE'])) for epoch in self.EPOCHS}
+        scans['owner_active'] = scan_body(self.escaped_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        scans['post_logout'] = scan_body(snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE']))
+        expectations = {epoch: {'probe': True, 'bank': epoch == 'owner_active'} for epoch in self.EPOCHS}
+        verdict = ORACLE.decide(scans, expectations, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'FAIL', verdict)
+        self.assertTrue(any('post_logout' in finding for finding in verdict['findings']), verdict)
+
+
 class DecideControls(unittest.TestCase):
     EXPECTATIONS = {
         'baseline': {'probe': True, 'bank': False},

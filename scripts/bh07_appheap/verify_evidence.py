@@ -41,6 +41,9 @@ MANIFEST = 'hashes.sha256'
 REQUIRED_FILES = ('summary.json', 'report.md', 'run.log', MANIFEST)
 EPOCHS = ('baseline', 'owner_active', 'post_logout', 'post_actor')
 CYCLE_ACTORS = ('cohost', 'member')
+# Sentinels the verdict depends on: a bundle without identifying metadata for these can
+# never be certified sanitized (review 76334e2 AH8).
+GATING_SENTINELS = ('bank', 'probe')
 RAW_HEAP_SUFFIXES = ('.heapsnapshot', '.heapprofile', '.heaptimeline')
 SECRET_PATTERNS = (
     (r'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}', 'JWT token'),
@@ -389,27 +392,59 @@ def _check_cleanup(summary, problems):
         problems.append('status RUN requires zero raw heap snapshots left on disk')
 
 
+def _scan_sentinel_names(summary):
+    """Every sentinel name any scan claims, so metadata coverage can be checked."""
+    names = set()
+    for cycle in summary.get('cycles') or []:
+        if not isinstance(cycle, dict):
+            continue
+        for scan in (cycle.get('epochs') or {}).values():
+            if isinstance(scan, dict) and isinstance(scan.get('sentinels'), dict):
+                names.update(scan['sentinels'])
+    return names
+
+
 def _check_sentinels(summary, texts, problems):
     """Published metadata is hash/length only, and no file may carry the raw value.
 
-    The raw value never reaches the bundle, so match every window of the published
-    length against the published sha256[:12]. That catches a value pasted into a log,
-    the report, an unmanifested extra file or any nested metadata field.
+    Review 76334e2 AH8: a missing `length`/`sha256_12` used to `continue`, which disabled
+    the detector while the bundle still passed. Identification metadata is mandatory for
+    every gating sentinel and for every sentinel a scan claims; an optional sentinel that
+    could not be measured must say `available: false` explicitly and must not be claimed.
     """
     sentinels = summary.get('sentinels')
-    if not isinstance(sentinels, dict):
+    if not isinstance(sentinels, dict) or not sentinels:
+        problems.append('summary.json must publish sentinel metadata')
         return
+    claimed = _scan_sentinel_names(summary)
+    for name in GATING_SENTINELS:
+        if name not in sentinels:
+            problems.append(f'sentinel {name} metadata is missing')
+    for name in sorted(claimed - set(sentinels)):
+        problems.append(f'a scan records sentinel {name} that has no published metadata')
     for name, meta in sorted(sentinels.items()):
         if not isinstance(meta, dict):
             problems.append(f'sentinel {name} metadata is not an object')
             continue
         if 'value' in meta:
             problems.append(f'sentinel {name} publishes its raw value')
-        digest = meta.get('sha256_12')
-        if digest is not None and not HEX12.fullmatch(str(digest)):
-            problems.append(f'sentinel {name} has a malformed sha256_12')
+        if meta.get('available') is False:
+            for field in ('length', 'sha256_12'):
+                if meta.get(field) is not None:
+                    problems.append(f'sentinel {name} is marked unavailable but publishes {field}')
+            if name in claimed:
+                problems.append(f'sentinel {name} is marked unavailable but a scan claims it')
+            continue
         length = meta.get('length')
-        if not isinstance(length, int) or length <= 0 or not HEX12.fullmatch(str(digest or '')):
+        digest = meta.get('sha256_12')
+        identifiable = True
+        if type(length) is not int or length <= 0:
+            problems.append(f'sentinel {name} metadata lacks a positive integer length: {length!r}')
+            identifiable = False
+        if not HEX12.fullmatch(str(digest or '')):
+            problems.append(f'sentinel {name} metadata lacks a valid sha256_12: {digest!r}')
+            identifiable = False
+        if not identifiable:
             continue
         for label, text in sorted(texts.items()):
             hit = any(hashlib.sha256(text[start:start + length].encode('utf-8')).hexdigest()[:12] == digest

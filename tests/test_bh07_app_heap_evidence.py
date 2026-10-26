@@ -582,5 +582,102 @@ class RawSentinelControls(AuditCase):
         self.assertEqual(VERIFIER.verify(self.bundle), [])
 
 
+class SentinelMetadataControls(AuditCase):
+    """Review 76334e2 AH8: missing identification metadata must fail, never skip.
+
+    The raw-value detector matches a published length + sha256[:12]. If either field is
+    absent the old gate `continue`d, so a bundle could carry the raw value and still be
+    certified clean. Every gating sentinel must be identifiable, and a sentinel marked
+    unavailable must not be claimed by any scan.
+    """
+
+    CANARY = 'Q7TESTBANK9'
+
+    def canary_bundle(self, mutate=None):
+        def change(summary):
+            bank = summary['sentinels']['bank']
+            bank['length'] = len(self.CANARY)
+            bank['sha256_12'] = hashlib.sha256(self.CANARY.encode()).hexdigest()[:12]
+            if mutate:
+                mutate(summary)
+        self.mutate_summary(change, rehash=False)
+        summary = read_summary(self.bundle)
+        (self.bundle / 'report.md').write_bytes(render_report(summary).encode('utf-8'))
+        write_manifest(self.bundle)
+        return summary
+
+    def put_raw_in_log(self):
+        path = self.bundle / 'run.log'
+        path.write_bytes(path.read_bytes() + self.CANARY.encode('utf-8') + b'\n')
+        write_manifest(self.bundle)
+
+    def test_missing_length_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].pop('length'))
+        self.put_raw_in_log()
+        self.assert_rejected('length')
+
+    def test_missing_hash_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].pop('sha256_12'))
+        self.put_raw_in_log()
+        self.assert_rejected('sha256_12')
+
+    def test_null_length_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].update(length=None))
+        self.assert_rejected('length')
+
+    def test_zero_length_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].update(length=0))
+        self.assert_rejected('length')
+
+    def test_negative_length_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].update(length=-10))
+        self.assert_rejected('length')
+
+    def test_bool_length_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].update(length=True))
+        self.assert_rejected('length')
+
+    def test_malformed_hash_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].update(sha256_12='XYZ'))
+        self.assert_rejected('sha256_12')
+
+    def test_gating_sentinel_entry_missing_fails(self):
+        self.mutate_summary(lambda s: s['sentinels'].pop('bank'))
+        self.assert_rejected('bank')
+
+    def test_scan_sentinel_without_metadata_fails(self):
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                cycle['epochs']['baseline']['sentinels']['expense'] = {'present': False, 'occurrences': 0}
+        self.mutate_summary(mutate)
+        self.assert_rejected('expense')
+
+    def test_unavailable_sentinel_marked_explicitly_passes(self):
+        self.mutate_summary(lambda s: s['sentinels'].update(
+            expense={'kind': 'posted session expense title (Owner-private)', 'available': False}))
+        self.assertEqual(VERIFIER.verify(self.bundle), [])
+
+    def test_unavailable_sentinel_claimed_by_a_scan_fails(self):
+        def mutate(summary):
+            summary['sentinels']['expense'] = {'kind': 'not loaded', 'available': False}
+            for cycle in summary['cycles']:
+                cycle['epochs']['owner_active']['sentinels']['expense'] = {'present': True, 'occurrences': 1}
+        self.mutate_summary(mutate)
+        self.assert_rejected('expense')
+
+    def test_unavailable_sentinel_publishing_hash_fails(self):
+        self.mutate_summary(lambda s: s['sentinels'].update(
+            expense={'kind': 'not loaded', 'available': False, 'length': 16,
+                     'sha256_12': '41a394dd2dcd'}))
+        self.assert_rejected('expense')
+
+    def test_raw_value_with_missing_length_still_fails(self):
+        self.canary_bundle(lambda s: s['sentinels']['bank'].pop('length'))
+        self.put_raw_in_log()
+        problems = VERIFIER.verify(self.bundle)
+        self.assertTrue(problems, 'a bundle without sentinel length must fail')
+        self.assertTrue(any('length' in problem for problem in problems), problems)
+
+
 if __name__ == '__main__':
     unittest.main()
