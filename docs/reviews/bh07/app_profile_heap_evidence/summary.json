@@ -4,17 +4,17 @@
   "status": "RUN",
   "measurement_surface": "Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)",
   "oracle": "fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency",
-  "tested_source_sha": "130af7d103cdea22c2f9ac9e4cb000f74ec02590",
+  "tested_source_sha": "c3ca02e4f4a17cea7ac48526c398b212ab1445a9",
   "git_dirty": false,
   "git_dirty_paths": [],
-  "started_at": "2026-10-26T12:50:01.602Z",
+  "started_at": "2026-10-26T13:20:48.951Z",
   "environment": {
     "os": "win32 10.0.26100",
     "node": "v24.21.0",
     "build": {
       "mode": "profile",
-      "build_ms": 61341,
-      "started_at": "2026-10-26T12:50:05.165Z",
+      "build_ms": 46737,
+      "started_at": "2026-10-26T13:20:52.056Z",
       "artifacts_root": "build/web",
       "artifacts": {
         ".last_build_id": "fcf0f2b3ffdce9f76df16b2e10a102dd80321a5e8bcc8c5672c3b543e457baba",
@@ -46,7 +46,7 @@
         "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
         "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
         "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
-        "flutter_bootstrap.js": "e0adcb781a25ab6a0ca272a4823786f5e2882c800ca545d0bff7d750aece9119",
+        "flutter_bootstrap.js": "1d2b31fd2273f3b40dfe9162f7f9c72e72efda3fac384fad361bf8d0423bc60f",
         "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
         "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
         "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
@@ -64,17 +64,20 @@
   },
   "sentinels": {
     "bank": {
+      "available": true,
       "sha256_12": "65dce15efcc4",
       "length": 10,
       "kind": "club bank account number (Owner-private)"
     },
     "expense": {
+      "available": true,
       "sha256_12": "41a394dd2dcd",
       "length": 16,
       "kind": "posted session expense title (Owner-private)"
     },
     "probe": {
-      "sha256_12": "6a6f00ce03bd",
+      "available": true,
+      "sha256_12": "94a462a8be32",
       "length": 25,
       "kind": "detector sanity marker set on window"
     }
@@ -84,12 +87,18 @@
       "cycle": 1,
       "actor": "cohost",
       "same_document": true,
-      "time_origin": 1793019069030.8,
+      "time_origin": 1793020901259.6,
       "epochs": {
         "baseline": {
           "ok": true,
-          "size_bytes": 58357152,
-          "sha256_12": "23a453ada885",
+          "size_bytes": 58363385,
+          "sha256_12": "1cae110873fe",
+          "structure": {
+            "node_count": 528641,
+            "edge_count": 2253345,
+            "string_count": 164138,
+            "size_bytes": 58363385
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -103,18 +112,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 528512,
-            "edge_count": 2252605,
-            "string_count": 164142,
-            "size_bytes": 58357152
           }
         },
         "owner_active": {
           "ok": true,
-          "size_bytes": 84919680,
-          "sha256_12": "5cd7c1851c11",
+          "size_bytes": 83871151,
+          "sha256_12": "2f0d8d9780e1",
+          "structure": {
+            "node_count": 757753,
+            "edge_count": 3614357,
+            "string_count": 174128,
+            "size_bytes": 83871151
+          },
           "sentinels": {
             "bank": {
               "present": true,
@@ -128,18 +137,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 773251,
-            "edge_count": 3656974,
-            "string_count": 174133,
-            "size_bytes": 84919680
           }
         },
         "post_logout": {
           "ok": true,
-          "size_bytes": 68961793,
-          "sha256_12": "60cd377c1904",
+          "size_bytes": 69242212,
+          "sha256_12": "1acb09bd3241",
+          "structure": {
+            "node_count": 637022,
+            "edge_count": 2849411,
+            "string_count": 170208,
+            "size_bytes": 69242212
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -153,18 +162,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 633382,
-            "edge_count": 2834678,
-            "string_count": 170202,
-            "size_bytes": 68961793
           }
         },
         "post_actor": {
           "ok": true,
-          "size_bytes": 81734053,
-          "sha256_12": "210c30ad5aeb",
+          "size_bytes": 82147760,
+          "sha256_12": "50fb576cacd7",
+          "structure": {
+            "node_count": 749128,
+            "edge_count": 3523217,
+            "string_count": 173130,
+            "size_bytes": 82147760
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -178,12 +187,6 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 742889,
-            "edge_count": 3505776,
-            "string_count": 173196,
-            "size_bytes": 81734053
           }
         }
       },
@@ -197,12 +200,18 @@
       "cycle": 2,
       "actor": "member",
       "same_document": true,
-      "time_origin": 1793019163692.1,
+      "time_origin": 1793020989747.4,
       "epochs": {
         "baseline": {
           "ok": true,
-          "size_bytes": 58512742,
-          "sha256_12": "5d1d6294517f",
+          "size_bytes": 58400095,
+          "sha256_12": "e1b7fbbc9e08",
+          "structure": {
+            "node_count": 528596,
+            "edge_count": 2253242,
+            "string_count": 164134,
+            "size_bytes": 58400095
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -216,18 +225,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 528567,
-            "edge_count": 2252895,
-            "string_count": 164141,
-            "size_bytes": 58512742
           }
         },
         "owner_active": {
           "ok": true,
-          "size_bytes": 84204480,
-          "sha256_12": "da2833705279",
+          "size_bytes": 83608303,
+          "sha256_12": "5b318ee6dcf1",
+          "structure": {
+            "node_count": 760712,
+            "edge_count": 3627479,
+            "string_count": 174092,
+            "size_bytes": 83608303
+          },
           "sentinels": {
             "bank": {
               "present": true,
@@ -241,18 +250,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 773913,
-            "edge_count": 3659421,
-            "string_count": 174101,
-            "size_bytes": 84204480
           }
         },
         "post_logout": {
           "ok": true,
-          "size_bytes": 68819082,
-          "sha256_12": "2d45678f9529",
+          "size_bytes": 69482713,
+          "sha256_12": "599b05cbb56c",
+          "structure": {
+            "node_count": 639368,
+            "edge_count": 2855061,
+            "string_count": 170194,
+            "size_bytes": 69482713
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -266,18 +275,18 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 632559,
-            "edge_count": 2832690,
-            "string_count": 170191,
-            "size_bytes": 68819082
           }
         },
         "post_actor": {
           "ok": true,
-          "size_bytes": 73199374,
-          "sha256_12": "2b570260287a",
+          "size_bytes": 73669489,
+          "sha256_12": "8ff4ebdcab6d",
+          "structure": {
+            "node_count": 676371,
+            "edge_count": 3081725,
+            "string_count": 170984,
+            "size_bytes": 73669489
+          },
           "sentinels": {
             "bank": {
               "present": false,
@@ -291,12 +300,6 @@
               "present": false,
               "occurrences": 0
             }
-          },
-          "structure": {
-            "node_count": 666529,
-            "edge_count": 3054523,
-            "string_count": 170976,
-            "size_bytes": 73199374
           }
         }
       },
@@ -316,5 +319,5 @@
   },
   "verdict": "PASS",
   "findings": [],
-  "finished_at": "2026-10-26T12:54:12.817Z"
+  "finished_at": "2026-10-26T13:24:30.878Z"
 }
