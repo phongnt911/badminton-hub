@@ -59,15 +59,19 @@ def snapshot_body(strings, node_units=2, edge_units=2, node_count=None, edge_cou
     return out[:-drop_tail] if drop_tail else out
 
 
+def scan_body(body):
+    with tempfile.NamedTemporaryFile('wb', suffix='.heapsnapshot', delete=False) as fp:
+        fp.write(body.encode('utf-8'))
+        path = fp.name
+    try:
+        return ORACLE.scan(path, SENTINELS)
+    finally:
+        Path(path).unlink()
+
+
 class ScanControls(unittest.TestCase):
     def scan(self, body):
-        with tempfile.NamedTemporaryFile('wb', suffix='.heapsnapshot', delete=False) as fp:
-            fp.write(body.encode('utf-8'))
-            path = fp.name
-        try:
-            return ORACLE.scan(path, SENTINELS)
-        finally:
-            Path(path).unlink()
+        return scan_body(body)
 
     def assert_unusable(self, result, hint=''):
         self.assertFalse(result['ok'], f'{hint}: expected unusable snapshot, got {result}')
@@ -145,6 +149,61 @@ class ScanControls(unittest.TestCase):
         finally:
             Path(path).unlink()
         self.assert_unusable(result, 'empty file')
+
+
+class ReviewerGrammarControls(unittest.TestCase):
+    """Review 57ec02c AH1: near-JSON dumps must never be certified as a clean heap.
+
+    Each fixture below is a real V8-shaped body with one byte-level grammar fault; the
+    old regex scanner looked only for markers, so every one of them read `ok:true` with
+    `bank:false` and decided PASS. Presence must be `None` (unknown), never `False`.
+    """
+
+    def assert_unknown(self, body, hint):
+        result = scan_body(body)
+        self.assertFalse(result['ok'], f'{hint}: accepted a corrupt dump {result}')
+        self.assertTrue(result.get('error'), f'{hint}: unusable dump must explain why')
+        for name, sentinel in result['sentinels'].items():
+            self.assertIsNone(sentinel['present'], f'{hint}: {name} presence must be unknown')
+
+    def test_missing_string_comma_fails(self):
+        valid = snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE', 'ordinary'])
+        broken = valid.replace('"SENTINEL-PROBE-ALIVE","ordinary"', '"SENTINEL-PROBE-ALIVE" "ordinary"')
+        self.assertNotEqual(broken, valid)
+        self.assert_unknown(broken, 'missing string comma')
+
+    def test_garbage_before_nodes_fails(self):
+        valid = snapshot_body(['SENTINEL-PROBE-ALIVE'])
+        broken = valid.replace(',"nodes":[', ',BROKEN,"nodes":[')
+        self.assertNotEqual(broken, valid)
+        self.assert_unknown(broken, 'garbage before nodes')
+
+    def test_leading_zero_integer_fails(self):
+        valid = snapshot_body(['SENTINEL-PROBE-ALIVE'])
+        broken = valid.replace('"nodes":[0,', '"nodes":[00,', 1)
+        self.assertNotEqual(broken, valid)
+        self.assert_unknown(broken, 'leading zero integer')
+
+    def test_trailing_comma_in_node_table_fails(self):
+        valid = snapshot_body(['SENTINEL-PROBE-ALIVE'], node_units=2)
+        broken = valid.replace('"nodes":[0,0,0,0,0,0,0,0,0,0]', '"nodes":[0,0,0,0,0,0,0,0,0,0,]')
+        self.assertNotEqual(broken, valid)
+        self.assert_unknown(broken, 'trailing comma')
+
+    def test_duplicate_top_level_key_fails(self):
+        valid = snapshot_body(['SENTINEL-PROBE-ALIVE'])
+        broken = valid.replace('{"snapshot":', '{"nodes":[],"snapshot":', 1)
+        self.assertNotEqual(broken, valid)
+        self.assert_unknown(broken, 'duplicate top-level key')
+
+    def test_escaped_string_literals_still_pass(self):
+        body = snapshot_body(['SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE',
+                              'quote " inside', 'tab\tinside', 'slash \\ inside',
+                              'unicode \u00e9 inside'])
+        result = scan_body(body)
+        self.assertTrue(result['ok'], result)
+        self.assertTrue(result['sentinels']['bank']['present'])
+        self.assertEqual(result['sentinels']['bank']['occurrences'], 1)
 
 
 class DecideControls(unittest.TestCase):

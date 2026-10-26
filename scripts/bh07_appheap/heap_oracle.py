@@ -25,128 +25,70 @@ import os
 import re
 import sys
 
-# V8 writes one JSON object whose top-level arrays are the heap tables. `strings` is
-# always written last, so it must end the document; anything after it is corruption.
+# V8 writes one JSON object whose top-level members are the heap tables. `snapshot`
+# comes first and `strings` last, and nothing but the documented optional tables may sit
+# between them. A duplicate key or an unknown top-level member is corruption, not a
+# snapshot: json.loads alone would silently keep the last duplicate.
 SNAPSHOT_KEYS = ('nodes', 'edges', 'strings')
-ARRAY_KEY_RE = {key: re.compile(rb'"%s"\s*:\s*\[' % key.encode()) for key in SNAPSHOT_KEYS}
-MIDDLE_KEYS_RE = re.compile(
-    rb'(?:\s*,\s*"(?:traces|trace_function_infos|trace_tree|samples|locations)"\s*:\s*\[[^\]]*\])*\s*,?\s*')
-INT_TOKEN_RE = re.compile(rb'-?\d+')
-STRING_TOKEN_RE = re.compile(rb'"(?:[^"\\\x00-\x1f]|\\.)*"')
+V8_TOP_LEVEL_KEYS = ('snapshot', 'nodes', 'edges', 'traces', 'trace_function_infos', 'trace_tree',
+                     'samples', 'locations', 'strings')
 META_REQUIRED = ('meta', 'node_count', 'edge_count')
 META_FIELDS = ('node_fields', 'node_types', 'edge_fields', 'edge_types')
 MIN_SNAPSHOT_BYTES = 4096
 MAX_SNAPSHOT_BYTES = 2 << 30
-CHUNK = 1 << 20
+# A full JSON parse is what proves the grammar; above this size the oracle refuses to
+# answer rather than fall back to a marker scan (review 57ec02c AH1).
+MAX_PARSE_BYTES = 512 << 20
 
 
-def _metadata(buf):
-    """Strictly parse the small `"snapshot"` object at the start of the dump."""
-    if not buf.startswith(b'{"snapshot"'):
-        return None, 'snapshot_does_not_start_with_snapshot_object', 0
-    brace = buf.find(b'{', len(b'{"snapshot"'))
-    if brace < 0:
-        return None, 'snapshot_metadata_missing', 0
-    depth = 0
-    in_string = False
-    escaped = False
-    for index in range(brace, min(len(buf), brace + (1 << 20))):
-        char = buf[index:index + 1]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == b'\\':
-                escaped = True
-            elif char == b'"':
-                in_string = False
-            continue
-        if char == b'"':
-            in_string = True
-        elif char == b'{':
-            depth += 1
-        elif char == b'}':
-            depth -= 1
-            if depth == 0:
-                try:
-                    return json.loads(buf[brace:index + 1]), None, index + 1
-                except json.JSONDecodeError as exc:
-                    return None, f'snapshot_metadata_invalid_json: {exc.msg}', 0
-    return None, 'snapshot_metadata_unterminated', 0
+class _DuplicateKey(ValueError):
+    """Raised by the object_pairs_hook when one object repeats a key."""
 
 
-def _array_span(buf, key, start):
-    """Return (key_start, open, close) byte offsets of the first `"key":[ ... ]`."""
-    match = ARRAY_KEY_RE[key].search(buf, start)
-    if not match:
-        return None
-    open_index = match.end() - 1
-    # The string table contains `]` inside its literals, so it needs a real scan.
-    close_index = _string_table_close(buf, open_index) if key == 'strings' else buf.find(b']', open_index)
-    if close_index < 0:
-        return None
-    return match.start(), open_index, close_index
+def _reject_duplicate_keys(pairs):
+    seen = set()
+    for key, _ in pairs:
+        if key in seen:
+            raise _DuplicateKey(key)
+        seen.add(key)
+    return dict(pairs)
 
 
-def _string_table_close(buf, open_index):
-    """Offset of the `]` closing the string table, ignoring `]` inside literals."""
-    depth = 0
-    in_string = False
-    escaped = False
-    for index in range(open_index, len(buf)):
-        char = buf[index]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == 0x5C:
-                escaped = True
-            elif char == 0x22:
-                in_string = False
-            continue
-        if char == 0x22:
-            in_string = True
-        elif char == 0x5B:
-            depth += 1
-        elif char == 0x5D:
-            depth -= 1
-            if depth == 0:
-                return index
-    return -1
+def _parse(buf):
+    """Decode and parse the whole dump; return (document, error)."""
+    if len(buf) > MAX_PARSE_BYTES:
+        return None, 'snapshot_too_large_to_parse'
+    try:
+        text = buf.decode('utf-8')
+    except UnicodeDecodeError as exc:
+        return None, f'snapshot_is_not_utf8: {exc.reason} at byte {exc.start}'
+    try:
+        return json.loads(text, object_pairs_hook=_reject_duplicate_keys), None
+    except _DuplicateKey as exc:
+        return None, f'snapshot_duplicate_key: {exc}'
+    except json.JSONDecodeError as exc:
+        return None, f'snapshot_invalid_json: {exc.msg} at byte {exc.pos}'
+    except RecursionError:
+        return None, 'snapshot_nesting_too_deep'
 
 
-def _int_elements(segment):
-    """Count the integers of a flat numeric table, rejecting anything else."""
-    if not segment.strip():
-        return 0
-    parts = segment.split(b',')
-    for part in parts:
-        if not INT_TOKEN_RE.fullmatch(part.strip()):
-            return None
-    return len(parts)
+def _structure(doc):
+    """Check the parsed document is a complete, self-consistent V8 snapshot."""
+    if not isinstance(doc, dict):
+        return False, 'snapshot_not_json_object', {}
+    keys = list(doc)
+    if not keys or keys[0] != 'snapshot':
+        return False, 'snapshot_does_not_start_with_snapshot_object', {}
+    unknown = [key for key in keys if key not in V8_TOP_LEVEL_KEYS]
+    if unknown:
+        return False, f'snapshot_unexpected_top_level_key: {unknown[0]}', {}
+    for key in ('snapshot',) + SNAPSHOT_KEYS:
+        if key not in doc:
+            return False, f'snapshot_table_missing_{key}', {}
 
-
-def _string_elements(segment):
-    """Count the JSON string literals of the string table, rejecting anything else."""
-    if not segment.strip():
-        return 0
-    tokens = STRING_TOKEN_RE.findall(segment)
-    if not tokens:
-        return None
-    leftover = STRING_TOKEN_RE.sub(b'', segment).strip(b' \t\r\n,')
-    if leftover:
-        return None
-    return len(tokens)
-
-
-def validate(buf):
-    """Prove the dump is a complete, self-consistent V8 snapshot (no full JSON parse)."""
-    if len(buf) < MIN_SNAPSHOT_BYTES:
-        return False, 'snapshot_too_small', {}
-    if len(buf) > MAX_SNAPSHOT_BYTES:
-        return False, 'snapshot_too_large', {}
-
-    meta, error, cursor = _metadata(buf)
-    if meta is None:
-        return False, error, {}
+    meta = doc['snapshot']
+    if not isinstance(meta, dict):
+        return False, 'snapshot_metadata_not_object', {}
     for key in META_REQUIRED:
         if key not in meta:
             return False, f'snapshot_metadata_missing_{key}', {}
@@ -159,54 +101,64 @@ def validate(buf):
     for name, type_name in (('node_fields', 'node_types'), ('edge_fields', 'edge_types')):
         if len(fields[type_name]) != len(fields[name]):
             return False, f'snapshot_metadata_{type_name}_length_mismatch', {}
-    if not isinstance(meta['node_count'], int) or not isinstance(meta['edge_count'], int):
+    if type(meta['node_count']) is not int or type(meta['edge_count']) is not int:
         return False, 'snapshot_metadata_counts_not_integer', {}
     if meta['node_count'] < 0 or meta['edge_count'] < 0:
         return False, 'snapshot_metadata_counts_negative', {}
 
-    spans = {}
-    for key in SNAPSHOT_KEYS:
-        span = _array_span(buf, key, cursor)
-        if span is None:
-            return False, f'snapshot_table_missing_{key}', {}
-        spans[key] = span
-        cursor = span[2] + 1
-    if not (spans['nodes'][1] < spans['edges'][1] < spans['strings'][1]):
+    if [key for key in keys if key in SNAPSHOT_KEYS] != list(SNAPSHOT_KEYS):
         return False, 'snapshot_tables_out_of_order', {}
-
-    # Nothing but traces/samples/locations may sit between the edge and string tables.
-    if not MIDDLE_KEYS_RE.fullmatch(buf[spans['edges'][2] + 1:spans['strings'][0]]):
-        return False, 'snapshot_unexpected_content_between_tables', {}
-
-    # The string table is last: only the closing brace may follow it.
-    if buf.rindex(b']') != spans['strings'][2] or not re.fullmatch(rb'\s*\}\s*', buf[spans['strings'][2] + 1:]):
+    if keys[-1] != 'strings':
         return False, 'snapshot_does_not_end_with_string_table', {}
 
-    node_elements = _int_elements(buf[spans['nodes'][1] + 1:spans['nodes'][2]])
-    edge_elements = _int_elements(buf[spans['edges'][1] + 1:spans['edges'][2]])
-    string_elements = _string_elements(buf[spans['strings'][1] + 1:spans['strings'][2]])
-    if node_elements is None:
-        return False, 'snapshot_node_table_not_integers', {}
-    if edge_elements is None:
-        return False, 'snapshot_edge_table_not_integers', {}
-    if string_elements is None:
+    nodes, edges, strings = doc['nodes'], doc['edges'], doc['strings']
+    for name, table in (('node', nodes), ('edge', edges)):
+        if not isinstance(table, list):
+            return False, f'snapshot_{name}_table_not_array', {}
+        if any(type(value) is not int for value in table):
+            return False, f'snapshot_{name}_table_not_integers', {}
+    if not isinstance(strings, list):
+        return False, 'snapshot_string_table_not_array', {}
+    if any(not isinstance(value, str) for value in strings):
         return False, 'snapshot_string_table_not_strings', {}
-    if string_elements == 0:
+    if not strings:
         return False, 'snapshot_string_table_empty', {}
 
     expected_nodes = meta['node_count'] * len(fields['node_fields'])
     expected_edges = meta['edge_count'] * len(fields['edge_fields'])
-    if node_elements != expected_nodes:
-        return False, f'snapshot_node_count_mismatch: {node_elements} != {expected_nodes}', {}
-    if edge_elements != expected_edges:
-        return False, f'snapshot_edge_count_mismatch: {edge_elements} != {expected_edges}', {}
+    if len(nodes) != expected_nodes:
+        return False, f'snapshot_node_count_mismatch: {len(nodes)} != {expected_nodes}', {}
+    if len(edges) != expected_edges:
+        return False, f'snapshot_edge_count_mismatch: {len(edges)} != {expected_edges}', {}
 
     return True, None, {
         'node_count': meta['node_count'],
         'edge_count': meta['edge_count'],
-        'string_count': string_elements,
-        'size_bytes': len(buf),
+        'string_count': len(strings),
+        'size_bytes': None,
     }
+
+
+def validate(buf):
+    """Prove the dump is a complete V8 snapshot by parsing its whole JSON grammar.
+
+    Reviews 8914b2f and 57ec02c both found marker/regex scans that certified dumps with a
+    missing separator, a stray token before `nodes` or the non-JSON integer `00`. The
+    only reliable gate is the grammar itself, so the dump must parse as one JSON object
+    (duplicate keys rejected), with the V8 tables in order and the counts matching.
+    """
+    if len(buf) < MIN_SNAPSHOT_BYTES:
+        return False, 'snapshot_too_small', {}
+    if len(buf) > MAX_SNAPSHOT_BYTES:
+        return False, 'snapshot_too_large', {}
+    doc, error = _parse(buf)
+    if error:
+        return False, error, {}
+    ok, error, details = _structure(doc)
+    if not ok:
+        return False, error, {}
+    details['size_bytes'] = len(buf)
+    return True, None, details
 
 
 def scan(path, sentinels):
@@ -306,12 +258,14 @@ def self_test():
                  'edge_fields': ['type'], 'edge_types': [['property']]},
         'node_count': 2, 'edge_count': 1, 'trace_function_count': 0,
     }
-    pad = '"pad":"' + 'x' * 5000 + '",'
+    nodes = '[0,0,0,0]'
+    edges = '[0]'
 
     def snapshot(strings):
-        return (b'{"snapshot":' + json.dumps(meta, separators=(',', ':')).encode()
-                + b',' + pad.encode() + b'"nodes":[0,0,0,0],"edges":[0],'
-                + b'"strings":[' + b','.join(b'"' + s.encode() + b'"' for s in strings) + b']}')
+        body = ('{"snapshot":' + json.dumps(meta, separators=(',', ':'))
+                + ',"nodes":' + nodes + ',"edges":' + edges + ',"traces":[]'
+                + ',"strings":[' + ','.join(json.dumps(s) for s in list(strings) + ['z' * 4200]) + ']}')
+        return body.encode('utf-8')
 
     cases = []
     path = write(snapshot(['SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE', 'other']))
@@ -324,6 +278,21 @@ def self_test():
     cases.append(('invalid_json_is_not_absent', scan(path, sentinel), None, False))
     path = write(b'')
     cases.append(('empty_is_not_absent', scan(path, sentinel), None, False))
+    # Review 57ec02c AH1: these three were certified as clean by the old marker scan.
+    broken = snapshot(['SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE']).replace(
+        b'"SENTINEL-BANK-123","SENTINEL-PROBE-ALIVE"',
+        b'"SENTINEL-BANK-123" "SENTINEL-PROBE-ALIVE"')
+    path = write(broken)
+    cases.append(('missing_separator_is_not_absent', scan(path, sentinel), None, False))
+    broken = snapshot(['SENTINEL-PROBE-ALIVE']).replace(b',"nodes":', b',BROKEN,"nodes":')
+    path = write(broken)
+    cases.append(('garbage_before_nodes_is_not_absent', scan(path, sentinel), None, False))
+    broken = snapshot(['SENTINEL-PROBE-ALIVE']).replace(b'"nodes":[0,', b'"nodes":[00,')
+    path = write(broken)
+    cases.append(('leading_zero_is_not_absent', scan(path, sentinel), None, False))
+    broken = snapshot(['SENTINEL-PROBE-ALIVE']).replace(b'{"snapshot":', b'{"nodes":[0,0,0,0],"snapshot":')
+    path = write(broken)
+    cases.append(('duplicate_key_is_not_absent', scan(path, sentinel), None, False))
 
     failures = []
     for name, result, want_bank, want_ok in cases:

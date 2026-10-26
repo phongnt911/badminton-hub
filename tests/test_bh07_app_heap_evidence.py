@@ -12,7 +12,10 @@ Run: python -m unittest tests.test_bh07_app_heap_evidence -v
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -32,6 +35,56 @@ MANIFESTED = ('summary.json', 'run.log', 'report.md')
 
 def digest(text):
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+def js_bool(value):
+    return 'true' if value is True else 'false'
+
+
+def render_report(summary):
+    """Mirror the runner's Markdown so the auditor's row-by-row parse has a real target."""
+    build = (summary.get('environment') or {}).get('build') or {}
+    verdict = f" (verdict {summary['verdict']})" if summary.get('verdict') else ''
+    lines = [
+        '# V2b - app-profile heap / in-memory retention after actor switch',
+        '',
+        f"- Gate: {summary.get('gate')}",
+        f"- Reference: {summary.get('reference')}",
+        f"- Status: **{summary.get('status')}**{verdict}",
+        f"- Tested source: `{summary.get('tested_source_sha')}` (git dirty: {js_bool(summary.get('git_dirty'))})",
+        f"- Measurement surface: {summary.get('measurement_surface')}",
+        f"- Oracle: {summary.get('oracle')}",
+        f"- Build: mode={build.get('mode', 'n/a')} reused={js_bool(build.get('reused'))} "
+        f"artifacts={len(build.get('artifacts') or {})} served_match={js_bool(build.get('served_match'))}",
+        f"- Chrome: {(summary.get('environment') or {}).get('chrome', 'n/a')}; "
+        f"Flutter: {(summary.get('environment') or {}).get('flutter', 'n/a')}",
+        '',
+        '## Sentinels (values never published)',
+        '',
+        '| sentinel | kind | length | sha256[:12] |',
+        '| --- | --- | --- | --- |',
+    ]
+    for name, sentinel in (summary.get('sentinels') or {}).items():
+        length = sentinel.get('length')
+        lines.append(f"| {name} | {sentinel.get('kind')} | {length if length is not None else 'n/a'} "
+                     f"| {sentinel.get('sha256_12') or 'n/a'} |")
+    lines += ['', '## Cycles', '',
+              '| cycle | actor path | same document | epoch | snapshot bytes | snapshot sha256[:12] '
+              '| present sentinels |',
+              '| --- | --- | --- | --- | --- | --- | --- |']
+    for cycle in summary.get('cycles') or []:
+        for epoch, scan in (cycle.get('epochs') or {}).items():
+            present = ', '.join(k for k, v in (scan.get('sentinels') or {}).items() if v.get('present')) or 'none'
+            lines.append(f"| {cycle.get('cycle')} | Owner -> logout -> {cycle.get('actor')} "
+                         f"| {js_bool(cycle.get('same_document'))} | {epoch} | {scan.get('size_bytes', 'n/a')} "
+                         f"| {scan.get('sha256_12') or 'n/a'} | {present} |")
+    lines += ['', '## Findings', '']
+    findings = summary.get('findings') or []
+    lines += [f'- {finding}' for finding in findings] or ['- none']
+    if summary.get('error'):
+        lines.append(f"- run aborted: {summary['error']}")
+    lines += ['', '## Cleanup', '', f"- {json.dumps(summary.get('cleanup') or {}, separators=(',', ':'))}", '']
+    return '\n'.join(lines) + '\n'
 
 
 def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
@@ -100,20 +153,7 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
         'verdict': 'PASS',
         'findings': [],
     }
-    lines = [
-        '# V2b - app-profile heap / in-memory retention after actor switch',
-        '',
-        '- Status: **RUN** (verdict PASS)',
-        f'- Tested source: `{TESTED_SHA}` (git dirty: False)',
-        '- Build: ' + json.dumps(summary['environment']['build'], sort_keys=True),
-        '',
-        '| cycle | epoch | snapshot bytes | snapshot sha256[:12] |',
-        '| --- | --- | --- | --- |',
-    ]
-    for cycle in recorded:
-        for epoch, scan in cycle['epochs'].items():
-            lines.append(f"| {cycle['cycle']} | {epoch} | {scan['size_bytes']} | {scan['sha256_12']} |")
-    (root / 'report.md').write_bytes(('\n'.join(lines) + '\n').encode('utf-8'))
+    (root / 'report.md').write_bytes(render_report(summary).encode('utf-8'))
     (root / 'summary.json').write_bytes((json.dumps(summary, indent=2) + '\n').encode('utf-8'))
     (root / 'run.log').write_bytes(b'[2026-10-26T05:50:13.979Z] cycle 1: actor path Owner -> logout -> cohost\n')
     write_manifest(root)
@@ -134,7 +174,9 @@ def write_summary(root, summary):
     (Path(root) / 'summary.json').write_bytes((json.dumps(summary, indent=2) + '\n').encode('utf-8'))
 
 
-class EvidenceAuditControls(unittest.TestCase):
+class AuditCase(unittest.TestCase):
+    """One synthetic bundle per control, plus the two mutation helpers."""
+
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix='bh07_appheap_audit_'))
         self.bundle = make_bundle(self.tmp / 'evidence')
@@ -156,6 +198,8 @@ class EvidenceAuditControls(unittest.TestCase):
                         f'expected a problem mentioning {needle!r}, got {problems}')
         return problems
 
+
+class EvidenceAuditControls(AuditCase):
     def test_synthetic_bundle_passes(self):
         self.assertEqual(VERIFIER.verify(self.bundle), [])
 
@@ -341,6 +385,201 @@ class EvidenceAuditControls(unittest.TestCase):
         after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in self.bundle.iterdir() if p.is_file()}
         self.assertEqual(before, after, 'auditor modified the bundle')
         self.assertFalse(any(p.name.endswith('.heapsnapshot') for p in self.bundle.iterdir()))
+
+
+class SummaryShapeControls(AuditCase):
+    """Review 57ec02c AH2-A: a falsy summary skipped every semantic gate."""
+
+    def replace_summary(self, value):
+        (self.bundle / 'summary.json').write_bytes((json.dumps(value) + '\n').encode('utf-8'))
+        write_manifest(self.bundle)
+
+    def test_empty_object_summary_fails(self):
+        self.replace_summary({})
+        self.assert_rejected('missing field')
+
+    def test_null_summary_fails(self):
+        self.replace_summary(None)
+        self.assert_rejected('JSON object')
+
+    def test_empty_list_summary_fails(self):
+        self.replace_summary([])
+        self.assert_rejected('JSON object')
+
+    def test_scalar_summary_fails(self):
+        self.replace_summary(42)
+        self.assert_rejected('JSON object')
+
+    def test_missing_required_field_fails(self):
+        self.mutate_summary(lambda s: s.pop('status'))
+        self.assert_rejected('missing field')
+
+    def test_cycles_wrong_type_fails(self):
+        self.mutate_summary(lambda s: s.update(cycles='two'))
+        self.assert_rejected('cycles')
+
+    def test_cycle_entry_not_object_fails(self):
+        self.mutate_summary(lambda s: s['cycles'].__setitem__(0, 7))
+        self.assert_rejected('not an object')
+
+    def test_epochs_not_object_fails(self):
+        self.mutate_summary(lambda s: s['cycles'][0].update(epochs=[]))
+        self.assert_rejected('epochs')
+
+    def test_scan_entry_not_object_fails(self):
+        self.mutate_summary(lambda s: s['cycles'][0]['epochs'].update(baseline='clean'))
+        self.assert_rejected('scan')
+
+    def test_empty_summary_cli_exits_nonzero(self):
+        (self.bundle / 'summary.json').write_bytes(b'{}\n')
+        write_manifest(self.bundle)
+        proc = subprocess.run([sys.executable, '-X', 'utf8', str(VERIFIER_PATH), '--dir', str(self.bundle)],
+                              capture_output=True, text=True, cwd=str(ROOT))
+        self.assertNotEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertNotIn('PASS:', proc.stdout)
+
+
+class ReportControls(AuditCase):
+    """Review 57ec02c AH2-B: a Markdown verdict that contradicts the JSON must fail."""
+
+    def rewrite_report(self, old, new, count=-1):
+        path = self.bundle / 'report.md'
+        body = path.read_bytes()
+        self.assertIn(old, body)
+        path.write_bytes(body.replace(old, new) if count < 0 else body.replace(old, new, count))
+        write_manifest(self.bundle)
+
+    def test_report_verdict_contradiction_fails(self):
+        self.rewrite_report(b'(verdict PASS)', b'(verdict FAIL)')
+        self.assert_rejected('status line')
+
+    def test_report_status_contradiction_fails(self):
+        self.rewrite_report(b'- Status: **RUN**', b'- Status: **FAIL**')
+        self.assert_rejected('status line')
+
+    def test_report_duplicate_status_line_fails(self):
+        path = self.bundle / 'report.md'
+        path.write_bytes(path.read_bytes() + b'- Status: **RUN** (verdict PASS)\n')
+        write_manifest(self.bundle)
+        self.assert_rejected('exactly one status line')
+
+    def test_report_swapped_epoch_rows_fails(self):
+        path = self.bundle / 'report.md'
+        lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
+        rows = [i for i, line in enumerate(lines) if line.startswith('| 1 |')]
+        lines[rows[0]], lines[rows[3]] = lines[rows[3]], lines[rows[0]]
+        path.write_text(''.join(lines), encoding='utf-8', newline='')
+        write_manifest(self.bundle)
+        self.assert_rejected('cycle rows')
+
+    def test_report_duplicate_row_fails(self):
+        path = self.bundle / 'report.md'
+        lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
+        rows = [i for i, line in enumerate(lines) if line.startswith('| 1 |')]
+        lines.insert(rows[-1] + 1, lines[rows[-1]])
+        path.write_text(''.join(lines), encoding='utf-8', newline='')
+        write_manifest(self.bundle)
+        self.assert_rejected('cycle rows')
+
+    def test_report_actor_label_mismatch_fails(self):
+        self.rewrite_report(b'Owner -> logout -> member', b'Owner -> logout -> cohost')
+        self.assert_rejected('cycle rows')
+
+    def test_report_present_sentinel_mismatch_fails(self):
+        self.rewrite_report(b'| bank, probe |', b'| probe |')
+        self.assert_rejected('cycle rows')
+
+    def test_report_missing_findings_section_fails(self):
+        self.rewrite_report(b'## Findings', b'## Notes')
+        self.assert_rejected('Findings')
+
+    def test_report_build_line_mismatch_fails(self):
+        self.rewrite_report(b'served_match=true', b'served_match=false')
+        self.assert_rejected('build line')
+
+
+class LinkControls(AuditCase):
+    """Review 57ec02c AH3-A: a link is invisible to a file-only inventory."""
+
+    def make_link(self, target, link, directory=False):
+        try:
+            os.symlink(target, link, target_is_directory=directory)
+        except (OSError, NotImplementedError) as exc:  # Windows without the privilege
+            self.skipTest(f'cannot create a link on this host: {exc}')
+        if not link.is_symlink():
+            self.skipTest('host did not create a real symlink')
+
+    def test_file_symlink_fails(self):
+        outside = self.tmp / 'outside.txt'
+        outside.write_bytes(b'{}')
+        self.make_link(outside, self.bundle / 'linked.txt')
+        self.assert_rejected('symlink')
+
+    def test_directory_symlink_fails(self):
+        outside = self.tmp / 'outside'
+        outside.mkdir()
+        (outside / 'fixture.heapsnapshot').write_bytes(b'{}')
+        self.make_link(outside, self.bundle / 'linked', directory=True)
+        self.assert_rejected('symlink')
+
+    def test_broken_symlink_fails(self):
+        self.make_link(self.tmp / 'missing-target', self.bundle / 'broken')
+        self.assert_rejected('symlink')
+
+    def test_link_is_part_of_the_readonly_snapshot(self):
+        before = VERIFIER._digests(self.bundle)
+        outside = self.tmp / 'outside.txt'
+        outside.write_bytes(b'{}')
+        self.make_link(outside, self.bundle / 'linked.txt')
+        after = VERIFIER._digests(self.bundle)
+        self.assertIn('linked.txt', after)
+        self.assertNotEqual(before, after)
+
+
+class RawSentinelControls(AuditCase):
+    """Review 57ec02c AH3-B: a raw sentinel anywhere in the bundle is unpublished data."""
+
+    CANARY = 'Q7TESTBANK9'
+    PROBE_CANARY = 'BH07APPHEAPPROBE-deadbeef'
+
+    def publish_canary(self, name, value):
+        def mutate(summary):
+            summary['sentinels'][name]['length'] = len(value)
+            summary['sentinels'][name]['sha256_12'] = hashlib.sha256(value.encode()).hexdigest()[:12]
+        self.mutate_summary(mutate)
+
+    def append_to(self, name, text):
+        path = self.bundle / name
+        path.write_bytes(path.read_bytes() + text.encode('utf-8') + b'\n')
+        write_manifest(self.bundle)
+
+    def test_raw_bank_value_in_log_fails(self):
+        self.publish_canary('bank', self.CANARY)
+        self.append_to('run.log', f'observed account {self.CANARY}')
+        self.assert_rejected('raw value')
+
+    def test_raw_probe_value_in_report_fails(self):
+        self.publish_canary('probe', self.PROBE_CANARY)
+        self.append_to('report.md', f'- marker {self.PROBE_CANARY}')
+        self.assert_rejected('raw value')
+
+    def test_raw_sentinel_in_nested_metadata_fails(self):
+        self.publish_canary('bank', self.CANARY)
+
+        def mutate(summary):
+            summary['notes'] = {'observed': {'account': self.CANARY}}
+        self.mutate_summary(mutate)
+        self.assert_rejected('raw value')
+
+    def test_raw_sentinel_in_extra_file_fails(self):
+        self.publish_canary('bank', self.CANARY)
+        (self.bundle / 'notes.txt').write_bytes(f'{self.CANARY}\n'.encode('utf-8'))
+        problems = VERIFIER.verify(self.bundle)
+        self.assertTrue(any('raw value' in p for p in problems), problems)
+
+    def test_hash_only_metadata_passes(self):
+        self.publish_canary('bank', self.CANARY)
+        self.assertEqual(VERIFIER.verify(self.bundle), [])
 
 
 if __name__ == '__main__':

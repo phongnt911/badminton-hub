@@ -6,6 +6,7 @@ static server answers with those bytes, and refuse a port someone else already o
 
 Run: python -m unittest tests.test_bh07_app_heap_build_guard -v
 """
+import json
 import subprocess
 import unittest
 from pathlib import Path
@@ -38,6 +39,37 @@ class BuildGuardControls(unittest.TestCase):
         result = subprocess.run(['node', str(REUSE_PROBE)], capture_output=True, text=True, cwd=ROOT)
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('reuse-build', result.stdout + result.stderr)
+
+
+class PublicationSanitizerControls(unittest.TestCase):
+    """Review 57ec02c AH3-B: the run must refuse to publish a raw sentinel value."""
+
+    SNIPPET = (
+        "const r = require('./scripts/bh07_appheap/run_app_profile_heap.js');"
+        "const values = { bank: '0123456789', probe: 'PROBE-abc' };"
+        "console.log(JSON.stringify({"
+        " clean: r.findSentinelLeaks(['sha 65dce15efcc4 length 10'], values),"
+        " leak: r.findSentinelLeaks(['account 0123456789', 'ok'], values),"
+        " redacted: r.redactSentinels('acct 0123456789 probe PROBE-abc', values),"
+        " status: r.renderReport({gate: 'g', reference: 'r', status: 'FAIL', verdict: 'FAIL',"
+        " tested_source_sha: 'a'.repeat(40), git_dirty: false, measurement_surface: 'm', oracle: 'o',"
+        " environment: {build: {mode: 'profile', artifacts: {}, served_match: false}},"
+        " sentinels: {}, cycles: [], findings: ['cycle 1: leak'], cleanup: {}}).split('\\n')"
+        " .filter((line) => line.startsWith('- Status: ') || line.startsWith('- Build: ')),"
+        "}));"
+    )
+
+    def test_leak_detection_and_redaction(self):
+        result = subprocess.run(['node', '-e', self.SNIPPET], capture_output=True, text=True, cwd=ROOT)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload['clean'], [])
+        self.assertEqual(payload['leak'], ['bank'])
+        self.assertNotIn('0123456789', payload['redacted'])
+        self.assertNotIn('PROBE-abc', payload['redacted'])
+        self.assertIn('<redacted>', payload['redacted'])
+        self.assertIn('- Status: **FAIL** (verdict FAIL)', payload['status'])
+        self.assertIn('- Build: mode=profile reused=false artifacts=0 served_match=false', payload['status'])
 
 
 if __name__ == '__main__':

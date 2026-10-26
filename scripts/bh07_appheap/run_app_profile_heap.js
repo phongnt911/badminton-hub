@@ -283,6 +283,8 @@ async function runCycle(cycle, actor, sentinelsPath, cdp) {
 }
 
 let PROBE_VALUE = '';
+// Live sentinel values, kept only in memory so publication can be checked and redacted.
+const RAW_SENTINEL_VALUES = {};
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
@@ -311,6 +313,9 @@ async function main() {
     const env = supabaseEnv();
     const sentinels = await resolveSentinels(env, runId);
     PROBE_VALUE = sentinels.probe;
+    Object.assign(RAW_SENTINEL_VALUES, {
+      bank: sentinels.bank, expense: sentinels.expense, probe: sentinels.probe,
+    });
     summary.sentinels = {
       bank: { sha256_12: sha12(sentinels.bank), length: sentinels.bank.length, kind: 'club bank account number (Owner-private)' },
       expense: sentinels.expense
@@ -423,11 +428,27 @@ async function main() {
   process.exitCode = summary.status === 'RUN' ? 0 : 1;
 }
 
-function writeEvidence(summary) {
-  const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
-  fs.writeFileSync(path.join(OUT, 'run.log'), logLines.join('\n') + '\n');
+function findSentinelLeaks(texts, values = RAW_SENTINEL_VALUES) {
+  // Review 57ec02c AH3-B: the published bytes must never carry a raw sentinel value.
+  // Matching the live value is exact, so this cannot fire on a hash or a length.
+  const leaks = [];
+  for (const [name, value] of Object.entries(values)) {
+    if (!value) continue;
+    if (texts.some((text) => String(text).includes(value))) leaks.push(name);
+  }
+  return leaks;
+}
 
+function redactSentinels(text, values = RAW_SENTINEL_VALUES) {
+  let out = String(text);
+  for (const value of Object.values(values)) {
+    if (!value) continue;
+    out = out.split(value).join('<redacted>');
+  }
+  return out;
+}
+
+function renderReport(summary) {
   const build = (summary.environment || {}).build || {};
   const lines = [
     '# V2b — app-profile heap / in-memory retention after actor switch',
@@ -474,8 +495,27 @@ function writeEvidence(summary) {
     '  every retained object of the financial models.',
     '- Raw heap snapshots are written outside the repository, scanned once and deleted; only counts and',
     '  short hashes are published.', '');
-  fs.writeFileSync(path.join(OUT, 'report.md'), lines.join('\n'));
+  return lines.join('\n');
+}
 
+function writeEvidence(summary) {
+  const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const drafts = () => ({
+    'summary.json': JSON.stringify(summary, null, 2) + '\n',
+    'run.log': logLines.join('\n') + '\n',
+    'report.md': renderReport(summary),
+  });
+  // Sanitize before publication: a raw sentinel in any published byte fails the run.
+  const leaks = findSentinelLeaks(Object.values(drafts()));
+  if (leaks.length) {
+    summary.findings = [...(summary.findings || []),
+      `raw sentinel value reached the publication step (${leaks.join(', ')}); redacted, run failed`];
+    summary.verdict = 'FAIL';
+    summary.status = 'FAIL';
+  }
+  for (const [name, text] of Object.entries(drafts())) {
+    fs.writeFileSync(path.join(OUT, name), redactSentinels(text));
+  }
   const manifest = ['summary.json', 'run.log', 'report.md']
     .map((name) => `${hashFile(path.join(OUT, name))}  ${name}`).join('\n');
   fs.writeFileSync(path.join(OUT, 'hashes.sha256'), manifest + '\n');
@@ -497,5 +537,7 @@ function buildExpectations(ownerScan) {
   }
   return expectations;
 }
+
+module.exports = { findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES };
 
 if (require.main === module) main().catch((e) => { console.error(e.stack || e.message); process.exitCode = 1; });
