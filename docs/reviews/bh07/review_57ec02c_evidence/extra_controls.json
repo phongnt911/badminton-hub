@@ -1,0 +1,146 @@
+{
+  "positive_valid": {
+    "valid_json": true,
+    "scan": {
+      "ok": true,
+      "size_bytes": 4690,
+      "sha256_12": "e0d82f281b2f",
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      },
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4690
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "missing_string_comma": {
+    "valid_json": false,
+    "scan": {
+      "ok": true,
+      "size_bytes": 4690,
+      "sha256_12": "f97e62c1b9ed",
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      },
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4690
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "garbage_before_nodes": {
+    "valid_json": false,
+    "scan": {
+      "ok": true,
+      "size_bytes": 4697,
+      "sha256_12": "a30affd1c4e8",
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      },
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4697
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "leading_zero_integer": {
+    "valid_json": false,
+    "scan": {
+      "ok": true,
+      "size_bytes": 4691,
+      "sha256_12": "0cf3ac8b6ea1",
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      },
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4691
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "empty_summary": {
+    "problems": [],
+    "readonly": true
+  },
+  "null_summary": {
+    "problems": [],
+    "readonly": true
+  },
+  "empty_list_summary": {
+    "problems": [],
+    "readonly": true
+  },
+  "contradictory_markdown_verdict": {
+    "problems": []
+  },
+  "directory_symlink_to_raw_heap": {
+    "problems": [],
+    "symlink_present": true
+  },
+  "raw_bank_sentinel_in_log": {
+    "problems": [],
+    "canary_matches_published_length_and_hash": true
+  },
+  "empty_summary_cli": {
+    "exit": 0,
+    "stdout": "PASS: evidence bundle at .review-appheap-cli-ea5uctq3/bundle is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials",
+    "stderr": ""
+  }
+}

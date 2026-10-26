@@ -1,0 +1,35 @@
+{
+  "checkout": "57ec02c856f7e14f36aaa5a7add0356f1496c1f1",
+  "git_dirty_before_report": "",
+  "tested_source": "249f12ed5b8ba042de1d48e9d5e06ffe7c125ada",
+  "author_dirty_recorded": false,
+  "runtime_tree_docs_diff": "",
+  "app_backend_diff": "",
+  "manifest_count": 3,
+  "author_hashes": {
+    "summary.json": "3c4df62506a7fc7bab4d87df00559192fc4929e718f0757b4175f08dad11284c",
+    "report.md": "f4685977973238cad85b7daa5cd802c14ac155a624ea9e52b52b42918236a59a",
+    "run.log": "2c9367ae8871ac775655a4817172e9a24df32765f7b7b5538252efa60f289a3a",
+    "hashes.sha256": "3b52b442a576cf89efb8a74b93a794e400f5d93080817c20dc3a96508d9add27"
+  },
+  "author_bundle_matches_checkout_blobs_after_verification": true,
+  "artifact_hash_count": 39,
+  "counts": {
+    "cycles": 2,
+    "snapshots": 8,
+    "python": 66,
+    "flutter_pass": 247,
+    "flutter_skip": 1
+  },
+  "exits": {
+    "unit_sandbox": 1,
+    "unit_loopback": 0,
+    "old_build_probe_expected_rejection": 1,
+    "old_probes": 0,
+    "verify": 0,
+    "build_guard": 0,
+    "analyze": 0,
+    "flutter_test": 0,
+    "extra_controls": 0
+  }
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "file": "docs/00_START_HERE.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_handoff.md"
+  },
+  {
+    "file": "docs/00_START_HERE.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_evidence/"
+  },
+  {
+    "file": "docs/09_IMPLEMENTATION_PLAN.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_handoff.md"
+  },
+  {
+    "file": "docs/09_IMPLEMENTATION_PLAN.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_evidence/"
+  },
+  {
+    "file": "docs/25_BH07_IMPLEMENTATION_HANDOFF.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_handoff.md"
+  },
+  {
+    "file": "docs/25_BH07_IMPLEMENTATION_HANDOFF.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_evidence/"
+  },
+  {
+    "file": "docs/26_BH07_OPERATIONS_REHEARSAL.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_handoff.md"
+  },
+  {
+    "file": "docs/26_BH07_OPERATIONS_REHEARSAL.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_evidence/"
+  },
+  {
+    "file": "docs/STATUS_HISTORY.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_handoff.md"
+  },
+  {
+    "file": "docs/STATUS_HISTORY.md",
+    "line": 1,
+    "target": "docs/reviews/bh07/app_profile_heap_evidence/"
+  }
+]

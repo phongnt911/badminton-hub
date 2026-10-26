@@ -1,0 +1,32 @@
+..............................................................F...
+======================================================================
+FAIL: test_self_test_exits_zero_and_covers_every_control (tests.test_bh07_app_heap_build_guard.BuildGuardControls.test_self_test_exits_zero_and_covers_every_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_app_heap_build_guard.py", line 24, in test_self_test_exits_zero_and_covers_every_control
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : node:events:487
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EPERM: operation not permitted 127.0.0.1
+    at Server.setupListenHandle [as _listen2] (node:net:2145:21)
+    at listenInCluster (node:net:2224:12)
+    at node:net:2448:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:2203:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '127.0.0.1'
+}
+
+Node.js v24.19.0
+
+
+----------------------------------------------------------------------
+Ran 66 tests in 2.088s
+
+FAILED (failures=1)
