@@ -1,0 +1,10 @@
+{
+  "ports": {
+    "54321": "ConnectionRefusedError",
+    "8088": "ConnectionRefusedError",
+    "9337": "ConnectionRefusedError"
+  },
+  "disk_free_bytes": 672018432,
+  "chromium": "/usr/bin/chromium",
+  "runtime": "NOT RUN: no local Supabase API listening; only ~642 MiB disk free, no isolated stack provisioned"
+}

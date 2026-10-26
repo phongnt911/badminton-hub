@@ -1,0 +1,36 @@
+{
+  "invalid_snapshot": {
+    "valid_json": false,
+    "scan": {
+      "ok": true,
+      "size_bytes": 5062,
+      "sha256_12": "3255fe55ad02",
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "full_cycle_with_invalid_snapshot": {
+    "verdict": "PASS",
+    "findings": [],
+    "epochs_checked": 4
+  },
+  "crlf": [],
+  "invalid_utf8": [],
+  "unmanifested_secret_extra": [],
+  "zero_cycles": [],
+  "missing_epoch": [],
+  "leaked_failed_scan": []
+}

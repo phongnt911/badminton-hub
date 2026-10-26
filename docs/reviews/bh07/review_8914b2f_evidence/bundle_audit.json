@@ -1,0 +1,12 @@
+{
+  "manifest": 3,
+  "files": 4,
+  "extra": [],
+  "bad": [],
+  "before": {
+    "summary.json": "5c31f36cdb8a4d84372ac8d836dc38c47332467433dbe636f5fc7386e23eff8d",
+    "report.md": "c1a028404c415a663c1af9b59cc1c3478a735ddeb50df26d542d0a005c145b2a",
+    "run.log": "36147e4ed218eda00d583101cafd16bac8286a59986ea44bc8395184fd53a288",
+    "hashes.sha256": "9c2bcbaab7da2f81f16506ce5b447f664bbc47719c4ce336d2edbab47b4c13d2"
+  }
+}
