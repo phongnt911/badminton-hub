@@ -1,0 +1,7 @@
+$ PYTHONUTF8=1 scripts/bh07_heap/clean_and_manifest.py --verify
+exit=0
+
+=== STDOUT ===
+PASS: Verified 4 files in manifest. All strict UTF-8 LF, clean hashes, zero secret leaks.
+
+=== STDERR ===

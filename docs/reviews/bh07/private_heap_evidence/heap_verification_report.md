@@ -1,7 +1,7 @@
 # Báo Cáo Kiểm Chứng Cổng V2b — Private Dart Heap / In-Memory Retention BH-07
 
-- **Ngày thực thi:** 2026-10-26T03:23:06.939243+00:00
-- **Tested Source SHA:** `ab3d9c88c7c99fd4a60cbca81a512e305259dc4b`
+- **Ngày thực thi:** 2026-10-26T03:26:04.749522+00:00
+- **Tested Source SHA:** `f7922ed63f7594ace19daa8b999712fd849f0dbe`
 - **Git Dirty:** `False`
 - **Git Cleanliness:** `CLEAN`
 - **Provenance Errors:**
