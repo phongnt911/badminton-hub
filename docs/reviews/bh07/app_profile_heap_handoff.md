@@ -37,6 +37,8 @@ Chỉ sửa **công cụ kiểm chứng + test + tài liệu/bằng chứng**. *
 
 Phát lại probe reviewer **không sửa file** (`docs/reviews/bh07/review_8914b2f_evidence/probes.py`, `build_probe.js`): mọi ca `invalid_snapshot`, `full_cycle_with_invalid_snapshot`, `crlf`, `invalid_utf8`, `unmanifested_secret_extra`, `zero_cycles`, `missing_epoch`, `leaked_failed_scan` nay đều bị chặn, `build_probe.js` exit 1 (trước exit 0 và in `mode:'profile'`).
 
+Lưu ý trung thực khi phát lại trên Windows: `probes.py` ghi lại manifest bằng `write_text` (`rehash()`), nên trên Windows `hashes.sha256` thành CRLF và **chính nó** sinh thêm finding strict-LF; vì vậy một số ca bị chặn **đồng thời** bởi strict LF và bởi ngữ nghĩa. Các control ngữ nghĩa tương ứng trong `tests/test_bh07_app_heap_evidence.py` ghi hash bằng `write_bytes` (LF-safe) nên chứng minh **đúng lý do ngữ nghĩa** bị chặn (`zero_cycles`, `missing_epoch`, `failed_scan_with_leak`, `retained_after_logout`, `dead_detector`, ...). Kết quả phát lại: 8/8 ca đều có finding chặn, `build_probe.js` exit 1.
+
 ## 3. Phương pháp đo
 
 - **Build profile thật:** `flutter build web --profile` (dart-defines `APP_ENV=test`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` của Supabase local), serve tĩnh tại `http://127.0.0.1:8088`, Chrome headless thật điều khiển qua **Chrome DevTools Protocol** (`HeapProfiler.takeHeapSnapshot`).
@@ -106,6 +108,7 @@ Tested source `249f12e`, `git_dirty: false`, Flutter 3.47.6 (stable), Chrome 155
 | --- | --- | --- |
 | `node scripts/bh07_appheap/build_guard.js --self-test` | 0 | 8/8 control |
 | `node docs/reviews/bh07/review_8914b2f_evidence/build_probe.js` | 1 | từ chối `--reuse-build` (trước exit 0) |
+| `python -X utf8 docs/reviews/bh07/review_8914b2f_evidence/probes.py` | 0 | script chỉ in JSON; 8/8 ca đều có finding chặn (không ca nào PASS) |
 | `node scripts/bh07_appheap/run_app_profile_heap.js --cycles 2` | 0 | build profile thật + 2 chu kỳ, `status=RUN verdict=PASS` |
 | `python -X utf8 scripts/bh07_appheap/verify_evidence.py` | 0 | PASS: bundle đủ, hash khớp, verdict tính lại khớp, không raw heap/secret, LF |
 | `python -m unittest tests.test_bh07_app_heap_oracle tests.test_bh07_app_heap_evidence tests.test_bh07_app_heap_build_guard tests.test_bh07_app_heap_review_controls` | 0 | 66/66 OK |
