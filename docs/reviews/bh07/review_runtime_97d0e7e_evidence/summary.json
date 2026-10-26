@@ -1,0 +1,323 @@
+{
+  "gate": "V2b — app-profile Dart heap / in-memory retention after actor switch",
+  "reference": "docs/reviews/bh07/bh07_readiness.md §4.4",
+  "status": "RUN",
+  "measurement_surface": "Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)",
+  "oracle": "fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency",
+  "tested_source_sha": "97d0e7e3be59fa8504d7ec0d6b55a0e67495ebff",
+  "git_dirty": false,
+  "git_dirty_paths": [],
+  "started_at": "2026-10-26T14:22:09.035Z",
+  "environment": {
+    "os": "win32 10.0.26100",
+    "node": "v24.21.0",
+    "build": {
+      "mode": "profile",
+      "build_ms": 37810,
+      "started_at": "2026-10-26T14:22:10.997Z",
+      "artifacts_root": "build/web",
+      "artifacts": {
+        ".last_build_id": "fcf0f2b3ffdce9f76df16b2e10a102dd80321a5e8bcc8c5672c3b543e457baba",
+        "assets/AssetManifest.bin": "00af55ad3d6f21898fe77e0ff092d1a1cda52c941b6860e9928d45c8af8c095d",
+        "assets/AssetManifest.bin.json": "8460b5f4299ca1ed677c5a54c8038ae9cf1f26f6e91966b1b767ca6cb6d2e5d2",
+        "assets/FontManifest.json": "cd7e03645bc44b2dd47b7cb626f51c4ecbf55a197ab77241628b47ac165fbe21",
+        "assets/NOTICES": "fdd07a12361f8a49d6f6e0c918909e0d7f004d77d91c155411525ae69a1b5509",
+        "assets/fonts/MaterialIcons-Regular.otf": "3a76af11097a60c207569b5e66d519c7131e06f50069270f337c1942bc865387",
+        "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "3d90c370aa4cf00dc57ee2b902f6652147c0f81e03e483df584a9c08b1687c9d",
+        "assets/shaders/ink_sparkle.frag": "2dca5ab93d4ec29e963f996f3916320ba60825e9537dfb149a68008c7a16b026",
+        "assets/shaders/stretch_effect.frag": "ab412f07a5b9b50b67a885b24dbe16929738ae28630407d6490c924caf0a3220",
+        "canvaskit/canvaskit.js": "bb559f6080c7d312ac2a912b4abec9f68ff3d3022d4a603c7796b9b31460642b",
+        "canvaskit/canvaskit.js.symbols": "384f80b392972c83fd4f262527e3d06215a297d33ed59732c726721e9d9311bd",
+        "canvaskit/canvaskit.wasm": "fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3",
+        "canvaskit/chromium/canvaskit.js": "6018b12bd8ed37e6952eee72d59c1cf7ad707ccdb74a0a45190010f77edd9068",
+        "canvaskit/chromium/canvaskit.js.symbols": "31c86fac6042dd8b756150832c1d15495d0d07742e2718f75dbdde5a5a91455e",
+        "canvaskit/chromium/canvaskit.wasm": "ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf",
+        "canvaskit/skwasm.js": "71d7d3e34bf71b52bdba3b588b103bba8148ba28de5754083e01b3398e7a6e1c",
+        "canvaskit/skwasm.js.symbols": "9137f1a3ae744dea575043abfc6e063a047e910e6dab1ee53e496c975d1c033e",
+        "canvaskit/skwasm.wasm": "e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1",
+        "canvaskit/skwasm_heavy.js": "cec554b46ddcf4c0e63d799e0556d546f42d2c3f69316fb4f67ed776f6104558",
+        "canvaskit/skwasm_heavy.js.symbols": "b6b79ed497e11d4cd13cc46724f9e289eacc744d2d185e31c72d595cdf62772b",
+        "canvaskit/skwasm_heavy.wasm": "565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635",
+        "canvaskit/webparagraph/canvaskit.js": "3110e3e4d9b7b5657d336f253aaca8acca5777cde9319fb69ac302d6ff5a8b23",
+        "canvaskit/webparagraph/canvaskit.js.symbols": "44d6c47919106235cf32252252490cdf798d907ee874ba343ab53dc94bc2a9dc",
+        "canvaskit/webparagraph/canvaskit.wasm": "0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254",
+        "canvaskit/wimp.js": "8fd8a47480c6eb0a374d159912d0b3fb15661b41f5c113ecdd39c2f01f2bee46",
+        "canvaskit/wimp.js.symbols": "b4907ebd33131302a8cd99f7c55f52357bdfde04f421b605a616ba8764ae1de4",
+        "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
+        "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
+        "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
+        "flutter_bootstrap.js": "cbcd6a3388756d1ba5a05c00efa9fcf8250f392ca09131d2465999548083e1e3",
+        "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
+        "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
+        "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
+        "icons/Icon-maskable-192.png": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c",
+        "icons/Icon-maskable-512.png": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929",
+        "index.html": "41182f961e471ef28c1a65605ba8b99739ed6964b19b7e4e1fab7b403333d2ee",
+        "main.dart.js": "c33fe27c7a4256174e9485a017f4bf84b082319b5f69eab117df255859e4762b",
+        "manifest.json": "83c0cd838556e5388ae6cf75d0244116dc590294c8c422a4f62deb4e41a0911e",
+        "version.json": "4ef1ff664b7e05badb37751633e18a67f08198113c28c8a4b2be5fb96b6fb83e"
+      },
+      "served_match": true
+    },
+    "flutter": "Flutter 3.47.6 • channel stable • https://github.com/flutter/flutter.git",
+    "chrome": "Chrome/155.0.8059.85"
+  },
+  "sentinels": {
+    "bank": {
+      "available": true,
+      "sha256_12": "65dce15efcc4",
+      "length": 10,
+      "kind": "club bank account number (Owner-private)"
+    },
+    "expense": {
+      "available": true,
+      "sha256_12": "41a394dd2dcd",
+      "length": 16,
+      "kind": "posted session expense title (Owner-private)"
+    },
+    "probe": {
+      "available": true,
+      "sha256_12": "a4d84144bf92",
+      "length": 25,
+      "kind": "detector sanity marker set on window"
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "same_document": true,
+      "time_origin": 1793024570481.1,
+      "epochs": {
+        "baseline": {
+          "ok": true,
+          "size_bytes": 58391821,
+          "sha256_12": "ce5393b1a277",
+          "structure": {
+            "node_count": 528683,
+            "edge_count": 2253500,
+            "string_count": 164145,
+            "size_bytes": 58391821
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "owner_active": {
+          "ok": true,
+          "size_bytes": 84284234,
+          "sha256_12": "207896445b28",
+          "structure": {
+            "node_count": 772643,
+            "edge_count": 3653363,
+            "string_count": 174134,
+            "size_bytes": 84284234
+          },
+          "sentinels": {
+            "bank": {
+              "present": true,
+              "occurrences": 1
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "post_logout": {
+          "ok": true,
+          "size_bytes": 69412978,
+          "sha256_12": "fa5285a37344",
+          "structure": {
+            "node_count": 635711,
+            "edge_count": 2843590,
+            "string_count": 170210,
+            "size_bytes": 69412978
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "post_actor": {
+          "ok": true,
+          "size_bytes": 81973743,
+          "sha256_12": "ff214ea69394",
+          "structure": {
+            "node_count": 746145,
+            "edge_count": 3511649,
+            "string_count": 173149,
+            "size_bytes": 81973743
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        }
+      },
+      "verdict": {
+        "verdict": "PASS",
+        "findings": [],
+        "epochs_checked": 4
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "same_document": true,
+      "time_origin": 1793024660487.2,
+      "epochs": {
+        "baseline": {
+          "ok": true,
+          "size_bytes": 58359025,
+          "sha256_12": "c33bca69be3b",
+          "structure": {
+            "node_count": 528631,
+            "edge_count": 2253170,
+            "string_count": 164142,
+            "size_bytes": 58359025
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "owner_active": {
+          "ok": true,
+          "size_bytes": 84832453,
+          "sha256_12": "adc612084d18",
+          "structure": {
+            "node_count": 775399,
+            "edge_count": 3662135,
+            "string_count": 174101,
+            "size_bytes": 84832453
+          },
+          "sentinels": {
+            "bank": {
+              "present": true,
+              "occurrences": 1
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "post_logout": {
+          "ok": true,
+          "size_bytes": 69136499,
+          "sha256_12": "e195f6f64ead",
+          "structure": {
+            "node_count": 635692,
+            "edge_count": 2843845,
+            "string_count": 170205,
+            "size_bytes": 69136499
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        },
+        "post_actor": {
+          "ok": true,
+          "size_bytes": 73611276,
+          "sha256_12": "fc7b4e9f58ce",
+          "structure": {
+            "node_count": 672636,
+            "edge_count": 3072848,
+            "string_count": 170973,
+            "size_bytes": 73611276
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0
+            }
+          }
+        }
+      },
+      "verdict": {
+        "verdict": "PASS",
+        "findings": [],
+        "epochs_checked": 4
+      }
+    }
+  ],
+  "cleanup": {
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "ok": true
+  },
+  "verdict": "PASS",
+  "findings": [],
+  "finished_at": "2026-10-26T14:25:45.372Z"
+}
