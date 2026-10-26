@@ -30,18 +30,26 @@ TESTED_SOURCE_FILES = [
 
 
 def get_git_info():
+    """Ghi nhận provenance. Không đọc được Git thì trả UNKNOWN, tuyệt đối không coi là clean."""
     try:
         sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PROJECT_ROOT, text=True).strip()
-    except Exception:
+    except Exception as e:
         sha = 'UNKNOWN_SHA'
+        rev_parse_error = f'ERROR: git rev-parse HEAD failed: {e}'
+    else:
+        rev_parse_error = None
 
     try:
         status_raw = subprocess.check_output(['git', 'status', '--porcelain'], cwd=PROJECT_ROOT, text=True).strip()
         dirty_files = [line.strip() for line in status_raw.splitlines() if line.strip()]
         is_dirty = len(dirty_files) > 0
-    except Exception:
-        dirty_files = []
-        is_dirty = False
+    except Exception as e:
+        # fail-closed: status lỗi => cleanliness UNKNOWN, không phải checkout sạch.
+        is_dirty = 'UNKNOWN'
+        dirty_files = [f'ERROR: git status --porcelain failed: {e}']
+
+    if rev_parse_error:
+        dirty_files = [rev_parse_error] + dirty_files
 
     # Compute source hashes of verification scripts/tests
     source_hashes = {}
@@ -54,6 +62,22 @@ def get_git_info():
             source_hashes[rel] = 'MISSING'
 
     return sha, is_dirty, dirty_files, source_hashes
+
+
+def provenance_errors(sha, dirty, source_hashes, dirty_files=None):
+    """Trả danh sách lỗi provenance; rỗng nghĩa là metadata đáng tin để công bố."""
+    errors = []
+    if not re.fullmatch(r'[0-9a-f]{40}', str(sha)):
+        errors.append(f'ERROR: tested source SHA is not a resolvable commit: {sha}')
+    if dirty not in (True, False):
+        errors.append(f'ERROR: git cleanliness is {dirty}, not a proven clean/dirty checkout')
+    for entry in dirty_files or []:
+        if str(entry).startswith('ERROR:'):
+            errors.append(str(entry))
+    for rel, digest in (source_hashes or {}).items():
+        if not re.fullmatch(r'[0-9a-f]{64}', str(digest)):
+            errors.append(f'ERROR: source hash unavailable for {rel}: {digest}')
+    return errors
 
 
 def get_env_info():
@@ -95,13 +119,14 @@ def run_heap_tests():
     test_path = 'test/integration/bh07_heap_verification_test.dart'
     is_win = sys.platform == 'win32'
     flutter_bin = 'flutter.bat' if is_win else 'flutter'
-    cmd = [flutter_bin, 'test', test_path]
+    # --reporter json: verdict phải dựa trên event có tên test, không chỉ đếm dòng "All tests passed".
+    cmd = [flutter_bin, 'test', '--reporter', 'json', test_path]
     log_path = os.path.join(EVIDENCE_DIR, 'heap_test_run.log')
     os.makedirs(EVIDENCE_DIR, exist_ok=True)
 
     res = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, shell=is_win)
     with open(log_path, 'wb') as fp:
-        log_content = "=== FLUTTER TEST HEAP VERIFICATION LOG ===\n" + res.stdout
+        log_content = "=== FLUTTER TEST JSON EVENTS (--reporter json) ===\n" + res.stdout
         if res.stderr:
             log_content += "\n=== STDERR ===\n" + res.stderr
         fp.write(log_content.encode('utf-8'))
@@ -113,54 +138,153 @@ def run_heap_tests():
     return True, res.stdout
 
 
-def parse_test_results(test_ok, test_output):
-    """
-    Phân tích kết quả thực tế từ test_output để không hardcode PASS khi test thất bại.
-    """
-    control_names = [
+# Test identity -> controls nó thực sự chứng minh. Thiếu/skip một identity thì control đó NOT_RUN.
+EXPECTED_TESTS = {
+    'Baseline Epoch: Initial providers state is empty, zero retained objects': [
         'baseline_initial_empty',
+    ],
+    'Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap': [
         'owner_positive_retention_p1',
         'post_logout_negative_purge_n1',
         'cohost_switch_isolation_n2',
         'member_switch_isolation_n3',
+    ],
+    'Negative Control N4: Late-arriving response after logout is dropped & GC-collected': [
         'late_response_after_logout_n4',
+    ],
+    'Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected': [
         'late_response_after_switch_n5',
+    ],
+    'Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle': [
         'mutant_static_leak_detected_m1',
+    ],
+    'Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle': [
         'mutant_failed_clear_detected_m2',
-        'session_club_purged_on_logout'
-    ]
+    ],
+    'SessionProvider & ClubProvider: Private session and club details are purged from heap on logout': [
+        'session_club_purged_on_logout',
+    ],
+}
+CONTROL_NAMES = [c for owned in EXPECTED_TESTS.values() for c in owned]
+_RESULT_MAP = {'success': 'PASS', 'failure': 'FAIL', 'error': 'FAIL', 'skipped': 'NOT_RUN'}
 
-    has_all_passed = bool(test_ok and 'All tests passed!' in test_output)
 
-    if has_all_passed:
-        # Trích xuất số lượng tests pass nếu có (ví dụ: +7: All tests passed!)
-        match = re.search(r'\+(\d+)(?:\s+~1)?:\s+All tests passed!', test_output)
-        tests_passed = int(match.group(1)) if match else 7
-        tests_failed = 0
-        suite_verdict = 'PASS'
-        controls = {k: 'PASS' for k in control_names}
+def _parse_json_events(output):
+    """Đọc event testStart/testDone của `flutter test --reporter json` thành {tên test: result}."""
+    names, done = {}, {}
+    for line in (output or '').splitlines():
+        line = line.strip()
+        if not line.startswith('{'):
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        kind = event.get('type')
+        if kind == 'testStart':
+            test = event.get('test') or {}
+            names[test.get('id')] = test.get('name', '')
+        elif kind == 'testDone':
+            done[event.get('testID')] = (event.get('result', 'error'), bool(event.get('hidden')))
+
+    results = {}
+    for test_id, (result, hidden) in done.items():
+        name = names.get(test_id)
+        if name and not hidden:
+            results[name] = result
+    return results
+
+
+def _suite_report(verdict, results, controls, coverage, missing=None):
+    if missing is None:
+        missing = [name for name in EXPECTED_TESTS if name not in results]
+    return {
+        'suite_verdict': verdict,
+        'tests_passed': sum(1 for r in results.values() if r == 'success'),
+        'tests_failed': sum(1 for r in results.values() if r in ('failure', 'error')),
+        'tests_skipped': sum(1 for r in results.values() if r == 'skipped'),
+        'tests_expected': len(EXPECTED_TESTS),
+        'tests_missing': missing,
+        'identity_coverage': coverage,
+        'controls': controls,
+    }
+
+
+def _verdict_from_results(results, test_ok):
+    def outcome_for(expected_name):
+        # `flutter test --reporter json` prefix tên test bằng tên group, nên so khớp theo hậu tố.
+        for name, result in results.items():
+            if name == expected_name or name.endswith(expected_name):
+                return _RESULT_MAP.get(result, 'FAIL')
+        return 'NOT_RUN'
+
+    controls = {}
+    missing = []
+    for name, owned in EXPECTED_TESTS.items():
+        outcome = outcome_for(name)
+        if outcome == 'NOT_RUN':
+            missing.append(name)
+        for control in owned:
+            controls[control] = outcome
+
+    if not results:
+        verdict = 'NOT_RUN'
+    elif missing or not test_ok or any(v != 'PASS' for v in controls.values()):
+        verdict = 'FAIL'
     else:
-        suite_verdict = 'FAIL'
-        # Tìm số test fail từ output nếu có
-        fail_match = re.search(r'\+(\d+)\s+-(\d+):', test_output)
-        if fail_match:
-            tests_passed = int(fail_match.group(1))
-            tests_failed = int(fail_match.group(2))
-        else:
-            tests_passed = 0
-            tests_failed = 7
-        controls = {k: 'FAIL' for k in control_names}
-
-    return suite_verdict, tests_passed, tests_failed, controls
+        verdict = 'PASS'
+    return _suite_report(verdict, results, controls, 'VERIFIED' if not missing else 'INCOMPLETE')
 
 
-def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_files=None, source_hashes=None):
+def _verdict_from_text(test_ok, output):
+    """Fallback cho output text (không có tên test): chỉ PASS khi đếm đủ 7, coverage COUNT_ONLY."""
+    text = output or ''
+    counts = re.search(r'\+(\d+)(?:\s+~(\d+))?(?:\s+-(\d+))?:', text)
+    passed = int(counts.group(1)) if counts else 0
+    skipped = int(counts.group(2)) if counts and counts.group(2) else 0
+    failed = int(counts.group(3)) if counts and counts.group(3) else 0
+    results = {}
+    if passed:
+        results['<unidentified passing test>'] = 'success'
+    for i in range(failed):
+        results[f'<unidentified failing test {i}>'] = 'failure'
+
+    if 'No tests ran' in text or not text.strip():
+        controls = {c: 'NOT_RUN' for c in CONTROL_NAMES}
+        return _suite_report('NOT_RUN', {}, controls, 'NONE')
+
+    if test_ok and 'All tests passed!' in text and passed == len(EXPECTED_TESTS) and not skipped:
+        controls = {c: 'PASS' for c in CONTROL_NAMES}
+        report = _suite_report('PASS', results, controls, 'COUNT_ONLY')
+        report['tests_missing'] = []
+        return report
+
+    controls = {c: ('FAIL' if failed else 'NOT_RUN') for c in CONTROL_NAMES}
+    return _suite_report('FAIL', results, controls, 'COUNT_ONLY' if passed else 'NONE')
+
+
+def parse_test_results(test_ok, test_output):
+    """
+    Phân tích kết quả thực tế: đủ 7 test identity và từng control phải PASS thì suite mới PASS.
+    Không fallback thành 7, không gán toàn PASS từ một marker chung.
+    """
+    output = test_output or ''
+    if output.lstrip().startswith('{'):
+        return _verdict_from_results(_parse_json_events(output), test_ok)
+    return _verdict_from_text(test_ok, output)
+
+
+def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_files=None, source_hashes=None,
+                     provenance_errors=None):
     print("[3/4] Generating Sanitized Summary & Report...")
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     dirty_files = dirty_files or []
     source_hashes = source_hashes or {}
+    prov_errors = list(provenance_errors or [])
+    cleanliness = 'UNKNOWN' if dirty not in (True, False) else ('DIRTY' if dirty else 'CLEAN')
 
     # Đọc kết quả thực tế từ ast_memory_audit.json
+    ast_data = {}
     ast_audit_json_path = os.path.join(EVIDENCE_DIR, 'ast_memory_audit.json')
     if os.path.exists(ast_audit_json_path):
         try:
@@ -181,7 +305,11 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         overall_ast_verdict = 'CLEAN' if ast_ok else 'FAIL'
         disposal_ok = ast_ok
 
-    suite_verdict, tests_passed, tests_failed, controls = parse_test_results(test_ok, test_output)
+    results = parse_test_results(test_ok, test_output)
+    suite_verdict = results['suite_verdict']
+    tests_passed = results['tests_passed']
+    tests_failed = results['tests_failed']
+    controls = results['controls']
 
     summary = {
         'tested_source_sha': sha,
@@ -191,6 +319,10 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         'timestamp': now,
         'environment': env_info,
         'gate': 'V2b — Private Dart Heap / In-Memory Retention & Isolation',
+        'provenance': {
+            'git_cleanliness': cleanliness,
+            'errors': prov_errors
+        },
         'ast_audit': {
             'verdict': overall_ast_verdict,
             'static_mutables_found': static_mutables_count,
@@ -198,9 +330,13 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         },
         'heap_test_suite': {
             'verdict': suite_verdict,
-            'tests_total': tests_passed + tests_failed,
+            'tests_expected': results['tests_expected'],
+            'tests_total': tests_passed + tests_failed + results['tests_skipped'],
             'tests_passed': tests_passed,
             'tests_failed': tests_failed,
+            'tests_skipped': results['tests_skipped'],
+            'tests_missing': results['tests_missing'],
+            'identity_coverage': results['identity_coverage'],
             'controls': controls
         },
         'app_profile_heap_snapshot': {
@@ -213,15 +349,16 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
         'sanitized': True,
         'sanitization_notes': '100% sanitized. Contains no raw bank account numbers, passwords, JWTs or PII.',
         'methodology': (
-            'Dart VM WeakReference and Finalizer lifecycle tracking combined with generational '
-            'garbage collection allocation pressure on Provider/VM harness. Directly probes object retention '
+            'Dart VM WeakReference target observation combined with generational garbage collection '
+            'allocation pressure on Provider/VM harness. Directly probes object retention '
             'across Owner -> Logout -> Cohost -> Member lifecycle.'
         ),
         'limitations': (
             'Measured in Dart VM Runtime Test Harness under Windows 64-bit environment. '
             'Full Chrome DevTools Protocol .heapsnapshot dump on production Web build is NOT RUN. '
             'Does NOT prove full app profile heap cleanliness beyond Provider harness scope. '
-            'State remains Chờ review.'
+            'WeakReference target null means the harness no longer references the object; it is not a proof '
+            'that every copy is gone from RAM. State remains Chờ review.'
         )
     }
 
@@ -230,19 +367,38 @@ def generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_f
     with open(summary_path, 'wb') as fp:
         fp.write((json.dumps(summary, indent=2) + '\n').encode('utf-8'))
 
-    # Báo cáo Markdown chi tiết
-    if test_ok and ast_ok:
+    # Báo cáo Markdown chi tiết: cùng verdict/count với JSON, không tự nâng thành PASS
+    gate_ok = suite_verdict == 'PASS' and ast_ok and overall_ast_verdict == 'CLEAN' and not prov_errors
+    if gate_ok:
         report_conclusion = "**Chờ review độc lập** (7/7 Provider test PASS, AST CLEAN; App profile heap: NOT RUN)."
+        suite_claim = f"Đạt {tests_passed}/{results['tests_expected']} kiểm thử `WeakReference`"
     else:
-        report_conclusion = f"**FAIL / INCOMPLETE** (Suite verdict: {suite_verdict}, AST: {overall_ast_verdict})."
+        report_conclusion = (f"**FAIL / INCOMPLETE** (Suite verdict: {suite_verdict}, AST: {overall_ast_verdict}, "
+                             f"Provenance: {'UNKNOWN' if prov_errors else 'OK'}).")
+        suite_claim = f"{tests_passed}/{results['tests_expected']} kiểm thử `WeakReference` PASS (verdict {suite_verdict})"
 
-    dirty_section = "\n".join([f"  - `{p}`" for p in dirty_files]) if dirty_files else "  - None (Clean checkout)"
+    if cleanliness == 'UNKNOWN':
+        dirty_section = "  - UNKNOWN (không đọc được `git status`; không phải checkout sạch đã chứng minh)"
+    else:
+        dirty_section = "\n".join([f"  - `{p}`" for p in dirty_files]) if dirty_files else "  - None (Clean checkout)"
+    prov_section = "\n".join([f"  - {e}" for e in prov_errors]) if prov_errors else "  - None"
+
+    provider_rows = '\n'.join(
+        f"  - `{name}`: Leak risk **{info.get('leak_risk', 'UNKNOWN')}**, "
+        f"removeListener trong dispose={info.get('removes_auth_listener_on_dispose')}, "
+        f"uncancelled={info.get('un_cancelled_subscriptions')}"
+        for name, info in sorted((ast_data.get('providers_lifecycle_audit') or {}).items())
+    ) or '  - (không có dữ liệu provider trong ast_memory_audit.json)'
+    scanned_files = ast_data.get('total_dart_files_scanned', 'UNKNOWN')
 
     report_md = f"""# Báo Cáo Kiểm Chứng Cổng V2b — Private Dart Heap / In-Memory Retention BH-07
 
 - **Ngày thực thi:** {now}
 - **Tested Source SHA:** `{sha}`
 - **Git Dirty:** `{dirty}`
+- **Git Cleanliness:** `{cleanliness}`
+- **Provenance Errors:**
+{prov_section}
 - **Dirty Paths:**
 {dirty_section}
 - **Gate:** `V2b — Đo private Dart heap/cache sau đổi actor`
@@ -260,9 +416,10 @@ Mục tiêu cổng V2b theo `docs/reviews/bh07/bh07_readiness.md` mục 4.4:
 4. Có baseline đối chứng, positive controls, negative controls và mutant controls.
 
 ### Phân định phạm vi rõ ràng (Khắc phục HP1):
-- **Phần Provider / VM Test Harness (Bằng chứng bổ trợ):** Đạt 7/7 kiểm thử `WeakReference` và `Finalizer` trên `FinanceProvider`, `SessionProvider`, `ClubProvider`. Xác nhận 100% các root DTO nhạy cảm bị GC thu hồi sau logout.
+- **Phần Provider / VM Test Harness (Bằng chứng bổ trợ):** {suite_claim} trên `FinanceProvider`, `SessionProvider`, `ClubProvider`. Kết quả chỉ nói về việc Provider/harness còn tham chiếu DTO hay không, không phải toàn bộ app profile.
 - **Phần App Profile Heap Snapshot / Chrome DevTools Protocol:** **NOT RUN** do môi trường kiểm thử headless chưa có công cụ dump heapsnapshot của toàn bộ ứng dụng Flutter Web/Desktop thật.
 - **Nguyên tắc:** Tuyệt đối không suy diễn từ kết quả Provider harness hoặc UI sạch thành toàn bộ ứng dụng profile đã sạch.
+
 
 ---
 
@@ -285,13 +442,10 @@ Mục tiêu cổng V2b theo `docs/reviews/bh07/bh07_readiness.md` mục 4.4:
 
 ## 3. Kết Quả AST Static Memory Audit
 
-- **Tổng số file Dart quét:** 38 files trong `lib/`.
+- **Tổng số file Dart quét:** {scanned_files} files trong `lib/`.
 - **Static mutable collections found:** {static_mutables_count}
-- **Provider Lifecycle & Stream Disposal:**
-  - `finance_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `session_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `club_provider.dart`: `auth.addListener(_onAuthChanged)` được gỡ bỏ bằng `removeListener` trong `dispose()`. Leak risk: **NONE**.
-  - `auth_provider.dart`: StreamSubscription `_authSubscription` được `cancel()` trong `dispose()`. Leak risk: **NONE**.
+- **Provider Lifecycle & Stream Disposal (từ ast_memory_audit.json):**
+{provider_rows}
 
 ---
 
@@ -313,6 +467,8 @@ Mục tiêu cổng V2b theo `docs/reviews/bh07/bh07_readiness.md` mục 4.4:
     with open(report_path, 'wb') as fp:
         fp.write(report_md.encode('utf-8'))
 
+    return suite_verdict
+
 
 def generate_and_verify_manifest():
     print("[4/4] Generating & Verifying Manifest (strict UTF-8 LF readonly)...")
@@ -331,8 +487,11 @@ def main():
     print("=================================================================")
 
     sha, dirty, dirty_files, source_hashes = get_git_info()
+    prov_errors = provenance_errors(sha, dirty, source_hashes, dirty_files)
     print(f"Tested Source SHA : {sha}")
     print(f"Git Dirty Status  : {dirty} ({len(dirty_files)} paths)")
+    for err in prov_errors:
+        print(f"PROVENANCE ERROR  : {err}", file=sys.stderr)
 
     env_info = get_env_info()
     print(f"Environment       : {env_info['os']} | {env_info['flutter_version']}")
@@ -344,19 +503,22 @@ def main():
     test_ok, test_output = run_heap_tests()
 
     # Step 3: Summary and Report
-    generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_files, source_hashes)
+    suite_verdict = generate_summary(sha, dirty, env_info, ast_ok, test_ok, test_output, dirty_files,
+                                     source_hashes, prov_errors)
 
     # Step 4: Manifest
     manifest_ok = generate_and_verify_manifest()
 
     print("\n=================================================================")
-    if ast_ok and test_ok and manifest_ok:
+    if ast_ok and suite_verdict == 'PASS' and manifest_ok and not prov_errors:
         print("=== RESULT: All V2b Heap Verification checks completed PASS! ===")
         print(f"=== Evidence bundle generated at: docs/reviews/bh07/private_heap_evidence/ ===")
         print("=== Ready for Independent Review handoff. ===")
         return 0
     else:
-        print("=== RESULT: FAIL encountered during V2b Heap Verification! ===", file=sys.stderr)
+        print(f"=== RESULT: FAIL encountered during V2b Heap Verification! "
+              f"(suite={suite_verdict}, ast_ok={ast_ok}, manifest_ok={manifest_ok}, "
+              f"provenance_errors={len(prov_errors)}) ===", file=sys.stderr)
         return 1
 
 

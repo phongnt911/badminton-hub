@@ -2,7 +2,7 @@
 
 - **Ngày bàn giao:** 25/10/2026
 - **Nhánh:** `feat/bh07-private-heap-verification`
-- **Base review thực tế:** `2dac37434df6b9409b53e36e65f3bc85bf755b40` (review [ccad24c](review_ccad24c.md))
+- **Base review thực tế:** `2dac374fd98389b3ec9c54ec11f5781b01d32c77` (review [ccad24c](review_ccad24c.md))
 - **Tested source SHA:** `33ad6e6fd7e33b8495ec9dda0732df1b6df2096b`
 - **Docs/Evidence origin trước đó:** `eb4362bcec70e0922204b6a1040b02cbdb0f0924`
 - **Người thực thi:** AI triển khai (Antigravity)
@@ -39,7 +39,7 @@
 ### HP4 (P2) — Bổ sung đầy đủ raw log gốc và tái tạo bundle mới sạch sẽ
 - **Khắc phục:**
   - File `heap_test_run.log` ban đầu bị bỏ qua do `.gitignore` chứa rule `*.log`.
-  - Đã thực hiện commit tested source sạch [`33ad6e6`](../../../commit/33ad6e6fd7e33b8495ec9dda0732df1b6df2096b), sau đó chạy full runner tái tạo toàn bộ bundle bằng chứng mới.
+  - Đã thực hiện commit tested source sạch [`33ad6e6`](https://github.com/phongnt911/badminton-hub/commit/33ad6e6fd7e33b8495ec9dda0732df1b6df2096b), sau đó chạy full runner tái tạo toàn bộ bundle bằng chứng mới.
   - Sử dụng lệnh `git add -f docs/reviews/bh07/private_heap_evidence/heap_test_run.log` để force-add file nhật ký test gốc vào Git.
   - Bundle evidence có đủ 4/4 files, manifest SHA-256 khớp 100%.
 

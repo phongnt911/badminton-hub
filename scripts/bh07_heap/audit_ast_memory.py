@@ -19,20 +19,79 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 LIB_DIR = os.path.join(PROJECT_ROOT, 'lib')
 
 
+def strip_comments_and_strings(source):
+    """
+    Thay comment và string literal bằng khoảng trắng, giữ nguyên độ dài và xuống dòng.
+
+    Audit chỉ được thấy token thực thi: `// _sub?.cancel()` hay `print('_sub?.cancel()')`
+    không phải lời gọi dispose, và `}` trong string không được cắt sớm thân hàm.
+    """
+    out = []
+    i, n = 0, len(source)
+    while i < n:
+        ch = source[i]
+        nxt = source[i + 1] if i + 1 < n else ''
+        if ch == '/' and nxt == '/':
+            while i < n and source[i] != '\n':
+                out.append(' ')
+                i += 1
+            continue
+        if ch == '/' and nxt == '*':
+            depth = 1
+            out.append('  ')
+            i += 2
+            while i < n and depth:
+                if source.startswith('/*', i):
+                    depth += 1
+                    out.append('  ')
+                    i += 2
+                elif source.startswith('*/', i):
+                    depth -= 1
+                    out.append('  ')
+                    i += 2
+                else:
+                    out.append('\n' if source[i] == '\n' else ' ')
+                    i += 1
+            continue
+        if ch in ('"', "'"):
+            raw = i > 0 and source[i - 1] in 'rR' and not (
+                i > 1 and (source[i - 2].isalnum() or source[i - 2] == '_'))
+            quote = ch * 3 if source.startswith(ch * 3, i) else ch
+            out.append(' ' * len(quote))
+            i += len(quote)
+            while i < n:
+                if source.startswith(quote, i):
+                    out.append(' ' * len(quote))
+                    i += len(quote)
+                    break
+                if not raw and source[i] == '\\' and i + 1 < n:
+                    out.append('\n' if source[i + 1] == '\n' else '  ')
+                    i += 2
+                    continue
+                out.append('\n' if source[i] == '\n' else ' ')
+                i += 1
+            continue
+        out.append(ch)
+        i += 1
+    return ''.join(out)
+
+
 def extract_dispose_body(content):
     """
-    Trích xuất chính xác thân hàm dispose() { ... } bằng cách cân bằng ngoặc nhọn.
+    Trích xuất chính xác thân hàm dispose() { ... } bằng cách cân bằng ngoặc nhọn
+    trên code đã loại comment/string (xem strip_comments_and_strings).
     Trả về chuỗi nội dung bên trong cặp ngoặc nhọn của dispose, hoặc None nếu không có.
     """
-    match = re.search(r'(?:@override\s+)?void\s+dispose\s*\(\s*\)\s*\{', content)
+    code = strip_comments_and_strings(content)
+    match = re.search(r'(?:@override\s+)?void\s+dispose\s*\(\s*\)\s*\{', code)
     if not match:
         return None
 
     start_idx = match.end() - 1  # vị trí dấu {
     brace_depth = 0
     end_idx = None
-    for i in range(start_idx, len(content)):
-        char = content[i]
+    for i in range(start_idx, len(code)):
+        char = code[i]
         if char == '{':
             brace_depth += 1
         elif char == '}':
@@ -42,8 +101,8 @@ def extract_dispose_body(content):
                 break
 
     if end_idx is not None:
-        return content[start_idx + 1:end_idx]
-    return content[start_idx + 1:]
+        return code[start_idx + 1:end_idx]
+    return code[start_idx + 1:]
 
 
 def audit_static_and_globals(target_dir):
@@ -70,21 +129,22 @@ def audit_static_and_globals(target_dir):
             path = os.path.join(root, f)
             rel_path = os.path.relpath(path, PROJECT_ROOT).replace('\\', '/')
             with open(path, 'r', encoding='utf-8') as fp:
-                lines = fp.readlines()
+                content = fp.read()
+            # Chỉ phân tích token thực thi: comment/string không tạo static mutable.
+            code_lines = strip_comments_and_strings(content).splitlines()
+            lines = content.splitlines()
 
             brace_depth = 0
-            for idx, line in enumerate(lines, 1):
-                clean_line = line.strip()
+            for idx, (_raw_line, code_line) in enumerate(zip(lines, code_lines), 1):
+                clean_line = code_line.strip()
 
-                # Bỏ qua comments
-                if clean_line.startswith('//') or clean_line.startswith('*') or clean_line.startswith('/*'):
+                # Bỏ qua dòng không có code (trống hoặc chỉ có comment/string)
+                if not clean_line:
                     continue
 
-                # Cập nhật brace_depth cơ bản (không tính string literals phức tạp)
-                # Đếm { và } trong dòng không chứa comment
-                code_part = clean_line.split('//')[0]
-                brace_open = code_part.count('{')
-                brace_close = code_part.count('}')
+                # Cập nhật brace_depth trên code đã loại comment/string
+                brace_open = clean_line.count('{')
+                brace_close = clean_line.count('}')
 
                 # Bỏ qua static const hoặc const (compile-time constant)
                 if 'static const ' in clean_line or clean_line.startswith('const '):
@@ -159,21 +219,23 @@ def audit_listeners_and_subscriptions(target_dir):
         rel_path = os.path.relpath(p_path, PROJECT_ROOT).replace('\\', '/')
         with open(p_path, 'r', encoding='utf-8') as fp:
             content = fp.read()
+        # Chỉ nhận lời gọi thực thi; comment/string bị loại trước khi so khớp.
+        code = strip_comments_and_strings(content)
 
         dispose_body = extract_dispose_body(content)
         has_dispose = dispose_body is not None
 
-        has_auth_listener = bool(re.search(r'auth(?:\?\.|\.)addListener\(_onAuthChanged\)', content))
+        has_auth_listener = bool(re.search(r'auth(?:\?\.|\.)addListener\(_onAuthChanged\)', code))
 
         # Kiểm tra removeListener CÓ NẰM TRONG dispose_body HAY KHÔNG
         removes_in_dispose = False
         if has_dispose and dispose_body:
             removes_in_dispose = bool(re.search(r'auth(?:\?\.|\.)removeListener\(_onAuthChanged\)', dispose_body))
 
-        has_clear_all = 'clearAll()' in content
+        has_clear_all = 'clearAll()' in code
 
         # Check StreamSubscription (bắt cả nullable: StreamSubscription<int>? _sub hoặc StreamSubscription? _sub)
-        stream_subs = re.findall(r'StreamSubscription(?:<[^>]+>)?\??\s+(\w+)\s*;', content)
+        stream_subs = re.findall(r'StreamSubscription(?:<[^>]+>)?\??\s+(\w+)\s*;', code)
         un_cancelled_subs = []
         for sub in stream_subs:
             cancel_pattern = re.compile(rf'{sub}(?:\?\.|\.)cancel\(\)')
@@ -205,7 +267,7 @@ def audit_listeners_and_subscriptions(target_dir):
 
 
 def run_self_controls():
-    """Tự kiểm tra 5 controls tương thích với reviewer probes."""
+    """Tự kiểm tra controls tương thích với reviewer probes (gồm cả lexical comment/string)."""
     import tempfile
     import shutil
     from pathlib import Path
@@ -216,7 +278,10 @@ def run_self_controls():
         cases = {
             'typed_static_list': ('class X {\n static List<Object> leak = <Object>[];\n}', 1),
             'inferred_static_constructor': ('class X {\n static final leak = List<Object>.empty(growable: true);\n}', 1),
-            'global_list': ('final leak = <Object>[];', 1)
+            'global_list': ('final leak = <Object>[];', 1),
+            # comment chứa 'static const' không được che giấu static mutable thật
+            'static_mutable_with_const_comment': ('class X {\n static final leak = <Object>[]; // static const\n}', 1),
+            'static_const_only': ('class X {\n static const List<Object> safe = <Object>[];\n}', 0)
         }
         for name, (code, exp_issues) in cases.items():
             p = d / name
@@ -236,9 +301,34 @@ def run_self_controls():
                 'class X {\n void init() { auth.addListener(_onAuthChanged); }\n void unused() { auth.removeListener(_onAuthChanged); }\n void dispose() {}\n}',
                 False, # removes_auth_listener_on_dispose is False
                 'HIGH'
+            ),
+            'real_cancel_positive': (
+                'class X {\n StreamSubscription<int>? _sub;\n void dispose() { _sub?.cancel(); }\n}',
+                False,
+                'NONE'
+            ),
+            'comment_cancel_is_not_a_call': (
+                'class X {\n StreamSubscription<int>? _sub;\n void dispose() {\n // _sub?.cancel();\n }\n}',
+                True,
+                'HIGH'
+            ),
+            'string_cancel_is_not_a_call': (
+                "class X {\n StreamSubscription<int>? _sub;\n void dispose() { print('_sub?.cancel()'); }\n}",
+                True,
+                'HIGH'
+            ),
+            'block_comment_remove_is_not_a_call': (
+                'class X {\n void init() { auth.addListener(_onAuthChanged); }\n void dispose() { /* auth.removeListener(_onAuthChanged); */ }\n}',
+                True,
+                'HIGH'
+            ),
+            'brace_in_string_keeps_dispose_body': (
+                "class X {\n StreamSubscription<int>? _sub;\n void dispose() { print('}'); _sub?.cancel(); }\n}",
+                False,
+                'NONE'
             )
         }
-        for name, (code, check_cond, exp_risk) in sub_cases.items():
+        for name, (code, expect_uncancelled, exp_risk) in sub_cases.items():
             lib = d / name
             (lib / 'providers').mkdir(parents=True)
             (lib / 'providers/auth_provider.dart').write_text(code, encoding='utf-8')
@@ -246,8 +336,12 @@ def run_self_controls():
             assert res['leak_risk'] == exp_risk, f"Control {name} risk failed: got {res['leak_risk']}, exp {exp_risk}"
             if name == 'remove_outside_dispose':
                 assert res['removes_auth_listener_on_dispose'] is False
-            elif name == 'nullable_uncancelled':
-                assert len(res['un_cancelled_subscriptions']) > 0
+            elif name == 'block_comment_remove_is_not_a_call':
+                assert res['removes_auth_listener_on_dispose'] is False
+            elif expect_uncancelled:
+                assert len(res['un_cancelled_subscriptions']) > 0, f"Control {name} missed the leak"
+            else:
+                assert res['un_cancelled_subscriptions'] == [], f"Control {name} false positive"
             print(f"  [PASS] subscription_control: {name} correctly flagged as {res['leak_risk']}")
 
     print("All AST self-controls passed successfully!")
