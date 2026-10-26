@@ -1,0 +1,70 @@
+=================================================================
+=== BH-07 V2b: Private Dart Heap / In-Memory Retention Runner ===
+=================================================================
+Tested Source SHA : 16e5b5116738ab9d4417fe11b651aea794868401
+Git Dirty Status  : False (0 paths)
+Environment       : linux | Flutter 3.47.7 • channel [user-branch] • https://github.com/flutter/flutter.git
+[1/4] Running AST Static Memory Audit...
+=== AST & Static Memory Retention Audit ===
+Checked Dart files: 38
+Static mutable issues found: 0
+Provider Lifecycle & Disposal Audit:
+  - auth_provider.dart: AuthListener removed=False, LeakRisk=NONE, StreamSubs=1
+  - finance_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0
+  - session_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0
+  - club_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0
+Report written to: /workspace/scratch/v2b-extra-review/checkout/docs/reviews/bh07/private_heap_evidence/ast_memory_audit.json
+AST Verdict: CLEAN
+
+[2/4] Running Dart VM Retained Objects Verification Suite...
+Resolving dependencies...
+Downloading packages...
+  cupertino_icons 1.0.9 (2.0.0 available)
+  gotrue 2.27.2 (2.27.3 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  realtime_client 2.13.0 (2.13.2 available)
+  shared_preferences_android 2.4.28 (2.5.3 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
+  supabase 2.16.2 (2.16.5 available)
+  supabase_flutter 2.18.0 (2.18.3 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.3 available)
+  vm_service 15.3.0 (15.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+13 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":1791,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":0}
+{"count":1,"time":4,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":9866}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":7,"line":null,"column":null,"url":null},"type":"group","time":9868}
+{"group":{"id":3,"suiteID":0,"parentID":2,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence)","metadata":{"skip":false,"skipReason":null},"testCount":7,"line":309,"column":3,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"group","time":9868}
+{"test":{"id":4,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Baseline Epoch: Initial providers state is empty, zero retained objects","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":310,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":9868}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":9888}
+{"test":{"id":5,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":319,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":9888}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":10485}
+{"test":{"id":6,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N4: Late-arriving response after logout is dropped & GC-collected","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":410,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":10486}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":10679}
+{"test":{"id":7,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":429,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":10680}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":10860}
+{"test":{"id":8,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":445,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":10861}
+{"testID":8,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":11210}
+{"test":{"id":9,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":468,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":11211}
+{"testID":9,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":11548}
+{"test":{"id":10,"name":"V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":493,"column":5,"url":"file:///workspace/scratch/v2b-extra-review/checkout/test/integration/bh07_heap_verification_test.dart"},"type":"testStart","time":11548}
+{"testID":10,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":11747}
+{"success":true,"type":"done","time":11760}
+
+[3/4] Generating Sanitized Summary & Report...
+[4/4] Generating & Verifying Manifest (strict UTF-8 LF readonly)...
+Generated manifest with 4 entries at /workspace/scratch/v2b-extra-review/checkout/docs/reviews/bh07/private_heap_evidence/hashes.sha256
+PASS: Verified 4 files in manifest. All strict UTF-8 LF, clean hashes, zero secret leaks.
+
+
+=================================================================
+=== RESULT: All V2b Heap Verification checks completed PASS! ===
+=== Evidence bundle generated at: docs/reviews/bh07/private_heap_evidence/ ===
+=== Ready for Independent Review handoff. ===

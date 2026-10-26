@@ -1,0 +1,88 @@
+{
+  "exact_ast_cli": {
+    "exit": 0,
+    "stdout": "=== AST & Static Memory Retention Audit ===\nChecked Dart files: 38\nStatic mutable issues found: 0\nProvider Lifecycle & Disposal Audit:\n  - auth_provider.dart: AuthListener removed=False, LeakRisk=NONE, StreamSubs=1\n  - finance_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0\n  - session_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0\n  - club_provider.dart: AuthListener removed=True, LeakRisk=NONE, StreamSubs=0\nReport written to: /tmp/v2b-review-b4pl994x/audit_copy/docs/reviews/bh07/private_heap_evidence/ast_memory_audit.json\nAST Verdict: CLEAN\n",
+    "report_matches_author": true
+  },
+  "static_controls": {
+    "typed_static_list": {
+      "scanned": 1,
+      "issues": 1
+    },
+    "inferred_static_constructor": {
+      "scanned": 1,
+      "issues": 1
+    },
+    "global_list": {
+      "scanned": 1,
+      "issues": 1
+    }
+  },
+  "subscription_controls": {
+    "nullable_uncancelled": {
+      "file": "../../tmp/v2b-review-b4pl994x/nullable_uncancelled/providers/auth_provider.dart",
+      "has_auth_listener": false,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 1,
+      "un_cancelled_subscriptions": [
+        "_sub"
+      ],
+      "leak_risk": "HIGH"
+    },
+    "remove_outside_dispose": {
+      "file": "../../tmp/v2b-review-b4pl994x/remove_outside_dispose/providers/auth_provider.dart",
+      "has_auth_listener": true,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "HIGH"
+    }
+  },
+  "failed_run_summary": {
+    "ast": {
+      "verdict": "FAIL",
+      "static_mutables_found": -1,
+      "provider_lifecycle_proper_disposal": false
+    },
+    "suite_verdict": "FAIL",
+    "control_results": {
+      "baseline_initial_empty": "NOT_RUN",
+      "owner_positive_retention_p1": "NOT_RUN",
+      "post_logout_negative_purge_n1": "NOT_RUN",
+      "cohost_switch_isolation_n2": "NOT_RUN",
+      "member_switch_isolation_n3": "NOT_RUN",
+      "late_response_after_logout_n4": "NOT_RUN",
+      "late_response_after_switch_n5": "NOT_RUN",
+      "mutant_static_leak_detected_m1": "NOT_RUN",
+      "mutant_failed_clear_detected_m2": "NOT_RUN",
+      "session_club_purged_on_logout": "NOT_RUN"
+    },
+    "report_claims_7_of_7_pass": false
+  },
+  "verify_controls": {
+    "positive": {
+      "exit": 0,
+      "readonly": true
+    },
+    "manifest_crlf": {
+      "exit": 1,
+      "readonly": true
+    },
+    "hash_mismatch": {
+      "exit": 1,
+      "readonly": true
+    },
+    "missing": {
+      "exit": 1,
+      "readonly": true
+    },
+    "extra": {
+      "exit": 1,
+      "readonly": true
+    }
+  }
+}

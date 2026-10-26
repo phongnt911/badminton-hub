@@ -1,0 +1,14 @@
+Running AST memory audit self-controls...
+  [PASS] static_control: typed_static_list detected 1 issue(s)
+  [PASS] static_control: inferred_static_constructor detected 1 issue(s)
+  [PASS] static_control: global_list detected 1 issue(s)
+  [PASS] static_control: static_mutable_with_const_comment detected 1 issue(s)
+  [PASS] static_control: static_const_only detected 0 issue(s)
+  [PASS] subscription_control: nullable_uncancelled correctly flagged as HIGH
+  [PASS] subscription_control: remove_outside_dispose correctly flagged as HIGH
+  [PASS] subscription_control: real_cancel_positive correctly flagged as NONE
+  [PASS] subscription_control: comment_cancel_is_not_a_call correctly flagged as HIGH
+  [PASS] subscription_control: string_cancel_is_not_a_call correctly flagged as HIGH
+  [PASS] subscription_control: block_comment_remove_is_not_a_call correctly flagged as HIGH
+  [PASS] subscription_control: brace_in_string_keeps_dispose_body correctly flagged as NONE
+All AST self-controls passed successfully!

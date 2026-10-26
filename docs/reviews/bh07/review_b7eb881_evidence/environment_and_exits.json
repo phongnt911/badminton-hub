@@ -1,0 +1,65 @@
+{
+  "tested_source": "16e5b5116738ab9d4417fe11b651aea794868401",
+  "docs_evidence": "b7eb881663a85dbf0d3038d828ef82f43e728bca",
+  "base_review": "30feeb981b36473711d5ed4120ba7e14082f95c7",
+  "reviewer_platform": "Linux Flutter3.47.7",
+  "author_platform": "Windows Flutter3.47.6",
+  "primary_checkout_clean_before_checks": true,
+  "full_runner_source_checkout": "/workspace/scratch/v2b-extra-review/checkout",
+  "full_runner_clean_capture": true,
+  "commands": {
+    "full_runner": {
+      "exit": 0,
+      "passed": 7,
+      "identity_coverage": "VERIFIED"
+    },
+    "unittest": {
+      "exit": 0,
+      "tests": 32
+    },
+    "ast_self": {
+      "exit": 0,
+      "controls": 12
+    },
+    "verifier_self": {
+      "exit": 0,
+      "controls": 5
+    },
+    "author_verify": {
+      "exit": 0,
+      "files": 4
+    },
+    "old_protocol_probe": {
+      "exit": 0
+    },
+    "old_probes": {
+      "exit": 0
+    },
+    "old_extra_controls": {
+      "exit": 0
+    },
+    "analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_no_pub": {
+      "exit": 0,
+      "pass": 247,
+      "skip": 1
+    },
+    "real_duplicate_names_fixture": {
+      "exit": 0,
+      "tests": 2,
+      "names_equal": true,
+      "test_ids_different": true
+    },
+    "duplicate_probe": {
+      "exit": 0,
+      "one_false_green_case_recorded": true,
+      "main_boundary_mock_disclosed": true
+    }
+  },
+  "app_profile_heap": "NOT RUN",
+  "no_implementation_edits": true,
+  "next_code_round_not_automatically_authorized": true
+}
