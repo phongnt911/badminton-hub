@@ -1,0 +1,10 @@
+{
+  "ports": {
+    "54321": "ConnectionRefusedError",
+    "8088": "ConnectionRefusedError",
+    "9337": "ConnectionRefusedError"
+  },
+  "disk_free_bytes": 663220224,
+  "chromium": "/usr/bin/chromium",
+  "runtime": "NOT RUN: no local Supabase API/stack; insufficient disk for isolated profile build and raw snapshots"
+}

@@ -1,0 +1,45 @@
+{
+  "checkout": "5f2b5a6883295554353ce5301eeb58539e6b88d1",
+  "git_status_before_report": "",
+  "tested_source": "c04ce551a4cb7fa8cbddcd5f06dbc790a39889f6",
+  "author_dirty": false,
+  "runtime_source_docs_diff": "",
+  "app_backend_diff": "",
+  "old_reviewer_evidence_diff": "",
+  "diff_check": "",
+  "author_hashes": {
+    "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+    "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+    "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+    "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+  },
+  "author_manifest_count": 3,
+  "author_matches_git_after_verification": true,
+  "author_records_consistent": 24,
+  "artifact_hash_count": 39,
+  "counts": {
+    "cycles": 2,
+    "snapshots": 8,
+    "python": 146,
+    "self_test": 15,
+    "guard": 8,
+    "relation_controls": 5,
+    "flutter_pass": 247,
+    "flutter_skip": 1
+  },
+  "exits": {
+    "verify": 0,
+    "count": 0,
+    "closure": 0,
+    "extra": 0,
+    "probes": 0,
+    "build_expected_rejection": 1,
+    "unit": 0,
+    "guard": 0,
+    "self_test": 0,
+    "analyze": 0,
+    "flutter": 0,
+    "relation_controls": 0,
+    "links": 0
+  }
+}

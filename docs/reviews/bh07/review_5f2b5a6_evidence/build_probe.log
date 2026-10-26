@@ -1,0 +1,17 @@
+evalmachine.<anonymous>:3
+      throw new Error('--reuse-build is not accepted: the run must build the profile artifact it measures');
+      ^
+
+Error: --reuse-build is not accepted: the run must build the profile artifact it measures
+    at evalmachine.<anonymous>:3:13
+    at Script.runInContext (node:vm:149:12)
+    at Script.runInNewContext (node:vm:154:17)
+    at Object.runInNewContext (node:vm:310:38)
+    at Object.<anonymous> (/workspace/badminton-hub/docs/reviews/bh07/review_8914b2f_evidence/build_probe.js:6:4)
+    at Module._compile (node:internal/modules/cjs/loader:1872:14)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+
+Node.js v24.19.0

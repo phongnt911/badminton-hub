@@ -1,0 +1,65 @@
+{
+  "float_integral": {
+    "expected": "FAIL",
+    "actual": {
+      "verdict": "FAIL",
+      "findings": [
+        "baseline: sentinel probe occurrences must be an integer, got 1.0"
+      ],
+      "epochs_checked": 1
+    },
+    "scan_problems": [
+      "sentinel probe occurrences must be an integer, got 1.0"
+    ]
+  },
+  "integer_presence_zero": {
+    "expected": "FAIL",
+    "actual": {
+      "verdict": "FAIL",
+      "findings": [
+        "baseline: sentinel probe present must be a boolean, got 0",
+        "baseline: sentinel probe expected present, got 0"
+      ],
+      "epochs_checked": 1
+    },
+    "scan_problems": [
+      "sentinel probe present must be a boolean, got 0"
+    ]
+  },
+  "integer_presence_one": {
+    "expected": "FAIL",
+    "actual": {
+      "verdict": "FAIL",
+      "findings": [
+        "baseline: sentinel probe present must be a boolean, got 1"
+      ],
+      "epochs_checked": 1
+    },
+    "scan_problems": [
+      "sentinel probe present must be a boolean, got 1"
+    ]
+  },
+  "unusable_claims_presence": {
+    "expected": "FAIL",
+    "actual": {
+      "verdict": "FAIL",
+      "findings": [
+        "baseline: snapshot unusable (None)",
+        "baseline: unusable scan claims sentinel presence for bank, probe"
+      ],
+      "epochs_checked": 1
+    },
+    "scan_problems": [
+      "unusable scan claims sentinel presence for bank, probe"
+    ]
+  },
+  "large_valid_count": {
+    "expected": "PASS",
+    "actual": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    },
+    "scan_problems": []
+  }
+}

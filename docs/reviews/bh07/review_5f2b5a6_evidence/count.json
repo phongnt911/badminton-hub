@@ -1,0 +1,60 @@
+{
+  "positive": [],
+  "retained_bank_count": {
+    "record": {
+      "present": false,
+      "occurrences": 1
+    },
+    "problems": [
+      "cycle 1 post_actor: sentinel bank presence False contradicts occurrences 1",
+      "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: sentinel bank presence False contradicts occurrences 1']",
+      "overall verdict 'PASS' does not match the cycles (FAIL)",
+      "summary findings [] do not match the cycles ['cycle 1: post_actor: sentinel bank presence False contradicts occurrences 1']"
+    ],
+    "readonly": true
+  },
+  "dead_probe_count": {
+    "record": {
+      "present": true,
+      "occurrences": 0
+    },
+    "problems": [
+      "cycle 1 post_actor: sentinel probe presence True contradicts occurrences 0",
+      "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: sentinel probe presence True contradicts occurrences 0']",
+      "overall verdict 'PASS' does not match the cycles (FAIL)",
+      "summary findings [] do not match the cycles ['cycle 1: post_actor: sentinel probe presence True contradicts occurrences 0']"
+    ],
+    "readonly": true
+  },
+  "negative_count": {
+    "record": {
+      "present": false,
+      "occurrences": -1
+    },
+    "problems": [
+      "cycle 1 post_actor: sentinel bank occurrences must not be negative, got -1",
+      "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: sentinel bank occurrences must not be negative, got -1']",
+      "overall verdict 'PASS' does not match the cycles (FAIL)",
+      "summary findings [] do not match the cycles ['cycle 1: post_actor: sentinel bank occurrences must not be negative, got -1']"
+    ],
+    "readonly": true
+  },
+  "noninteger_count": {
+    "record": {
+      "present": false,
+      "occurrences": 0.5
+    },
+    "problems": [
+      "cycle 1 post_actor: sentinel bank occurrences must be an integer, got 0.5",
+      "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: sentinel bank occurrences must be an integer, got 0.5']",
+      "overall verdict 'PASS' does not match the cycles (FAIL)",
+      "summary findings [] do not match the cycles ['cycle 1: post_actor: sentinel bank occurrences must be an integer, got 0.5']"
+    ],
+    "readonly": true
+  },
+  "contradictory_count_cli": {
+    "exit": 1,
+    "stdout": "FAIL cycle 1 post_actor: sentinel bank presence False contradicts occurrences 1\nFAIL cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: sentinel bank presence False contradicts occurrences 1']\nFAIL overall verdict 'PASS' does not match the cycles (FAIL)\nFAIL summary findings [] do not match the cycles ['cycle 1: post_actor: sentinel bank presence False contradicts occurrences 1']",
+    "stderr": ""
+  }
+}
