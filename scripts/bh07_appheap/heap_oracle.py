@@ -224,6 +224,46 @@ def scan(path, sentinels):
     return result
 
 
+def scan_problems(scan):
+    """Schema and count/presence consistency problems of one recorded scan.
+
+    Shared by `decide()` (the runner verdict) and the evidence auditor, so a bundle can
+    never be certified from a record the oracle itself would reject. Review 0f11bb4 AH9:
+    `present` alone is not enough — an "absent but counted once" record used to pass.
+    """
+    if not isinstance(scan, dict):
+        return ['scan is not an object']
+    ok = scan.get('ok')
+    if type(ok) is not bool:
+        return [f'scan ok must be a boolean, got {ok!r}']
+    sentinels = scan.get('sentinels')
+    if ok is False:
+        claimed = []
+        if isinstance(sentinels, dict):
+            claimed = sorted(name for name, record in sentinels.items()
+                             if isinstance(record, dict) and record.get('present') is not None)
+        return ([f'unusable scan claims sentinel presence for {", ".join(claimed)}'] if claimed else [])
+    if not isinstance(sentinels, dict) or not sentinels:
+        return ['successful scan must record per-sentinel counts']
+    problems = []
+    for name, record in sorted(sentinels.items()):
+        if not isinstance(record, dict):
+            problems.append(f'sentinel {name} record is not an object')
+            continue
+        present = record.get('present')
+        occurrences = record.get('occurrences')
+        if type(present) is not bool:
+            problems.append(f'sentinel {name} present must be a boolean, got {present!r}')
+        if type(occurrences) is not int:
+            problems.append(f'sentinel {name} occurrences must be an integer, got {occurrences!r}')
+            continue
+        if occurrences < 0:
+            problems.append(f'sentinel {name} occurrences must not be negative, got {occurrences}')
+        if type(present) is bool and present != (occurrences > 0):
+            problems.append(f'sentinel {name} presence {present} contradicts occurrences {occurrences}')
+    return problems
+
+
 def decide(scans, expectations, cleanup_ok, mode):
     """Turn per-epoch scans into one verdict shared by JSON, Markdown and exit code.
 
@@ -251,8 +291,13 @@ def decide(scans, expectations, cleanup_ok, mode):
             continue
         if not scan_result.get('ok'):
             findings.append(f'{epoch}: snapshot unusable ({scan_result.get("error")})')
+            for problem in scan_problems(scan_result):
+                findings.append(f'{epoch}: {problem}')
             verdict_ok = False
             continue
+        for problem in scan_problems(scan_result):
+            findings.append(f'{epoch}: {problem}')
+            verdict_ok = False
         for sentinel, want_present in expected.items():
             got = scan_result['sentinels'].get(sentinel, {}).get('present')
             if want_present == 'either':
@@ -330,9 +375,12 @@ def self_test():
         if want_bank is not None and result['sentinels']['bank']['present'] != want_bank:
             failures.append(f'{name}: bank present={result["sentinels"]["bank"]["present"]} expected {want_bank}')
 
-    clean = {'baseline': {'ok': True, 'sentinels': {'probe': {'present': True}, 'bank': {'present': False}}},
-             'owner': {'ok': True, 'sentinels': {'probe': {'present': True}, 'bank': {'present': True}}}}
+    clean = {'baseline': {'ok': True, 'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                                    'bank': {'present': False, 'occurrences': 0}}},
+             'owner': {'ok': True, 'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                                 'bank': {'present': True, 'occurrences': 1}}}}
     expectations = {'baseline': {'probe': True, 'bank': False}, 'owner': {'probe': True, 'bank': True}}
+    checks = 5
     if decide(clean, expectations, True, 'profile')['verdict'] != 'PASS':
         failures.append('clean scans must PASS')
     leaked = json.loads(json.dumps(clean))
@@ -347,10 +395,16 @@ def self_test():
         failures.append('unverified cleanup must FAIL')
     if decide(clean, expectations, True, 'debug')['verdict'] != 'FAIL':
         failures.append('non-profile build must FAIL')
+    # Review 0f11bb4 AH9: a count that contradicts its presence is not a usable record.
+    checks += 1
+    contradictory = json.loads(json.dumps(clean))
+    contradictory['baseline']['sentinels']['bank']['occurrences'] = 1
+    if decide(contradictory, expectations, True, 'profile')['verdict'] != 'FAIL':
+        failures.append('contradictory count must FAIL')
 
     for failure in failures:
         print(f'FAIL {failure}')
-    print(f'self-test: {len(cases) + 5 - len(failures)}/{len(cases) + 5} controls passed')
+    print(f'self-test: {len(cases) + checks - len(failures)}/{len(cases) + checks} controls passed')
     return 0 if not failures else 1
 
 

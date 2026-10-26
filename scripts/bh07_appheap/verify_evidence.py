@@ -260,6 +260,11 @@ def _check_cycles(summary, build, problems):
             if not isinstance(scan, dict):
                 problems.append(f'{label} {epoch}: scan is not an object')
                 scans[epoch] = {'ok': False, 'error': 'scan is not an object'}
+                continue
+            # Same validator the oracle verdict uses, so a contradictory count can never
+            # be certified "internally consistent" (review 0f11bb4 AH9).
+            for problem in heap_oracle.scan_problems(scan):
+                problems.append(f'{label} {epoch}: {problem}')
         verdict = heap_oracle.decide(scans, expectations_from(scans), True, build.get('mode'))
         stored = cycle.get('verdict') if isinstance(cycle.get('verdict'), dict) else {}
         if stored.get('verdict') != verdict['verdict']:

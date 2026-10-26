@@ -285,8 +285,10 @@ class DecideControls(unittest.TestCase):
 
     def scans(self, bank_by_epoch, probe_present=True):
         return {
-            epoch: {'ok': True, 'sentinels': {'probe': {'present': probe_present},
-                                             'bank': {'present': present}}}
+            epoch: {'ok': True, 'sentinels': {
+                'probe': {'present': probe_present, 'occurrences': 1 if probe_present else 0},
+                'bank': {'present': present, 'occurrences': 1 if present else 0},
+            }}
             for epoch, present in bank_by_epoch.items()
         }
 
@@ -334,6 +336,97 @@ class DecideControls(unittest.TestCase):
     def test_non_profile_build_fails(self):
         scans = self.scans({'baseline': False, 'owner_active': True, 'post_logout': False})
         self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'debug')['verdict'], 'FAIL')
+
+
+class ScanConsistencyControls(unittest.TestCase):
+    """Review 0f11bb4 AH9: one shared validator must reject contradictory counts.
+
+    `decide()` only read `present`, so a scan claiming "absent, counted once" (or
+    "present, counted zero") was certified internally consistent. The same validator is
+    used by the oracle verdict and by the evidence auditor, so both must refuse it.
+    """
+
+    EXPECTATIONS = {
+        'baseline': {'probe': True, 'bank': False},
+        'owner_active': {'probe': True, 'bank': True},
+        'post_logout': {'probe': True, 'bank': False},
+    }
+
+    def clean(self):
+        return {
+            'baseline': {'ok': True, 'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                                   'bank': {'present': False, 'occurrences': 0}}},
+            'owner_active': {'ok': True, 'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                                       'bank': {'present': True, 'occurrences': 1}}},
+            'post_logout': {'ok': True, 'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                                      'bank': {'present': False, 'occurrences': 0}}},
+        }
+
+    def test_consistent_cycle_passes(self):
+        self.assertEqual(ORACLE.decide(self.clean(), self.EXPECTATIONS, True, 'profile')['verdict'], 'PASS')
+
+    def test_absent_but_counted_once_fails(self):
+        scans = self.clean()
+        scans['post_logout']['sentinels']['bank'] = {'present': False, 'occurrences': 1}
+        verdict = ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'FAIL', verdict)
+        self.assertTrue(any('contradicts' in finding for finding in verdict['findings']), verdict)
+
+    def test_present_but_counted_zero_fails(self):
+        scans = self.clean()
+        scans['owner_active']['sentinels']['bank'] = {'present': True, 'occurrences': 0}
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_negative_count_fails(self):
+        scans = self.clean()
+        scans['baseline']['sentinels']['bank']['occurrences'] = -1
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_fractional_count_fails(self):
+        scans = self.clean()
+        scans['baseline']['sentinels']['bank']['occurrences'] = 0.5
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_string_count_fails(self):
+        scans = self.clean()
+        scans['baseline']['sentinels']['bank']['occurrences'] = '0'
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_bool_count_fails(self):
+        scans = self.clean()
+        scans['baseline']['sentinels']['bank']['occurrences'] = True
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_missing_count_fails(self):
+        scans = self.clean()
+        del scans['baseline']['sentinels']['bank']['occurrences']
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_null_count_fails(self):
+        scans = self.clean()
+        scans['baseline']['sentinels']['bank']['occurrences'] = None
+        self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_non_boolean_presence_fails(self):
+        for value in ('true', 1, None):
+            with self.subTest(present=value):
+                scans = self.clean()
+                scans['baseline']['sentinels']['bank']['present'] = value
+                self.assertEqual(ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')['verdict'], 'FAIL')
+
+    def test_unusable_scan_must_not_claim_presence(self):
+        scans = self.clean()
+        scans['post_logout'] = {'ok': False, 'error': 'broken',
+                                'sentinels': {'probe': {'present': True, 'occurrences': 1},
+                                              'bank': {'present': False, 'occurrences': 0}}}
+        verdict = ORACLE.decide(scans, self.EXPECTATIONS, True, 'profile')
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        self.assertTrue(any('unusable' in finding for finding in verdict['findings']), verdict)
+
+    def test_shared_validator_reports_problems(self):
+        self.assertEqual(ORACLE.scan_problems(self.clean()['baseline']), [])
+        problems = ORACLE.scan_problems({'ok': True, 'sentinels': {'bank': {'present': False, 'occurrences': 1}}})
+        self.assertTrue(problems)
 
 
 class CliControls(unittest.TestCase):

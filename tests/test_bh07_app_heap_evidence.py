@@ -679,5 +679,78 @@ class SentinelMetadataControls(AuditCase):
         self.assertTrue(any('length' in problem for problem in problems), problems)
 
 
+class CountConsistencyControls(AuditCase):
+    """Review 0f11bb4 AH9: a scan whose count contradicts its presence must fail."""
+
+    def mutate_record(self, epoch, name, **fields):
+        def mutate(summary):
+            record = summary['cycles'][0]['epochs'][epoch]['sentinels'][name]
+            record.update(fields)
+        self.mutate_summary(mutate)
+
+    def test_absent_but_counted_once_fails(self):
+        self.mutate_record('post_actor', 'bank', present=False, occurrences=1)
+        self.assert_rejected('contradicts')
+
+    def test_present_but_counted_zero_fails(self):
+        self.mutate_record('owner_active', 'bank', present=True, occurrences=0)
+        self.assert_rejected('contradicts')
+
+    def test_negative_count_fails(self):
+        self.mutate_record('post_actor', 'bank', occurrences=-1)
+        self.assert_rejected('negative')
+
+    def test_fractional_count_fails(self):
+        self.mutate_record('post_actor', 'bank', occurrences=0.5)
+        self.assert_rejected('integer')
+
+    def test_string_count_fails(self):
+        self.mutate_record('post_actor', 'bank', occurrences='0')
+        self.assert_rejected('integer')
+
+    def test_bool_count_fails(self):
+        self.mutate_record('post_actor', 'bank', occurrences=True)
+        self.assert_rejected('integer')
+
+    def test_null_count_fails(self):
+        self.mutate_record('post_actor', 'bank', occurrences=None)
+        self.assert_rejected('integer')
+
+    def test_missing_count_fails(self):
+        def mutate(summary):
+            record = summary['cycles'][0]['epochs']['post_actor']['sentinels']['bank']
+            record.pop('occurrences', None)
+        self.mutate_summary(mutate)
+        self.assert_rejected('integer')
+
+    def test_non_boolean_presence_fails(self):
+        self.mutate_record('post_actor', 'bank', present='false')
+        self.assert_rejected('boolean')
+
+    def test_unusable_scan_claiming_presence_fails(self):
+        def mutate(summary):
+            epoch = summary['cycles'][0]['epochs']['post_actor']
+            epoch['ok'] = False
+            epoch['error'] = 'broken'
+        self.mutate_summary(mutate)
+        self.assert_rejected('unusable')
+
+    def test_contradictory_count_cli_exits_nonzero(self):
+        # Inside the repository: the CLI prints a repo-relative path only on success.
+        with tempfile.TemporaryDirectory(prefix='.bh07-count-cli-', dir=str(ROOT)) as td:
+            bundle = make_bundle(Path(td) / 'bundle')
+            summary = read_summary(bundle)
+            summary['cycles'][0]['epochs']['post_actor']['sentinels']['bank'].update(
+                present=False, occurrences=1)
+            write_summary(bundle, summary)
+            (bundle / 'report.md').write_bytes(render_report(summary).encode('utf-8'))
+            write_manifest(bundle)
+            proc = subprocess.run([sys.executable, '-X', 'utf8', str(VERIFIER_PATH), '--dir', str(bundle)],
+                                  capture_output=True, text=True, cwd=str(ROOT))
+        self.assertNotEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertNotIn('PASS:', proc.stdout)
+        self.assertIn('contradicts', proc.stdout)
+
+
 if __name__ == '__main__':
     unittest.main()
