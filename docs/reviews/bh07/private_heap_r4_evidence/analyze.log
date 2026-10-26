@@ -1,0 +1,8 @@
+$ analyze --no-pub
+exit=0
+
+=== STDOUT ===
+Analyzing badminton-hub...                                      
+No issues found! (ran in 1.9s)
+
+=== STDERR ===

@@ -1,0 +1,44 @@
+$ -m unittest tests.test_bh07_heap_controls -v
+exit=0
+
+=== STDOUT ===
+
+=== STDERR ===
+test_block_comment_remove_listener_is_not_a_call (tests.test_bh07_heap_controls.DisposeLexicalControls.test_block_comment_remove_listener_is_not_a_call) ... ok
+test_brace_inside_string_does_not_truncate_dispose_body (tests.test_bh07_heap_controls.DisposeLexicalControls.test_brace_inside_string_does_not_truncate_dispose_body) ... ok
+test_commented_add_listener_is_not_a_listener (tests.test_bh07_heap_controls.DisposeLexicalControls.test_commented_add_listener_is_not_a_listener) ... ok
+test_line_comment_cancel_is_not_a_call (tests.test_bh07_heap_controls.DisposeLexicalControls.test_line_comment_cancel_is_not_a_call) ... ok
+test_real_cancel_in_dispose_is_clean (tests.test_bh07_heap_controls.DisposeLexicalControls.test_real_cancel_in_dispose_is_clean) ... ok
+test_static_const_is_not_flagged (tests.test_bh07_heap_controls.DisposeLexicalControls.test_static_const_is_not_flagged) ... ok
+test_static_mutable_with_trailing_const_comment_is_flagged (tests.test_bh07_heap_controls.DisposeLexicalControls.test_static_mutable_with_trailing_const_comment_is_flagged) ... ok
+test_string_literal_cancel_is_not_a_call (tests.test_bh07_heap_controls.DisposeLexicalControls.test_string_literal_cancel_is_not_a_call) ... ok
+test_handoff_commit_links_are_absolute (tests.test_bh07_heap_controls.HandoffProvenanceControls.test_handoff_commit_links_are_absolute) ... ok
+test_handoff_shas_resolve (tests.test_bh07_heap_controls.HandoffProvenanceControls.test_handoff_shas_resolve) ... ok
+test_counts_always_reconcile_with_expected_identities (tests.test_bh07_heap_controls.ProtocolStreamControls.test_counts_always_reconcile_with_expected_identities) ... ok
+test_diagnostics_prefix_before_json_does_not_downgrade_to_text (tests.test_bh07_heap_controls.ProtocolStreamControls.test_diagnostics_prefix_before_json_does_not_downgrade_to_text) ... ok
+test_duplicate_identity_blocks_verified (tests.test_bh07_heap_controls.ProtocolStreamControls.test_duplicate_identity_blocks_verified) ... ok
+test_exact_full_name_duplicate_ids_block_verified (tests.test_bh07_heap_controls.ProtocolStreamControls.test_exact_full_name_duplicate_ids_block_verified) ... ok
+test_extra_unknown_identity_blocks_verified_and_counts (tests.test_bh07_heap_controls.ProtocolStreamControls.test_extra_unknown_identity_blocks_verified_and_counts) ... ok
+test_incomplete_protocol_is_not_pass (tests.test_bh07_heap_controls.ProtocolStreamControls.test_incomplete_protocol_is_not_pass) ... ok
+test_malformed_lines_between_events_are_ignored (tests.test_bh07_heap_controls.ProtocolStreamControls.test_malformed_lines_between_events_are_ignored) ... ok
+test_real_protocol_skip_is_not_run_and_blocks_pass (tests.test_bh07_heap_controls.ProtocolStreamControls.test_real_protocol_skip_is_not_run_and_blocks_pass) ... ok
+test_real_protocol_success_without_skip_is_positive (tests.test_bh07_heap_controls.ProtocolStreamControls.test_real_protocol_success_without_skip_is_positive) ... ok
+test_clean_and_dirty_checkouts_are_valid (tests.test_bh07_heap_controls.ProvenanceControls.test_clean_and_dirty_checkouts_are_valid) ... ok
+test_missing_source_hash_invalidates_provenance (tests.test_bh07_heap_controls.ProvenanceControls.test_missing_source_hash_invalidates_provenance) ... ok
+test_rev_parse_failure_invalidates_provenance (tests.test_bh07_heap_controls.ProvenanceControls.test_rev_parse_failure_invalidates_provenance) ... ok
+test_status_failure_is_unknown_not_clean (tests.test_bh07_heap_controls.ProvenanceControls.test_status_failure_is_unknown_not_clean) ... ok
+test_unknown_git_state_blocks_success_conclusion (tests.test_bh07_heap_controls.ProvenanceControls.test_unknown_git_state_blocks_success_conclusion) ... ok
+test_failed_suite_reports_failure_everywhere (tests.test_bh07_heap_controls.SummaryControls.test_failed_suite_reports_failure_everywhere) ... ok
+test_full_suite_passes_and_markdown_agrees (tests.test_bh07_heap_controls.SummaryControls.test_full_suite_passes_and_markdown_agrees) ... ok
+test_group_prefixed_test_names_are_matched (tests.test_bh07_heap_controls.SummaryControls.test_group_prefixed_test_names_are_matched) ... ok
+test_legacy_text_output_is_count_only_and_never_overclaims (tests.test_bh07_heap_controls.SummaryControls.test_legacy_text_output_is_count_only_and_never_overclaims) ... ok
+test_metadata_does_not_claim_finalizer (tests.test_bh07_heap_controls.SummaryControls.test_metadata_does_not_claim_finalizer) ... ok
+test_no_tests_ran_is_not_pass (tests.test_bh07_heap_controls.SummaryControls.test_no_tests_ran_is_not_pass) ... ok
+test_skipped_test_is_not_pass (tests.test_bh07_heap_controls.SummaryControls.test_skipped_test_is_not_pass) ... ok
+test_subset_of_tests_does_not_turn_all_controls_green (tests.test_bh07_heap_controls.SummaryControls.test_subset_of_tests_does_not_turn_all_controls_green) ... ok
+test_unknown_test_name_is_not_accepted_as_coverage (tests.test_bh07_heap_controls.SummaryControls.test_unknown_test_name_is_not_accepted_as_coverage) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.389s
+
+OK
