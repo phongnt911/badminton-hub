@@ -1,0 +1,9 @@
+ok missing_artifact: build artifact missing: index.html
+ok stale_artifact: build artifact not produced by this run: index.html
+ok rebuilt_identical_artifact: accepted
+ok fresh_artifact: accepted
+ok served_match: accepted
+ok served_mismatch: served index.html does not match the built artifact (8a36eb95e3c7 != 97eee5b55ca7)
+ok occupied_port: port 41049 is already answering, refusing to reuse another server
+ok free_port: accepted
+self-test: 8/8 controls passed

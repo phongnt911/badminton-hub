@@ -1,0 +1,65 @@
+{
+  "invalid_snapshot": {
+    "valid_json": false,
+    "scan": {
+      "ok": false,
+      "size_bytes": 5062,
+      "sha256_12": "3255fe55ad02",
+      "error": "snapshot_invalid_json: Expecting value at byte 12",
+      "sentinels": {
+        "bank": {
+          "present": null,
+          "occurrences": null
+        },
+        "probe": {
+          "present": null,
+          "occurrences": null
+        }
+      }
+    },
+    "decision": {
+      "verdict": "FAIL",
+      "findings": [
+        "post_logout: snapshot unusable (snapshot_invalid_json: Expecting value at byte 12)"
+      ],
+      "epochs_checked": 1
+    }
+  },
+  "full_cycle_with_invalid_snapshot": {
+    "verdict": "FAIL",
+    "findings": [
+      "baseline: snapshot unusable (snapshot_invalid_json: Expecting value at byte 12)",
+      "owner_active: snapshot unusable (snapshot_unexpected_top_level_key: pad)",
+      "post_logout: snapshot unusable (snapshot_invalid_json: Expecting value at byte 12)",
+      "post_actor: snapshot unusable (snapshot_invalid_json: Expecting value at byte 12)"
+    ],
+    "epochs_checked": 4
+  },
+  "crlf": [
+    "run.log is not LF-only: it contains a CR byte"
+  ],
+  "invalid_utf8": [
+    "run.log is not valid UTF-8: 'utf-8' codec can't decode byte 0xff in position 1542: invalid start byte"
+  ],
+  "unmanifested_secret_extra": [
+    "bundle file is not in the manifest: extra.txt",
+    "extra.txt contains a test account password"
+  ],
+  "zero_cycles": [
+    "summary must record exactly 2 cycles, got 0",
+    "report.md cycle rows do not match summary.json (missing [], extra [['1', 'Owner -> logout -> cohost', 'true', 'baseline', '58363385', '1cae110873fe', 'probe'], ['1', 'Owner -> logout -> cohost', 'true', 'owner_active', '83871151', '2f0d8d9780e1', 'bank, probe']])"
+  ],
+  "missing_epoch": [
+    "cycle 1: epochs missing ['post_actor'] unexpected []",
+    "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: no snapshot recorded']",
+    "overall verdict 'PASS' does not match the cycles (FAIL)",
+    "summary findings [] do not match the cycles ['cycle 1: post_actor: no snapshot recorded']",
+    "report.md cycle rows do not match summary.json (missing [], extra [['1', 'Owner -> logout -> cohost', 'true', 'post_actor', '82147760', '50fb576cacd7', 'probe']])"
+  ],
+  "leaked_failed_scan": [
+    "cycle 1: recorded verdict 'PASS' but the recorded scans decide 'FAIL' ['post_actor: snapshot unusable (None)']",
+    "overall verdict 'PASS' does not match the cycles (FAIL)",
+    "summary findings [] do not match the cycles ['cycle 1: post_actor: snapshot unusable (None)']",
+    "report.md cycle rows do not match summary.json (missing [['1', 'Owner -> logout -> cohost', 'true', 'post_actor', '82147760', '50fb576cacd7', 'bank, probe']], extra [['1', 'Owner -> logout -> cohost', 'true', 'post_actor', '82147760', '50fb576cacd7', 'probe']])"
+  ]
+}

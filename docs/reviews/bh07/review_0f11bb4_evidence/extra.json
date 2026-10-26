@@ -1,0 +1,171 @@
+{
+  "positive_valid": {
+    "valid_json": true,
+    "scan": {
+      "ok": true,
+      "size_bytes": 4690,
+      "sha256_12": "e0d82f281b2f",
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4690
+      },
+      "sentinels": {
+        "bank": {
+          "present": false,
+          "occurrences": 0
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      }
+    },
+    "decision": {
+      "verdict": "PASS",
+      "findings": [],
+      "epochs_checked": 1
+    }
+  },
+  "missing_string_comma": {
+    "valid_json": false,
+    "scan": {
+      "ok": false,
+      "size_bytes": 4690,
+      "sha256_12": "f97e62c1b9ed",
+      "error": "snapshot_invalid_json: Expecting ',' delimiter at byte 475",
+      "sentinels": {
+        "bank": {
+          "present": null,
+          "occurrences": null
+        },
+        "probe": {
+          "present": null,
+          "occurrences": null
+        }
+      }
+    },
+    "decision": {
+      "verdict": "FAIL",
+      "findings": [
+        "post_logout: snapshot unusable (snapshot_invalid_json: Expecting ',' delimiter at byte 475)"
+      ],
+      "epochs_checked": 1
+    }
+  },
+  "garbage_before_nodes": {
+    "valid_json": false,
+    "scan": {
+      "ok": false,
+      "size_bytes": 4697,
+      "sha256_12": "a30affd1c4e8",
+      "error": "snapshot_invalid_json: Expecting property name enclosed in double quotes at byte 349",
+      "sentinels": {
+        "bank": {
+          "present": null,
+          "occurrences": null
+        },
+        "probe": {
+          "present": null,
+          "occurrences": null
+        }
+      }
+    },
+    "decision": {
+      "verdict": "FAIL",
+      "findings": [
+        "post_logout: snapshot unusable (snapshot_invalid_json: Expecting property name enclosed in double quotes at byte 349)"
+      ],
+      "epochs_checked": 1
+    }
+  },
+  "leading_zero_integer": {
+    "valid_json": false,
+    "scan": {
+      "ok": false,
+      "size_bytes": 4691,
+      "sha256_12": "0cf3ac8b6ea1",
+      "error": "snapshot_invalid_json: Expecting ',' delimiter at byte 359",
+      "sentinels": {
+        "bank": {
+          "present": null,
+          "occurrences": null
+        },
+        "probe": {
+          "present": null,
+          "occurrences": null
+        }
+      }
+    },
+    "decision": {
+      "verdict": "FAIL",
+      "findings": [
+        "post_logout: snapshot unusable (snapshot_invalid_json: Expecting ',' delimiter at byte 359)"
+      ],
+      "epochs_checked": 1
+    }
+  },
+  "empty_summary": {
+    "problems": [
+      "summary.json missing field: gate",
+      "summary.json missing field: status",
+      "summary.json missing field: measurement_surface",
+      "summary.json missing field: oracle",
+      "summary.json missing field: tested_source_sha",
+      "summary.json missing field: cycles",
+      "summary.json missing field: cleanup",
+      "summary.json missing field: environment",
+      "summary.json missing field: sentinels",
+      "summary.json missing field: verdict",
+      "summary status is None, not RUN: the gate has no successful measurement",
+      "summary.json lacks a full tested_source_sha",
+      "status RUN requires a profile build, got mode None",
+      "build provenance lacks started_at",
+      "build provenance lacks artifact hashes",
+      "served bytes were not proven to match the built artifact",
+      "summary must record exactly 2 cycles, got None",
+      "summary.json cleanup must be an object",
+      "report.md status line '- Status: **RUN** (verdict PASS)' does not match summary '- Status: **None**'",
+      "report.md tested-source line does not match summary.json",
+      "report.md build line does not match summary.json provenance",
+      "report.md cycle rows do not match summary.json (missing [], extra [['1', 'Owner -> logout -> cohost', 'true', 'baseline', '100008', 'f0ef9b3b1ea9', 'probe'], ['1', 'Owner -> logout -> cohost', 'true', 'owner_active', '100012', 'dee42dfc196f', 'bank, probe']])",
+      "summary.json must publish sentinel metadata"
+    ],
+    "readonly": true
+  },
+  "null_summary": {
+    "problems": [
+      "summary.json must be a JSON object, got null"
+    ],
+    "readonly": true
+  },
+  "empty_list_summary": {
+    "problems": [
+      "summary.json must be a JSON object, got []"
+    ],
+    "readonly": true
+  },
+  "contradictory_markdown_verdict": {
+    "problems": [
+      "report.md status line '- Status: **RUN** (verdict FAIL)' does not match summary '- Status: **RUN** (verdict PASS)'"
+    ]
+  },
+  "directory_symlink_to_raw_heap": {
+    "problems": [
+      "bundle contains a symlink or junction: linked"
+    ],
+    "symlink_present": true
+  },
+  "raw_bank_sentinel_in_log": {
+    "problems": [
+      "run.log publishes the raw value of sentinel bank"
+    ],
+    "canary_matches_published_length_and_hash": true
+  },
+  "empty_summary_cli": {
+    "exit": 1,
+    "stdout": "FAIL summary.json missing field: gate\nFAIL summary.json missing field: status\nFAIL summary.json missing field: measurement_surface\nFAIL summary.json missing field: oracle\nFAIL summary.json missing field: tested_source_sha\nFAIL summary.json missing field: cycles\nFAIL summary.json missing field: cleanup\nFAIL summary.json missing field: environment\nFAIL summary.json missing field: sentinels\nFAIL summary.json missing field: verdict\nFAIL summary status is None, not RUN: the gate has no successful measurement\nFAIL summary.json lacks a full tested_source_sha\nFAIL status RUN requires a profile build, got mode None\nFAIL build provenance lacks started_at\nFAIL build provenance lacks artifact hashes\nFAIL served bytes were not proven to match the built artifact\nFAIL summary must record exactly 2 cycles, got None\nFAIL summary.json cleanup must be an object\nFAIL report.md status line '- Status: **RUN** (verdict PASS)' does not match summary '- Status: **None**'\nFAIL report.md tested-source line does not match summary.json\nFAIL report.md build line does not match summary.json provenance\nFAIL report.md cycle rows do not match summary.json (missing [], extra [['1', 'Owner -> logout -> cohost', 'true', 'baseline', '100008', 'f0ef9b3b1ea9', 'probe'], ['1', 'Owner -> logout -> cohost', 'true', 'owner_active', '100012', 'dee42dfc196f', 'bank, probe']])\nFAIL summary.json must publish sentinel metadata",
+    "stderr": ""
+  }
+}

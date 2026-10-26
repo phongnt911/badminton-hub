@@ -1,0 +1,65 @@
+{
+  "escaped_retained_bank": {
+    "decoded_documents_equal": true,
+    "bank_in_decoded_strings": true,
+    "scan_literal": {
+      "ok": true,
+      "size_bytes": 4702,
+      "sha256_12": "f9fa67580772",
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4702
+      },
+      "sentinels": {
+        "bank": {
+          "present": true,
+          "occurrences": 1
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      }
+    },
+    "scan_escaped": {
+      "ok": true,
+      "size_bytes": 4802,
+      "sha256_12": "48bd5897559f",
+      "structure": {
+        "node_count": 2,
+        "edge_count": 2,
+        "string_count": 3,
+        "size_bytes": 4802
+      },
+      "sentinels": {
+        "bank": {
+          "present": true,
+          "occurrences": 1
+        },
+        "probe": {
+          "present": true,
+          "occurrences": 1
+        }
+      }
+    }
+  },
+  "cycle_with_retained_escaped_bank": {
+    "verdict": "FAIL",
+    "findings": [
+      "post_actor: sentinel bank expected absent, got True"
+    ],
+    "epochs_checked": 4
+  },
+  "raw_bank_missing_length": {
+    "problems": [
+      "sentinel bank metadata lacks a positive integer length: None"
+    ]
+  },
+  "raw_bank_missing_sha256_12": {
+    "problems": [
+      "sentinel bank metadata lacks a valid sha256_12: None"
+    ]
+  }
+}

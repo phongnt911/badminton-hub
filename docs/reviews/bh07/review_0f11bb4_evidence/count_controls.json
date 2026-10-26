@@ -1,0 +1,40 @@
+{
+  "positive": [],
+  "retained_bank_count": {
+    "record": {
+      "present": false,
+      "occurrences": 1
+    },
+    "problems": [],
+    "readonly": true
+  },
+  "dead_probe_count": {
+    "record": {
+      "present": true,
+      "occurrences": 0
+    },
+    "problems": [],
+    "readonly": true
+  },
+  "negative_count": {
+    "record": {
+      "present": false,
+      "occurrences": -1
+    },
+    "problems": [],
+    "readonly": true
+  },
+  "noninteger_count": {
+    "record": {
+      "present": false,
+      "occurrences": 0.5
+    },
+    "problems": [],
+    "readonly": true
+  },
+  "contradictory_count_cli": {
+    "exit": 0,
+    "stdout": "PASS: evidence bundle at .review-count-cli-a_ghaypp/bundle is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials",
+    "stderr": ""
+  }
+}
