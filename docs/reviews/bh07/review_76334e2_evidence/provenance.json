@@ -1,0 +1,38 @@
+{
+  "review_checkout": "76334e21e41e6f9c018778d1f7b8d0a526012f3d",
+  "git_status_before_report": "",
+  "tested_source_sha": "130af7d103cdea22c2f9ac9e4cb000f74ec02590",
+  "author_dirty": false,
+  "source_tree_docs_diff": "",
+  "app_backend_diff": "",
+  "diff_check": "",
+  "author_hashes": {
+    "summary.json": "6cdca3f71283a884af1ea1388c0463052099197bc8456103b4139d133cb6a8c8",
+    "report.md": "8766eb7ee27baa002576b199e9fe751496d8d13408633bc44c287867964a4162",
+    "run.log": "48f234a40750cfaaec138a2e644f28714970fd089bfc60d401b77b1241ccf8ca",
+    "hashes.sha256": "af9854ce121aec8be4149c0711b811e96b43059926936e97368e979c4686f172"
+  },
+  "author_manifest_count": 3,
+  "author_bundle_matches_git_after_all_commands": true,
+  "artifact_hash_count": 39,
+  "cycles": 2,
+  "snapshots": 8,
+  "exits": {
+    "verify": 0,
+    "unit": 0,
+    "guard": 0,
+    "analyze": 0,
+    "flutter_test": 0,
+    "old_extra": 0,
+    "old_probes": 0,
+    "old_build_expected_rejection": 1,
+    "new_closure_controls": 0,
+    "link_audit": 0
+  },
+  "counts": {
+    "python": 104,
+    "guard": 8,
+    "flutter_pass": 247,
+    "flutter_skip": 1
+  }
+}
