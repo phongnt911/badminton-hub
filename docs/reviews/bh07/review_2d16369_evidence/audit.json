@@ -1,0 +1,54 @@
+{
+  "checkout": "2d16369bee16bd2a98a356dab962ec1d3ad20762",
+  "dirty_before_acceptance": "",
+  "runtime_tested_source": "97d0e7e3be59fa8504d7ec0d6b55a0e67495ebff",
+  "source_code": "c04ce551a4cb7fa8cbddcd5f06dbc790a39889f6",
+  "bundles": {
+    "qa": {
+      "entries": 3,
+      "file_hashes": {
+        "summary.json": "6b8c916df4b247225bb1532205b0cf67848547f505db844137eeb16074871f90",
+        "report.md": "99340cc547a3481bfa60d95e70a8bfee33c2656149d94a0e608524b99382053a",
+        "run.log": "cc91a6fa59fb3dc141d23d984848cec81e00524c327da3137836c6aeca665a19",
+        "hashes.sha256": "6c2325ba21625e411e6c29fc519f22d0b6d3ecaf81f57c5f56a4829046f70d1a"
+      },
+      "tracked_before_equals_after": true
+    },
+    "author": {
+      "entries": 3,
+      "file_hashes": {
+        "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+        "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+        "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+        "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+      },
+      "tracked_before_equals_after": true
+    }
+  },
+  "checks": {
+    "metadata_log_match": true,
+    "snapshots": 8,
+    "unique_snapshot_hashes": 8,
+    "consistent_records": 24,
+    "artifact_hashes": 39,
+    "entry_artifacts_match_author": true,
+    "cleanup_recorded_verified": true,
+    "runtime_scope": "independent QA as declared in project handoff; not coordinator runtime rerun",
+    "source_tree_base_to_qa": "",
+    "source_tree_accepted_to_qa": "",
+    "whitespace": ""
+  },
+  "exits": {
+    "qa_relative_path_cli": 1,
+    "qa_absolute_cli": 0,
+    "author_cli": 0,
+    "qa_strict_verify": 0,
+    "author_strict_verify": 0
+  },
+  "not_replayed_coordinator": [
+    "Chrome runtime",
+    "Flutter analyze/tests",
+    "Python suite/old controls"
+  ],
+  "reason_no_suite_replay": "docs/evidence-only QA delta; code tree identical to previously accepted source c04ce55"
+}

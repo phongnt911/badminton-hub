@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/scripts/bh07_appheap/verify_evidence.py", line 550, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/badminton-hub/scripts/bh07_appheap/verify_evidence.py", line 544, in main
+    print(f'PASS: evidence bundle at {Path(args.dir).relative_to(ROOT)} is complete, hash-consistent, '
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 682, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: 'docs/reviews/bh07/review_runtime_97d0e7e_evidence' is not in the subpath of '/workspace/badminton-hub'
