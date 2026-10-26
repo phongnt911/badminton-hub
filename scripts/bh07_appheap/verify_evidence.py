@@ -49,6 +49,10 @@ def verify(evidence_dir):
         if path.is_file() and path.suffix in RAW_HEAP_SUFFIXES:
             problems.append(f'raw heap artifact present in repo: {path.relative_to(ROOT)}')
 
+    for path in evidence_dir.rglob('*'):
+        if path.is_file() and path.suffix in RAW_HEAP_SUFFIXES:
+            problems.append(f'raw heap artifact published in the bundle: {path.name}')
+
     manifest_path = evidence_dir / 'hashes.sha256'
     if manifest_path.is_file():
         entries = 0
@@ -85,10 +89,11 @@ def verify(evidence_dir):
                 problems.append('status RUN requires verdict PASS')
             if status == 'RUN':
                 cleanup = summary.get('cleanup') or {}
-                if not cleanup.get('ok'):
-                    problems.append('status RUN requires verified heap dump cleanup')
-                if not cleanup.get('dump_dir_outside_repo'):
-                    problems.append('heap dumps must live outside the repository')
+                for field in ('ok', 'dump_dir_outside_repo', 'dumps_dir_removed', 'chrome_profile_dir_removed'):
+                    if cleanup.get(field) is not True:
+                        problems.append(f'status RUN requires verified heap dump cleanup: {field}')
+                if cleanup.get('raw_snapshots_remaining') != 0:
+                    problems.append('status RUN requires zero raw heap snapshots left on disk')
             build = (summary.get('environment') or {}).get('build') or {}
             if status == 'RUN' and build.get('mode') != 'profile':
                 problems.append('status RUN requires a profile build')

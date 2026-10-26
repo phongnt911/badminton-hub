@@ -363,13 +363,11 @@ async function main() {
     summary.cleanup = {
       dump_dir_outside_repo: !DUMPS.startsWith(ROOT),
       raw_snapshots_remaining: remaining.length,
-      ok: remaining.length === 0,
     };
     const verdicts = summary.cycles.map((c) => c.verdict.verdict);
     summary.verdict = verdicts.length === cycles && verdicts.every((v) => v === 'PASS') ? 'PASS' : 'FAIL';
     summary.findings = summary.cycles.flatMap((c) => c.verdict.findings.map((f) => `cycle ${c.cycle}: ${f}`));
-    if (!summary.cleanup.ok) summary.findings.push('raw heap dumps remain on disk');
-    summary.status = summary.verdict === 'PASS' && summary.cleanup.ok ? 'RUN' : 'FAIL';
+    summary.status = summary.verdict === 'PASS' ? 'RUN' : 'FAIL';
   } catch (error) {
     summary.status = 'NOT RUN';
     summary.error = error.message;
@@ -387,8 +385,25 @@ async function main() {
         .map((line) => line.replace(/ws:\/\/\S+/g, 'ws://<redacted>').slice(0, 200));
       for (const line of digest) log(`chrome stderr: ${line}`);
     }
+    // Raw heap dumps and the throw-away Chrome profile must not survive the run.
+    const chromeDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
+    for (const dir of [DUMPS, chromeDir]) {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) { /* best effort */ }
+    }
+    summary.cleanup = {
+      ...summary.cleanup,
+      dumps_dir_removed: !fs.existsSync(DUMPS),
+      chrome_profile_dir_removed: !fs.existsSync(chromeDir),
+    };
+    summary.cleanup.ok = summary.cleanup.dump_dir_outside_repo === true
+      && summary.cleanup.raw_snapshots_remaining === 0
+      && summary.cleanup.dumps_dir_removed === true
+      && summary.cleanup.chrome_profile_dir_removed === true;
+    if (!summary.cleanup.ok) {
+      summary.findings = [...(summary.findings || []), 'heap dump or browser profile cleanup not verified'];
+      if (summary.status === 'RUN') summary.status = 'FAIL';
+    }
     writeEvidence(summary);
-    try { fs.rmSync(DUMPS, { recursive: true, force: true }); } catch (_) { /* best effort */ }
   }
   console.log(JSON.stringify({ status: summary.status, verdict: summary.verdict || null, cycles: summary.cycles.length }));
   process.exitCode = summary.status === 'RUN' ? 0 : 1;
