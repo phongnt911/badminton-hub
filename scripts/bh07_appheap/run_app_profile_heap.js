@@ -1,0 +1,470 @@
+// BH-07 V2b app-profile heap verification (readiness §4.4).
+//
+// Real Flutter Web *profile* build served locally, real Chrome over CDP, real local
+// Supabase Auth/PostgREST fixtures. Same document for the whole actor cycle: no reload,
+// no Page.navigate between epochs, so "same instance" is genuine.
+//
+// Oracle: synthetic/fixture sentinel strings that only exist inside the Owner's private
+// financial payloads. Presence is decided by scanning live V8 heap snapshots, so the
+// verdict does not depend on dart2js class names (web profile minifies them).
+//
+// Raw heap dumps are written to a temp dir outside the repo, scanned once, then deleted
+// and the deletion is verified. Only counts and short hashes are published.
+const { execFileSync, spawn } = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+const ROOT = path.resolve(__dirname, '../..');
+const OUT = path.resolve(process.env.BH07_APPHEAP_EVIDENCE || path.join(ROOT, 'docs/reviews/bh07/app_profile_heap_evidence'));
+const DUMPS = path.join(os.tmpdir(), `bh07_appheap_dumps_${process.pid}`);
+const ORACLE = path.join(__dirname, 'heap_oracle.py');
+const DRIVER = path.join(ROOT, 'scripts/bh07_browser/run_browser_verification.js');
+const WEB_URL = 'http://127.0.0.1:8088';
+const WEB_PORT = 8088;
+const API_URL = 'http://127.0.0.1:54321';
+const CLUB_A = 'aaaaaaaa-1111-4111-8111-111111111111';
+const UI_SESSION_TITLE = 'UI Flow Session published to complete';
+const UI_SESSION_ID = '10000000-0000-4000-8000-000000000099';
+const PASSWORDS = { ownera: 'bh07-http-pass-123456', cohosta: 'bh07-http-pass-123456', membera: 'bh07-http-pass-123456' };
+const PY = process.platform === 'win32' ? 'python' : 'python3';
+
+const { CdpClient } = require(DRIVER);
+const CHROME_PATH = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const DEBUG_PORT = 9337;
+// Two actor paths, one document each: the renderer reliably survives four heap
+// snapshots, so Owner -> logout -> Cohost and Owner -> logout -> Member each get
+// their own same-document run instead of one six-snapshot chain.
+const ACTORS = ['cohost', 'member'];
+
+const logLines = [];
+function log(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}`;
+  console.log(line);
+  logLines.push(line);
+}
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const text = (e) => `${e.text || ''}\n${e.aria || ''}`;
+const button = (label) => (e) => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === label || e.aria === label);
+const sha12 = (value) => crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, 12);
+
+function run(cmd, args, opts = {}) {
+  return execFileSync(cmd, args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...opts });
+}
+
+async function checked(cdp, method, params = {}, timeoutMs = 60000) {
+  // A dead renderer otherwise leaves the run hanging with no evidence.
+  const result = await Promise.race([
+    cdp.send(method, params),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${method}: CDP timeout after ${timeoutMs}ms`)), timeoutMs)),
+  ]);
+  if (result.error) throw new Error(`${method}: ${result.error.message}`);
+  return result.result;
+}
+
+// Chrome is launched here (not through the V1 driver helper) so its stderr lands in a
+// file: a browser that dies mid-run must leave a reason behind, not a silent hang.
+async function startChromeLogged(logFile) {
+  const userDataDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
+  fs.rmSync(userDataDir, { recursive: true, force: true });
+  fs.mkdirSync(userDataDir, { recursive: true });
+  const stderr = fs.openSync(logFile, 'a');
+  const proc = spawn(CHROME_PATH, [
+    `--remote-debugging-port=${DEBUG_PORT}`,
+    '--headless=new',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-gpu',
+    '--disable-background-networking',
+    '--window-size=1280,900',
+    `--user-data-dir=${userDataDir}`,
+    'about:blank',
+  ], { detached: true, stdio: ['ignore', 'ignore', stderr] });
+  fs.closeSync(stderr);
+  for (let i = 0; i < 50; i++) {
+    await wait(200);
+    try {
+      const res = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/version`);
+      if (res.ok) return { proc, version: await res.json(), userDataDir };
+    } catch (_) { /* not listening yet */ }
+  }
+  throw new Error(`Chrome failed to start on port ${DEBUG_PORT}`);
+}
+
+// Every CDP call must be able to fail: a dead browser used to leave the run hanging.
+function hardenCdp(cdp, timeoutMs = 60000) {
+  const originalSend = cdp.send.bind(cdp);
+  cdp.send = (method, params = {}) => Promise.race([
+    originalSend(method, params),
+    new Promise((_, reject) => setTimeout(
+      () => reject(new Error(`${method}: CDP timeout after ${timeoutMs}ms`)), timeoutMs)),
+  ]);
+}
+
+function supabaseEnv() {
+  const raw = execFileSync('npx', ['--yes', 'supabase@2.121.0', 'status', '-o', 'env'],
+    { cwd: ROOT, encoding: 'utf8', shell: true, maxBuffer: 8 * 1024 * 1024 });
+  const env = {};
+  for (const line of raw.split(/\r?\n/)) {
+    const m = line.trim().match(/^([A-Z_]+)="(.*)"$/);
+    if (m) env[m[1]] = m[2];
+  }
+  for (const key of ['ANON_KEY', 'SERVICE_ROLE_KEY']) {
+    if (!env[key]) throw new Error(`local Supabase status is missing ${key}`);
+  }
+  return env;
+}
+
+async function restGet(env, query) {
+  const res = await fetch(`${env.API_URL}/rest/v1/${query}`, {
+    headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}` },
+  });
+  if (!res.ok) throw new Error(`PostgREST ${query}: ${res.status}`);
+  return res.json();
+}
+
+// Sentinels are real fixture values that only the Owner's private payloads carry.
+async function resolveSentinels(env, runId) {
+  const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number&status=eq.active`);
+  if (!banks.length) throw new Error('no active club bank account fixture for club A');
+  const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=title&status=eq.posted`);
+  return {
+    bank: banks[0].account_number,
+    expense: expenses.length ? expenses[0].title : null,
+    probe: `BH07APPHEAPPROBE-${runId}`,
+  };
+}
+
+async function buildProfile(env) {
+  const args = ['build', 'web', '--profile',
+    '--dart-define=APP_ENV=test',
+    `--dart-define=SUPABASE_URL=${env.API_URL}`,
+    `--dart-define=SUPABASE_ANON_KEY=${env.ANON_KEY}`];
+  log('building Flutter web profile bundle (dart-defines not printed)');
+  const started = Date.now();
+  run(process.platform === 'win32' ? 'flutter.bat' : 'flutter', args, { shell: process.platform === 'win32' });
+  const indexHtml = path.join(ROOT, 'build/web/index.html');
+  if (!fs.existsSync(indexHtml)) throw new Error('flutter build web produced no build/web/index.html');
+  return { mode: 'profile', build_ms: Date.now() - started };
+}
+
+function startServer() {
+  const proc = spawn(PY, ['-m', 'http.server', String(WEB_PORT), '--bind', '127.0.0.1',
+    '--directory', path.join(ROOT, 'build/web')], { cwd: ROOT, stdio: 'ignore' });
+  return proc;
+}
+
+async function waitForServer(timeoutMs = 20000) {
+  const end = Date.now() + timeoutMs;
+  while (Date.now() < end) {
+    try {
+      const res = await fetch(`${WEB_URL}/index.html`);
+      if (res.ok) return;
+    } catch (_) { /* server not up yet */ }
+    await wait(250);
+  }
+  throw new Error(`static server did not answer on ${WEB_URL}`);
+}
+
+async function login(cdp, actor) {
+  await cdp.clickSemantic((e) => (e.role === 'button' || e.tag === 'BUTTON') && /Đăng [Nn]hập/.test(text(e)), 'Open login form');
+  for (const [label, value] of [['Email', `${actor}@example.test`], ['Mật khẩu', PASSWORDS[actor]]]) {
+    await cdp.clickSemantic((e) => e.tag === 'INPUT' && (e.aria || '').includes(label), 'Focus login input');
+    await checked(cdp, 'Input.insertText', { text: value });
+  }
+  await cdp.clickSemantic(button('Đăng Nhập'), 'Submit real Auth login');
+  await wait(1500);
+  await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Tài Khoản', 'Verify account identity');
+  await cdp.waitForSemantic((e) => text(e).includes(`${actor}@example.test`), `UI account email ${actor}`);
+}
+
+async function home(cdp) {
+  for (let i = 0; i < 5; i++) {
+    if ((await cdp.getAllSemantics()).some((e) => e.role === 'tab' && e.aria === 'Tài Khoản')) return;
+    await cdp.clickBack('Return through AppBar to main tabs');
+  }
+  throw new Error('Main tabs not reachable through UI');
+}
+
+async function logout(cdp) {
+  await home(cdp);
+  await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Tài Khoản', 'Account tab');
+  await cdp.clickSemantic(button('Đăng xuất'), 'Logout');
+  await cdp.clickSemantic(button('Đăng Xuất'), 'Confirm logout');
+  await cdp.waitForSemantic((e) => text(e).includes('Bạn đang xem dưới dạng khách'), 'Guest UI');
+  const tokenCleared = await cdp.evaluate(`!Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))`);
+  if (!tokenCleared) throw new Error('Auth token remains after logout');
+}
+
+async function openOwnerFinance(cdp) {
+  await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
+  await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
+  await cdp.clickSemantic((e) => text(e).includes(UI_SESSION_TITLE), 'Fixture history row');
+  await cdp.clickSemantic((e) => text(e).includes('Tổng kết buổi'), 'Summary entry');
+  await cdp.waitForSemantic((e) => text(e).includes('Tài chính tổng hợp'), 'Owner finance card loaded');
+}
+
+async function openCohostSummary(cdp) {
+  await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
+  await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
+  await cdp.clickSemantic((e) => text(e).includes(UI_SESSION_TITLE), 'Fixture history row');
+  await cdp.clickSemantic((e) => text(e).includes('Tổng kết buổi'), 'Summary entry');
+  await cdp.waitForSemantic((e) => text(e).includes('Chỉ xem số lượng'), 'Cohost count-only summary');
+}
+
+async function openMemberHistory(cdp) {
+  await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
+  await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
+  await wait(1500);
+}
+
+// One live V8 heap snapshot, scanned once, then deleted. The chunk events are the only
+// way CDP delivers a snapshot, so the driver's message handler is wrapped temporarily.
+async function takeSnapshot(cdp, label, sentinelsPath) {
+  const file = path.join(DUMPS, `${label}.heapsnapshot`);
+  const chunks = [];
+  const original = cdp.ws.onmessage;
+  let finish;
+  const progressed = new Promise((resolve) => { finish = resolve; });
+  cdp.ws.onmessage = (event) => {
+    original(event);
+    const msg = JSON.parse(event.data);
+    if (msg.method === 'HeapProfiler.addHeapSnapshotChunk') chunks.push(msg.params.chunk);
+    if (msg.method === 'HeapProfiler.reportHeapSnapshotProgress' && msg.params.finished) finish();
+  };
+  try {
+    await checked(cdp, 'HeapProfiler.enable');
+    await checked(cdp, 'HeapProfiler.collectGarbage');
+    const taken = checked(cdp, 'HeapProfiler.takeHeapSnapshot', { reportProgress: true });
+    await Promise.all([taken, progressed]);
+  } finally {
+    cdp.ws.onmessage = original;
+  }
+  fs.writeFileSync(file, chunks.join(''));
+  const scanned = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'scan', '--snapshot', file, '--sentinels', sentinelsPath], { shell: false }));
+  fs.unlinkSync(file);
+  await checked(cdp, 'Runtime.evaluate', { expression: '1' }, 15000);
+  log(`${label}: snapshot ${scanned.size_bytes} bytes sha=${scanned.sha256_12} ok=${scanned.ok} `
+    + `present=${JSON.stringify(Object.fromEntries(Object.entries(scanned.sentinels).map(([k, v]) => [k, v.present])))}`);
+  return scanned;
+}
+
+async function runCycle(cycle, actor, sentinelsPath, cdp) {
+  const epochs = {};
+  await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
+  await wait(500);
+  epochs.baseline = await takeSnapshot(cdp, `c${cycle}_baseline`, sentinelsPath);
+
+  await login(cdp, 'ownera');
+  await openOwnerFinance(cdp);
+  await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
+  epochs.owner_active = await takeSnapshot(cdp, `c${cycle}_owner_active`, sentinelsPath);
+
+  await logout(cdp);
+  epochs.post_logout = await takeSnapshot(cdp, `c${cycle}_post_logout`, sentinelsPath);
+
+  await login(cdp, `${actor}a`);
+  if (actor === 'cohost') await openCohostSummary(cdp);
+  else await openMemberHistory(cdp);
+  epochs.post_actor = await takeSnapshot(cdp, `c${cycle}_post_${actor}`, sentinelsPath);
+
+  return epochs;
+}
+
+let PROBE_VALUE = '';
+
+async function main() {
+  fs.mkdirSync(OUT, { recursive: true });
+  fs.mkdirSync(DUMPS, { recursive: true });
+  const runId = crypto.randomBytes(4).toString('hex');
+  const argv = process.argv.slice(2);
+  const cycles = Number(argv[argv.indexOf('--cycles') + 1]) || 2;
+  const reuseBuild = argv.includes('--reuse-build');
+  const summary = {
+    gate: 'V2b — app-profile Dart heap / in-memory retention after actor switch',
+    reference: 'docs/reviews/bh07/bh07_readiness.md §4.4',
+    status: 'NOT RUN',
+    measurement_surface: 'Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)',
+    oracle: 'fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency',
+    tested_source_sha: run('git', ['rev-parse', 'HEAD']).trim(),
+    git_dirty: run('git', ['status', '--porcelain']).trim() !== '',
+    git_dirty_paths: run('git', ['status', '--porcelain']).trim().split(/\r?\n/).filter(Boolean),
+    started_at: new Date().toISOString(),
+    environment: { os: `${process.platform} ${os.release()}`, node: process.version },
+    sentinels: {},
+    cycles: [],
+    cleanup: {},
+  };
+  let chrome, server, cdp;
+  try {
+    const env = supabaseEnv();
+    const sentinels = await resolveSentinels(env, runId);
+    PROBE_VALUE = sentinels.probe;
+    summary.sentinels = {
+      bank: { sha256_12: sha12(sentinels.bank), length: sentinels.bank.length, kind: 'club bank account number (Owner-private)' },
+      expense: sentinels.expense
+        ? { sha256_12: sha12(sentinels.expense), length: sentinels.expense.length, kind: 'posted session expense title (Owner-private)' }
+        : { kind: 'not available in fixtures', sha256_12: null },
+      probe: { sha256_12: sha12(sentinels.probe), length: sentinels.probe.length, kind: 'detector sanity marker set on window' },
+    };
+    const sentinelsPath = path.join(DUMPS, 'sentinels.json');
+    const oracleSentinels = { bank: sentinels.bank, probe: sentinels.probe };
+    if (sentinels.expense) oracleSentinels.expense = sentinels.expense;
+    fs.writeFileSync(sentinelsPath, JSON.stringify(oracleSentinels));
+
+    if (reuseBuild) {
+      summary.environment.build = { mode: 'profile', build_ms: 0, reused: true };
+    } else {
+      summary.environment.build = await buildProfile(env);
+    }
+    summary.environment.flutter = run(process.platform === 'win32' ? 'flutter.bat' : 'flutter', ['--version'], { shell: process.platform === 'win32' })
+      .split(/\r?\n/)[0].trim();
+
+    server = startServer();
+    await waitForServer();
+
+    for (let cycle = 1; cycle <= cycles; cycle++) {
+      const actor = ACTORS[(cycle - 1) % ACTORS.length];
+      log(`cycle ${cycle}: actor path Owner -> logout -> ${actor}`);
+      chrome = await startChromeLogged(path.join(DUMPS, 'chrome.log'));
+      const launched = chrome;
+      launched.proc.on('exit', (code, signal) => {
+        if (launched.expectedExit) return;
+        log(`cycle ${cycle}: chrome exited unexpectedly code=${code} signal=${signal}`);
+      });
+      cdp = new CdpClient(chrome.version.webSocketDebuggerUrl);
+      hardenCdp(cdp);
+      await cdp.connect();
+      await cdp.createTab(WEB_URL);
+      summary.environment.chrome = chrome.version['Browser'] || chrome.version.Browser;
+      await cdp.waitForSemantic((e) => text(e).includes('Bạn đang xem dưới dạng khách'), 'guest baseline UI', 30000);
+      const origin = await cdp.evaluate('performance.timeOrigin');
+      const epochs = await runCycle(cycle, actor, sentinelsPath, cdp);
+      const originAfter = await cdp.evaluate('performance.timeOrigin');
+      if (origin !== originAfter) throw new Error(`cycle ${cycle}: document reloaded between epochs (${origin} != ${originAfter})`);
+      const scans = {};
+      for (const [epoch, result] of Object.entries(epochs)) scans[epoch] = result;
+      const scansPath = path.join(DUMPS, `c${cycle}_scans.json`);
+      fs.writeFileSync(scansPath, JSON.stringify(scans));
+      const expectationsPath = path.join(DUMPS, 'expectations.json');
+      fs.writeFileSync(expectationsPath, JSON.stringify(buildExpectations(epochs.owner_active)));
+      const verdict = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'decide', '--scans', scansPath,
+        '--expectations', expectationsPath, '--cleanup-ok', 'true', '--mode', summary.environment.build.mode]));
+      summary.cycles.push({ cycle, actor, same_document: true, time_origin: origin, epochs, verdict });
+      await cdp.close();
+      launched.expectedExit = true;
+      try { process.kill(chrome.proc.pid); } catch (_) { /* already gone */ }
+      try { fs.rmSync(chrome.userDataDir, { recursive: true, force: true }); } catch (_) { /* best effort */ }
+      chrome = null; cdp = null;
+    }
+
+    const remaining = fs.existsSync(DUMPS) ? fs.readdirSync(DUMPS).filter((f) => f.endsWith('.heapsnapshot')) : [];
+    summary.cleanup = {
+      dump_dir_outside_repo: !DUMPS.startsWith(ROOT),
+      raw_snapshots_remaining: remaining.length,
+      ok: remaining.length === 0,
+    };
+    const verdicts = summary.cycles.map((c) => c.verdict.verdict);
+    summary.verdict = verdicts.length === cycles && verdicts.every((v) => v === 'PASS') ? 'PASS' : 'FAIL';
+    summary.findings = summary.cycles.flatMap((c) => c.verdict.findings.map((f) => `cycle ${c.cycle}: ${f}`));
+    if (!summary.cleanup.ok) summary.findings.push('raw heap dumps remain on disk');
+    summary.status = summary.verdict === 'PASS' && summary.cleanup.ok ? 'RUN' : 'FAIL';
+  } catch (error) {
+    summary.status = 'NOT RUN';
+    summary.error = error.message;
+    log(`aborted: ${error.message}`);
+  } finally {
+    if (cdp) await cdp.close().catch(() => {});
+    if (chrome) { try { process.kill(chrome.proc.pid); } catch (_) { /* already gone */ } }
+    if (server) { try { process.kill(server.pid); } catch (_) { /* already gone */ } }
+    summary.finished_at = new Date().toISOString();
+    // Browser stderr is diagnostic only; keep the interesting lines, redact endpoints.
+    if (fs.existsSync(path.join(DUMPS, 'chrome.log'))) {
+      const digest = fs.readFileSync(path.join(DUMPS, 'chrome.log'), 'utf8').split(/\r?\n/)
+        .filter((line) => /FATAL|crash|out of memory|listening on/i.test(line))
+        .slice(-10)
+        .map((line) => line.replace(/ws:\/\/\S+/g, 'ws://<redacted>').slice(0, 200));
+      for (const line of digest) log(`chrome stderr: ${line}`);
+    }
+    writeEvidence(summary);
+    try { fs.rmSync(DUMPS, { recursive: true, force: true }); } catch (_) { /* best effort */ }
+  }
+  console.log(JSON.stringify({ status: summary.status, verdict: summary.verdict || null, cycles: summary.cycles.length }));
+  process.exitCode = summary.status === 'RUN' ? 0 : 1;
+}
+
+function writeEvidence(summary) {
+  const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
+  fs.writeFileSync(path.join(OUT, 'run.log'), logLines.join('\n') + '\n');
+
+  const lines = [
+    '# V2b — app-profile heap / in-memory retention after actor switch',
+    '',
+    `- Gate: ${summary.gate}`,
+    `- Reference: ${summary.reference}`,
+    `- Status: **${summary.status}**${summary.verdict ? ` (verdict ${summary.verdict})` : ''}`,
+    `- Tested source: \`${summary.tested_source_sha}\` (git dirty: ${summary.git_dirty})`,
+    `- Measurement surface: ${summary.measurement_surface}`,
+    `- Oracle: ${summary.oracle}`,
+    `- Build: ${JSON.stringify((summary.environment || {}).build || {})}`,
+    `- Chrome: ${(summary.environment || {}).chrome || 'n/a'}; Flutter: ${(summary.environment || {}).flutter || 'n/a'}`,
+    '',
+    '## Sentinels (values never published)',
+    '',
+    '| sentinel | kind | length | sha256[:12] |',
+    '| --- | --- | --- | --- |',
+    ...Object.entries(summary.sentinels || {}).map(([name, s]) =>
+      `| ${name} | ${s.kind} | ${s.length ?? 'n/a'} | ${s.sha256_12 || 'n/a'} |`),
+    '',
+    '## Cycles',
+    '',
+    '| cycle | actor path | same document | epoch | snapshot bytes | snapshot sha256[:12] | present sentinels |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
+  ];
+  for (const cycle of summary.cycles || []) {
+    for (const [epoch, scan] of Object.entries(cycle.epochs || {})) {
+      const present = Object.entries(scan.sentinels || {})
+        .filter(([, v]) => v.present).map(([k]) => k).join(', ') || 'none';
+      lines.push(`| ${cycle.cycle} | Owner -> logout -> ${cycle.actor} | ${cycle.same_document} | ${epoch} `
+        + `| ${scan.size_bytes ?? 'n/a'} | ${scan.sha256_12 || 'n/a'} | ${present} |`);
+    }
+  }
+  lines.push('', '## Findings', '');
+  const findings = summary.findings || [];
+  lines.push(...(findings.length ? findings.map((f) => `- ${f}`) : ['- none']));
+  if (summary.error) lines.push(`- run aborted: ${summary.error}`);
+  lines.push('', '## Cleanup', '', `- ${JSON.stringify(summary.cleanup || {})}`, '');
+  lines.push('## Limitations', '',
+    '- Web *profile* build measures the dart2js/V8 heap, not the Dart VM heap of a desktop/mobile build;',
+    '  no Visual Studio or Android SDK is installed on this machine, so the VM-service path is NOT RUN.',
+    '- Sentinels prove that specific Owner-private values are no longer reachable; they do not enumerate',
+    '  every retained object of the financial models.',
+    '- Raw heap snapshots are written outside the repository, scanned once and deleted; only counts and',
+    '  short hashes are published.', '');
+  fs.writeFileSync(path.join(OUT, 'report.md'), lines.join('\n'));
+
+  const manifest = ['summary.json', 'run.log', 'report.md']
+    .map((name) => `${hashFile(path.join(OUT, name))}  ${name}`).join('\n');
+  fs.writeFileSync(path.join(OUT, 'hashes.sha256'), manifest + '\n');
+}
+
+function buildExpectations(ownerScan) {
+  const expectations = {
+    baseline: { probe: true, bank: false },
+    owner_active: { probe: true, bank: true },
+    post_logout: { probe: true, bank: false },
+    post_actor: { probe: true, bank: false },
+  };
+  // The expense title only becomes a gating sentinel if the Owner surface actually
+  // loaded it; otherwise it proves nothing and is reported as not loaded.
+  const expenseLoaded = Boolean(ownerScan && ownerScan.sentinels && ownerScan.sentinels.expense
+    && ownerScan.sentinels.expense.present);
+  if (expenseLoaded) {
+    for (const epoch of Object.keys(expectations)) expectations[epoch].expense = epoch === 'owner_active';
+  }
+  return expectations;
+}
+
+if (require.main === module) main().catch((e) => { console.error(e.stack || e.message); process.exitCode = 1; });
