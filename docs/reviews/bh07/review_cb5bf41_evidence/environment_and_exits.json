@@ -1,0 +1,62 @@
+{
+  "tested_source": "f7922ed63f7594ace19daa8b999712fd849f0dbe",
+  "docs_evidence": "cb5bf41b8fa68b1d0500ed6671098aa2abe3d3a5",
+  "base_review": "b74860c756b1d56c4f24e5bc0221678c67b57bd6",
+  "reviewer_platform": "Linux Flutter3.47.7",
+  "author_platform": "Windows Flutter3.47.6",
+  "primary_checkout_clean_before_checks": true,
+  "full_runner_checkout": "/workspace/scratch/v2b-r2-review/checkout",
+  "full_runner_checkout_source": "f7922ed63f7594ace19daa8b999712fd849f0dbe",
+  "full_runner_source_clean_captured": true,
+  "commands": {
+    "full_runner": {
+      "exit": 1,
+      "suite": "FAIL",
+      "raw_expected_test_successes": 7,
+      "reason": "Dependency output precedes JSON protocol; dispatcher selects text parser"
+    },
+    "python_unittest": {
+      "exit": 0,
+      "tests": 24
+    },
+    "ast_self": {
+      "exit": 0,
+      "controls": 12
+    },
+    "verifier_self": {
+      "exit": 0,
+      "controls": 5
+    },
+    "author_verify": {
+      "exit": 0,
+      "files": 4
+    },
+    "old_probes_unchanged": {
+      "exit": 0
+    },
+    "old_extra_controls_unchanged": {
+      "exit": 0
+    },
+    "analyze_no_pub": {
+      "exit": 0,
+      "issues": 0
+    },
+    "flutter_test_no_pub": {
+      "exit": 0,
+      "passed": 247,
+      "skipped": 1
+    },
+    "real_skipped_event_fixture": {
+      "exit": 0,
+      "result": "success",
+      "skipped": true
+    },
+    "protocol_probe": {
+      "exit": 0,
+      "findings_recorded": 3
+    }
+  },
+  "no_implementation_edits": true,
+  "app_profile_heap": "NOT RUN",
+  "two_round_limit": "STOP; no automatic third implementation round"
+}

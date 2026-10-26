@@ -1,0 +1,12 @@
+M	docs/reviews/bh07/private_heap_evidence/hashes.sha256
+M	docs/reviews/bh07/private_heap_evidence/heap_test_run.log
+M	docs/reviews/bh07/private_heap_evidence/heap_verification_report.md
+M	docs/reviews/bh07/private_heap_evidence/summary.json
+M	docs/reviews/bh07/private_heap_handoff.md
+M	scripts/bh07_heap/audit_ast_memory.py
+M	scripts/bh07_heap/run_heap_verification.py
+A	tests/test_bh07_heap_controls.py
+
+Runtime diff source..docs:
+
+Original Provider suite/app/backend diff from base:

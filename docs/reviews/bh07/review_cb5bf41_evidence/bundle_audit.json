@@ -1,0 +1,32 @@
+{
+  "author_verify_exit": 0,
+  "author_manifest_entries": 4,
+  "source_hashes_match": {
+    "test/integration/bh07_heap_verification_test.dart": true,
+    "scripts/bh07_heap/audit_ast_memory.py": true,
+    "scripts/bh07_heap/clean_and_manifest.py": true,
+    "scripts/bh07_heap/run_heap_verification.py": true
+  },
+  "handoff_shas_resolve": {
+    "2dac374fd98389b3ec9c54ec11f5781b01d32c77": true,
+    "b74860c756b1d56c4f24e5bc0221678c67b57bd6": true,
+    "f7922ed63f7594ace19daa8b999712fd849f0dbe": true
+  },
+  "before": {
+    "summary.json": "5dffbc931bbe34a89ad6c9e24423d1fbbe084be93bb10eb5d72464e41c33c56e",
+    "heap_test_run.log": "5246cf9a342581aa8ac331d08266a3e6ef02692231abe2e9d09f4fdc54f0c774",
+    "ast_memory_audit.json": "5959fea0da97557d1e3cdedf1cb1817fce4537c967c961a04c3498b3969d1a13",
+    "hashes.sha256": "22aad9c880ee7634183fda7b108195ef4d33ab1d901e497aac30d38123dd51f5",
+    "heap_verification_report.md": "2ffd312b60585e5c42f8f03522c54e4a47fcd29824f3ae96c0458b3f236ab20e"
+  },
+  "after": {
+    "summary.json": "5dffbc931bbe34a89ad6c9e24423d1fbbe084be93bb10eb5d72464e41c33c56e",
+    "heap_test_run.log": "5246cf9a342581aa8ac331d08266a3e6ef02692231abe2e9d09f4fdc54f0c774",
+    "ast_memory_audit.json": "5959fea0da97557d1e3cdedf1cb1817fce4537c967c961a04c3498b3969d1a13",
+    "hashes.sha256": "22aad9c880ee7634183fda7b108195ef4d33ab1d901e497aac30d38123dd51f5",
+    "heap_verification_report.md": "2ffd312b60585e5c42f8f03522c54e4a47fcd29824f3ae96c0458b3f236ab20e"
+  },
+  "runtime_tree_same_source_and_docs": true,
+  "app_backend_diff_empty_since_base": true,
+  "readonly": true
+}

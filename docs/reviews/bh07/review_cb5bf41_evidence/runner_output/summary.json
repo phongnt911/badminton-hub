@@ -1,0 +1,65 @@
+{
+  "tested_source_sha": "f7922ed63f7594ace19daa8b999712fd849f0dbe",
+  "git_dirty": false,
+  "git_dirty_paths": [],
+  "source_hashes": {
+    "test/integration/bh07_heap_verification_test.dart": "e76c1958727603d8734c1ec65b177a57aabea88be6de4041ca990cb57f3a4d30",
+    "scripts/bh07_heap/audit_ast_memory.py": "816566447b3ac06d2da0606a650e2a0faa0d2e3c582c5dce82d12b53f05be095",
+    "scripts/bh07_heap/clean_and_manifest.py": "017d7c650fc10a34178911b81164c63e84e803724812f4241ac50db15b36f9c4",
+    "scripts/bh07_heap/run_heap_verification.py": "0319d3e02d0319e95f1d06a8e57e8cfa9324852b1ffcf06d39cfaffc104be247"
+  },
+  "timestamp": "2026-10-26T03:36:21.793739+00:00",
+  "environment": {
+    "os": "linux",
+    "dart_version": "Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"linux_x64\"",
+    "flutter_version": "Flutter 3.47.7 \u2022 channel [user-branch] \u2022 https://github.com/flutter/flutter.git"
+  },
+  "gate": "V2b \u2014 Private Dart Heap / In-Memory Retention & Isolation",
+  "provenance": {
+    "git_cleanliness": "CLEAN",
+    "errors": []
+  },
+  "ast_audit": {
+    "verdict": "CLEAN",
+    "static_mutables_found": 0,
+    "provider_lifecycle_proper_disposal": true
+  },
+  "heap_test_suite": {
+    "verdict": "FAIL",
+    "tests_expected": 7,
+    "tests_total": 0,
+    "tests_passed": 0,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_missing": [
+      "Baseline Epoch: Initial providers state is empty, zero retained objects",
+      "Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap",
+      "Negative Control N4: Late-arriving response after logout is dropped & GC-collected",
+      "Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected",
+      "Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle",
+      "Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle",
+      "SessionProvider & ClubProvider: Private session and club details are purged from heap on logout"
+    ],
+    "identity_coverage": "NONE",
+    "controls": {
+      "baseline_initial_empty": "NOT_RUN",
+      "owner_positive_retention_p1": "NOT_RUN",
+      "post_logout_negative_purge_n1": "NOT_RUN",
+      "cohost_switch_isolation_n2": "NOT_RUN",
+      "member_switch_isolation_n3": "NOT_RUN",
+      "late_response_after_logout_n4": "NOT_RUN",
+      "late_response_after_switch_n5": "NOT_RUN",
+      "mutant_static_leak_detected_m1": "NOT_RUN",
+      "mutant_failed_clear_detected_m2": "NOT_RUN",
+      "session_club_purged_on_logout": "NOT_RUN"
+    }
+  },
+  "app_profile_heap_snapshot": {
+    "status": "NOT RUN",
+    "reason": "Headless CLI environment lacks Chrome DevTools Protocol / Dart VM memory profiler dump pipeline for full app profile mode. Unit/Provider harness serves as supporting evidence only."
+  },
+  "sanitized": true,
+  "sanitization_notes": "100% sanitized. Contains no raw bank account numbers, passwords, JWTs or PII.",
+  "methodology": "Dart VM WeakReference target observation combined with generational garbage collection allocation pressure on Provider/VM harness. Directly probes object retention across Owner -> Logout -> Cohost -> Member lifecycle.",
+  "limitations": "Measured in Dart VM Runtime Test Harness under Windows 64-bit environment. Full Chrome DevTools Protocol .heapsnapshot dump on production Web build is NOT RUN. Does NOT prove full app profile heap cleanliness beyond Provider harness scope. WeakReference target null means the harness no longer references the object; it is not a proof that every copy is gone from RAM. State remains Ch\u1edd review."
+}

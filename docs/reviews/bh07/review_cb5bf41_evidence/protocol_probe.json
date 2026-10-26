@@ -1,0 +1,104 @@
+{
+  "real_full_runner_raw": {
+    "suite_verdict": "FAIL",
+    "tests_passed": 0,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [
+      "Baseline Epoch: Initial providers state is empty, zero retained objects",
+      "Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap",
+      "Negative Control N4: Late-arriving response after logout is dropped & GC-collected",
+      "Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected",
+      "Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle",
+      "Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle",
+      "SessionProvider & ClubProvider: Private session and club details are purged from heap on logout"
+    ],
+    "identity_coverage": "NONE",
+    "controls": {
+      "baseline_initial_empty": "NOT_RUN",
+      "owner_positive_retention_p1": "NOT_RUN",
+      "post_logout_negative_purge_n1": "NOT_RUN",
+      "cohost_switch_isolation_n2": "NOT_RUN",
+      "member_switch_isolation_n3": "NOT_RUN",
+      "late_response_after_logout_n4": "NOT_RUN",
+      "late_response_after_switch_n5": "NOT_RUN",
+      "mutant_static_leak_detected_m1": "NOT_RUN",
+      "mutant_failed_clear_detected_m2": "NOT_RUN",
+      "session_club_purged_on_logout": "NOT_RUN"
+    }
+  },
+  "same_run_json_only_positive": {
+    "suite_verdict": "PASS",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "real_flutter_skip_protocol": {
+    "testID": 3,
+    "result": "success",
+    "skipped": true,
+    "hidden": false,
+    "type": "testDone",
+    "time": 1690
+  },
+  "one_real_protocol_skip": {
+    "suite_verdict": "PASS",
+    "tests_passed": 7,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "unknown_extra_identity": {
+    "suite_verdict": "PASS",
+    "tests_passed": 8,
+    "tests_failed": 0,
+    "tests_skipped": 0,
+    "tests_expected": 7,
+    "tests_missing": [],
+    "identity_coverage": "VERIFIED",
+    "controls": {
+      "baseline_initial_empty": "PASS",
+      "owner_positive_retention_p1": "PASS",
+      "post_logout_negative_purge_n1": "PASS",
+      "cohost_switch_isolation_n2": "PASS",
+      "member_switch_isolation_n3": "PASS",
+      "late_response_after_logout_n4": "PASS",
+      "late_response_after_switch_n5": "PASS",
+      "mutant_static_leak_detected_m1": "PASS",
+      "mutant_failed_clear_detected_m2": "PASS",
+      "session_club_purged_on_logout": "PASS"
+    }
+  },
+  "skip_markdown_claims_7_of_7": true,
+  "unknown_extra_markdown_claims_7_of_7": true
+}
