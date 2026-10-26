@@ -323,6 +323,23 @@ class ProtocolStreamControls(unittest.TestCase):
         self.assertTrue(suite['tests_duplicate'])
         self.assertFalse('7/7 Provider test PASS' in report, 'markdown must not claim 7/7 PASS')
 
+    def test_exact_full_name_duplicate_ids_block_verified(self):
+        # HP3-C (review b7eb881): hai test ID khác nhau nhưng cùng exact full name là protocol hợp lệ.
+        exact_name = GROUP_PREFIX + list(RUNNER.EXPECTED_TESTS)[0]
+        duplicate = [
+            json.dumps({'type': 'testStart', 'test': {'id': 998, 'name': exact_name}}),
+            json.dumps({'type': 'testDone', 'testID': 998, 'result': 'success',
+                        'skipped': False, 'hidden': False}),
+        ]
+        suite, report, summary = self.generate(True, json_stream(real_rows(), duplicate))
+        self.assertNotEqual(suite['verdict'], 'PASS')
+        self.assertNotEqual(suite['identity_coverage'], 'VERIFIED')
+        self.assertTrue(suite['tests_duplicate'], 'exact-name duplicate must be reported, not collapsed')
+        self.assertIn('998', ' '.join(suite['tests_duplicate']))
+        self.assertEqual(suite['tests_passed'], 7)  # counts canonical không vượt 7
+        self.assertFalse('7/7 Provider test PASS' in report, 'markdown must not claim 7/7 PASS')
+        self.assertNotEqual(summary['heap_test_suite']['verdict'], 'PASS')
+
     def test_counts_always_reconcile_with_expected_identities(self):
         skipped_name = 'Negative Control N4: Late-arriving response after logout is dropped & GC-collected'
         extra = [

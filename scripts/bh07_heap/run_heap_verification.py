@@ -174,9 +174,10 @@ _JSON_EVENT_TYPES = {'start', 'suite', 'allSuites', 'group', 'testStart', 'testD
 def _parse_json_events(output):
     """Đọc event testStart/testDone trên toàn stream; diagnostics/pub output xen kẽ bị bỏ qua.
 
-    Trả về (results, saw_protocol): `results` là {tên test: result chuẩn hoá} với test bị skip
-    thành 'skipped' theo cờ `skipped` thật của protocol; `saw_protocol` cho biết stream có
-    event JSON hợp lệ hay không (để không rơi về text parser khi event bị thiếu).
+    Trả về (records, saw_protocol): `records` giữ **từng record theo testID** (id, name, result)
+    để hai test ID khác nhau cùng full name không bị gộp mất multiplicity; result được chuẩn hoá
+    'skipped' theo cờ `skipped` thật của protocol. `saw_protocol` cho biết stream có event JSON
+    hợp lệ hay không (để không rơi về text parser khi event bị thiếu).
     """
     names, done, saw_protocol = {}, {}, False
     for line in (output or '').splitlines():
@@ -201,12 +202,12 @@ def _parse_json_events(output):
                 bool(event.get('hidden')),
             )
 
-    results = {}
+    records = []
     for test_id, (result, skipped, hidden) in done.items():
         name = names.get(test_id)
         if name and not hidden:
-            results[name] = 'skipped' if skipped else result
-    return results, saw_protocol
+            records.append({'id': test_id, 'name': name, 'result': 'skipped' if skipped else result})
+    return records, saw_protocol
 
 
 def _suite_report(verdict, results, controls, coverage, missing=None, unexpected=None, duplicates=None):
@@ -226,15 +227,16 @@ def _suite_report(verdict, results, controls, coverage, missing=None, unexpected
     }
 
 
-def _verdict_from_results(results, test_ok):
-    """Map visible test results về đúng 7 expected identity; lạ/trùng không được tính là coverage."""
+def _verdict_from_results(records, test_ok):
+    """Map từng record (theo testID) về đúng 7 expected identity; lạ/trùng không được tính coverage."""
     matched, unexpected, duplicates = {}, [], []
-    for name, result in results.items():
+    for record in records:
+        name, test_id, result = record['name'], record['id'], record['result']
         owners = [e for e in EXPECTED_TESTS if name == e or name.endswith(e)]
         if not owners:
-            unexpected.append(name)
+            unexpected.append(f'{name} [testID {test_id}]')
         elif len(owners) > 1 or owners[0] in matched:
-            duplicates.append(name)
+            duplicates.append(f'{name} [testID {test_id}]')
         else:
             matched[owners[0]] = result
 
@@ -249,7 +251,7 @@ def _verdict_from_results(results, test_ok):
         for control in owned:
             controls[control] = outcome
 
-    if not results:
+    if not records:
         coverage = 'NONE'
         verdict = 'NOT_RUN'
     else:
