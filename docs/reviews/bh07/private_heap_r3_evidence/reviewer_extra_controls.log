@@ -1,0 +1,203 @@
+$ -X utf8 docs/reviews/bh07/review_33ad6e6_evidence/extra_controls.py
+exit=0
+
+=== STDOUT ===
+{
+  "dispose_controls": {
+    "real_cancel_positive": {
+      "file": "../../../AppData/Local/Temp/v2b-extra-fmr1mnj4/real_cancel_positive/providers/auth_provider.dart",
+      "has_auth_listener": false,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 1,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "NONE"
+    },
+    "comment_cancel": {
+      "file": "../../../AppData/Local/Temp/v2b-extra-fmr1mnj4/comment_cancel/providers/auth_provider.dart",
+      "has_auth_listener": false,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 1,
+      "un_cancelled_subscriptions": [
+        "_sub"
+      ],
+      "leak_risk": "HIGH"
+    },
+    "string_cancel": {
+      "file": "../../../AppData/Local/Temp/v2b-extra-fmr1mnj4/string_cancel/providers/auth_provider.dart",
+      "has_auth_listener": false,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 1,
+      "un_cancelled_subscriptions": [
+        "_sub"
+      ],
+      "leak_risk": "HIGH"
+    },
+    "comment_remove": {
+      "file": "../../../AppData/Local/Temp/v2b-extra-fmr1mnj4/comment_remove/providers/auth_provider.dart",
+      "has_auth_listener": true,
+      "removes_auth_listener_on_dispose": false,
+      "has_clear_all_method": false,
+      "proper_dispose": true,
+      "stream_subscriptions_tracked": 0,
+      "un_cancelled_subscriptions": [],
+      "leak_risk": "HIGH"
+    }
+  },
+  "mutable_static_with_comment": {
+    "scanned": 1,
+    "issues": 1
+  },
+  "summary_controls": {
+    "full_positive": {
+      "suite": {
+        "verdict": "PASS",
+        "tests_expected": 7,
+        "tests_total": 7,
+        "tests_passed": 7,
+        "tests_failed": 0,
+        "tests_skipped": 0,
+        "tests_missing": [],
+        "tests_unexpected": [],
+        "tests_duplicate": [],
+        "identity_coverage": "COUNT_ONLY",
+        "controls": {
+          "baseline_initial_empty": "PASS",
+          "owner_positive_retention_p1": "PASS",
+          "post_logout_negative_purge_n1": "PASS",
+          "cohost_switch_isolation_n2": "PASS",
+          "member_switch_isolation_n3": "PASS",
+          "late_response_after_logout_n4": "PASS",
+          "late_response_after_switch_n5": "PASS",
+          "mutant_static_leak_detected_m1": "PASS",
+          "mutant_failed_clear_detected_m2": "PASS",
+          "session_club_purged_on_logout": "PASS"
+        }
+      },
+      "markdown_claims_7_of_7": true
+    },
+    "subset_only": {
+      "suite": {
+        "verdict": "FAIL",
+        "tests_expected": 7,
+        "tests_total": 1,
+        "tests_passed": 1,
+        "tests_failed": 0,
+        "tests_skipped": 0,
+        "tests_missing": [
+          "Baseline Epoch: Initial providers state is empty, zero retained objects",
+          "Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap",
+          "Negative Control N4: Late-arriving response after logout is dropped & GC-collected",
+          "Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected",
+          "Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle",
+          "Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle",
+          "SessionProvider & ClubProvider: Private session and club details are purged from heap on logout"
+        ],
+        "tests_unexpected": [],
+        "tests_duplicate": [],
+        "identity_coverage": "COUNT_ONLY",
+        "controls": {
+          "baseline_initial_empty": "NOT_RUN",
+          "owner_positive_retention_p1": "NOT_RUN",
+          "post_logout_negative_purge_n1": "NOT_RUN",
+          "cohost_switch_isolation_n2": "NOT_RUN",
+          "member_switch_isolation_n3": "NOT_RUN",
+          "late_response_after_logout_n4": "NOT_RUN",
+          "late_response_after_switch_n5": "NOT_RUN",
+          "mutant_static_leak_detected_m1": "NOT_RUN",
+          "mutant_failed_clear_detected_m2": "NOT_RUN",
+          "session_club_purged_on_logout": "NOT_RUN"
+        }
+      },
+      "markdown_claims_7_of_7": false
+    },
+    "no_tests": {
+      "suite": {
+        "verdict": "NOT_RUN",
+        "tests_expected": 7,
+        "tests_total": 0,
+        "tests_passed": 0,
+        "tests_failed": 0,
+        "tests_skipped": 0,
+        "tests_missing": [
+          "Baseline Epoch: Initial providers state is empty, zero retained objects",
+          "Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap",
+          "Negative Control N4: Late-arriving response after logout is dropped & GC-collected",
+          "Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected",
+          "Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle",
+          "Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle",
+          "SessionProvider & ClubProvider: Private session and club details are purged from heap on logout"
+        ],
+        "tests_unexpected": [],
+        "tests_duplicate": [],
+        "identity_coverage": "NONE",
+        "controls": {
+          "baseline_initial_empty": "NOT_RUN",
+          "owner_positive_retention_p1": "NOT_RUN",
+          "post_logout_negative_purge_n1": "NOT_RUN",
+          "cohost_switch_isolation_n2": "NOT_RUN",
+          "member_switch_isolation_n3": "NOT_RUN",
+          "late_response_after_logout_n4": "NOT_RUN",
+          "late_response_after_switch_n5": "NOT_RUN",
+          "mutant_static_leak_detected_m1": "NOT_RUN",
+          "mutant_failed_clear_detected_m2": "NOT_RUN",
+          "session_club_purged_on_logout": "NOT_RUN"
+        }
+      },
+      "markdown_claims_7_of_7": false
+    },
+    "failed_test": {
+      "suite": {
+        "verdict": "FAIL",
+        "tests_expected": 7,
+        "tests_total": 1,
+        "tests_passed": 0,
+        "tests_failed": 1,
+        "tests_skipped": 0,
+        "tests_missing": [
+          "Baseline Epoch: Initial providers state is empty, zero retained objects",
+          "Full Cycle: Owner -> Logout -> Cohost -> Member retains NO sensitive Owner objects in Dart heap",
+          "Negative Control N4: Late-arriving response after logout is dropped & GC-collected",
+          "Negative Control N5: Late-arriving response after actor switch is dropped & GC-collected",
+          "Mutant Control M1: Static/global strong reference leak is reliably caught by Oracle",
+          "Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle",
+          "SessionProvider & ClubProvider: Private session and club details are purged from heap on logout"
+        ],
+        "tests_unexpected": [],
+        "tests_duplicate": [],
+        "identity_coverage": "NONE",
+        "controls": {
+          "baseline_initial_empty": "FAIL",
+          "owner_positive_retention_p1": "FAIL",
+          "post_logout_negative_purge_n1": "FAIL",
+          "cohost_switch_isolation_n2": "FAIL",
+          "member_switch_isolation_n3": "FAIL",
+          "late_response_after_logout_n4": "FAIL",
+          "late_response_after_switch_n5": "FAIL",
+          "mutant_static_leak_detected_m1": "FAIL",
+          "mutant_failed_clear_detected_m2": "FAIL",
+          "session_club_purged_on_logout": "FAIL"
+        }
+      },
+      "markdown_claims_7_of_7": false
+    }
+  },
+  "git_status_failure": {
+    "sha": "33ad6e6fd7e33b8495ec9dda0732df1b6df2096b",
+    "git_dirty": "UNKNOWN",
+    "dirty_paths": [
+      "ERROR: git status --porcelain failed: Command '['git', 'status', '--porcelain']' returned non-zero exit status 128."
+    ]
+  },
+  "base_provenance": {
+    "requested_base_resolves": false,
+    "actual_base": "2dac374fd98389b3ec9c54ec11f5781b01d32c77"
+  }
+}
+
+=== STDERR ===

@@ -1,0 +1,11 @@
+{
+  "unittest_controls": 0,
+  "ast_self": 0,
+  "verifier_self": 0,
+  "bundle_verify": 0,
+  "reviewer_protocol_probe": 0,
+  "old_probes": 0,
+  "reviewer_extra_controls": 0,
+  "analyze": 0,
+  "flutter_test": 0
+}

@@ -1,14 +1,14 @@
 {
-  "tested_source_sha": "f7922ed63f7594ace19daa8b999712fd849f0dbe",
+  "tested_source_sha": "16e5b5116738ab9d4417fe11b651aea794868401",
   "git_dirty": false,
   "git_dirty_paths": [],
   "source_hashes": {
     "test/integration/bh07_heap_verification_test.dart": "e76c1958727603d8734c1ec65b177a57aabea88be6de4041ca990cb57f3a4d30",
     "scripts/bh07_heap/audit_ast_memory.py": "816566447b3ac06d2da0606a650e2a0faa0d2e3c582c5dce82d12b53f05be095",
     "scripts/bh07_heap/clean_and_manifest.py": "017d7c650fc10a34178911b81164c63e84e803724812f4241ac50db15b36f9c4",
-    "scripts/bh07_heap/run_heap_verification.py": "0319d3e02d0319e95f1d06a8e57e8cfa9324852b1ffcf06d39cfaffc104be247"
+    "scripts/bh07_heap/run_heap_verification.py": "56dc5735726838951ec948e73922defde8092901e03b32c52514eca6d5d92bb1"
   },
-  "timestamp": "2026-10-26T03:26:04.749522+00:00",
+  "timestamp": "2026-10-26T04:05:55.439775+00:00",
   "environment": {
     "os": "win32",
     "dart_version": "Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on \"windows_x64\"",
@@ -32,6 +32,8 @@
     "tests_failed": 0,
     "tests_skipped": 0,
     "tests_missing": [],
+    "tests_unexpected": [],
+    "tests_duplicate": [],
     "identity_coverage": "VERIFIED",
     "controls": {
       "baseline_initial_empty": "PASS",
