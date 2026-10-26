@@ -1,127 +1,108 @@
-# Bàn giao V2b — App-profile heap / in-memory retention sau đổi actor (Chờ review vòng 1/2)
+# Bàn giao V2b — App-profile heap / in-memory retention sau đổi actor (Chờ review vòng 2/2)
 
-**Trạng thái: Chờ review độc lập vòng 1/2 sau sửa AH1–AH5.** Người triển khai **không** tự ghi Đạt.
+**Trạng thái: Chờ review độc lập vòng 2/2 sau sửa AH1, AH2-A/B, AH3-A/B và AH6.** Người triển khai **không** tự ghi Đạt.
 
 - Nhánh: `feat/bh07-app-profile-heap-verification`
-- Base review: `a972ecd73ab2339306f80b081823057c5935819c` ([review 8914b2f](review_8914b2f.md))
-- Tested source (lần đo mới): `249f12ed5b8ba042de1d48e9d5e06ffe7c125ada` (`git_dirty: false` tại thời điểm đo)
+- Base review: `8c02605bad98edd9c55f44f57fdfea18c2ecac68` ([review 57ec02c](review_57ec02c.md))
+- Tested source (runtime lần đo mới): `130af7d` — `git_dirty: false` tại thời điểm bắt đầu đo
 - Evidence: [`app_profile_heap_evidence/`](app_profile_heap_evidence/) — `summary.json`, `report.md`, `run.log`, `hashes.sha256`
-- Bundle tác giả **cũ** (trước sửa) bị thay thế; vẫn tra được ở lịch sử Git tại `8914b2f` (`docs/reviews/bh07/app_profile_heap_evidence/`).
+- Bundle vòng 1 vẫn tra được ở lịch sử Git tại `8c02605` (`docs/reviews/bh07/app_profile_heap_evidence/`); không ghi đè bằng chứng của reviewer (`review_57ec02c_evidence/`).
 - Tiêu chí: [`bh07_readiness.md` §4.4](bh07_readiness.md)
-- Kết quả máy: `status=RUN`, `verdict=PASS`, 2/2 chu kỳ PASS, cleanup heap dump + profile Chrome đã xác minh
+- Kết quả máy: `status=RUN`, `verdict=PASS`, 2/2 chu kỳ PASS, cleanup dump + profile Chrome đã xác minh
 
-## 1. Phạm vi đã làm
+## 1. Phạm vi
 
-Chỉ sửa **công cụ kiểm chứng + test + tài liệu/bằng chứng**. **Không** sửa app/backend/contract, không đổi DB local, không migration, không merge `main`/`staging`/`production`, không deploy/pilot/BH-08.
+Chỉ sửa **công cụ kiểm chứng + test + tài liệu/bằng chứng**. Không sửa `lib/`/app/backend/contract, không đổi DB, không migration, không merge `main`/`staging`/`production`, không deploy/pilot/BH-08.
 
 | Thành phần | Đường dẫn | Control |
 | --- | --- | --- |
-| Runner đo | `scripts/bh07_appheap/run_app_profile_heap.js` | — |
-| Guard build/serve (mới) | `scripts/bh07_appheap/build_guard.js` | 8 self-test |
-| Oracle sentinel | `scripts/bh07_appheap/heap_oracle.py` | 24 |
-| Auditor bundle | `scripts/bh07_appheap/verify_evidence.py` | 36 |
-| Test oracle | `tests/test_bh07_app_heap_oracle.py` | 24 |
-| Test auditor | `tests/test_bh07_app_heap_evidence.py` | 36 |
-| Test guard build/serve | `tests/test_bh07_app_heap_build_guard.py` | 3 |
+| Runner đo | `scripts/bh07_appheap/run_app_profile_heap.js` | sanitizer publish + export |
+| Guard build/serve | `scripts/bh07_appheap/build_guard.js` | 8 self-test |
+| Oracle sentinel | `scripts/bh07_appheap/heap_oracle.py` | 30 (self-test 14) |
+| Auditor bundle | `scripts/bh07_appheap/verify_evidence.py` | 64 |
+| Test oracle | `tests/test_bh07_app_heap_oracle.py` | 30 |
+| Test auditor | `tests/test_bh07_app_heap_evidence.py` | 64 |
+| Test guard + sanitizer | `tests/test_bh07_app_heap_build_guard.py` | 4 |
 | Phát lại probe reviewer | `tests/test_bh07_app_heap_review_controls.py` | 3 |
+| Audit link trạng thái (mới) | `tests/test_bh07_app_heap_links.py` | 3 |
 
-## 2. Sửa theo review 8914b2f
+Tổng: **104 test Python** (30 + 64 + 4 + 3 + 3).
 
-| Phát hiện | Cách sửa | Control tái hiện (đã đỏ trước khi sửa) |
+## 2. Sửa theo review 57ec02c
+
+| Phát hiện | Cách sửa | Control tái hiện (đỏ trước sửa) |
 | --- | --- | --- |
-| **AH1 P1** — snapshot hỏng vẫn PASS | `heap_oracle.validate()` đọc **nhị phân** và chứng minh dump là snapshot V8 hoàn chỉnh **trước khi** câu trả lời sentinel có hiệu lực: object `"snapshot"` parse riêng (không `json.load` cả 80 MB), thứ tự `nodes`→`edges`→`strings`, số phần tử `nodes` khớp `node_count × len(node_fields)`, `edges` khớp `edge_count × len(edge_fields)`, bảng số chỉ chứa số nguyên, bảng `strings` chỉ chứa chuỗi JSON và **nằm cuối** (chỉ `}` sau nó). Dump không dùng được ⇒ `ok:false`, mọi `sentinels.*.present = null` (không bao giờ suy "vắng = sạch"). | `invalid_literal`, `truncated`, `trailing_garbage`, `node_count_mismatch`, `edge_count_mismatch`, `missing_chunk_mid_stream`, `unterminated_string`, `metadata_without_v8_fields`, `metadata_with_inconsistent_types`, `strings_not_last`, `empty_snapshot` |
-| **AH2 P2** — auditor không kiểm số chu kỳ/mốc/verdict | Auditor **tự tính lại** verdict từng chu kỳ và verdict tổng bằng chính `heap_oracle.decide`, với expectation **suy từ scan** (không tin file của runner): bắt buộc đúng 2 actor path (`cohost`, `member`), đúng 4 mốc, `same_document`, `time_origin`, `ok` từng scan, `probe` sống, positive Owner, negative sau đổi actor; verdict tổng và `findings` phải khớp dữ liệu; `report.md` phải khớp status/source/số liệu từng mốc. | `zero_cycles`, `single_cycle`, `same_actor_twice`, `missing_epoch`, `extra_epoch`, `failed_scan_with_leak`, `retained_after_logout`, `dead_detector`, `cycle_verdict_mismatch`, `overall_verdict_mismatch`, `report_status_mismatch`, `report_missing_epoch_row` |
-| **AH3 P2** — manifest không bao phủ file thừa; secret scan bị bỏ qua | Manifest phải phủ **đúng** tập file xuất bản (cấm file thừa, entry trùng, `..`/absolute/backslash, symlink, tự hash chính nó); mọi file được quét secret, cấm raw heap; hash toàn bộ bundle **trước và sau** để chứng minh auditor read-only. | `unmanifested_extra`, `unmanifested_secret`, `secret_in_manifested_file`, `manifest_traversal`, `manifest_absolute`, `manifest_duplicate`, `manifest_missing_entry`, `manifest_self_entry`, `published_raw_heap`, `sentinel_value_published`, `audit_is_readonly` |
-| **AH4 P2** — CRLF/UTF-8 lỗi vẫn qua auditor strict LF | Đọc **bytes** trước: cấm BOM, cấm mọi byte CR, decode UTF-8 `strict` (không `errors='replace'`, không universal-newline) cho cả manifest lẫn mọi file xuất bản. | `crlf`, `lone_cr`, `crlf_manifest`, `invalid_utf8`, `bom` |
-| **AH5 P2** — `--reuse-build` tự gắn profile vô căn cứ | `--reuse-build` **bị từ chối** (throw); preflight cổng 8088 bằng **connect** (không chỉ bind); runner hash **39 artifact** `build/web` sau build, kiểm artifact do chính lần chạy này sinh ra, và chứng minh byte server trả (`index.html`, `main.dart.js`) **trùng hash artifact**; auditor đòi `mode=profile`, `artifacts`, `started_at`, `served_match=true`, không `reused`. | `missing_artifact`, `stale_artifact`, `rebuilt_identical_artifact`, `fresh_artifact`, `served_match`, `served_mismatch`, `occupied_port`, `free_port`; probe reviewer `build_probe.js` nay exit 1 |
+| **AH1 P1** — JSON hỏng vẫn PASS (`missing_string_comma`, `garbage_before_nodes`, `leading_zero_integer`) | Oracle bỏ hẳn lối "quét marker + regex": `validate()` **decode UTF-8 strict rồi `json.loads` toàn bộ tài liệu** với `object_pairs_hook` **từ chối khóa trùng**, sau đó mới kiểm cấu trúc V8 (khóa `snapshot` đầu tiên, chỉ các bảng V8 hợp lệ, thứ tự `nodes`→`edges`→`strings`, `strings` cuối, `snapshot` có đủ `meta`/`node_count`/`edge_count`, số phần tử khớp `node_count × len(node_fields)`/`edge_count × len(edge_fields)`, mọi phần tử bảng số là **int** thật, bảng chuỗi toàn `str`). Vượt `MAX_PARSE_BYTES` (512 MiB) ⇒ từ chối (`snapshot_too_large_to_parse`) thay vì hạ cấp sang quét marker. | `ReviewerGrammarControls`: `missing_string_comma`, `garbage_before_nodes`, `leading_zero_integer`, `trailing_comma`, `duplicate_top_level_key`; positive `escaped_string_literals_still_pass` |
+| **AH2-A P2** — summary `{}`/`null`/`[]` bỏ qua mọi gate semantic | `verify()` không còn `if summary:`; kiểm **top-level type vô điều kiện**, `_check_summary_shape` đòi đủ trường và type của `environment`/`sentinels`/`cleanup`; `_check_cycles`, `_check_cleanup`, `_check_build`, `_check_report`, `_check_sentinels` đều **fail-closed có finding** khi dữ liệu lồng nhau sai kiểu (không crash, không skip). CLI trả exit 1 cho `{}`. | `SummaryShapeControls`: `empty_object`, `null`, `empty_list`, `scalar`, `missing_required_field`, `cycles_wrong_type`, `cycle_entry_not_object`, `epochs_not_object`, `scan_entry_not_object`, `empty_summary_cli_exits_nonzero` |
+| **AH2-B P2** — Markdown ghi verdict trái JSON vẫn PASS | `_check_report` **parse** report: đúng **một** dòng `- Status: **…** (verdict …)`, dòng `Tested source` + `git dirty`, dòng `Build` (mode/reused/artifacts/served_match), **toàn bộ hàng bảng cycle** (7 cột: cycle, actor path, same document, epoch, size, sha[:12], present sentinels) so **đúng thứ tự và đúng nội dung** với summary, và mục `## Findings` khớp `summary.findings`. | `ReportControls`: verdict contradiction, status contradiction, duplicate status line, swapped epoch rows, duplicate row, actor label mismatch, present-sentinel mismatch, missing Findings, build line mismatch |
+| **AH3-A P2** — symlink thư mục ngoài inventory | `_bundle_entries` lấy **mọi entry** (không lọc `is_file()` trước); `_is_link()` bắt cả symlink và **junction** Windows; mọi link bị từ chối trước khi đọc/hash; `_digests` (readonly snapshot) ghi cả `link`/`dir` nên link thêm vào cũng bị phát hiện. | `LinkControls`: file symlink, **directory symlink**, **broken symlink**, `link_is_part_of_the_readonly_snapshot` (đều chạy thật trên Windows Developer Mode; host không tạo được link ⇒ `skipTest` nêu rõ) |
+| **AH3-B P2** — raw sentinel trong log đã hash vẫn "sanitized" | Hai lớp: (1) runner **sanitizer trước publication** — `findSentinelLeaks`/`redactSentinels` quét bản nháp `summary.json`/`run.log`/`report.md` bằng **giá trị sentinel sống**, nếu lọt thì redact, thêm finding và hạ `status/verdict = FAIL`; (2) auditor `_check_sentinels` **không cần secret**: với mỗi sentinel đã công bố `length` + `sha256_12`, quét **mọi cửa sổ cùng độ dài** trong **mọi file** đã xuất bản, khớp hash ⇒ finding "publishes the raw value of sentinel X". | `RawSentinelControls`: raw bank trong `run.log`, raw probe trong `report.md`, raw trong metadata lồng nhau, raw trong file thừa; positive `hash_only_metadata_passes`; JS control `PublicationSanitizerControls` |
+| **AH6 P2** — 10 link trạng thái thêm thừa `docs/` | Sửa 5 tài liệu dưới `docs/` sang `reviews/bh07/...` (10 target) và thêm `tests/test_bh07_app_heap_links.py` audit link tương đối trên 9 tài liệu trạng thái/handoff để không tái diễn. | `StatusLinkControls`: 3 test; phát lại `review_57ec02c_evidence/link_audit.py` nay trả `[]` |
 
-Phát lại probe reviewer **không sửa file** (`docs/reviews/bh07/review_8914b2f_evidence/probes.py`, `build_probe.js`): mọi ca `invalid_snapshot`, `full_cycle_with_invalid_snapshot`, `crlf`, `invalid_utf8`, `unmanifested_secret_extra`, `zero_cycles`, `missing_epoch`, `leaked_failed_scan` nay đều bị chặn, `build_probe.js` exit 1 (trước exit 0 và in `mode:'profile'`).
+Giữ nguyên AH4 (byte UTF-8/LF/BOM, readonly) và AH5 (từ chối `--reuse-build`, guard 8/8, hash 39 artifact, served bytes) — chỉ chạy lại để chứng minh không hồi quy.
 
-Lưu ý trung thực khi phát lại trên Windows: `probes.py` ghi lại manifest bằng `write_text` (`rehash()`), nên trên Windows `hashes.sha256` thành CRLF và **chính nó** sinh thêm finding strict-LF; vì vậy một số ca bị chặn **đồng thời** bởi strict LF và bởi ngữ nghĩa. Các control ngữ nghĩa tương ứng trong `tests/test_bh07_app_heap_evidence.py` ghi hash bằng `write_bytes` (LF-safe) nên chứng minh **đúng lý do ngữ nghĩa** bị chặn (`zero_cycles`, `missing_epoch`, `failed_scan_with_leak`, `retained_after_logout`, `dead_detector`, ...). Kết quả phát lại: 8/8 ca đều có finding chặn, `build_probe.js` exit 1.
+### Bằng chứng đỏ trước khi sửa
 
-## 3. Phương pháp đo
+Chạy đúng các test mới trên **công cụ vòng 1** (stash `heap_oracle.py` + `verify_evidence.py`): **94 test, 20 failure + 4 error** — đúng các nhóm AH1 (3), AH2-A (7, gồm 4 error do auditor cũ crash khi dữ liệu lồng nhau sai kiểu), AH2-B (9), AH3-A (3), AH3-B (5). Sau sửa: **104/104 OK**.
 
-- **Build profile thật:** `flutter build web --profile` (dart-defines `APP_ENV=test`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` của Supabase local), serve tĩnh tại `http://127.0.0.1:8088`, Chrome headless thật điều khiển qua **Chrome DevTools Protocol** (`HeapProfiler.takeHeapSnapshot`).
-- **Cùng một instance:** mỗi chu kỳ chỉ tạo **một** document; không reload, không `Page.navigate` giữa các mốc. Runner chụp `performance.timeOrigin` trước và sau chu kỳ và **fail** nếu khác nhau (`same_document: true` trong evidence).
-- **Chu kỳ:** 2 chu kỳ, mỗi chu kỳ 4 mốc, `Owner → logout → Cohost/Member`:
+## 3. Phương pháp đo (không đổi)
 
-  | Chu kỳ | Actor sau logout | Các mốc |
-  | --- | --- | --- |
-  | 1 | Cohost (`cohosta@example.test`) | `baseline` → `owner_active` → `post_logout` → `post_actor` |
-  | 2 | Member (`membera@example.test`) | `baseline` → `owner_active` → `post_logout` → `post_actor` |
+Build `flutter build web --profile` thật (dart-defines `APP_ENV=test` + Supabase local), serve tĩnh `127.0.0.1:8088`, Chrome headless thật qua CDP `HeapProfiler.takeHeapSnapshot`; mỗi chu kỳ một document (`performance.timeOrigin` trước/sau), 2 chu kỳ `Owner → logout → Cohost/Member`, mỗi chu kỳ 4 mốc. Sentinel STK ngân hàng Club A chỉ có trong payload riêng của Owner; `probe` gán lên `window` mỗi mốc để chứng minh detector sống.
 
-  Lý do tách 2 chu kỳ: renderer Chrome sống ổn định tới **4** heap snapshot trong một document; chuỗi 6 snapshot (Cohost rồi Member liên tiếp) làm trình duyệt chết giữa chuỗi (xem §6).
-- **Thao tác UI thật, không mock:** login qua form thật (GoTrue local), mở `Buổi Chơi → Lịch sử buổi → UI Flow Session published to complete → Tổng kết buổi`, Owner thấy card `Tài chính tổng hợp`, Cohost thấy `Chỉ xem số lượng`, logout qua dialog `Đăng xuất/Đăng Xuất`, xác nhận guest `Bạn đang xem dưới dạng khách`, kiểm `localStorage` không còn `sb-*-auth-token`.
+Khác biệt kỹ thuật của vòng này: oracle parse toàn bộ JSON (đo thực tế **2,25 s cho dump 61,7 MB**, tức ~3 s cho dump runtime ~85 MB; 8 dump của lần chạy này đều `ok=true`).
 
-## 4. Oracle (quyết định PASS/FAIL)
+## 4. Kết quả lần đo mới (source sạch `130af7d`)
 
-Vì `dart2js` ở web profile **rút gọn tên class**, oracle không dựa vào tên class mà dựa trên **chuỗi sentinel thật của fixture** chỉ tồn tại trong payload tài chính riêng của Owner:
-
-| Sentinel | Nguồn | Vai trò |
-| --- | --- | --- |
-| `bank` | `club_bank_accounts.account_number` của Club A (10 ký tự, sha256[:12] `65dce15efcc4`) | **sentinel chốt** — phải có khi Owner đang xem, phải mất sau logout/đổi actor |
-| `expense` | `session_expenses.title` (sha256[:12] `41a394dd2dcd`) | chỉ chốt nếu màn hình Owner thực sự nạp; lần đo này **không** xuất hiện (`expense:false`) nên chỉ báo "not loaded", **không** dùng để kết luận |
-| `probe` | marker `BH07APPHEAPPROBE-<runId>` gán lên `window` mỗi mốc | kiểm tra detector còn sống; thiếu ⇒ FAIL, tránh "sạch giả" |
-
-Quy tắc cứng của oracle:
-
-- Snapshot phải **chứng minh cấu trúc** (metadata + thứ tự bảng + counts + bảng strings ở cuối); thiếu/hỏng/bị cắt ⇒ `ok=false`, presence `null`, verdict **FAIL**; **không bao giờ** đọc "không thấy sentinel" thành "sạch".
-- Thiếu mốc, mốc thừa, thiếu tín hiệu dương (`owner_active` phải có `bank`), `probe` chết, build không phải `profile`, cleanup chưa xác minh ⇒ FAIL.
-- Kết luận dùng **chung một verdict** cho JSON, `report.md` và exit code; auditor tính lại độc lập từ scan.
-
-## 5. Kết quả (lần đo mới, source sạch `249f12e`)
-
-Tested source `249f12e`, `git_dirty: false`, Flutter 3.47.6 (stable), Chrome 155.0.8059.85, Node v24.21.0, Windows 10.0.26100; build profile 50,7 s, **39 artifact** đã hash và `served_match: true`.
+Flutter 3.47.6 (stable), Chrome 155.0.8059.85, Node v24.21.0, Windows 10.0.26100; build profile **61,3 s**, **39 artifact** đã hash, `served_match: true`, `git_dirty: false`.
 
 | Chu kỳ | Mốc | Snapshot bytes | sha256[:12] | `bank` | `probe` |
 | --- | --- | --- | --- | --- | --- |
-| 1 Cohost | baseline | 58.414.388 | `35fd5a35e3ca` | không | có |
-| 1 Cohost | owner_active | 84.037.436 | `f49ae02f751f` | **có** | có |
-| 1 Cohost | post_logout | 69.258.978 | `99ba1a5b2d49` | không | có |
-| 1 Cohost | post_actor | 82.317.587 | `3852b92e2732` | không | có |
-| 2 Member | baseline | 58.326.149 | `4062854ebdfe` | không | có |
-| 2 Member | owner_active | 83.941.045 | `3b75780647e9` | **có** | có |
-| 2 Member | post_logout | 69.379.107 | `67446555bb72` | không | có |
-| 2 Member | post_actor | 73.596.863 | `7a4d6d280731` | không | có |
+| 1 Cohost | baseline | 58.357.152 | `23a453ada885` | không | có |
+| 1 Cohost | owner_active | 84.919.680 | `5cd7c1851c11` | **có** | có |
+| 1 Cohost | post_logout | 68.961.793 | `60cd377c1904` | không | có |
+| 1 Cohost | post_actor | 81.734.053 | `210c30ad5aeb` | không | có |
+| 2 Member | baseline | 58.512.742 | `5d1d6294517f` | không | có |
+| 2 Member | owner_active | 84.204.480 | `da2833705279` | **có** | có |
+| 2 Member | post_logout | 68.819.082 | `2d45678f9529` | không | có |
+| 2 Member | post_actor | 73.199.374 | `2b570260287a` | không | có |
 
-Đọc kết quả: STK ngân hàng riêng của Owner **có thật** trong heap khi Owner đang xem (chứng minh detector hoạt động), và **không còn** sau logout lẫn sau khi Cohost/Member đăng nhập trong cùng instance. Hai chu kỳ lặp lại cùng kết luận; `time_origin` mỗi chu kỳ ổn định trước/sau 4 mốc.
+Đọc kết quả: cùng kết luận với lần đo trước — STK ngân hàng riêng của Owner **có thật** trong heap khi Owner đang xem (detector hoạt động) và **không còn** sau logout lẫn sau khi Cohost/Member đăng nhập trong cùng instance; 2 chu kỳ lặp lại. `expense` vẫn không được nạp ở màn hình đã mở nên **không** dùng để kết luận.
 
-## 6. Dọn dẹp và sanitize
+## 5. Dọn dẹp, sanitize, readonly
 
-- Heap snapshot ghi ra `%TEMP%\bh07_appheap_dumps_<pid>` (**ngoài repo**), quét **một lần** rồi xoá; `summary.json` ghi `dumps_dir_removed: true`, `raw_snapshots_remaining: 0`.
-- Profile Chrome tạm `%TEMP%\bh07_appheap_chrome_<pid>` (~90 MB) cũng bị xoá và kiểm lại: `chrome_profile_dir_removed: true`.
-- Bundle **không** chứa `.heapsnapshot/.heapprofile/.heaptimeline`, **không** chứa mật khẩu/JWT/DB URL/sentinel thô; chỉ công bố độ dài + sha256[:12].
-- `verify_evidence.py` là auditor **read-only**: đọc bytes, cấm BOM/CR/UTF-8 lỗi, phủ đúng tập file bằng manifest, cấm raw heap + secret trên **mọi** file, tự tính lại verdict, và hash bundle trước/sau để chứng minh không sửa gì.
+- Heap dump + profile Chrome ghi **ngoài repo** (`%TEMP%`), quét một lần rồi xoá; `summary.json`: `dumps_dir_removed: true`, `raw_snapshots_remaining: 0`, `chrome_profile_dir_removed: true`, `ok: true`.
+- Bundle chỉ có 4 file (3 entry manifest, `hashes.sha256` không tự hash): chỉ độ dài + `sha256[:12]` của sentinel, không giá trị thô, không `.heapsnapshot`.
+- Auditor read-only: hash **mọi entry** (file/dir/link) trước và sau, phải giống nhau.
 
-## 7. Giới hạn (phải đọc trước khi kết luận)
-
-- **Đo V8/dart2js heap của bản web profile**, không phải Dart VM heap của bản desktop/mobile. Máy này **không có Visual Studio và không có Android SDK** (`flutter doctor`), nên đường **Dart VM service / DevTools Memory Profiler cho app desktop/mobile: NOT RUN**.
-- Sentinel chứng minh **một số giá trị riêng của Owner** không còn reachable; **không** liệt kê đủ mọi retained object của model tài chính, không đo được "retention path" chi tiết theo từng tham chiếu như DevTools hiển thị.
-- `expense` sentinel không được nạp ở màn hình đã mở ⇒ không sinh kết luận nào từ nó.
-- Kiểm "artifact do lần chạy này sinh ra" dựa trên **mtime** của `index.html`/`main.dart.js` (hoặc hash trùng với trước build). Đây là bằng chứng gián tiếp; bằng chứng trực tiếp là byte server trả trùng hash artifact vừa build.
-- Chuỗi 6 snapshot/1 document từng làm Chrome chết giữa chuỗi; runner có timeout CDP 60 s + log `chrome exited unexpectedly` để lỗi như vậy **không** còn treo im lặng và không thể bị đọc thành PASS.
-- Chưa đo tải thật/nhiều actor song song, chưa mobile/browser khác, chưa staging/production.
-
-## 8. Lệnh đã chạy (máy triển khai)
+## 6. Lệnh đã chạy (máy triển khai, cây sạch tại `130af7d`)
 
 | Lệnh | Exit | Ghi chú |
 | --- | --- | --- |
+| `python -X utf8 -m unittest tests.test_bh07_app_heap_oracle tests.test_bh07_app_heap_evidence tests.test_bh07_app_heap_build_guard tests.test_bh07_app_heap_review_controls tests.test_bh07_app_heap_links` | 0 | **104/104 OK** |
+| `python -X utf8 scripts/bh07_appheap/heap_oracle.py self-test` | 0 | 14/14 control |
 | `node scripts/bh07_appheap/build_guard.js --self-test` | 0 | 8/8 control |
-| `node docs/reviews/bh07/review_8914b2f_evidence/build_probe.js` | 1 | từ chối `--reuse-build` (trước exit 0) |
-| `python -X utf8 docs/reviews/bh07/review_8914b2f_evidence/probes.py` | 0 | script chỉ in JSON; 8/8 ca đều có finding chặn (không ca nào PASS) |
-| `node scripts/bh07_appheap/run_app_profile_heap.js --cycles 2` | 0 | build profile thật + 2 chu kỳ, `status=RUN verdict=PASS` |
-| `python -X utf8 scripts/bh07_appheap/verify_evidence.py` | 0 | PASS: bundle đủ, hash khớp, verdict tính lại khớp, không raw heap/secret, LF |
-| `python -m unittest tests.test_bh07_app_heap_oracle tests.test_bh07_app_heap_evidence tests.test_bh07_app_heap_build_guard tests.test_bh07_app_heap_review_controls` | 0 | 66/66 OK |
-| `node --check scripts/bh07_appheap/run_app_profile_heap.js scripts/bh07_appheap/build_guard.js` | 0 | |
-| `flutter analyze --no-pub` | 0 | 0 issue |
+| `node scripts/bh07_appheap/run_app_profile_heap.js --cycles 2` | 0 | `status=RUN verdict=PASS cycles=2`, build profile 61,3 s |
+| `python -X utf8 scripts/bh07_appheap/verify_evidence.py` | 0 | PASS trên bundle mới |
+| `python -X utf8 docs/reviews/bh07/review_8914b2f_evidence/probes.py` | 0 | 8/8 ca có finding chặn (script chỉ in JSON) |
+| `python -X utf8 docs/reviews/bh07/review_57ec02c_evidence/extra_controls.py` | 0 | positive PASS; 3 ca grammar `ok:false`+`present:null`+FAIL; summary rỗng/null/list bị chặn; Markdown trái verdict bị chặn; symlink thư mục bị chặn; raw sentinel trong log bị chặn; `empty_summary_cli` exit 1 |
+| `node docs/reviews/bh07/review_8914b2f_evidence/build_probe.js` | 1 | từ chối `--reuse-build` |
+| `python -X utf8 docs/reviews/bh07/review_57ec02c_evidence/link_audit.py` | 0 | `[]` — không còn link chết |
+| `flutter analyze --no-pub` | 0 | no issues |
 | `flutter test --no-pub` | 0 | 247 pass + 1 skip |
 
-**Không** chạy trong lượt này: Dart VM service desktop/mobile (thiếu toolchain), V1/V5b và các cổng khác (giữ nguyên trạng thái đã có).
+## 7. Giới hạn / NOT RUN
 
-## 9. Gợi ý trọng tâm cho reviewer
+- **Dart VM heap desktop/mobile: NOT RUN** — máy không có Visual Studio/Android SDK; kết luận chỉ trong phạm vi **V8/dart2js của bản web profile**.
+- Sentinel chứng minh **một số giá trị riêng của Owner** không còn reachable; **không** liệt kê đủ mọi retained object/model, không đo retention path chi tiết.
+- Kiểm "artifact do lần chạy này sinh ra" dựa trên mtime/hash; bằng chứng trực tiếp là byte server trả trùng hash artifact (`served_match`).
+- Link control chạy thật trên Windows có quyền tạo symlink (Developer Mode); trên host không tạo được link, control tự `skip` kèm lý do — khi đó phải ghi **NOT RUN** thay vì coi là PASS.
+- Runtime **reviewer** vẫn phải tự chạy; lần đo này là của người triển khai, không thay lần chạy reviewer.
+- Chưa đo tải thật/nhiều actor song song, chưa mobile/browser khác, chưa staging/production.
 
-1. Chạy lại `verify_evidence.py` và đọc `summary.json`/`report.md` độc lập với lời bàn giao này.
-2. Phát lại `review_8914b2f_evidence/probes.py` và `build_probe.js` **nguyên bản**: mọi ca phải bị chặn; thử thêm mutant mới (snapshot hợp lệ nhưng count sai, manifest có file thừa, verdict ghi tay) — gate phải là semantic, không chỉ hash.
-3. Kiểm oracle có thể "sạch giả": dump cắt/chunk mất/metadata sai/strings không ở cuối ⇒ `ok:false` + `present:null`.
-4. Kiểm AH5: build debug/release rồi chạy lại phải FAIL; cổng 8088 đã có server phải bị từ chối; server trả byte khác phải FAIL.
-5. Kiểm giới hạn: kết luận chỉ trong phạm vi V8/web profile; desktop/mobile VM heap vẫn NOT RUN.
+## 8. Trọng tâm cho reviewer
+
+1. Chạy lại `verify_evidence.py` và `extra_controls.py` nguyên bản; positive phải PASS, mọi ca hỏng/rò rỉ/mâu thuẫn phải FAIL.
+2. Thử mutant mới: snapshot hợp lệ nhưng `strings` không ở cuối; `summary.json` là object thiếu trường; report đúng verdict nhưng **đổi hàng** cycle/epoch; raw sentinel nằm trong file thứ 5 đã thêm manifest.
+3. Kiểm AH1 là **grammar gate**, không phải marker gate: dump cắt giữa bảng, `00`, thiếu dấu phẩy, khóa trùng, nội dung lạ trước `nodes` ⇒ `ok:false`, `present:null`.
+4. Kiểm AH3-B không phụ thuộc secret: auditor chỉ dùng `length` + `sha256_12`; canary giả trong probe reviewer phải bị bắt.
+5. Kiểm giới hạn: kết luận chỉ trong V8/web profile; desktop/mobile VM heap vẫn NOT RUN.

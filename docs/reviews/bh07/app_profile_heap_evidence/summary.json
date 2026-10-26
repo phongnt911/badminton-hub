@@ -4,17 +4,17 @@
   "status": "RUN",
   "measurement_surface": "Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)",
   "oracle": "fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency",
-  "tested_source_sha": "249f12ed5b8ba042de1d48e9d5e06ffe7c125ada",
+  "tested_source_sha": "130af7d103cdea22c2f9ac9e4cb000f74ec02590",
   "git_dirty": false,
   "git_dirty_paths": [],
-  "started_at": "2026-10-26T11:25:24.668Z",
+  "started_at": "2026-10-26T12:50:01.602Z",
   "environment": {
     "os": "win32 10.0.26100",
     "node": "v24.21.0",
     "build": {
       "mode": "profile",
-      "build_ms": 50673,
-      "started_at": "2026-10-26T11:25:36.606Z",
+      "build_ms": 61341,
+      "started_at": "2026-10-26T12:50:05.165Z",
       "artifacts_root": "build/web",
       "artifacts": {
         ".last_build_id": "fcf0f2b3ffdce9f76df16b2e10a102dd80321a5e8bcc8c5672c3b543e457baba",
@@ -46,7 +46,7 @@
         "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
         "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
         "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
-        "flutter_bootstrap.js": "728c5d3128b1e0042b74fe53d4efea7bac706455e58bdefbe82e48ee6493855e",
+        "flutter_bootstrap.js": "e0adcb781a25ab6a0ca272a4823786f5e2882c800ca545d0bff7d750aece9119",
         "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
         "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
         "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
@@ -74,7 +74,7 @@
       "kind": "posted session expense title (Owner-private)"
     },
     "probe": {
-      "sha256_12": "3d6cdcd6437c",
+      "sha256_12": "6a6f00ce03bd",
       "length": 25,
       "kind": "detector sanity marker set on window"
     }
@@ -84,12 +84,12 @@
       "cycle": 1,
       "actor": "cohost",
       "same_document": true,
-      "time_origin": 1793013989527.3,
+      "time_origin": 1793019069030.8,
       "epochs": {
         "baseline": {
           "ok": true,
-          "size_bytes": 58414388,
-          "sha256_12": "35fd5a35e3ca",
+          "size_bytes": 58357152,
+          "sha256_12": "23a453ada885",
           "sentinels": {
             "bank": {
               "present": false,
@@ -105,16 +105,16 @@
             }
           },
           "structure": {
-            "node_count": 528616,
-            "edge_count": 2253250,
+            "node_count": 528512,
+            "edge_count": 2252605,
             "string_count": 164142,
-            "size_bytes": 58414388
+            "size_bytes": 58357152
           }
         },
         "owner_active": {
           "ok": true,
-          "size_bytes": 84037436,
-          "sha256_12": "f49ae02f751f",
+          "size_bytes": 84919680,
+          "sha256_12": "5cd7c1851c11",
           "sentinels": {
             "bank": {
               "present": true,
@@ -130,16 +130,16 @@
             }
           },
           "structure": {
-            "node_count": 760368,
-            "edge_count": 3628314,
-            "string_count": 174126,
-            "size_bytes": 84037436
+            "node_count": 773251,
+            "edge_count": 3656974,
+            "string_count": 174133,
+            "size_bytes": 84919680
           }
         },
         "post_logout": {
           "ok": true,
-          "size_bytes": 69258978,
-          "sha256_12": "99ba1a5b2d49",
+          "size_bytes": 68961793,
+          "sha256_12": "60cd377c1904",
           "sentinels": {
             "bank": {
               "present": false,
@@ -155,16 +155,16 @@
             }
           },
           "structure": {
-            "node_count": 638500,
-            "edge_count": 2851990,
-            "string_count": 170197,
-            "size_bytes": 69258978
+            "node_count": 633382,
+            "edge_count": 2834678,
+            "string_count": 170202,
+            "size_bytes": 68961793
           }
         },
         "post_actor": {
           "ok": true,
-          "size_bytes": 82317587,
-          "sha256_12": "3852b92e2732",
+          "size_bytes": 81734053,
+          "sha256_12": "210c30ad5aeb",
           "sentinels": {
             "bank": {
               "present": false,
@@ -180,10 +180,10 @@
             }
           },
           "structure": {
-            "node_count": 751941,
-            "edge_count": 3531541,
-            "string_count": 173107,
-            "size_bytes": 82317587
+            "node_count": 742889,
+            "edge_count": 3505776,
+            "string_count": 173196,
+            "size_bytes": 81734053
           }
         }
       },
@@ -197,12 +197,12 @@
       "cycle": 2,
       "actor": "member",
       "same_document": true,
-      "time_origin": 1793014106776.7,
+      "time_origin": 1793019163692.1,
       "epochs": {
         "baseline": {
           "ok": true,
-          "size_bytes": 58326149,
-          "sha256_12": "4062854ebdfe",
+          "size_bytes": 58512742,
+          "sha256_12": "5d1d6294517f",
           "sentinels": {
             "bank": {
               "present": false,
@@ -218,16 +218,16 @@
             }
           },
           "structure": {
-            "node_count": 528366,
-            "edge_count": 2252439,
-            "string_count": 164138,
-            "size_bytes": 58326149
+            "node_count": 528567,
+            "edge_count": 2252895,
+            "string_count": 164141,
+            "size_bytes": 58512742
           }
         },
         "owner_active": {
           "ok": true,
-          "size_bytes": 83941045,
-          "sha256_12": "3b75780647e9",
+          "size_bytes": 84204480,
+          "sha256_12": "da2833705279",
           "sentinels": {
             "bank": {
               "present": true,
@@ -243,16 +243,16 @@
             }
           },
           "structure": {
-            "node_count": 760252,
-            "edge_count": 3631018,
-            "string_count": 174083,
-            "size_bytes": 83941045
+            "node_count": 773913,
+            "edge_count": 3659421,
+            "string_count": 174101,
+            "size_bytes": 84204480
           }
         },
         "post_logout": {
           "ok": true,
-          "size_bytes": 69379107,
-          "sha256_12": "67446555bb72",
+          "size_bytes": 68819082,
+          "sha256_12": "2d45678f9529",
           "sentinels": {
             "bank": {
               "present": false,
@@ -268,16 +268,16 @@
             }
           },
           "structure": {
-            "node_count": 638964,
-            "edge_count": 2854843,
-            "string_count": 170192,
-            "size_bytes": 69379107
+            "node_count": 632559,
+            "edge_count": 2832690,
+            "string_count": 170191,
+            "size_bytes": 68819082
           }
         },
         "post_actor": {
           "ok": true,
-          "size_bytes": 73596863,
-          "sha256_12": "7a4d6d280731",
+          "size_bytes": 73199374,
+          "sha256_12": "2b570260287a",
           "sentinels": {
             "bank": {
               "present": false,
@@ -293,10 +293,10 @@
             }
           },
           "structure": {
-            "node_count": 676659,
-            "edge_count": 3082329,
-            "string_count": 171010,
-            "size_bytes": 73596863
+            "node_count": 666529,
+            "edge_count": 3054523,
+            "string_count": 170976,
+            "size_bytes": 73199374
           }
         }
       },
@@ -316,5 +316,5 @@
   },
   "verdict": "PASS",
   "findings": [],
-  "finished_at": "2026-10-26T11:30:17.297Z"
+  "finished_at": "2026-10-26T12:54:12.817Z"
 }
