@@ -233,7 +233,7 @@ def _verdict_from_results(results, test_ok):
         verdict = 'FAIL'
     else:
         verdict = 'PASS'
-    return _suite_report(verdict, results, controls, 'VERIFIED' if not missing else 'INCOMPLETE')
+    return _suite_report(verdict, results, controls, 'VERIFIED' if not missing else 'INCOMPLETE', missing)
 
 
 def _verdict_from_text(test_ok, output):
@@ -251,16 +251,14 @@ def _verdict_from_text(test_ok, output):
 
     if 'No tests ran' in text or not text.strip():
         controls = {c: 'NOT_RUN' for c in CONTROL_NAMES}
-        return _suite_report('NOT_RUN', {}, controls, 'NONE')
+        return _suite_report('NOT_RUN', {}, controls, 'NONE', list(EXPECTED_TESTS))
 
     if test_ok and 'All tests passed!' in text and passed == len(EXPECTED_TESTS) and not skipped:
         controls = {c: 'PASS' for c in CONTROL_NAMES}
-        report = _suite_report('PASS', results, controls, 'COUNT_ONLY')
-        report['tests_missing'] = []
-        return report
+        return _suite_report('PASS', results, controls, 'COUNT_ONLY', [])
 
     controls = {c: ('FAIL' if failed else 'NOT_RUN') for c in CONTROL_NAMES}
-    return _suite_report('FAIL', results, controls, 'COUNT_ONLY' if passed else 'NONE')
+    return _suite_report('FAIL', results, controls, 'COUNT_ONLY' if passed else 'NONE', list(EXPECTED_TESTS))
 
 
 def parse_test_results(test_ok, test_output):

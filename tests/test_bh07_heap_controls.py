@@ -154,7 +154,18 @@ class SummaryControls(unittest.TestCase):
         self.assertEqual(suite['verdict'], 'PASS')
         self.assertEqual((suite['tests_passed'], suite['tests_failed']), (7, 0))
         self.assertEqual(set(suite['controls'].values()), {'PASS'})
+        # verdict PASS phải khớp coverage/count, không được báo missing identity nào
+        self.assertEqual(suite['identity_coverage'], 'VERIFIED')
+        self.assertEqual(suite['tests_missing'], [])
         self.assertIn('7/7 Provider test PASS', report)
+
+    def test_group_prefixed_test_names_are_matched(self):
+        # `flutter test --reporter json` prefix tên test bằng tên group
+        prefixed = {f'V2b — Provider Harness (Supporting Evidence) {name}': 'success'
+                    for name in RUNNER.EXPECTED_TESTS}
+        suite, _, _ = self.generate(True, events(prefixed))
+        self.assertEqual(suite['verdict'], 'PASS')
+        self.assertEqual(suite['tests_missing'], [])
 
     def test_subset_of_tests_does_not_turn_all_controls_green(self):
         subset = {'Baseline Epoch: Initial providers state is empty, zero retained objects': 'success'}
