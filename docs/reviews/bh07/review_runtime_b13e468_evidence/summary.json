@@ -1,0 +1,1944 @@
+{
+  "gate": "V2b — app-profile Dart heap / in-memory retention after actor switch",
+  "reference": "docs/reviews/bh07/bh07_readiness.md §4.4",
+  "status": "RUN",
+  "measurement_surface": "Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)",
+  "oracle": "fixture sentinel strings counted in live V8 heap snapshots; no class-name dependency",
+  "tested_source_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+  "git_dirty": false,
+  "git_dirty_paths": [],
+  "started_at": "2026-10-27T16:43:48.504Z",
+  "environment": {
+    "os": "win32 10.0.26100",
+    "node": "v24.21.0",
+    "build": {
+      "mode": "profile",
+      "build_ms": 57043,
+      "started_at": "2026-10-27T16:43:52.913Z",
+      "artifacts_root": "build/web",
+      "artifacts": {
+        ".last_build_id": "fcf0f2b3ffdce9f76df16b2e10a102dd80321a5e8bcc8c5672c3b543e457baba",
+        "assets/AssetManifest.bin": "00af55ad3d6f21898fe77e0ff092d1a1cda52c941b6860e9928d45c8af8c095d",
+        "assets/AssetManifest.bin.json": "8460b5f4299ca1ed677c5a54c8038ae9cf1f26f6e91966b1b767ca6cb6d2e5d2",
+        "assets/FontManifest.json": "cd7e03645bc44b2dd47b7cb626f51c4ecbf55a197ab77241628b47ac165fbe21",
+        "assets/NOTICES": "fdd07a12361f8a49d6f6e0c918909e0d7f004d77d91c155411525ae69a1b5509",
+        "assets/fonts/MaterialIcons-Regular.otf": "3a76af11097a60c207569b5e66d519c7131e06f50069270f337c1942bc865387",
+        "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "3d90c370aa4cf00dc57ee2b902f6652147c0f81e03e483df584a9c08b1687c9d",
+        "assets/shaders/ink_sparkle.frag": "2dca5ab93d4ec29e963f996f3916320ba60825e9537dfb149a68008c7a16b026",
+        "assets/shaders/stretch_effect.frag": "ab412f07a5b9b50b67a885b24dbe16929738ae28630407d6490c924caf0a3220",
+        "canvaskit/canvaskit.js": "bb559f6080c7d312ac2a912b4abec9f68ff3d3022d4a603c7796b9b31460642b",
+        "canvaskit/canvaskit.js.symbols": "384f80b392972c83fd4f262527e3d06215a297d33ed59732c726721e9d9311bd",
+        "canvaskit/canvaskit.wasm": "fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3",
+        "canvaskit/chromium/canvaskit.js": "6018b12bd8ed37e6952eee72d59c1cf7ad707ccdb74a0a45190010f77edd9068",
+        "canvaskit/chromium/canvaskit.js.symbols": "31c86fac6042dd8b756150832c1d15495d0d07742e2718f75dbdde5a5a91455e",
+        "canvaskit/chromium/canvaskit.wasm": "ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf",
+        "canvaskit/skwasm.js": "71d7d3e34bf71b52bdba3b588b103bba8148ba28de5754083e01b3398e7a6e1c",
+        "canvaskit/skwasm.js.symbols": "9137f1a3ae744dea575043abfc6e063a047e910e6dab1ee53e496c975d1c033e",
+        "canvaskit/skwasm.wasm": "e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1",
+        "canvaskit/skwasm_heavy.js": "cec554b46ddcf4c0e63d799e0556d546f42d2c3f69316fb4f67ed776f6104558",
+        "canvaskit/skwasm_heavy.js.symbols": "b6b79ed497e11d4cd13cc46724f9e289eacc744d2d185e31c72d595cdf62772b",
+        "canvaskit/skwasm_heavy.wasm": "565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635",
+        "canvaskit/webparagraph/canvaskit.js": "3110e3e4d9b7b5657d336f253aaca8acca5777cde9319fb69ac302d6ff5a8b23",
+        "canvaskit/webparagraph/canvaskit.js.symbols": "44d6c47919106235cf32252252490cdf798d907ee874ba343ab53dc94bc2a9dc",
+        "canvaskit/webparagraph/canvaskit.wasm": "0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254",
+        "canvaskit/wimp.js": "8fd8a47480c6eb0a374d159912d0b3fb15661b41f5c113ecdd39c2f01f2bee46",
+        "canvaskit/wimp.js.symbols": "b4907ebd33131302a8cd99f7c55f52357bdfde04f421b605a616ba8764ae1de4",
+        "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
+        "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
+        "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
+        "flutter_bootstrap.js": "42dfcb7162cf3ef36bcff984ef026f493b047fb98b635c1235458b64e95a4b2c",
+        "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
+        "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
+        "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
+        "icons/Icon-maskable-192.png": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c",
+        "icons/Icon-maskable-512.png": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929",
+        "index.html": "41182f961e471ef28c1a65605ba8b99739ed6964b19b7e4e1fab7b403333d2ee",
+        "main.dart.js": "c33fe27c7a4256174e9485a017f4bf84b082319b5f69eab117df255859e4762b",
+        "manifest.json": "83c0cd838556e5388ae6cf75d0244116dc590294c8c422a4f62deb4e41a0911e",
+        "version.json": "4ef1ff664b7e05badb37751633e18a67f08198113c28c8a4b2be5fb96b6fb83e"
+      },
+      "served_match": true
+    },
+    "flutter": "Flutter 3.47.6 • channel stable • https://github.com/flutter/flutter.git",
+    "chrome": "Chrome/155.0.8059.85"
+  },
+  "sentinels": {
+    "bank": {
+      "available": true,
+      "sha256_12": "65dce15efcc4",
+      "length": 10,
+      "kind": "club bank account number (Owner-private, digits only)",
+      "rendered": false,
+      "distinctive": false,
+      "scope": "bank"
+    },
+    "receiver": {
+      "available": true,
+      "sha256_12": "bd84fa404410",
+      "length": 21,
+      "kind": "bank account holder name (loaded by payment instructions, not the Owner surface)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "bank"
+    },
+    "expense": {
+      "available": true,
+      "sha256_12": "41a394dd2dcd",
+      "length": 16,
+      "kind": "posted session expense title rendered as widget text",
+      "rendered": true,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "expense_id": {
+      "available": true,
+      "sha256_12": "7b5ed5cb05a0",
+      "length": 36,
+      "kind": "posted session expense id returned by get_session_finance (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "expense2": {
+      "available": true,
+      "sha256_12": "09ac31ed38b0",
+      "length": 24,
+      "kind": "second posted expense title rendered as widget text (run-only fixture row)",
+      "rendered": true,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "expense_id_2": {
+      "available": true,
+      "sha256_12": "72412d54c227",
+      "length": 36,
+      "kind": "second posted expense id from get_session_finance (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "player_a": {
+      "available": true,
+      "sha256_12": "e3382947f391",
+      "length": 36,
+      "kind": "session player id of the seeded roster (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "identity"
+    },
+    "player_b": {
+      "available": true,
+      "sha256_12": "c5383f9762b9",
+      "length": 36,
+      "kind": "second session player id of the seeded roster (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "identity"
+    },
+    "probe": {
+      "available": true,
+      "sha256_12": "51c512cca043",
+      "length": 25,
+      "kind": "detector sanity marker set on window",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "control"
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "same_document": true,
+      "time_origin": 1793119492141.4,
+      "epochs": {
+        "baseline": {
+          "ok": true,
+          "size_bytes": 58322442,
+          "sha256_12": "3f29b7bf5338",
+          "structure": {
+            "node_count": 528511,
+            "edge_count": 2252884,
+            "string_count": 164075,
+            "size_bytes": 58322442
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:1 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "0e0fa5fd7332",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "owner_active": {
+          "ok": true,
+          "size_bytes": 84687337,
+          "sha256_12": "6ef00fd37e54",
+          "structure": {
+            "node_count": 766442,
+            "edge_count": 3650971,
+            "string_count": 174343,
+            "size_bytes": 84687337
+          },
+          "sentinels": {
+            "bank": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 17,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:session -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "572c69df2d58",
+              "string_nodes": 2,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 20,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_finance -> object",
+                "property:expenses -> object",
+                "element -> object",
+                "property:expenseId -> string"
+              ],
+              "path_sha256_12": "a8be318199de",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 20,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_finance -> object",
+                "property:expenses -> object",
+                "element -> object",
+                "property:expenseId -> string"
+              ],
+              "path_sha256_12": "a8be318199de",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "player_a": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "a836d6f5bab7",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "player_b": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "a836d6f5bab7",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:2 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "c342780d3bcb",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "post_logout": {
+          "ok": true,
+          "size_bytes": 69364257,
+          "sha256_12": "8dc258e2181a",
+          "structure": {
+            "node_count": 640687,
+            "edge_count": 2862284,
+            "string_count": 170322,
+            "size_bytes": 69364257
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:2 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "c342780d3bcb",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "post_actor": {
+          "ok": true,
+          "size_bytes": 81102465,
+          "sha256_12": "de2de4ce9d95",
+          "structure": {
+            "node_count": 735859,
+            "edge_count": 3493603,
+            "string_count": 173263,
+            "size_bytes": 81102465
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "91dc804e80e6",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "a836d6f5bab7",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "player_b": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:63 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "a836d6f5bab7",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:2 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "c342780d3bcb",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        }
+      },
+      "verdict": {
+        "verdict": "PASS",
+        "findings": [],
+        "notes": [
+          "owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated",
+          "post_actor: sentinel player_a is retained after the actor switch; whether the new actor is entitled to fetch it is not established by this measurement, so it is published with its path and never gated",
+          "post_actor: sentinel player_b is retained after the actor switch; whether the new actor is entitled to fetch it is not established by this measurement, so it is published with its path and never gated"
+        ],
+        "residual_risks": [
+          {
+            "epoch": "post_logout",
+            "sentinel": "expense",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "91dc804e80e6"
+          },
+          {
+            "epoch": "post_logout",
+            "sentinel": "expense2",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "91dc804e80e6"
+          },
+          {
+            "epoch": "post_actor",
+            "sentinel": "expense",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "91dc804e80e6"
+          },
+          {
+            "epoch": "post_actor",
+            "sentinel": "expense2",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "91dc804e80e6"
+          }
+        ],
+        "epochs_checked": 4
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "same_document": true,
+      "time_origin": 1793119591009.2,
+      "epochs": {
+        "baseline": {
+          "ok": true,
+          "size_bytes": 58492664,
+          "sha256_12": "77d832f8cf80",
+          "structure": {
+            "node_count": 528636,
+            "edge_count": 2253024,
+            "string_count": 164137,
+            "size_bytes": 58492664
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:7 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "04b7b0cc3e88",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "owner_active": {
+          "ok": true,
+          "size_bytes": 84725049,
+          "sha256_12": "8e5bf205c987",
+          "structure": {
+            "node_count": 771586,
+            "edge_count": 3666813,
+            "string_count": 174460,
+            "size_bytes": 84725049
+          },
+          "sentinels": {
+            "bank": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 17,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:session -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "aff8ab376c6c",
+              "string_nodes": 2,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 20,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_finance -> object",
+                "property:expenses -> object",
+                "element -> object",
+                "property:expenseId -> string"
+              ],
+              "path_sha256_12": "66ec3dae6c33",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 20,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_finance -> object",
+                "property:expenses -> object",
+                "element -> object",
+                "property:expenseId -> string"
+              ],
+              "path_sha256_12": "66ec3dae6c33",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "player_a": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "9d37b9ebd8c4",
+              "string_nodes": 2,
+              "exact": true
+            },
+            "player_b": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 18,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_widget -> object",
+                "property:body -> object",
+                "property:child -> object",
+                "property:childrenDelegate -> object",
+                "property:children -> object",
+                "element -> object",
+                "property:players -> object",
+                "element -> object",
+                "property:id -> string"
+              ],
+              "path_sha256_12": "9d37b9ebd8c4",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:8 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "7d0081a8c5d4",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "post_logout": {
+          "ok": true,
+          "size_bytes": 68979841,
+          "sha256_12": "d3bc5347a6e5",
+          "structure": {
+            "node_count": 631165,
+            "edge_count": 2839946,
+            "string_count": 170378,
+            "size_bytes": 68979841
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:8 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "7d0081a8c5d4",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        },
+        "post_actor": {
+          "ok": true,
+          "size_bytes": 73186935,
+          "sha256_12": "cfb97f8315cc",
+          "structure": {
+            "node_count": 667983,
+            "edge_count": 3067583,
+            "string_count": 171146,
+            "size_bytes": 73186935
+          },
+          "sentinels": {
+            "bank": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": false,
+              "scope": "bank"
+            },
+            "receiver": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "bank"
+            },
+            "expense": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense2": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": true,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "expense_id_2": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "player_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "player_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "identity"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "bank": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "receiver": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "expense2": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 12,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:68 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:segmentationCache -> object",
+                "property:_1 -> object",
+                "property:_itemMap -> object",
+                "property:_strings -> object",
+                "property:<redacted> -> object",
+                "property:hashMapCellKey -> string"
+              ],
+              "path_sha256_12": "5ae7d1eb096c",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "expense_id_2": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "player_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:8 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "7d0081a8c5d4",
+              "string_nodes": 1,
+              "exact": true
+            }
+          }
+        }
+      },
+      "verdict": {
+        "verdict": "PASS",
+        "findings": [],
+        "notes": [
+          "owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated"
+        ],
+        "residual_risks": [
+          {
+            "epoch": "post_logout",
+            "sentinel": "expense",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "5ae7d1eb096c"
+          },
+          {
+            "epoch": "post_logout",
+            "sentinel": "expense2",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "5ae7d1eb096c"
+          },
+          {
+            "epoch": "post_actor",
+            "sentinel": "expense",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "5ae7d1eb096c"
+          },
+          {
+            "epoch": "post_actor",
+            "sentinel": "expense2",
+            "class": "rendered",
+            "attribution": "unattributed",
+            "root_kind": "gc_roots",
+            "path_len": 12,
+            "path_sha256_12": "5ae7d1eb096c"
+          }
+        ],
+        "epochs_checked": 4
+      }
+    }
+  ],
+  "notes": [
+    "cycle 1: owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated",
+    "cycle 1: post_actor: sentinel player_a is retained after the actor switch; whether the new actor is entitled to fetch it is not established by this measurement, so it is published with its path and never gated",
+    "cycle 1: post_actor: sentinel player_b is retained after the actor switch; whether the new actor is entitled to fetch it is not established by this measurement, so it is published with its path and never gated",
+    "cycle 2: owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated"
+  ],
+  "residual_risks": [
+    {
+      "cycle": 1,
+      "epoch": "post_logout",
+      "sentinel": "expense",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "91dc804e80e6"
+    },
+    {
+      "cycle": 1,
+      "epoch": "post_logout",
+      "sentinel": "expense2",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "91dc804e80e6"
+    },
+    {
+      "cycle": 1,
+      "epoch": "post_actor",
+      "sentinel": "expense",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "91dc804e80e6"
+    },
+    {
+      "cycle": 1,
+      "epoch": "post_actor",
+      "sentinel": "expense2",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "91dc804e80e6"
+    },
+    {
+      "cycle": 2,
+      "epoch": "post_logout",
+      "sentinel": "expense",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "5ae7d1eb096c"
+    },
+    {
+      "cycle": 2,
+      "epoch": "post_logout",
+      "sentinel": "expense2",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "5ae7d1eb096c"
+    },
+    {
+      "cycle": 2,
+      "epoch": "post_actor",
+      "sentinel": "expense",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "5ae7d1eb096c"
+    },
+    {
+      "cycle": 2,
+      "epoch": "post_actor",
+      "sentinel": "expense2",
+      "class": "rendered",
+      "attribution": "unattributed",
+      "root_kind": "gc_roots",
+      "path_len": 12,
+      "path_sha256_12": "5ae7d1eb096c"
+    }
+  ],
+  "cleanup": {
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "run_only_fixture_created": true,
+    "run_only_fixture_id_sha256_12": "72412d54c227",
+    "extra_expense_removed": true,
+    "extra_expense_verified_absent": true,
+    "ok": true
+  },
+  "verdict": "PASS",
+  "findings": [],
+  "finished_at": "2026-10-27T16:48:00.726Z"
+}

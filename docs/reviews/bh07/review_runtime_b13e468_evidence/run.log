@@ -1,0 +1,14 @@
+[2026-10-27T16:43:52.913Z] building Flutter web profile bundle (dart-defines not printed)
+[2026-10-27T16:44:51.509Z] cycle 1: actor path Owner -> logout -> cohost
+[2026-10-27T16:45:00.083Z] c1_baseline: snapshot 58322442 bytes sha=3f29b7bf5338 ok=true present={"bank":false,"receiver":false,"expense":false,"expense_id":false,"expense2":false,"expense_id_2":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-27T16:45:35.872Z] c1_owner_active: snapshot 84687337 bytes sha=6ef00fd37e54 ok=true present={"bank":true,"receiver":false,"expense":true,"expense_id":true,"expense2":true,"expense_id_2":true,"player_a":true,"player_b":true,"probe":true}
+[2026-10-27T16:46:03.711Z] c1_post_logout: snapshot 69364257 bytes sha=8dc258e2181a ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-27T16:46:30.470Z] c1_post_cohost: snapshot 81102465 bytes sha=de2de4ce9d95 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"player_a":true,"player_b":true,"probe":true}
+[2026-10-27T16:46:30.728Z] cycle 2: actor path Owner -> logout -> member
+[2026-10-27T16:46:37.621Z] c2_baseline: snapshot 58492664 bytes sha=77d832f8cf80 ok=true present={"bank":false,"receiver":false,"expense":false,"expense_id":false,"expense2":false,"expense_id_2":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-27T16:47:11.310Z] c2_owner_active: snapshot 84725049 bytes sha=8e5bf205c987 ok=true present={"bank":true,"receiver":false,"expense":true,"expense_id":true,"expense2":true,"expense_id_2":true,"player_a":true,"player_b":true,"probe":true}
+[2026-10-27T16:47:37.589Z] c2_post_logout: snapshot 68979841 bytes sha=d3bc5347a6e5 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-27T16:48:00.489Z] c2_post_member: snapshot 73186935 bytes sha=cfb97f8315cc ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-27T16:48:00.727Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-27T16:48:00.727Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-27T16:48:00.787Z] run-only fixture 72412d54c227: created=true removed=true verified_absent=true
