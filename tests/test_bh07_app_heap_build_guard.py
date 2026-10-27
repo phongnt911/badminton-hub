@@ -216,6 +216,62 @@ class RedactionCompletenessControls(unittest.TestCase):
         self.assertIn('window:', payload['files']['run.log'])
         self.assertEqual(payload['files']['run.log'].count('<redacted>'), 4)
 
+    def test_publication_with_boolean_null_and_numeric_sentinels_preserves_types(self):
+        script = """
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{createRequire}=require('node:module');
+const file=path.resolve('scripts/bh07_appheap/run_app_profile_heap.js');const dir=process.env.BH07_TEST_DIR;
+const context={require:createRequire(file),module:{exports:{}},__dirname:path.dirname(file),process:{...process,env:{...process.env,BH07_APPHEAP_EVIDENCE:dir}},console,setTimeout,clearTimeout,URL};
+vm.createContext(context);vm.runInContext(fs.readFileSync(file,'utf8')+'\\nglobalThis.review={writeEvidence,RAW_SENTINEL_VALUES,logLines};',context);
+const r=context.review;
+r.RAW_SENTINEL_VALUES.bool_true = 'true';
+r.RAW_SENTINEL_VALUES.bool_false = 'false';
+r.RAW_SENTINEL_VALUES.null_word = 'null';
+r.RAW_SENTINEL_VALUES.number_word = '12345';
+r.logLines.push('line with true and false and 12345 and null');
+const summary = {
+  gate: 'type preservation control',
+  status: 'RUN',
+  verdict: 'PASS',
+  git_dirty: false,
+  error: null,
+  cleanup: { ok: true, extra_expense_removed: true, extra_expense_verified_absent: true, run_only_fixture_created: true },
+  environment: { build: { served_match: true, reused: false, artifacts: { count: 39 } } },
+  cycles: [{ cycle: 1, actor: 'cohost', same_document: true, epochs: { baseline: { size_bytes: 100, sha256_12: 'abc' } } }],
+  notes: ['note with true', 'note with false', 'note with null', 'note with 12345'],
+  findings: []
+};
+r.writeEvidence(summary);
+const files={};
+for (const name of ['run.log','summary.json','report.md']) files[name]=fs.readFileSync(path.join(dir,name),'utf8');
+console.log(JSON.stringify({status:summary.status,verdict:summary.verdict,files}));
+"""
+        with tempfile.TemporaryDirectory(prefix='bh07_types_') as tmp:
+            result = run_node(script, {'BH07_TEST_DIR': tmp})
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            payload = json.loads(result.stdout)
+        self.assertEqual(payload['status'], 'FAIL')
+        self.assertEqual(payload['verdict'], 'FAIL')
+        parsed = json.loads(payload['files']['summary.json'])
+        self.assertIs(parsed['git_dirty'], False)
+        self.assertIsNone(parsed['error'])
+        self.assertIs(parsed['cleanup']['ok'], True)
+        self.assertIs(parsed['cleanup']['extra_expense_removed'], True)
+        self.assertIs(parsed['cleanup']['extra_expense_verified_absent'], True)
+        self.assertIs(parsed['cleanup']['run_only_fixture_created'], True)
+        self.assertIs(parsed['environment']['build']['served_match'], True)
+        self.assertIs(parsed['environment']['build']['reused'], False)
+        self.assertEqual(parsed['environment']['build']['artifacts']['count'], 39)
+        self.assertIs(parsed['cycles'][0]['same_document'], True)
+        self.assertEqual(parsed['notes'], [
+            'note with <redacted>',
+            'note with <redacted>',
+            'note with <redacted>',
+            'note with <redacted>'
+        ])
+        self.assertNotIn('line with true', payload['files']['run.log'])
+        self.assertIn('| 1 | Owner -> logout -> cohost | true |', payload['files']['report.md'])
+        self.assertIn('- Build: mode=n/a reused=false artifacts=1 served_match=true', payload['files']['report.md'])
+
 
 class PublicationProbeReplay(unittest.TestCase):
     """Replay `review_4184faf_evidence/*.js` unedited, with the fixed expectations.
@@ -249,6 +305,19 @@ class PublicationProbeReplay(unittest.TestCase):
         self.assertIs(report['published_private_middle20'], False, report)
         self.assertIs(report['published_full_value'], False, report)
         self.assertIs(report['actual_private_fragment_absent'], True, report)
+
+    def test_json_structure_probe_preserves_protocol_booleans_and_syntax(self):
+        result = subprocess.run(
+            ['node', str(ROOT / 'docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js')],
+            capture_output=True, text=True, cwd=ROOT
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        for case in ('ordinary_control', 'short_true_value', 'short_false_value'):
+            with self.subTest(case=case):
+                self.assertIs(report[case]['summary_json_valid'], True, report[case])
+                self.assertEqual(report[case]['error_type'], '', report[case])
+                self.assertIs(report[case]['raw_placeholder_in_boolean'], False, report[case])
 
 
 if __name__ == '__main__':

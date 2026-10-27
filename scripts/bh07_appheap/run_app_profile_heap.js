@@ -810,15 +810,10 @@ function collectStrings(node, out = []) {
 
 function writeEvidence(summary) {
   const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-  const drafts = (target) => ({
-    'summary.json': JSON.stringify(target, null, 2) + '\n',
-    'run.log': logLines.join('\n') + '\n',
-    'report.md': renderReport(target),
-  });
-  // Sanitize before publication: a raw sentinel in any published byte fails the run.
-  // Checking raw string fields alongside rendered drafts catches values that JSON.stringify
-  // would escape, and redacting structured fields first preserves valid JSON/Markdown syntax.
-  const leaks = findSentinelLeaks([...collectStrings(summary), ...logLines, ...Object.values(drafts(summary))]);
+  // Sanitize before publication: a raw sentinel in any published string fails the run.
+  // Checking structured string fields and log lines directly catches raw leaks without
+  // confusing protocol booleans, numbers or null tokens in serialized JSON.
+  const leaks = findSentinelLeaks([...collectStrings(summary), ...logLines]);
   if (leaks.length) {
     summary.findings = [...(summary.findings || []),
       `raw sentinel value reached the publication step (${leaks.join(', ')}); redacted, run failed`];
@@ -826,9 +821,14 @@ function writeEvidence(summary) {
     summary.status = 'FAIL';
   }
   const cleanSummary = redactValue(summary);
-  for (const [name, text] of Object.entries(drafts(cleanSummary))) {
-    fs.writeFileSync(path.join(OUT, name), redactSentinels(text));
-  }
+  const cleanJson = JSON.stringify(cleanSummary, null, 2) + '\n';
+  const cleanLogs = logLines.map((line) => redactSentinels(line)).join('\n') + '\n';
+  const cleanReport = renderReport(cleanSummary);
+
+  fs.writeFileSync(path.join(OUT, 'summary.json'), cleanJson);
+  fs.writeFileSync(path.join(OUT, 'run.log'), cleanLogs);
+  fs.writeFileSync(path.join(OUT, 'report.md'), cleanReport);
+
   const manifest = ['summary.json', 'run.log', 'report.md']
     .map((name) => `${hashFile(path.join(OUT, name))}  ${name}`).join('\n');
   fs.writeFileSync(path.join(OUT, 'hashes.sha256'), manifest + '\n');
