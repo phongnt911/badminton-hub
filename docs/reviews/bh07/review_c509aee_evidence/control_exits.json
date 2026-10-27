@@ -1,0 +1,114 @@
+{
+  "environment": {
+    "PYTHONPATH": "/workspace/badminton-hub"
+  },
+  "runs": {
+    "graph_probe": {
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "docs/reviews/bh07/review_9fadecc_evidence/probes.py"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "fixture_probe": {
+      "command": [
+        "node",
+        "docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "fixture_controls": {
+      "command": [
+        "node",
+        "scripts/bh07_appheap/fixture_controls.js",
+        "--self-test"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "self_test": {
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "scripts/bh07_appheap/heap_oracle.py",
+        "self-test"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "node_check": {
+      "command": [
+        "node",
+        "--check",
+        "scripts/bh07_appheap/run_app_profile_heap.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "json_structure": {
+      "command": [
+        "node",
+        "docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "redaction": {
+      "command": [
+        "node",
+        "docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "publication": {
+      "command": [
+        "node",
+        "docs/reviews/bh07/review_4184faf_evidence/publication_probe.js"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "retained_path_r1_evidence": {
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "/workspace/badminton-hub/docs/reviews/bh07/retained_path_r1_evidence"
+      ],
+      "exit": 0,
+      "expected_exit": 0
+    },
+    "retained_path_evidence": {
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "/workspace/badminton-hub/docs/reviews/bh07/retained_path_evidence"
+      ],
+      "exit": 1,
+      "expected_exit": 1
+    },
+    "app_profile_heap_evidence": {
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "/workspace/badminton-hub/docs/reviews/bh07/app_profile_heap_evidence"
+      ],
+      "exit": 1,
+      "expected_exit": 1
+    }
+  }
+}

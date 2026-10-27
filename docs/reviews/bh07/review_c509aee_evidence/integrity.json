@@ -1,0 +1,20 @@
+{
+  "retained_path_r1_evidence": {
+    "verified_files": 3,
+    "same_git_bytes": true,
+    "unchanged_from_base": true
+  },
+  "retained_path_evidence": {
+    "verified_files": 3,
+    "same_git_bytes": true,
+    "unchanged_from_base": true
+  },
+  "app_profile_heap_evidence": {
+    "verified_files": 3,
+    "same_git_bytes": true,
+    "unchanged_from_base": true
+  },
+  "scope": "Only publisher + two tests changed; app/backend/oracle/auditor unchanged.",
+  "checkout": "c509aeeebf9e978992e93f7ac79f2aa677f0ffac",
+  "dirty_before_report": ""
+}

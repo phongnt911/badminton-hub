@@ -1,0 +1,20 @@
+{
+  "ordinary_control": {
+    "summary_json_valid": true,
+    "error_type": "",
+    "expected_json_valid": true,
+    "raw_placeholder_in_boolean": false
+  },
+  "short_true_value": {
+    "summary_json_valid": true,
+    "error_type": "",
+    "expected_json_valid": true,
+    "raw_placeholder_in_boolean": false
+  },
+  "short_false_value": {
+    "summary_json_valid": true,
+    "error_type": "",
+    "expected_json_valid": true,
+    "raw_placeholder_in_boolean": false
+  }
+}

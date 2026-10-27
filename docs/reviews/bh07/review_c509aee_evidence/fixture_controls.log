@@ -1,0 +1,7 @@
+ok collision_refused
+ok create_then_clean
+ok post_rejected_row_committed
+ok post_rejected_row_absent
+ok delete_rejected
+ok remote_endpoint_refused
+fixture controls: 6/6 controls passed

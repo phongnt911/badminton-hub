@@ -1,0 +1,10 @@
+{
+  "free_bytes": 650932224,
+  "listeners": {
+    "54321": false,
+    "8088": false,
+    "9337": false
+  },
+  "runtime": "NOT RUN",
+  "reason": "No local Supabase API; insufficient disk for isolated stack/build/heap."
+}
