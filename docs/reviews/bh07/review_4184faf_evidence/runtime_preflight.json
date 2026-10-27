@@ -1,0 +1,10 @@
+{
+  "ports": {
+    "54321": "ConnectionRefusedError",
+    "8088": "ConnectionRefusedError",
+    "9337": "ConnectionRefusedError"
+  },
+  "disk_free_bytes": 655925248,
+  "runtime": "NOT RUN: Supabase local API absent and insufficient disk for isolated build/stack/dumps",
+  "live_fixture_absence": "NOT RUN: no local DB/API"
+}

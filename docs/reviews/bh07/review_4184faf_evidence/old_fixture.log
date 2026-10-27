@@ -1,0 +1,15 @@
+{
+  "preexisting": true,
+  "post_calls": 0,
+  "delete_calls": 0,
+  "remaining": true,
+  "cleanup_result": {
+    "id": "8f24866f-15f2-4383-9013-6d888ddb7194",
+    "created": false,
+    "removed": false,
+    "verified_absent": false
+  },
+  "truncated_private_label_sanitizer_findings": [
+    "label"
+  ]
+}

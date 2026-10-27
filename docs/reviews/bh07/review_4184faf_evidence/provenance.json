@@ -1,0 +1,55 @@
+{
+  "review_checkout": "12e0aa0313c876aea0c0bf0f71544778b8c713a9",
+  "docs_evidence": "4184fafac7c19ff764e9f41a94a219f4a54c35ed",
+  "source": "86181de1df03e11b3ad537f1024405724db83bfb",
+  "author_dirty": false,
+  "status_before_report": "",
+  "runtime_tree_diff": "",
+  "app_backend_diff": "",
+  "docs_status_delta": "AGENTS.md",
+  "old_bundle_diff": "",
+  "new_hashes": {
+    "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+    "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+    "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+    "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+  },
+  "old_hashes": {
+    "retained_path_evidence": {
+      "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+      "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+      "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+      "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+    },
+    "app_profile_heap_evidence": {
+      "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+      "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+      "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+      "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+    }
+  },
+  "receipt_matches_gated_run_fixture": true,
+  "exits": {
+    "old_python_probe": 0,
+    "old_fixture_probe": 0,
+    "fixture_controls": 0,
+    "discover": 0,
+    "self_test": 0,
+    "new_verifier": 0,
+    "old_verifier_expected_reject": 1,
+    "legacy_verifier_expected_reject": 1,
+    "flutter_analyze": 0,
+    "flutter_test": 0,
+    "redaction_probe": 0,
+    "publication_probe": 0
+  },
+  "counts": {
+    "python": 302,
+    "fixture_controls": 6,
+    "self_test": 34,
+    "flutter_pass": 247,
+    "flutter_skip": 1
+  },
+  "runtime": "NOT RUN; preconditions absent",
+  "live_db_cleanup": "NOT RUN"
+}

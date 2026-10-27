@@ -1,0 +1,22 @@
+{
+  "full_value_positive": {
+    "redacted_completely": true
+  },
+  "prefix20_positive": {
+    "redacted_completely": true
+  },
+  "prefix60": {
+    "redacted_completely": false,
+    "private_middle40_survives": true
+  },
+  "prefix40": {
+    "input_length": 40,
+    "detected_before": [
+      "sample"
+    ],
+    "redacted_completely": false,
+    "private_middle20_survives": true,
+    "output_length": 30,
+    "detected_after": []
+  }
+}
