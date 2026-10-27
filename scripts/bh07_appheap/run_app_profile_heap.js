@@ -156,8 +156,11 @@ async function restWrite(env, method, query, body) {
 // leftover row from an earlier run can never be adopted as ours, and the row is removed with
 // a verified absence before the evidence is published (review 9fadecc RP1).
 const EXTRA_EXPENSE = (() => {
-  const id = crypto.randomUUID();
-  return { id, title: `Tiền điện BH-07 ${id}`, amount_vnd: 150000 };
+  // The title must not contain the id: a title is rendered text the engine keeps, so the id
+  // would be counted as retained inside it and the finance gate would fail on a fixture
+  // artifact (measured in this round's first run).
+  return { id: crypto.randomUUID(), title: `Tiền điện BH-07 ${crypto.randomBytes(4).toString('hex')}`,
+    amount_vnd: 150000 };
 })();
 // `null` until ensureExtraExpense ran: the cleanup then owns nothing.
 let extraFixture = null;

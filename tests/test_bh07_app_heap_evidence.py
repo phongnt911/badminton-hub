@@ -22,8 +22,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFIER_PATH = ROOT / 'scripts/bh07_appheap/verify_evidence.py'
-EVIDENCE = ROOT / 'docs/reviews/bh07/retained_path_evidence'
+EVIDENCE = ROOT / 'docs/reviews/bh07/retained_path_r1_evidence'
+# Bundles from earlier rounds keep their bytes and are refused by the stricter contract.
 LEGACY_EVIDENCE = ROOT / 'docs/reviews/bh07/app_profile_heap_evidence'
+LEGACY_RETAINED_PATH_EVIDENCE = ROOT / 'docs/reviews/bh07/retained_path_evidence'
 _spec = importlib.util.spec_from_file_location('verify_evidence', VERIFIER_PATH)
 VERIFIER = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(VERIFIER)
@@ -333,6 +335,17 @@ class EvidenceAuditControls(AuditCase):
         """
         problems = VERIFIER.verify(LEGACY_EVIDENCE)
         self.assertTrue(any('retained-path' in problem for problem in problems), problems)
+
+    def test_previous_round_bundle_is_rejected(self):
+        """Review 9fadecc RP3-RP6 changed the contract: the old bundle is not re-certified.
+
+        That bundle predates the run-only fixture ownership/cleanup receipt, the declared class
+        cross-check and the prefix-aware redaction, so its bytes stay as published history.
+        """
+        problems = VERIFIER.verify(LEGACY_RETAINED_PATH_EVIDENCE)
+        self.assertTrue(problems, 'the previous round bundle must not pass the new contract')
+        self.assertTrue(any('fixture' in problem or 'cleanup' in problem for problem in problems),
+                        problems)
 
     def test_zero_cycles_fails(self):
         self.mutate_summary(lambda s: s.update(cycles=[]))

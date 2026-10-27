@@ -109,6 +109,9 @@ control('collision_refused', async () => {
 control('create_then_clean', async () => {
   const table = stub();
   const fx = loadRunner(table.fetch);
+  // The gated id is a substring test: a title that embeds it would be counted as retained
+  // finance data through the engine's text cache (measured in this round's first run).
+  check(!fx.EXTRA_EXPENSE.title.includes(fx.EXTRA_EXPENSE.id), 'the run title must not embed the gated id');
   const created = await fx.ensureExtraExpense(ENV);
   check(created.created === true, JSON.stringify(created));
   check(table.calls.filter((c) => c === 'POST').length === 1, JSON.stringify(table.calls));
