@@ -148,7 +148,7 @@ async function restWrite(env, method, query, body) {
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`PostgREST ${method} ${query}: ${res.status}`);
+  if (!res.ok) throw new Error(`PostgREST ${method} ${query}: ${res.status} ${(await res.text()).slice(0, 200)}`);
 }
 
 // The shared browser seed ships one posted expense per session, and a single finance id is
@@ -168,8 +168,14 @@ async function ensureExtraExpense(env) {
     extraFixtureId = EXTRA_EXPENSE.id;
     return;
   }
+  // `created_by` is NOT NULL and fenced to a profile; the seeded court expense carries the
+  // Owner's id, and this row must look like the same Owner posted it.
+  const seeded = await restGet(env,
+    `session_expenses?session_id=eq.${UI_SESSION_ID}&select=created_by&limit=1`);
+  if (!seeded.length) throw new Error('no seeded expense to borrow created_by from');
   await restWrite(env, 'POST', 'session_expenses', [{
     ...EXTRA_EXPENSE, session_id: UI_SESSION_ID, category: 'other', status: 'posted',
+    created_by: seeded[0].created_by,
   }]);
   extraFixtureId = EXTRA_EXPENSE.id;
 }
