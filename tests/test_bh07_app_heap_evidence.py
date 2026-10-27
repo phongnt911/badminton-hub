@@ -22,10 +22,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERIFIER_PATH = ROOT / 'scripts/bh07_appheap/verify_evidence.py'
-EVIDENCE = ROOT / 'docs/reviews/bh07/app_profile_heap_evidence'
+EVIDENCE = ROOT / 'docs/reviews/bh07/retained_path_evidence'
+LEGACY_EVIDENCE = ROOT / 'docs/reviews/bh07/app_profile_heap_evidence'
 _spec = importlib.util.spec_from_file_location('verify_evidence', VERIFIER_PATH)
 VERIFIER = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(VERIFIER)
+ORACLE = VERIFIER.heap_oracle
 
 EPOCHS = ('baseline', 'owner_active', 'post_logout', 'post_actor')
 ACTORS = ('cohost', 'member')
@@ -39,6 +41,23 @@ def digest(text):
 
 def js_bool(value):
     return 'true' if value is True else 'false'
+
+
+def path_record(reachable):
+    """Same shape the oracle publishes; only the retainer path and its hash are needed."""
+    if not reachable:
+        return {'reachable': False, 'exact': False}
+    return {'reachable': True, 'root_kind': 'global_handles', 'path_len': 3,
+            'frames': ['root', 'internal:(Global handles) -> synthetic',
+                       'property:_cache -> object', 'property:bankRef -> string'],
+            'path_sha256_12': '0123456789ab', 'exact': True}
+
+
+def class_label(meta):
+    meta = meta if isinstance(meta, dict) else {}
+    rendered = 'rendered' if meta.get('rendered') is True else 'not rendered'
+    distinctive = 'distinctive' if meta.get('distinctive') is True else 'not distinctive'
+    return f"{meta.get('scope') or 'identity'}, {rendered}, {distinctive}"
 
 
 def render_report(summary):
@@ -61,12 +80,13 @@ def render_report(summary):
         '',
         '## Sentinels (values never published)',
         '',
-        '| sentinel | kind | length | sha256[:12] |',
-        '| --- | --- | --- | --- |',
+        '| sentinel | kind | class | length | sha256[:12] |',
+        '| --- | --- | --- | --- | --- |',
     ]
     for name, sentinel in (summary.get('sentinels') or {}).items():
         length = sentinel.get('length')
-        lines.append(f"| {name} | {sentinel.get('kind')} | {length if length is not None else 'n/a'} "
+        lines.append(f"| {name} | {sentinel.get('kind')} | {class_label(sentinel)} "
+                     f"| {length if length is not None else 'n/a'} "
                      f"| {sentinel.get('sha256_12') or 'n/a'} |")
     lines += ['', '## Cycles', '',
               '| cycle | actor path | same document | epoch | snapshot bytes | snapshot sha256[:12] '
@@ -78,6 +98,31 @@ def render_report(summary):
             lines.append(f"| {cycle.get('cycle')} | Owner -> logout -> {cycle.get('actor')} "
                          f"| {js_bool(cycle.get('same_document'))} | {epoch} | {scan.get('size_bytes', 'n/a')} "
                          f"| {scan.get('sha256_12') or 'n/a'} | {present} |")
+    lines += ['', '## Retained paths', '',
+              '| cycle | epoch | sentinel | reachable | root kind | path length | path sha256[:12] |',
+              '| --- | --- | --- | --- | --- | --- | --- |']
+    for cycle in summary.get('cycles') or []:
+        for epoch, scan in (cycle.get('epochs') or {}).items():
+            for name, record in sorted((scan.get('paths') or {}).items()):
+                reachable = record.get('reachable') is True
+                lines.append(
+                    f"| {cycle.get('cycle')} | {epoch} | {name} | {js_bool(reachable)} "
+                    f"| {record.get('root_kind') if reachable else 'n/a'} "
+                    f"| {record.get('path_len') if reachable else 'n/a'} "
+                    f"| {record.get('path_sha256_12') if reachable else 'n/a'} |")
+    lines += ['', '## Residual risks', '']
+    lines += ['| cycle | epoch | sentinel | root kind | path length | path sha256[:12] |',
+              '| --- | --- | --- | --- | --- | --- |']
+    risks = summary.get('residual_risks') or []
+    if not risks:
+        lines.append('| none | n/a | n/a | n/a | n/a | n/a |')
+    for risk in risks:
+        lines.append(f"| {risk.get('cycle')} | {risk.get('epoch')} | {risk.get('sentinel')} "
+                     f"| {risk.get('root_kind') or 'n/a'} | {risk.get('path_len') or 'n/a'} "
+                     f"| {risk.get('path_sha256_12') or 'n/a'} |")
+    lines += ['', '## Notes', '']
+    notes = summary.get('notes') or []
+    lines += [f'- {note}' for note in notes] or ['- none']
     lines += ['', '## Findings', '']
     findings = summary.get('findings') or []
     lines += [f'- {finding}' for finding in findings] or ['- none']
@@ -87,7 +132,30 @@ def render_report(summary):
     return '\n'.join(lines) + '\n'
 
 
-def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
+# Sentinel classes as the runner declares them; the gate only reads unrendered distinctive
+# values, and one finance value must stay in that set.
+CLASSES = {
+    'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
+    'bank': {'rendered': False, 'distinctive': False, 'scope': 'bank'},
+    'expense': {'rendered': True, 'distinctive': True, 'scope': 'finance'},
+    'expense_id': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+    'player_a': {'rendered': False, 'distinctive': True, 'scope': 'identity'},
+}
+SENTINEL_META = {
+    'probe': ('detector sanity marker set on window', '16d8da2f71d6', 25),
+    'bank': ('club bank account number (Owner-private, digits only)', '65dce15efcc4', 10),
+    'expense': ('posted session expense title rendered as widget text', 'aa92bb01cd11', 17),
+    'expense_id': ('posted session expense id returned by get_session_finance', 'bd1e4f7c9a02', 36),
+    'player_a': ('session player id of the seeded roster', '5c8f3ab67d21', 36),
+}
+
+
+def sentinel_record(name, present):
+    return {'present': present, 'occurrences': 1 if present else 0, **CLASSES[name]}
+
+
+def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',),
+                gated_epochs=('owner_active',), rendered_epochs=('owner_active',), with_paths=True):
     """Write the smallest bundle the auditor should accept, then mutate it per control."""
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
@@ -95,23 +163,38 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
     for index in range(cycles):
         epochs = {}
         for epoch in EPOCHS:
-            present = epoch in bank_epochs
+            bank = epoch in bank_epochs
+            gated = epoch in gated_epochs
+            rendered = epoch in rendered_epochs
             epochs[epoch] = {
                 'ok': True,
                 'size_bytes': 100000 + index * 1000 + len(epoch),
                 'sha256_12': digest(f'{index}-{epoch}')[:12],
                 'sentinels': {
-                    'bank': {'present': present, 'occurrences': 1 if present else 0},
-                    'probe': {'present': True, 'occurrences': 1},
+                    'probe': sentinel_record('probe', True),
+                    'bank': sentinel_record('bank', bank),
+                    'expense': sentinel_record('expense', rendered),
+                    'expense_id': sentinel_record('expense_id', gated),
+                    'player_a': sentinel_record('player_a', gated),
                 },
             }
+            if with_paths:
+                # The strict gate needs two unrendered values, one of them financial.
+                epochs[epoch]['paths'] = {
+                    'probe': path_record(True),
+                    'bank': path_record(bank),
+                    'expense': path_record(rendered),
+                    'expense_id': path_record(gated),
+                    'player_a': path_record(gated),
+                }
         recorded.append({
             'cycle': index + 1,
             'actor': actors[index % len(actors)],
             'same_document': True,
             'time_origin': 1792993862681.5 + index,
             'epochs': epochs,
-            'verdict': {'verdict': 'PASS', 'findings': [], 'epochs_checked': 4},
+            'verdict': {'verdict': 'PASS', 'findings': [], 'notes': [], 'residual_risks': [],
+                        'epochs_checked': 4},
         })
     summary = {
         'gate': 'V2b - app-profile Dart heap / in-memory retention after actor switch',
@@ -139,10 +222,12 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
             },
         },
         'sentinels': {
-            'bank': {'sha256_12': '65dce15efcc4', 'length': 10, 'kind': 'club bank account number'},
-            'probe': {'sha256_12': '16d8da2f71d6', 'length': 25, 'kind': 'detector sanity marker'},
+            name: {'sha256_12': digest_name, 'length': length, 'kind': kind, **CLASSES[name]}
+            for name, (kind, digest_name, length) in SENTINEL_META.items()
         },
         'cycles': recorded,
+        'notes': [],
+        'residual_risks': [],
         'cleanup': {
             'dump_dir_outside_repo': True,
             'raw_snapshots_remaining': 0,
@@ -153,6 +238,21 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',)):
         'verdict': 'PASS',
         'findings': [],
     }
+    # Fill the verdicts, notes and residual risks from the same oracle the runner uses, so
+    # the synthetic bundle is internally consistent by construction and every mutant below
+    # breaks exactly the rule it is meant to break.
+    for cycle in recorded:
+        expectations = ORACLE.derive_expectations(cycle['epochs'])
+        cycle['verdict'] = ORACLE.decide(cycle['epochs'], expectations, True, 'profile', strict=True)
+    summary['notes'] = [f'cycle {c["cycle"]}: {note}'
+                        for c in recorded for note in c['verdict'].get('notes') or []]
+    summary['residual_risks'] = [{'cycle': c['cycle'], **risk}
+                                 for c in recorded for risk in c['verdict'].get('residual_risks') or []]
+    summary['findings'] = [f'cycle {c["cycle"]}: {finding}'
+                           for c in recorded for finding in c['verdict']['findings']]
+    summary['verdict'] = ('PASS' if all(c['verdict']['verdict'] == 'PASS' for c in recorded)
+                          else 'FAIL')
+    summary['status'] = 'RUN' if summary['verdict'] == 'PASS' else 'FAIL'
     (root / 'report.md').write_bytes(render_report(summary).encode('utf-8'))
     (root / 'summary.json').write_bytes((json.dumps(summary, indent=2) + '\n').encode('utf-8'))
     (root / 'run.log').write_bytes(b'[2026-10-26T05:50:13.979Z] cycle 1: actor path Owner -> logout -> cohost\n')
@@ -206,6 +306,15 @@ class EvidenceAuditControls(AuditCase):
     def test_published_bundle_passes(self):
         self.assertEqual(VERIFIER.verify(EVIDENCE), [])
 
+    def test_legacy_bank_only_bundle_is_rejected(self):
+        """The pre-retained-path bundle cannot be certified under the stricter gate.
+
+        Review 2d16369 kept retained graph/paths NOT RUN, so that bundle stays historical
+        evidence for the bank sentinel only; it is not silently re-certified here.
+        """
+        problems = VERIFIER.verify(LEGACY_EVIDENCE)
+        self.assertTrue(any('retained-path' in problem for problem in problems), problems)
+
     def test_zero_cycles_fails(self):
         self.mutate_summary(lambda s: s.update(cycles=[]))
         self.assert_rejected('cycle')
@@ -244,7 +353,9 @@ class EvidenceAuditControls(AuditCase):
 
     def test_retained_after_logout_fails(self):
         def mutate(summary):
-            summary['cycles'][0]['epochs']['post_logout']['sentinels']['bank']['present'] = True
+            summary['cycles'][0]['epochs']['post_logout']['sentinels']['expense_id']['present'] = True
+            summary['cycles'][0]['epochs']['post_logout']['sentinels']['expense_id']['occurrences'] = 1
+            summary['cycles'][0]['epochs']['post_logout']['paths']['expense_id'] = path_record(True)
         self.mutate_summary(mutate)
         self.assert_rejected('post_logout')
 
@@ -254,6 +365,73 @@ class EvidenceAuditControls(AuditCase):
                 cycle['epochs']['baseline']['sentinels']['probe']['present'] = False
         self.mutate_summary(mutate)
         self.assert_rejected('probe')
+
+    def test_missing_retained_path_analysis_fails(self):
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                for scan in cycle['epochs'].values():
+                    scan.pop('paths', None)
+        self.mutate_summary(mutate)
+        self.assert_rejected('retained-path')
+
+    def test_no_gateable_coverage_fails(self):
+        # Two unrendered values (one financial) must be gated, not just the bank sentinel.
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                for scan in cycle['epochs'].values():
+                    for name in ('expense_id', 'player_a'):
+                        scan['sentinels'][name] = sentinel_record(name, False)
+                        scan['paths'][name] = path_record(False)
+        self.mutate_summary(mutate)
+        self.assert_rejected('verdict')
+
+    def test_non_distinctive_only_coverage_fails(self):
+        # A short digit run cannot carry the coverage claim, so the gate must be red.
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                for scan in cycle['epochs'].values():
+                    for name in ('expense_id', 'player_a'):
+                        scan['sentinels'][name] = sentinel_record(name, False)
+                        scan['paths'][name] = path_record(False)
+            for cycle in summary['cycles']:
+                scan = cycle['epochs']['owner_active']
+                scan['sentinels']['bank'] = sentinel_record('bank', True)
+                scan['paths']['bank'] = path_record(True)
+        self.mutate_summary(mutate)
+        self.assert_rejected('sentinel(s) gated')
+
+    def test_rendered_text_alone_is_published_not_gated(self):
+        # Rendered text is kept by the web engine's segmentation cache: it must be listed
+        # in the residual risks, and it must not be able to close the gate by itself.
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                for scan in cycle['epochs'].values():
+                    for name in ('expense_id', 'player_a'):
+                        scan['sentinels'][name] = sentinel_record(name, False)
+                        scan['paths'][name] = path_record(False)
+        self.mutate_summary(mutate)
+        problems = VERIFIER.verify(self.bundle)
+        self.assertTrue(any('gated' in problem for problem in problems), problems)
+
+    def test_owner_value_without_a_path_fails(self):
+        def mutate(summary):
+            summary['cycles'][0]['epochs']['owner_active']['paths']['expense_id'] = path_record(False)
+        self.mutate_summary(mutate)
+        self.assert_rejected('reachable')
+
+    def test_reachable_after_logout_fails_the_path_gate(self):
+        def mutate(summary):
+            scan = summary['cycles'][1]['epochs']['post_actor']
+            scan['sentinels']['expense_id'] = sentinel_record('expense_id', False)
+            scan['paths']['expense_id'] = path_record(True)
+        self.mutate_summary(mutate)
+        self.assert_rejected('verdict')
+
+    def test_report_path_row_mismatch_fails(self):
+        path = self.bundle / 'report.md'
+        path.write_bytes(path.read_bytes().replace(b'| global_handles |', b'| gc_roots      |'))
+        write_manifest(self.bundle)
+        self.assert_rejected('report.md')
 
     def test_cycle_verdict_mismatch_fails(self):
         def mutate(summary):
@@ -476,7 +654,7 @@ class ReportControls(AuditCase):
         path = self.bundle / 'report.md'
         lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
         rows = [i for i, line in enumerate(lines) if line.startswith('| 1 |')]
-        lines.insert(rows[-1] + 1, lines[rows[-1]])
+        lines.insert(rows[0] + 1, lines[rows[0]])
         path.write_text(''.join(lines), encoding='utf-8', newline='')
         write_manifest(self.bundle)
         self.assert_rejected('cycle rows')
@@ -486,7 +664,7 @@ class ReportControls(AuditCase):
         self.assert_rejected('cycle rows')
 
     def test_report_present_sentinel_mismatch_fails(self):
-        self.rewrite_report(b'| bank, probe |', b'| probe |')
+        self.rewrite_report(b'| probe, bank, expense, expense_id, player_a |', b'| probe, bank |')
         self.assert_rejected('cycle rows')
 
     def test_report_missing_findings_section_fails(self):
@@ -642,19 +820,21 @@ class SentinelMetadataControls(AuditCase):
         self.assert_rejected('sha256_12')
 
     def test_gating_sentinel_entry_missing_fails(self):
-        self.mutate_summary(lambda s: s['sentinels'].pop('bank'))
-        self.assert_rejected('bank')
+        self.mutate_summary(lambda s: s['sentinels'].pop('probe'))
+        self.assert_rejected('probe')
 
     def test_scan_sentinel_without_metadata_fails(self):
         def mutate(summary):
             for cycle in summary['cycles']:
-                cycle['epochs']['baseline']['sentinels']['expense'] = {'present': False, 'occurrences': 0}
+                scan = cycle['epochs']['baseline']
+                scan['sentinels']['contact'] = {'present': False, 'occurrences': 0}
+                scan['paths']['contact'] = path_record(False)
         self.mutate_summary(mutate)
-        self.assert_rejected('expense')
+        self.assert_rejected('contact')
 
     def test_unavailable_sentinel_marked_explicitly_passes(self):
         self.mutate_summary(lambda s: s['sentinels'].update(
-            expense={'kind': 'posted session expense title (Owner-private)', 'available': False}))
+            contact={'kind': 'member contact note (never loaded in this flow)', 'available': False}))
         self.assertEqual(VERIFIER.verify(self.bundle), [])
 
     def test_unavailable_sentinel_claimed_by_a_scan_fails(self):

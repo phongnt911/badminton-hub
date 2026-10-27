@@ -41,9 +41,9 @@ MANIFEST = 'hashes.sha256'
 REQUIRED_FILES = ('summary.json', 'report.md', 'run.log', MANIFEST)
 EPOCHS = ('baseline', 'owner_active', 'post_logout', 'post_actor')
 CYCLE_ACTORS = ('cohost', 'member')
-# Sentinels the verdict depends on: a bundle without identifying metadata for these can
-# never be certified sanitized (review 76334e2 AH8).
-GATING_SENTINELS = ('bank', 'probe')
+# Sentinels the bundle must describe: the live control plus at least one unrendered finance
+# value, so a bundle cannot publish only engine-cache-tainted or identity values.
+GATING_SENTINELS = ('probe',)
 RAW_HEAP_SUFFIXES = ('.heapsnapshot', '.heapprofile', '.heaptimeline')
 SECRET_PATTERNS = (
     (r'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}', 'JWT token'),
@@ -59,6 +59,13 @@ SHA1 = re.compile(r'[0-9a-f]{40}')
 MANIFEST_LINE = re.compile(r'([0-9a-f]{64})  (.+)')
 CYCLE_HEADER = '| cycle | actor path | same document | epoch | snapshot bytes | snapshot sha256[:12] | present sentinels |'
 CYCLE_CELLS = 7
+PATH_HEADER = '| cycle | epoch | sentinel | reachable | root kind | path length | path sha256[:12] |'
+PATH_CELLS = 7
+RISK_HEADER = '| cycle | epoch | sentinel | root kind | path length | path sha256[:12] |'
+RISK_CELLS = 6
+# A rendered text sentinel is retained by the web engine's segmentation cache, not by the
+# app; it must still be published instead of silently passing as clean.
+RENDERED_RISK_SECTIONS = ('Residual risks', 'Notes')
 
 
 def sha256_file(path):
@@ -169,13 +176,12 @@ def _check_coverage(evidence_dir, entries, problems):
 
 
 def expectations_from(scans):
-    """Derive the expectations from the scans, never from the bundle's own claim."""
-    owner = (scans.get('owner_active') or {}).get('sentinels') or {}
-    expectations = {epoch: {'probe': True, 'bank': epoch == 'owner_active'} for epoch in EPOCHS}
-    if (owner.get('expense') or {}).get('present') is True:
-        for epoch in EPOCHS:
-            expectations[epoch]['expense'] = epoch == 'owner_active'
-    return expectations
+    """Derive the expectations from the scans, never from the bundle's own claim.
+
+    Delegated to the oracle so the auditor cannot drift from the runner's own rule
+    (review 2d16369 kept retained paths NOT RUN; this gate is the missing half).
+    """
+    return heap_oracle.derive_expectations(scans)
 
 
 def _js_bool(value):
@@ -262,10 +268,12 @@ def _check_cycles(summary, build, problems):
                 scans[epoch] = {'ok': False, 'error': 'scan is not an object'}
                 continue
             # Same validator the oracle verdict uses, so a contradictory count can never
-            # be certified "internally consistent" (review 0f11bb4 AH9).
-            for problem in heap_oracle.scan_problems(scan):
+            # be certified "internally consistent" (review 0f11bb4 AH9), and a bundle that
+            # skipped the retained-path analysis is not "no retention found".
+            for problem in heap_oracle.scan_problems(scan, require_paths=True):
                 problems.append(f'{label} {epoch}: {problem}')
-        verdict = heap_oracle.decide(scans, expectations_from(scans), True, build.get('mode'))
+        verdict = heap_oracle.decide(scans, expectations_from(scans), True, build.get('mode'),
+                                     strict=True)
         stored = cycle.get('verdict') if isinstance(cycle.get('verdict'), dict) else {}
         if stored.get('verdict') != verdict['verdict']:
             problems.append(f'{label}: recorded verdict {stored.get("verdict")!r} but the recorded '
@@ -284,6 +292,15 @@ def _check_cycles(summary, build, problems):
                 for index, verdict in enumerate(recomputed, 1) for finding in verdict['findings']]
     if summary.get('findings') != findings:
         problems.append(f'summary findings {summary.get("findings")} do not match the cycles {findings}')
+    notes = [f'cycle {index}: {note}'
+             for index, verdict in enumerate(recomputed, 1) for note in verdict.get('notes') or []]
+    if summary.get('notes') != notes:
+        problems.append(f'summary notes {summary.get("notes")} do not match the cycles {notes}')
+    risks = [{'cycle': index, **risk}
+             for index, verdict in enumerate(recomputed, 1) for risk in verdict.get('residual_risks') or []]
+    if summary.get('residual_risks') != risks:
+        problems.append(f'summary residual risks {summary.get("residual_risks")} do not match the '
+                        f'cycles {risks}')
     return recomputed
 
 
@@ -315,6 +332,60 @@ def _expected_report_rows(summary):
             rows.append([str(cycle.get('cycle')), f'Owner -> logout -> {cycle.get("actor")}',
                          _js_bool(cycle.get('same_document')), epoch,
                          str(scan.get('size_bytes', 'n/a')), str(scan.get('sha256_12') or 'n/a'), present])
+    return rows
+
+
+def _expected_path_rows(summary):
+    """One row per recorded sentinel, so a Markdown path table must match the JSON."""
+    rows = []
+    for cycle in summary.get('cycles') or []:
+        if not isinstance(cycle, dict):
+            continue
+        for epoch, scan in (cycle.get('epochs') or {}).items():
+            paths = scan.get('paths') if isinstance(scan, dict) else None
+            if not isinstance(paths, dict):
+                continue
+            for name in sorted(paths):
+                record = paths[name] if isinstance(paths[name], dict) else {}
+                reachable = record.get('reachable') is True
+                rows.append([
+                    str(cycle.get('cycle')), epoch, name, _js_bool(reachable),
+                    str(record.get('root_kind') or 'n/a') if reachable else 'n/a',
+                    str(record.get('path_len') or 'n/a') if reachable else 'n/a',
+                    str(record.get('path_sha256_12') or 'n/a') if reachable else 'n/a',
+                ])
+    return rows
+
+
+def _expected_risk_rows(summary):
+    """One row per published residual risk, so the Markdown cannot soften the JSON."""
+    risks = summary.get('residual_risks')
+    if not isinstance(risks, list) or not risks:
+        return [['none', 'n/a', 'n/a', 'n/a', 'n/a', 'n/a']]
+    rows = []
+    for risk in risks:
+        if not isinstance(risk, dict):
+            rows.append(['invalid', 'invalid', 'invalid', 'invalid', 'invalid', 'invalid'])
+            continue
+        rows.append([str(risk.get('cycle')), str(risk.get('epoch')), str(risk.get('sentinel')),
+                     str(risk.get('root_kind') or 'n/a'),
+                     str(risk.get('path_len') or 'n/a'), str(risk.get('path_sha256_12') or 'n/a')])
+    return rows
+
+
+def _table_rows(lines, header, cells):
+    """Data rows of one Markdown table, or None when the header itself is missing."""
+    if header not in lines:
+        return None
+    start = lines.index(header) + 1
+    if start < len(lines) and set(lines[start]) <= set('| -'):
+        start += 1
+    rows = []
+    for line in lines[start:]:
+        if not line.startswith('|'):
+            break
+        row = [cell.strip() for cell in line.strip().strip('|').split('|')]
+        rows.append(row if len(row) == cells else None)
     return rows
 
 
@@ -350,24 +421,54 @@ def _check_report(evidence_dir, summary, build, problems):
     if CYCLE_HEADER not in lines:
         problems.append('report.md is missing the cycle table header')
     else:
-        start = lines.index(CYCLE_HEADER) + 1
-        if start < len(lines) and set(lines[start]) <= set('| -'):
-            start += 1
-        actual = []
-        for line in lines[start:]:
-            if not line.startswith('|'):
-                break
-            cells = [cell.strip() for cell in line.strip().strip('|').split('|')]
-            if len(cells) != CYCLE_CELLS:
-                problems.append(f'report.md cycle row has {len(cells)} columns: {line!r}')
-                continue
-            actual.append(cells)
+        actual = _table_rows(lines, CYCLE_HEADER, CYCLE_CELLS) or []
+        if any(row is None for row in actual):
+            problems.append('report.md cycle rows have the wrong column count')
+            actual = [row for row in actual if row is not None]
         expected = _expected_report_rows(summary)
         if actual != expected:
             missing = [row for row in expected if row not in actual]
             extra = [row for row in actual if row not in expected]
             problems.append(f'report.md cycle rows do not match summary.json '
                             f'(missing {missing[:2]}, extra {extra[:2]})')
+
+    path_rows = _table_rows(lines, PATH_HEADER, PATH_CELLS)
+    if path_rows is None:
+        problems.append('report.md is missing the retained-path table header')
+    else:
+        if any(row is None for row in path_rows):
+            problems.append('report.md retained-path rows have the wrong column count')
+            path_rows = [row for row in path_rows if row is not None]
+        expected_paths = _expected_path_rows(summary)
+        if path_rows != expected_paths:
+            missing = [row for row in expected_paths if row not in path_rows]
+            extra = [row for row in path_rows if row not in expected_paths]
+            problems.append(f'report.md retained-path rows do not match summary.json '
+                            f'(missing {missing[:2]}, extra {extra[:2]})')
+
+    risk_rows = _table_rows(lines, RISK_HEADER, RISK_CELLS)
+    if risk_rows is None:
+        problems.append('report.md is missing the residual-risk table header')
+    else:
+        if any(row is None for row in risk_rows):
+            problems.append('report.md residual-risk rows have the wrong column count')
+            risk_rows = [row for row in risk_rows if row is not None]
+        expected_risks = _expected_risk_rows(summary)
+        if risk_rows != expected_risks:
+            problems.append(f'report.md residual-risk rows do not match summary.json '
+                            f'({risk_rows[:2]} != {expected_risks[:2]})')
+
+    notes_body = _section(text, 'Notes')
+    if notes_body is None:
+        problems.append('report.md is missing the Notes section')
+    else:
+        reported_notes = [line[2:] for line in notes_body if line.startswith('- ')]
+        expected_notes = list(summary.get('notes') or [])
+        if not expected_notes and reported_notes == ['none']:
+            reported_notes = []
+        if reported_notes != expected_notes:
+            problems.append(f'report.md notes do not match summary.json '
+                            f'({reported_notes} != {expected_notes})')
 
     findings_body = _section(text, 'Findings')
     if findings_body is None:
@@ -427,6 +528,7 @@ def _check_sentinels(summary, texts, problems):
             problems.append(f'sentinel {name} metadata is missing')
     for name in sorted(claimed - set(sentinels)):
         problems.append(f'a scan records sentinel {name} that has no published metadata')
+    finance_gated = []
     for name, meta in sorted(sentinels.items()):
         if not isinstance(meta, dict):
             problems.append(f'sentinel {name} metadata is not an object')
@@ -440,6 +542,15 @@ def _check_sentinels(summary, texts, problems):
             if name in claimed:
                 problems.append(f'sentinel {name} is marked unavailable but a scan claims it')
             continue
+        # The class is what the gate reads, so it must be published and must agree with
+        # what every scan recorded for that sentinel.
+        for field in ('rendered', 'distinctive'):
+            if type(meta.get(field)) is not bool:
+                problems.append(f'sentinel {name} metadata lacks a boolean {field}')
+        if meta.get('scope') not in heap_oracle.SENTINEL_SCOPES:
+            problems.append(f'sentinel {name} metadata has an unknown scope: {meta.get("scope")!r}')
+        elif meta.get('scope') == 'finance' and meta.get('rendered') is False:
+            finance_gated.append(name)
         length = meta.get('length')
         digest = meta.get('sha256_12')
         identifiable = True
@@ -456,6 +567,9 @@ def _check_sentinels(summary, texts, problems):
                       for start in range(max(0, len(text) - length + 1)))
             if hit:
                 problems.append(f'{label} publishes the raw value of sentinel {name}')
+    if not finance_gated:
+        problems.append('no unrendered finance sentinel is published: the gate would not cover '
+                        'financial data')
 
 
 def verify(evidence_dir):

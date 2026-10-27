@@ -55,6 +55,17 @@ function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, ...opts });
 }
 
+// The oracle signals a FAIL verdict with exit 1 and still prints it: a measured failure is
+// evidence that must be published, not an aborted run. Any other exit stays fatal.
+function runVerdict(cmd, args) {
+  try {
+    return run(cmd, args);
+  } catch (error) {
+    if (error.status === 1 && error.stdout) return error.stdout;
+    throw error;
+  }
+}
+
 async function checked(cdp, method, params = {}, timeoutMs = 60000) {
   // A dead renderer otherwise leaves the run hanging with no evidence.
   const result = await Promise.race([
@@ -126,17 +137,50 @@ async function restGet(env, query) {
   return res.json();
 }
 
-// Sentinels are real fixture values that only the Owner's private payloads carry.
+// Sentinels are real fixture values that only the Owner's private payloads carry. Each one
+// declares the class the gate depends on (see SENTINEL_CLASSES below).
 async function resolveSentinels(env, runId) {
-  const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number&status=eq.active`);
+  const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number,account_name&status=eq.active`);
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
-  const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=title&status=eq.posted`);
+  const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted`);
+  if (!expenses.length) throw new Error('no posted expense fixture for the UI session');
+  const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
   return {
     bank: banks[0].account_number,
-    expense: expenses.length ? expenses[0].title : null,
+    receiver: banks[0].account_name,
+    expense: expenses[0].title,
+    expense_id: expenses[0].id,
+    players: players.map((row) => row.id),
     probe: `BH07APPHEAPPROBE-${runId}`,
   };
 }
+
+// Class of each sentinel, declared once so runner, oracle and auditor agree:
+// - `rendered` text is laid out by the engine, which keeps it in its own segmentation LRU
+//   after the app drops it (flutter/engine web_ui text_fragmenter.dart), so retention there
+//   is published as a residual risk and never as app state;
+// - `distinctive: false` short digit runs can match inside an unrelated UUID (measured:
+//   `0000000007` matched only `10000000-0000-4000-8000-000000000007`), so a hit proves
+//   nothing and is reported as a note instead of gating;
+// - `scope: finance` keeps at least one financial value in the gated set.
+const SENTINEL_CLASSES = {
+  bank: { rendered: false, distinctive: false, scope: 'bank' },
+  receiver: { rendered: false, distinctive: true, scope: 'bank' },
+  expense: { rendered: true, distinctive: true, scope: 'finance' },
+  expense_id: { rendered: false, distinctive: true, scope: 'finance' },
+  player_a: { rendered: false, distinctive: true, scope: 'identity' },
+  player_b: { rendered: false, distinctive: true, scope: 'identity' },
+  probe: { rendered: false, distinctive: true, scope: 'control' },
+};
+const SENTINEL_KINDS = {
+  bank: 'club bank account number (Owner-private, digits only)',
+  receiver: 'bank account holder name (loaded by payment instructions, not the Owner surface)',
+  expense: 'posted session expense title rendered as widget text',
+  expense_id: 'posted session expense id returned by get_session_finance (never rendered)',
+  player_a: 'session player id of the seeded roster (never rendered)',
+  player_b: 'second session player id of the seeded roster (never rendered)',
+  probe: 'detector sanity marker set on window',
+};
 
 async function buildProfile(env) {
   const args = ['build', 'web', '--profile',
@@ -211,6 +255,11 @@ async function openOwnerFinance(cdp) {
   await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
   await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
   await cdp.clickSemantic((e) => text(e).includes(UI_SESSION_TITLE), 'Fixture history row');
+  // Owner-private payloads beyond the bank sentinel only load here: expenses, charges
+  // and payments of the session (retained-path coverage for §4.4).
+  await cdp.clickSemantic((e) => text(e).includes('Tài chính & thu tiền'), 'Open session finance');
+  await cdp.waitForSemantic((e) => text(e).includes('Chi phí ('), 'Owner finance screen loaded');
+  await cdp.clickBack('Return to session detail');
   await cdp.clickSemantic((e) => text(e).includes('Tổng kết buổi'), 'Summary entry');
   await cdp.waitForSemantic((e) => text(e).includes('Tài chính tổng hợp'), 'Owner finance card loaded');
 }
@@ -231,7 +280,7 @@ async function openMemberHistory(cdp) {
 
 // One live V8 heap snapshot, scanned once, then deleted. The chunk events are the only
 // way CDP delivers a snapshot, so the driver's message handler is wrapped temporarily.
-async function takeSnapshot(cdp, label, sentinelsPath) {
+async function takeSnapshot(cdp, label, sentinelsPath, classesPath) {
   const file = path.join(DUMPS, `${label}.heapsnapshot`);
   const chunks = [];
   const original = cdp.ws.onmessage;
@@ -252,7 +301,8 @@ async function takeSnapshot(cdp, label, sentinelsPath) {
     cdp.ws.onmessage = original;
   }
   fs.writeFileSync(file, chunks.join(''));
-  const scanned = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'scan', '--snapshot', file, '--sentinels', sentinelsPath], { shell: false }));
+  const scanned = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'scan', '--snapshot', file, '--sentinels', sentinelsPath,
+    '--classes', classesPath, '--paths'], { shell: false }));
   fs.unlinkSync(file);
   await checked(cdp, 'Runtime.evaluate', { expression: '1' }, 15000);
   log(`${label}: snapshot ${scanned.size_bytes} bytes sha=${scanned.sha256_12} ok=${scanned.ok} `
@@ -260,24 +310,24 @@ async function takeSnapshot(cdp, label, sentinelsPath) {
   return scanned;
 }
 
-async function runCycle(cycle, actor, sentinelsPath, cdp) {
+async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp) {
   const epochs = {};
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
   await wait(500);
-  epochs.baseline = await takeSnapshot(cdp, `c${cycle}_baseline`, sentinelsPath);
+  epochs.baseline = await takeSnapshot(cdp, `c${cycle}_baseline`, sentinelsPath, classesPath);
 
   await login(cdp, 'ownera');
   await openOwnerFinance(cdp);
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
-  epochs.owner_active = await takeSnapshot(cdp, `c${cycle}_owner_active`, sentinelsPath);
+  epochs.owner_active = await takeSnapshot(cdp, `c${cycle}_owner_active`, sentinelsPath, classesPath);
 
   await logout(cdp);
-  epochs.post_logout = await takeSnapshot(cdp, `c${cycle}_post_logout`, sentinelsPath);
+  epochs.post_logout = await takeSnapshot(cdp, `c${cycle}_post_logout`, sentinelsPath, classesPath);
 
   await login(cdp, `${actor}a`);
   if (actor === 'cohost') await openCohostSummary(cdp);
   else await openMemberHistory(cdp);
-  epochs.post_actor = await takeSnapshot(cdp, `c${cycle}_post_${actor}`, sentinelsPath);
+  epochs.post_actor = await takeSnapshot(cdp, `c${cycle}_post_${actor}`, sentinelsPath, classesPath);
 
   return epochs;
 }
@@ -306,6 +356,8 @@ async function main() {
     environment: { os: `${process.platform} ${os.release()}`, node: process.version },
     sentinels: {},
     cycles: [],
+    notes: [],
+    residual_risks: [],
     cleanup: {},
   };
   let chrome, server, cdp;
@@ -313,22 +365,32 @@ async function main() {
     const env = supabaseEnv();
     const sentinels = await resolveSentinels(env, runId);
     PROBE_VALUE = sentinels.probe;
-    Object.assign(RAW_SENTINEL_VALUES, {
-      bank: sentinels.bank, expense: sentinels.expense, probe: sentinels.probe,
-    });
-    summary.sentinels = {
-      // `available` is explicit so the auditor never has to guess why a length/hash is
-      // missing (review 76334e2 AH8).
-      bank: { available: true, sha256_12: sha12(sentinels.bank), length: sentinels.bank.length, kind: 'club bank account number (Owner-private)' },
-      expense: sentinels.expense
-        ? { available: true, sha256_12: sha12(sentinels.expense), length: sentinels.expense.length, kind: 'posted session expense title (Owner-private)' }
-        : { available: false, kind: 'not available in fixtures' },
-      probe: { available: true, sha256_12: sha12(sentinels.probe), length: sentinels.probe.length, kind: 'detector sanity marker set on window' },
+    const values = {
+      bank: sentinels.bank,
+      receiver: sentinels.receiver,
+      expense: sentinels.expense,
+      expense_id: sentinels.expense_id,
+      player_a: sentinels.players[0],
+      player_b: sentinels.players[1],
+      probe: sentinels.probe,
     };
+    if (!values.player_b) throw new Error('the fixture session needs two players for the gated set');
+    Object.assign(RAW_SENTINEL_VALUES, values);
+    // `available` is explicit so the auditor never has to guess why a length/hash is
+    // missing (review 76334e2 AH8). A value the Owner surface never loaded is reported as
+    // not loaded instead of being invented as coverage.
+    summary.sentinels = Object.fromEntries(Object.entries(values).filter(([, v]) => v)
+      .map(([name, value]) => [name, {
+        available: true,
+        sha256_12: sha12(value),
+        length: value.length,
+        kind: SENTINEL_KINDS[name],
+        ...SENTINEL_CLASSES[name],
+      }]));
     const sentinelsPath = path.join(DUMPS, 'sentinels.json');
-    const oracleSentinels = { bank: sentinels.bank, probe: sentinels.probe };
-    if (sentinels.expense) oracleSentinels.expense = sentinels.expense;
-    fs.writeFileSync(sentinelsPath, JSON.stringify(oracleSentinels));
+    const classesPath = path.join(DUMPS, 'classes.json');
+    fs.writeFileSync(sentinelsPath, JSON.stringify(values));
+    fs.writeFileSync(classesPath, JSON.stringify(SENTINEL_CLASSES));
 
     if (reuseBuild) {
       // A build this run did not produce cannot prove profile provenance (review AH5).
@@ -361,17 +423,20 @@ async function main() {
       summary.environment.chrome = chrome.version['Browser'] || chrome.version.Browser;
       await cdp.waitForSemantic((e) => text(e).includes('Bạn đang xem dưới dạng khách'), 'guest baseline UI', 30000);
       const origin = await cdp.evaluate('performance.timeOrigin');
-      const epochs = await runCycle(cycle, actor, sentinelsPath, cdp);
+      const epochs = await runCycle(cycle, actor, sentinelsPath, classesPath, cdp);
       const originAfter = await cdp.evaluate('performance.timeOrigin');
       if (origin !== originAfter) throw new Error(`cycle ${cycle}: document reloaded between epochs (${origin} != ${originAfter})`);
       const scans = {};
       for (const [epoch, result] of Object.entries(epochs)) scans[epoch] = result;
       const scansPath = path.join(DUMPS, `c${cycle}_scans.json`);
       fs.writeFileSync(scansPath, JSON.stringify(scans));
+      // Expectations come from the oracle, not from a second copy of the rule in this
+      // file, so runner and auditor cannot disagree about what is gated.
       const expectationsPath = path.join(DUMPS, 'expectations.json');
-      fs.writeFileSync(expectationsPath, JSON.stringify(buildExpectations(epochs.owner_active)));
-      const verdict = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'decide', '--scans', scansPath,
-        '--expectations', expectationsPath, '--cleanup-ok', 'true', '--mode', summary.environment.build.mode]));
+      run(PY, ['-X', 'utf8', ORACLE, 'expectations', '--scans', scansPath, '--out', expectationsPath]);
+      const verdict = JSON.parse(runVerdict(PY, ['-X', 'utf8', ORACLE, 'decide', '--scans', scansPath,
+        '--expectations', expectationsPath, '--cleanup-ok', 'true', '--mode', summary.environment.build.mode,
+        '--require-paths']));
       summary.cycles.push({ cycle, actor, same_document: true, time_origin: origin, epochs, verdict });
       await cdp.close();
       launched.expectedExit = true;
@@ -388,6 +453,11 @@ async function main() {
     const verdicts = summary.cycles.map((c) => c.verdict.verdict);
     summary.verdict = verdicts.length === cycles && verdicts.every((v) => v === 'PASS') ? 'PASS' : 'FAIL';
     summary.findings = summary.cycles.flatMap((c) => c.verdict.findings.map((f) => `cycle ${c.cycle}: ${f}`));
+    // Published but never gated: a coincidence in the gated set, and rendered text kept by
+    // the web engine's segmentation cache after the app dropped it.
+    summary.notes = summary.cycles.flatMap((c) => (c.verdict.notes || []).map((n) => `cycle ${c.cycle}: ${n}`));
+    summary.residual_risks = summary.cycles.flatMap((c) => (c.verdict.residual_risks || [])
+      .map((risk) => ({ cycle: c.cycle, ...risk })));
     summary.status = summary.verdict === 'PASS' ? 'RUN' : 'FAIL';
   } catch (error) {
     summary.status = 'NOT RUN';
@@ -430,6 +500,13 @@ async function main() {
   process.exitCode = summary.status === 'RUN' ? 0 : 1;
 }
 
+function sentinelClassLabel(meta) {
+  const scope = meta && meta.scope ? meta.scope : 'identity';
+  const rendered = meta && meta.rendered === true ? 'rendered' : 'not rendered';
+  const distinctive = meta && meta.distinctive === true ? 'distinctive' : 'not distinctive';
+  return `${scope}, ${rendered}, ${distinctive}`;
+}
+
 function findSentinelLeaks(texts, values = RAW_SENTINEL_VALUES) {
   // Review 57ec02c AH3-B: the published bytes must never carry a raw sentinel value.
   // Matching the live value is exact, so this cannot fire on a hash or a length.
@@ -467,10 +544,10 @@ function renderReport(summary) {
     '',
     '## Sentinels (values never published)',
     '',
-    '| sentinel | kind | length | sha256[:12] |',
-    '| --- | --- | --- | --- |',
+    '| sentinel | kind | class | length | sha256[:12] |',
+    '| --- | --- | --- | --- | --- |',
     ...Object.entries(summary.sentinels || {}).map(([name, s]) =>
-      `| ${name} | ${s.kind} | ${s.length ?? 'n/a'} | ${s.sha256_12 || 'n/a'} |`),
+      `| ${name} | ${s.kind} | ${sentinelClassLabel(s)} | ${s.length ?? 'n/a'} | ${s.sha256_12 || 'n/a'} |`),
     '',
     '## Cycles',
     '',
@@ -485,6 +562,39 @@ function renderReport(summary) {
         + `| ${scan.size_bytes ?? 'n/a'} | ${scan.sha256_12 || 'n/a'} | ${present} |`);
     }
   }
+  lines.push('', '## Retained paths', '',
+    '| cycle | epoch | sentinel | reachable | root kind | path length | path sha256[:12] |',
+    '| --- | --- | --- | --- | --- | --- | --- |');
+  for (const cycle of summary.cycles || []) {
+    for (const [epoch, scan] of Object.entries(cycle.epochs || {})) {
+      for (const name of Object.keys(scan.paths || {}).sort()) {
+        const record = scan.paths[name] || {};
+        const reachable = record.reachable === true;
+        lines.push(`| ${cycle.cycle} | ${epoch} | ${name} | ${reachable} `
+          + `| ${reachable ? record.root_kind : 'n/a'} | ${reachable ? record.path_len : 'n/a'} `
+          + `| ${reachable ? record.path_sha256_12 : 'n/a'} |`);
+      }
+    }
+  }
+  lines.push('', '## Residual risks', '',
+    'Rendered text the Owner saw can stay in the web engine’s segmentation LRU after the app',
+    'dropped it. That retainer is engine-internal (flutter/engine web_ui text_fragmenter.dart),',
+    'so it is published here and never counted as app state by the gate.',
+    '',
+    '| cycle | epoch | sentinel | root kind | path length | path sha256[:12] |',
+    '| --- | --- | --- | --- | --- | --- |');
+  const risks = summary.residual_risks || [];
+  if (!risks.length) {
+    lines.push('| none | n/a | n/a | n/a | n/a | n/a |');
+  } else {
+    for (const risk of risks) {
+      lines.push(`| ${risk.cycle} | ${risk.epoch} | ${risk.sentinel} | ${risk.root_kind || 'n/a'} `
+        + `| ${risk.path_len || 'n/a'} | ${risk.path_sha256_12 || 'n/a'} |`);
+    }
+  }
+  lines.push('', '## Notes', '');
+  const notes = summary.notes || [];
+  lines.push(...(notes.length ? notes.map((n) => `- ${n}`) : ['- none']));
   lines.push('', '## Findings', '');
   const findings = summary.findings || [];
   lines.push(...(findings.length ? findings.map((f) => `- ${f}`) : ['- none']));
@@ -493,6 +603,11 @@ function renderReport(summary) {
   lines.push('## Limitations', '',
     '- Web *profile* build measures the dart2js/V8 heap, not the Dart VM heap of a desktop/mobile build;',
     '  no Visual Studio or Android SDK is installed on this machine, so the VM-service path is NOT RUN.',
+    '- Only *unrendered, distinctive* values gate the verdict. Rendered text is retained by the web',
+    '  engine’s segmentation LRU after the app drops it, so gating on it would measure the engine, and',
+    '  a short digit run can match inside an unrelated fixture UUID (measured for `0000000007`).',
+    '- The bank account holder name is only fetched by the player payment-instructions surface, so the',
+    '  Owner path never loads it; it is measured and reported as not loaded, not as coverage.',
     '- Sentinels prove that specific Owner-private values are no longer reachable; they do not enumerate',
     '  every retained object of the financial models.',
     '- Raw heap snapshots are written outside the repository, scanned once and deleted; only counts and',
@@ -521,23 +636,6 @@ function writeEvidence(summary) {
   const manifest = ['summary.json', 'run.log', 'report.md']
     .map((name) => `${hashFile(path.join(OUT, name))}  ${name}`).join('\n');
   fs.writeFileSync(path.join(OUT, 'hashes.sha256'), manifest + '\n');
-}
-
-function buildExpectations(ownerScan) {
-  const expectations = {
-    baseline: { probe: true, bank: false },
-    owner_active: { probe: true, bank: true },
-    post_logout: { probe: true, bank: false },
-    post_actor: { probe: true, bank: false },
-  };
-  // The expense title only becomes a gating sentinel if the Owner surface actually
-  // loaded it; otherwise it proves nothing and is reported as not loaded.
-  const expenseLoaded = Boolean(ownerScan && ownerScan.sentinels && ownerScan.sentinels.expense
-    && ownerScan.sentinels.expense.present);
-  if (expenseLoaded) {
-    for (const epoch of Object.keys(expectations)) expectations[epoch].expense = epoch === 'owner_active';
-  }
-  return expectations;
 }
 
 module.exports = { findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES };
