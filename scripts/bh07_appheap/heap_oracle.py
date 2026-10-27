@@ -51,14 +51,15 @@ SHA12 = re.compile(r'[0-9a-f]{12}')
 MIN_GATED_SENTINELS = 2
 # Sentinel classes, declared by the runner per value:
 # - `scope: finance` is the only gated scope: Owner-private money data that no other actor
-#   may load. An `identity` roster id of the shared club is legitimately re-fetched by the
-#   cohost, so it is published with its path and reported, never asserted absent.
+#   may load. An `identity` roster id of the shared club is data another actor may be able
+#   to load, so it is published with its path and reported, never asserted absent.
 # - `distinctive: false` (short digit runs) can match inside an unrelated UUID, so a hit is
 #   not evidence that the Owner surface loaded the value (measured: `0000000007` only ever
 #   matched the fixture UUID `...-000000000007`); those are reported but never gated.
-# - `rendered: true` values are laid out as widget text, so the Flutter web engine's
-#   segmentation LRU (`web_ui/lib/src/engine/text_fragmenter.dart`) keeps the string after
-#   the app drops it. Retention there is a platform residual risk, not app state.
+# - `rendered: true` values are laid out as widget text, which the Flutter web engine keeps
+#   in its segmentation LRU (`web_ui/lib/src/engine/text_fragmenter.dart`). That cache is a
+#   plausible retainer, not a measured one: retention after the app drops the value is
+#   published as an *unattributed* residual risk, never as "the engine, not the app".
 SENTINEL_SCOPES = ('finance', 'identity', 'control', 'bank')
 GATED_SCOPES = ('finance',)
 SENTINEL_CLASS_DEFAULTS = {'rendered': False, 'distinctive': True, 'scope': 'identity'}
@@ -239,9 +240,10 @@ def derive_expectations(scans):
     strings regardless of app state), and it is Owner-private financial data.
 
     The last condition is the scope filter, and it is the one that keeps the gate honest:
-    a roster id of the shared club is data the cohost is *authorized* to load, so a cohost
-    path that re-fetches it says nothing about retention. Those values are published with
-    their paths and reported, never asserted absent.
+    a roster id of the shared club may be data another actor can load, so a path that
+    re-fetches it says nothing about retention. Those values are published with their paths
+    and reported, never asserted absent — and never described as authorized, because this
+    measurement does not establish who is entitled to fetch them (review 9fadecc RP5).
     """
     owner = (scans.get('owner_active') or {}).get('sentinels') or {}
     baseline = (scans.get('baseline') or {}).get('sentinels') or {}
@@ -283,7 +285,9 @@ ROOT_KIND_BY_NAME = {
     '(Shared heap)': 'shared_heap',
 }
 ROOT_KINDS = tuple(ROOT_KIND_BY_NAME.values()) + ('root', 'other')
-MAX_PATH_NODES_PER_SENTINEL = 8
+# How many retainer chains we try to publish per sentinel. Reachability itself covers every
+# match (review 9fadecc RP2): only the published path is bounded.
+MAX_CHAIN_WALKS = 8
 MAX_PATH_FRAMES = 24
 MAX_PATH_EDGES = 4096
 EDGE_LABEL_MAX = 40
@@ -372,18 +376,27 @@ def _root_reach(doc, layout):
     return parent, parent_edge, None
 
 
-def _chain(node, parent, parent_edge):
-    """Root-to-node chain, or None when the node is not retained from the root."""
+def _chain(node, parent):
+    """Root-to-node chain plus the reason a walk cannot be trusted.
+
+    `None` with 'not_retained' means the node is not reachable from the root. A chain longer
+    than the budget, or a parent cycle, is *not analysed*: reporting it as unreachable would
+    turn a walk we refused to finish into a clean answer (review 9fadecc RP2).
+    """
     chain = [node]
     seen = {node}
     while node != 0:
         node = parent[node]
-        if node < 0 or node in seen or len(chain) > MAX_PATH_EDGES:
-            return None
+        if node < 0:
+            return None, 'not_retained'
+        if node in seen:
+            return None, 'retained_path_cycle'
         seen.add(node)
         chain.append(node)
+        if len(chain) > MAX_PATH_EDGES:
+            return None, 'retained_path_too_deep'
     chain.reverse()
-    return chain
+    return chain, None
 
 
 def _edge_frame(doc, layout, record, needles=()):
@@ -393,6 +406,11 @@ def _edge_frame(doc, layout, record, needles=()):
     text itself, which is how a rendered title shows up as `property:<title>`. Publishing
     that label would republish the value the gate is hiding, so a label carrying a sentinel
     is published as `<redacted>` and the frame stays attributive (type + edge kind).
+
+    The whole decoded label is checked *before* it is shortened (review 9fadecc RP3):
+    truncating first dropped the tail of a long value, so the full-value match no longer
+    fired and the prefix was published. A label that is itself a prefix of a private value
+    is redacted too.
     """
     edges, strings = doc['edges'], doc['strings']
     base = record * layout['edge_width']
@@ -403,8 +421,9 @@ def _edge_frame(doc, layout, record, needles=()):
     if kind in ('property', 'internal', 'shortcut'):
         raw = edges[base + layout['ename_i']]
         if isinstance(raw, int) and 0 <= raw < len(strings):
-            label = strings[raw][:EDGE_LABEL_MAX]
-            if any(needle in label for needle in needles if needle):
+            value = strings[raw]
+            label = value[:EDGE_LABEL_MAX]
+            if any(needle in value or needle.startswith(label) for needle in needles if needle):
                 label = '<redacted>'
     return f'{kind}:{label}' if label else kind
 
@@ -455,7 +474,7 @@ def retained_paths(doc, sentinels):
             continue
         name_index = nodes[base + name_i]
         for name, indexes in matched.items():
-            if name_index in indexes and len(targets[name]) < MAX_PATH_NODES_PER_SENTINEL:
+            if name_index in indexes:
                 targets[name].append(node_index)
 
     result = {}
@@ -464,13 +483,29 @@ def retained_paths(doc, sentinels):
         # longer composed string. It only tells the reviewer whether the match is the
         # whole value (a unique fixture) or a substring (possibly a coincidence).
         exact = any(strings[index] == sentinels[name] for index in matched[name])
-        chains = [chain for chain in
-                  (_chain(node, parent, parent_edge) for node in node_indexes if node != 0)
-                  if chain is not None]
-        if not chains:
+        # Reachability covers every matching node, so a value a live object holds can never
+        # be published as unreachable because the target list was capped (review 9fadecc
+        # RP2). Only the paths we publish are bounded.
+        retained = [node for node in node_indexes if node != 0 and parent[node] >= 0]
+        if not retained:
             result[name] = {'reachable': False, 'string_nodes': len(node_indexes), 'exact': exact}
             continue
-        best = min(chains, key=len)
+        best = None
+        incomplete = None
+        for node in retained[:MAX_CHAIN_WALKS]:
+            chain, why = _chain(node, parent)
+            if chain is None:
+                if why != 'not_retained':
+                    incomplete = why
+                continue
+            if best is None or len(chain) < len(best):
+                best = chain
+        if best is None:
+            # We know the value is retained but refused to finish the walk: that is "not
+            # analysed", never "gone" and never a silently dropped finding.
+            result[name] = {'error': incomplete or 'retained_path_not_analysed',
+                            'reachable': None, 'string_nodes': len(node_indexes), 'exact': exact}
+            continue
         frames = []
         for depth, node in enumerate(best):
             if depth == 0:
@@ -478,6 +513,10 @@ def retained_paths(doc, sentinels):
                 continue
             child_type = type_names[nodes[node * width + type_i]]
             frames.append(f'{_edge_frame(doc, layout, parent_edge[node], sentinels.values())} -> {child_type}')
+        # Publication guard: a frame is only publishable when it carries no private value.
+        frame_values = list(sentinels.values())
+        frames = [frame if not any(needle and needle in frame for needle in frame_values)
+                  else '<redacted>' for frame in frames]
         published = frames if len(frames) <= MAX_PATH_FRAMES else frames[:8] + ['...'] + frames[-8:]
         result[name] = {
             'reachable': True,
@@ -602,6 +641,11 @@ def path_problems(scan, require_paths=False):
         if not isinstance(record, dict):
             problems.append(f'sentinel {name} has no retained-path record')
             continue
+        if 'error' in record:
+            # A budget/overflow answer is "not analysed": it must fail the gate instead of
+            # being read as "the value is gone" (review 9fadecc RP2).
+            problems.append(f'sentinel {name} retained-path analysis incomplete: {record["error"]}')
+            continue
         reachable = record.get('reachable')
         if type(reachable) is not bool:
             problems.append(f'sentinel {name} reachable must be a boolean, got {reachable!r}')
@@ -651,11 +695,15 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
     of them a finance value — must be gated in one cycle so "only the bank sentinel
     loaded" cannot be reported as a clean graph.
 
-    Two observations are published but never gate, because neither is app state:
+    Two observations are published but never gate, because neither is app state the gate can
+    attribute:
     - `notes`: a non-distinctive sentinel (a short digit run) whose hit can be a substring
       of an unrelated value proves nothing about what the Owner surface loaded;
-    - `residual_risks`: rendered text still present after logout/actor switch, kept by the
-      web engine's segmentation cache rather than by an app provider.
+    - `residual_risks`: rendered text or shared-club identity data still present after
+      logout/actor switch. Review 9fadecc RP5: the class flag says the value is rendered text
+      or identity data, not *why* it survived, so every risk is published as `unattributed`.
+      The run never claims the engine (rather than an app cache) holds it, and never claims
+      the current actor was entitled to fetch it.
     """
     findings = []
     notes = []
@@ -698,15 +746,30 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
             if record.get('distinctive') is False and record.get('present') is True:
                 notes.append(f'{epoch}: sentinel {sentinel} is not distinctive; a hit can be a '
                              'substring of an unrelated value, so it is reported and never gated')
-            if (record.get('present') is True and epoch != 'owner_active'
-                    and record.get('scope') == 'identity'):
-                notes.append(f'{epoch}: sentinel {sentinel} is shared-club identity data that the '
-                             'current actor is authorized to fetch; it is reported with its path '
-                             'and never gated')
-            if record.get('rendered') is True and epoch != 'owner_active' and (
-                    record.get('present') is True or path.get('reachable') is True):
+            retained_outside_owner = (record.get('present') is True or path.get('reachable') is True)
+            if retained_outside_owner and epoch != 'owner_active' and record.get('scope') == 'identity':
+                # Review 9fadecc RP5: a class flag cannot establish who may fetch the value.
+                # At post_logout no actor is signed in at all, and after the switch the new
+                # actor's entitlement is not part of this measurement.
+                if epoch == 'post_logout':
+                    notes.append(f'{epoch}: sentinel {sentinel} is retained while no actor is signed '
+                                 'in; who may fetch it is not established, so it is published with '
+                                 'its path and never gated')
+                else:
+                    notes.append(f'{epoch}: sentinel {sentinel} is retained after the actor switch; '
+                                 'whether the new actor is entitled to fetch it is not established '
+                                 'by this measurement, so it is published with its path and never gated')
+            if record.get('rendered') is True and epoch != 'owner_active' and retained_outside_owner:
                 residual_risks.append({
-                    'epoch': epoch, 'sentinel': sentinel,
+                    'epoch': epoch, 'sentinel': sentinel, 'class': 'rendered',
+                    'attribution': 'unattributed',
+                    'root_kind': path.get('root_kind'), 'path_len': path.get('path_len'),
+                    'path_sha256_12': path.get('path_sha256_12'),
+                })
+            elif record.get('scope') == 'identity' and epoch == 'post_logout' and retained_outside_owner:
+                residual_risks.append({
+                    'epoch': epoch, 'sentinel': sentinel, 'class': 'identity',
+                    'attribution': 'unattributed',
                     'root_kind': path.get('root_kind'), 'path_len': path.get('path_len'),
                     'path_sha256_12': path.get('path_sha256_12'),
                 })
@@ -942,6 +1005,53 @@ def self_test():
     elif not any('<redacted>' in frame for frame in frames):
         failures.append('a property label carrying a sentinel must be published as redacted')
 
+    # Review 9fadecc RP3: a label longer than the published width, or a label that is only a
+    # prefix of the value, must be redacted from the *whole* decoded label.
+    checks += 1
+    long_value = 'PRIVATE_CANARY_' + ('q' * 65)
+    for case, label in (('long', long_value), ('embedded', 'x' * 50 + long_value),
+                        ('prefix', long_value[:40])):
+        crowd_doc = json.loads(graph_body(label=label))
+        crowd_doc['strings'][3] = long_value  # the retained string node carries the value
+        result = scan(write(json.dumps(crowd_doc, separators=(',', ':')).encode()),
+                      {'bank': long_value}, with_paths=True)
+        published = json.dumps(result)
+        if long_value[:40] in published:
+            failures.append(f'{case} label control publishes a prefix of a private value')
+        elif '<redacted>' not in published:
+            failures.append(f'{case} label control does not mark the frame redacted')
+
+    # Review 9fadecc RP2: reachability covers every match, so a retainer after eight orphans
+    # cannot be published as unreachable.
+    checks += 1
+    crowd = [1, 0, 1, 0, 1,
+             1, 1, 2, 0, 1,
+             2, 2, 3, 0, 1]
+    crowd_meta = json.loads(json.dumps({
+        'meta': {'node_fields': ['type', 'name', 'id', 'self_size', 'edge_count'],
+                 'node_types': [['hidden', 'synthetic', 'object', 'string'], 'string_or_number',
+                                'number', 'number', 'number'],
+                 'edge_fields': ['type', 'name_or_index', 'to_node'],
+                 'edge_types': [['property', 'internal', 'weak'], 'string_or_number', 'node']},
+        'node_count': 3 + 9, 'edge_count': 3, 'trace_function_count': 0,
+    }))
+    crowd_strings = ['', '(Global handles)', 'Object', 'SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE',
+                     'rootRef', 'z' * 4200]
+    for _ in range(9):
+        crowd += [3, 3, 4, 0, 0]
+    crowd_edges = [1, 0, 15, 1, 0, 30, 0, 5, 55]
+    crowd_body = ('{"snapshot":' + json.dumps(crowd_meta, separators=(',', ':'))
+                  + ',"nodes":' + json.dumps(crowd) + ',"edges":' + json.dumps(crowd_edges)
+                  + ',"traces":[],"strings":[' + ','.join(json.dumps(s) for s in crowd_strings) + ']}'
+                  ).encode('utf-8')
+    crowded = scan(write(crowd_body), {'bank': 'SENTINEL-BANK-123'}, with_paths=True)
+    if crowded.get('ok') is not True:
+        failures.append(f'crowded graph snapshot unusable: {crowded.get("error")}')
+    else:
+        record = crowded['paths']['bank']
+        if record.get('reachable') is not True or record.get('string_nodes') != 9:
+            failures.append(f'a retainer after eight orphans must stay reachable: {record}')
+
     clean = {
         'baseline': scan_record(False, False, False),
         'owner_active': scan_record(True, True, True),
@@ -1034,6 +1144,9 @@ def self_test():
     if [risk['epoch'] for risk in gate_with_id['residual_risks']] != ['post_logout']:
         failures.append('retained rendered text must be published as a residual risk: '
                         f'{gate_with_id["residual_risks"]}')
+    if any(risk.get('attribution') != 'unattributed' for risk in gate_with_id['residual_risks']):
+        failures.append('a residual risk must not be attributed to the engine: '
+                        f'{gate_with_id["residual_risks"]}')
     checks += 1
     no_finance = json.loads(json.dumps(with_id))
     for epoch in no_finance:
@@ -1055,10 +1168,12 @@ def self_test():
     identity_verdict = decide(identity_retained, derive_expectations(identity_retained), True,
                               'profile', strict=True)
     if identity_verdict['verdict'] != 'PASS':
-        failures.append('an identity value an authorized actor re-fetches must not gate: '
+        failures.append('an identity value a second actor re-fetches must not gate: '
                         f'{identity_verdict["verdict"]} {identity_verdict["findings"]}')
-    if not any('authorized' in note for note in identity_verdict['notes']):
-        failures.append('a re-fetched identity value must be reported as a note')
+    if not any('not established' in note for note in identity_verdict['notes']):
+        failures.append('an identity value must be reported without claiming entitlement')
+    if any('authorized' in note for note in identity_verdict['notes']):
+        failures.append('the measurement cannot call a re-fetched identity value authorized')
     checks += 1
     unclassified = json.loads(json.dumps(with_id))
     unclassified['post_logout']['sentinels']['expense_id'].pop('scope')

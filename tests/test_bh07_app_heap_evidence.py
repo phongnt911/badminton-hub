@@ -238,6 +238,12 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',),
             'raw_snapshots_remaining': 0,
             'dumps_dir_removed': True,
             'chrome_profile_dir_removed': True,
+            # Review 9fadecc RP6: the run mutates a fixture row, so its ownership and
+            # verified absence are part of the cleanup contract, not a footnote.
+            'run_only_fixture_created': True,
+            'run_only_fixture_id_sha256_12': '4b0e1bda9e77',
+            'extra_expense_removed': True,
+            'extra_expense_verified_absent': True,
             'ok': True,
         },
         'verdict': 'PASS',
@@ -293,6 +299,14 @@ class AuditCase(unittest.TestCase):
         summary = read_summary(self.bundle)
         mutate(summary)
         write_summary(self.bundle, summary)
+        # The runner writes summary, report and log from one record: a mutant that only
+        # breaks the JSON is a mutant the runner could not have produced, so the report is
+        # regenerated too and the semantic gate is the only thing left to react. A record
+        # broken enough that it cannot even be rendered keeps the old report.
+        try:
+            (self.bundle / 'report.md').write_bytes(render_report(summary).encode('utf-8'))
+        except (AttributeError, TypeError, KeyError):
+            pass
         if rehash:
             write_manifest(self.bundle)
 
@@ -862,6 +876,124 @@ class SentinelMetadataControls(AuditCase):
         problems = VERIFIER.verify(self.bundle)
         self.assertTrue(problems, 'a bundle without sentinel length must fail')
         self.assertTrue(any('length' in problem for problem in problems), problems)
+
+
+class FixtureCleanupControls(AuditCase):
+    """Review 9fadecc RP6: a verified fixture cleanup is part of the contract.
+
+    The run posts a row of its own to widen the gated set, so the bundle must prove the row
+    it created is gone. The aggregate `cleanup.ok` flag alone is not evidence: the auditor
+    reads the individual ownership/removal/absence fields, and the Markdown must publish
+    the same receipt.
+    """
+
+    def test_missing_removal_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].pop('extra_expense_removed'))
+        self.assert_rejected('extra_expense_removed')
+
+    def test_false_removal_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].update(extra_expense_removed=False))
+        self.assert_rejected('extra_expense_removed')
+
+    def test_null_removal_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].update(extra_expense_removed=None))
+        self.assert_rejected('extra_expense_removed')
+
+    def test_unverified_absence_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].update(extra_expense_verified_absent=False))
+        self.assert_rejected('verified_absent')
+
+    def test_missing_absence_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].pop('extra_expense_verified_absent'))
+        self.assert_rejected('verified_absent')
+
+    def test_unowned_fixture_fails(self):
+        # A row this run did not create cannot be claimed as cleaned up.
+        self.mutate_summary(lambda s: s['cleanup'].update(run_only_fixture_created=False))
+        self.assert_rejected('run_only_fixture_created')
+
+    def test_fixture_error_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].update(extra_expense_error='DELETE 500'))
+        self.assert_rejected('error')
+
+    def test_missing_fixture_id_hash_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].pop('run_only_fixture_id_sha256_12'))
+        self.assert_rejected('id_sha256_12')
+
+    def test_cleanup_not_ok_fails(self):
+        self.mutate_summary(lambda s: s['cleanup'].update(ok=False))
+        self.assert_rejected('cleanup')
+
+    def test_report_cleanup_receipt_mismatch_fails(self):
+        path = self.bundle / 'report.md'
+        path.write_bytes(path.read_bytes().replace(b'"extra_expense_removed":true',
+                                                   b'"extra_expense_removed":false'))
+        write_manifest(self.bundle)
+        self.assert_rejected('cleanup')
+
+    def test_report_cleanup_line_missing_fails(self):
+        path = self.bundle / 'report.md'
+        lines = [line for line in path.read_text(encoding='utf-8').splitlines(keepends=True)
+                 if not line.startswith('- {')]
+        path.write_text(''.join(lines), encoding='utf-8', newline='')
+        write_manifest(self.bundle)
+        self.assert_rejected('cleanup')
+
+
+class ClassAgreementControls(AuditCase):
+    """Review 9fadecc RP4: the published declaration and every scan must agree.
+
+    A scope downgraded in the record while the scans still gate it under finance leaves the
+    reader unable to tell which class the measurement used, so the auditor compares the
+    three class fields both ways and parses the declaration table in the report.
+    """
+
+    def test_metadata_only_scope_drift_fails(self):
+        def mutate(summary):
+            summary['sentinels']['expense_id']['scope'] = 'identity'
+        self.mutate_summary(mutate)
+        self.assert_rejected('scope')
+
+    def test_one_epoch_scope_drift_fails(self):
+        def mutate(summary):
+            summary['cycles'][0]['epochs']['owner_active']['sentinels']['expense_id']['scope'] = 'identity'
+        self.mutate_summary(mutate)
+        self.assert_rejected('scope')
+
+    def test_all_epoch_scope_drift_fails(self):
+        def mutate(summary):
+            for cycle in summary['cycles']:
+                for scan in cycle['epochs'].values():
+                    scan['sentinels']['expense_id']['scope'] = 'identity'
+        self.mutate_summary(mutate)
+        self.assert_rejected('scope')
+
+    def test_rendered_drift_fails(self):
+        self.mutate_summary(lambda s: s['sentinels']['expense_id'].update(rendered=True))
+        self.assert_rejected('rendered')
+
+    def test_distinctive_drift_fails(self):
+        self.mutate_summary(lambda s: s['sentinels']['expense_id'].update(distinctive=False))
+        self.assert_rejected('distinctive')
+
+    def test_scan_only_rendered_drift_fails(self):
+        def mutate(summary):
+            summary['cycles'][1]['epochs']['post_actor']['sentinels']['expense_id'].update(rendered=True)
+        self.mutate_summary(mutate)
+        self.assert_rejected('rendered')
+
+    def test_report_class_table_drift_fails(self):
+        path = self.bundle / 'report.md'
+        path.write_bytes(path.read_bytes().replace(
+            b'| expense_id | posted session expense id returned by get_session_finance '
+            b'| finance, not rendered, distinctive |',
+            b'| expense_id | posted session expense id returned by get_session_finance '
+            b'| identity, not rendered, distinctive |'))
+        write_manifest(self.bundle)
+        self.assert_rejected('report.md')
+
+    def test_consistent_bundle_passes(self):
+        self.assertEqual(VERIFIER.verify(self.bundle), [])
 
 
 class CountConsistencyControls(AuditCase):

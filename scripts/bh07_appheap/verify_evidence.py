@@ -61,6 +61,8 @@ CYCLE_HEADER = '| cycle | actor path | same document | epoch | snapshot bytes | 
 CYCLE_CELLS = 7
 PATH_HEADER = '| cycle | epoch | sentinel | reachable | root kind | path length | path sha256[:12] |'
 PATH_CELLS = 7
+SENTINEL_HEADER = '| sentinel | kind | class | length | sha256[:12] |'
+SENTINEL_CELLS = 5
 RISK_HEADER = '| cycle | epoch | sentinel | root kind | path length | path sha256[:12] |'
 RISK_CELLS = 6
 # A rendered text sentinel is retained by the web engine's segmentation cache, not by the
@@ -357,6 +359,45 @@ def _expected_path_rows(summary):
     return rows
 
 
+def _sentinel_class_cell(meta):
+    """Same wording the runner prints, so the table can be compared field by field."""
+    meta = meta if isinstance(meta, dict) else {}
+    rendered = 'rendered' if meta.get('rendered') is True else 'not rendered'
+    distinctive = 'distinctive' if meta.get('distinctive') is True else 'not distinctive'
+    return f"{meta.get('scope') or 'identity'}, {rendered}, {distinctive}"
+
+
+def _expected_sentinel_rows(summary):
+    """Declaration table rows: the class the gate read must be the class in the report."""
+    rows = []
+    for name, meta in (summary.get('sentinels') or {}).items():
+        meta = meta if isinstance(meta, dict) else {}
+        length = meta.get('length')
+        rows.append([str(name), str(meta.get('kind') or 'n/a'), _sentinel_class_cell(meta),
+                     'n/a' if length is None else str(length), str(meta.get('sha256_12') or 'n/a')])
+    return rows
+
+
+def _check_cleanup_receipt(text, summary, problems):
+    """The run-only fixture cleanup must be published in the report, not only in the JSON."""
+    body = _section(text, 'Cleanup')
+    if body is None:
+        problems.append('report.md is missing the Cleanup section')
+        return
+    payloads = [line[2:] for line in body if line.startswith('- {')]
+    if len(payloads) != 1:
+        problems.append(f'report.md must publish exactly one cleanup receipt, found {len(payloads)}')
+        return
+    try:
+        reported = json.loads(payloads[0])
+    except json.JSONDecodeError as exc:
+        problems.append(f'report.md cleanup receipt is not JSON: {exc}')
+        return
+    if reported != summary.get('cleanup'):
+        problems.append(f'report.md cleanup receipt {reported} does not match summary.json '
+                        f'{summary.get("cleanup")}')
+
+
 def _expected_risk_rows(summary):
     """One row per published residual risk, so the Markdown cannot soften the JSON."""
     risks = summary.get('residual_risks')
@@ -432,6 +473,18 @@ def _check_report(evidence_dir, summary, build, problems):
             problems.append(f'report.md cycle rows do not match summary.json '
                             f'(missing {missing[:2]}, extra {extra[:2]})')
 
+    sentinel_rows = _table_rows(lines, SENTINEL_HEADER, SENTINEL_CELLS)
+    if sentinel_rows is None:
+        problems.append('report.md is missing the sentinel declaration table header')
+    else:
+        if any(row is None for row in sentinel_rows):
+            problems.append('report.md sentinel rows have the wrong column count')
+            sentinel_rows = [row for row in sentinel_rows if row is not None]
+        expected_sentinels = _expected_sentinel_rows(summary)
+        if sentinel_rows != expected_sentinels:
+            problems.append(f'report.md sentinel declaration rows do not match summary.json '
+                            f'({sentinel_rows[:2]} != {expected_sentinels[:2]})')
+
     path_rows = _table_rows(lines, PATH_HEADER, PATH_CELLS)
     if path_rows is None:
         problems.append('report.md is missing the retained-path table header')
@@ -485,6 +538,8 @@ def _check_report(evidence_dir, summary, build, problems):
         if reported != expected:
             problems.append(f'report.md findings do not match summary.json ({reported} != {expected})')
 
+    _check_cleanup_receipt(text, summary, problems)
+
 
 def _check_cleanup(summary, problems):
     cleanup = summary.get('cleanup')
@@ -496,6 +551,21 @@ def _check_cleanup(summary, problems):
             problems.append(f'status RUN requires verified heap dump cleanup: {field}')
     if cleanup.get('raw_snapshots_remaining') != 0:
         problems.append('status RUN requires zero raw heap snapshots left on disk')
+    # Review 9fadecc RP6: this measurement posts a row of its own, so the bundle must prove
+    # it created that row, deleted it, and verified its absence. `cleanup.ok` alone is the
+    # aggregate a runner writes for itself, never evidence.
+    if cleanup.get('run_only_fixture_created') is not True:
+        problems.append('status RUN requires a run-only fixture this run created: '
+                        f'run_only_fixture_created={cleanup.get("run_only_fixture_created")!r}')
+    if not HEX12.fullmatch(str(cleanup.get('run_only_fixture_id_sha256_12') or '')):
+        problems.append('status RUN requires the run-only fixture id_sha256_12 receipt: '
+                        f'{cleanup.get("run_only_fixture_id_sha256_12")!r}')
+    for field in ('extra_expense_removed', 'extra_expense_verified_absent'):
+        if cleanup.get(field) is not True:
+            problems.append(f'status RUN requires a verified run-only fixture cleanup: '
+                            f'{field}={cleanup.get(field)!r}')
+    if 'extra_expense_error' in cleanup:
+        problems.append(f'run-only fixture cleanup reported an error: {cleanup["extra_expense_error"]}')
 
 
 def _scan_sentinel_names(summary):
@@ -510,6 +580,22 @@ def _scan_sentinel_names(summary):
     return names
 
 
+def _scan_sentinel_classes(summary):
+    """The class each scan recorded per sentinel, so the declaration can be cross-checked."""
+    classes = {}
+    for cycle in summary.get('cycles') or []:
+        if not isinstance(cycle, dict):
+            continue
+        for epoch, scan in (cycle.get('epochs') or {}).items():
+            if not isinstance(scan, dict) or not isinstance(scan.get('sentinels'), dict):
+                continue
+            for name, record in scan['sentinels'].items():
+                if not isinstance(record, dict):
+                    continue
+                classes.setdefault(name, {})[f'cycle {cycle.get("cycle")} {epoch}'] = record
+    return classes
+
+
 def _check_sentinels(summary, texts, problems):
     """Published metadata is hash/length only, and no file may carry the raw value.
 
@@ -517,6 +603,10 @@ def _check_sentinels(summary, texts, problems):
     the detector while the bundle still passed. Identification metadata is mandatory for
     every gating sentinel and for every sentinel a scan claims; an optional sentinel that
     could not be measured must say `available: false` explicitly and must not be claimed.
+
+    Review 9fadecc RP4: the declaration is what the gate reads, so it must agree with the
+    class every scan recorded. A scope downgraded in one place while the scans still gate
+    the value leaves the reader unable to tell which classification the run used.
     """
     sentinels = summary.get('sentinels')
     if not isinstance(sentinels, dict) or not sentinels:
@@ -528,6 +618,7 @@ def _check_sentinels(summary, texts, problems):
             problems.append(f'sentinel {name} metadata is missing')
     for name in sorted(claimed - set(sentinels)):
         problems.append(f'a scan records sentinel {name} that has no published metadata')
+    scan_classes = _scan_sentinel_classes(summary)
     finance_gated = []
     for name, meta in sorted(sentinels.items()):
         if not isinstance(meta, dict):
@@ -551,6 +642,11 @@ def _check_sentinels(summary, texts, problems):
             problems.append(f'sentinel {name} metadata has an unknown scope: {meta.get("scope")!r}')
         elif meta.get('scope') == 'finance' and meta.get('rendered') is False:
             finance_gated.append(name)
+        for where, recorded in sorted(scan_classes.get(name, {}).items()):
+            for field in ('rendered', 'distinctive', 'scope'):
+                if recorded.get(field) != meta.get(field):
+                    problems.append(f'{where}: sentinel {name} {field} is {recorded.get(field)!r} but '
+                                    f'the published declaration says {meta.get(field)!r}')
         length = meta.get('length')
         digest = meta.get('sha256_12')
         identifiable = True

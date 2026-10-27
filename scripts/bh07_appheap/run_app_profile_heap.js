@@ -152,39 +152,80 @@ async function restWrite(env, method, query, body) {
 }
 
 // The shared browser seed ships one posted expense per session, and a single finance id is
-// too thin a gated set. This row exists only for this run, so it is removed and the removal
-// verified before the evidence is published.
-const EXTRA_EXPENSE = {
-  id: '50000000-0000-4000-8000-000000000098',
-  title: 'Tiền điện tháng 10',
-  amount_vnd: 150000,
-};
-let extraFixtureId = null;
+// too thin a gated set. This row exists only for this run: its id is fresh per process, so a
+// leftover row from an earlier run can never be adopted as ours, and the row is removed with
+// a verified absence before the evidence is published (review 9fadecc RP1).
+const EXTRA_EXPENSE = (() => {
+  const id = crypto.randomUUID();
+  return { id, title: `Tiền điện BH-07 ${id}`, amount_vnd: 150000 };
+})();
+// `null` until ensureExtraExpense ran: the cleanup then owns nothing.
+let extraFixture = null;
+
+function assertLocalEndpoint(env) {
+  // The measurement mutates a fixture table; a hosted project is never a valid target.
+  const url = String((env && env.API_URL) || '');
+  const host = ((/^https?:\/\/(\[[^\]]+\]|[^/:?#]+)/i.exec(url) || [])[1] || '').toLowerCase();
+  if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(host)) {
+    throw new Error(`refusing to write the run-only fixture to a non-local endpoint (${url || 'no API_URL'})`);
+  }
+}
 
 async function ensureExtraExpense(env) {
-  const existing = await restGet(env,
-    `session_expenses?id=eq.${EXTRA_EXPENSE.id}&select=id,title,status`);
-  if (existing.length && existing[0].status === 'posted') {
-    extraFixtureId = EXTRA_EXPENSE.id;
-    return;
+  assertLocalEndpoint(env);
+  const existing = await restGet(env, `session_expenses?id=eq.${EXTRA_EXPENSE.id}&select=id`);
+  if (existing.length) {
+    // A row this run did not create is not ours to adopt, mutate or delete.
+    extraFixture = { id: EXTRA_EXPENSE.id, created: false, refused: 'run_only_fixture_id_exists' };
+    return extraFixture;
   }
   // `created_by` is NOT NULL and fenced to a profile; the seeded court expense carries the
   // Owner's id, and this row must look like the same Owner posted it.
   const seeded = await restGet(env,
     `session_expenses?session_id=eq.${UI_SESSION_ID}&select=created_by&limit=1`);
   if (!seeded.length) throw new Error('no seeded expense to borrow created_by from');
-  await restWrite(env, 'POST', 'session_expenses', [{
-    ...EXTRA_EXPENSE, session_id: UI_SESSION_ID, category: 'other', status: 'posted',
-    created_by: seeded[0].created_by,
-  }]);
-  extraFixtureId = EXTRA_EXPENSE.id;
+  extraFixture = { id: EXTRA_EXPENSE.id, created: false };
+  try {
+    await restWrite(env, 'POST', 'session_expenses', [{
+      ...EXTRA_EXPENSE, session_id: UI_SESSION_ID, category: 'other', status: 'posted',
+      created_by: seeded[0].created_by,
+    }]);
+    extraFixture.created = true;
+  } catch (error) {
+    // The POST may have committed before the answer was lost: read back by id so a row this
+    // run did write is still owned (and removed), then abort the run.
+    const left = await restGet(env, `session_expenses?id=eq.${EXTRA_EXPENSE.id}&select=id`);
+    extraFixture.created = left.length > 0;
+    extraFixture.error = error.message;
+    throw error;
+  }
+  return extraFixture;
 }
 
 async function removeExtraExpense(env) {
-  if (!extraFixtureId) return true;
-  await restWrite(env, 'DELETE', `session_expenses?id=eq.${extraFixtureId}`);
-  const left = await restGet(env, `session_expenses?id=eq.${extraFixtureId}&select=id`);
-  return left.length === 0;
+  // Never throws: the cleanup receipt has to survive a failing DELETE so the bundle can say
+  // what was left behind instead of publishing a clean run.
+  const state = extraFixture || { id: EXTRA_EXPENSE.id, created: false };
+  const result = { id: state.id, created: state.created === true, removed: false, verified_absent: false };
+  try {
+    if (state.created === true) {
+      await restWrite(env, 'DELETE', `session_expenses?id=eq.${state.id}`);
+      result.removed = true;
+    }
+    const left = await restGet(env, `session_expenses?id=eq.${state.id}&select=id`);
+    result.verified_absent = left.length === 0;
+  } catch (error) {
+    result.error = error.message;
+  }
+  return result;
+}
+
+function fixtureCleanupOk(cleanup) {
+  // A clean fixture means exactly one of: the row we created is gone (removal + absence), or
+  // we created nothing and nothing carrying our id exists.
+  if (!cleanup || typeof cleanup !== 'object' || cleanup.error) return false;
+  if (cleanup.verified_absent !== true) return false;
+  return cleanup.created === true ? cleanup.removed === true : cleanup.removed === false;
 }
 
 // Sentinels are real fixture values that only the Owner's private payloads carry. Each one
@@ -194,15 +235,18 @@ async function resolveSentinels(env, runId) {
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
   await ensureExtraExpense(env);
   const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted&order=id.asc`);
-  if (expenses.length < 2) throw new Error('two posted expense fixtures are needed for the gated set');
+  // Identified by id, never by sort order: the run-only row is only ours when we posted it.
+  const runOnly = expenses.find((row) => row.id === EXTRA_EXPENSE.id);
+  const seededExpense = expenses.find((row) => row.id !== EXTRA_EXPENSE.id);
+  if (!seededExpense || !runOnly) throw new Error('two posted expense fixtures are needed for the gated set');
   const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
   return {
     bank: banks[0].account_number,
     receiver: banks[0].account_name,
-    expense: expenses[0].title,
-    expense_id: expenses[0].id,
-    expense2: expenses[1].title,
-    expense_id_2: expenses[1].id,
+    expense: seededExpense.title,
+    expense_id: seededExpense.id,
+    expense2: runOnly.title,
+    expense_id_2: runOnly.id,
     players: players.map((row) => row.id),
     probe: `BH07APPHEAPPROBE-${runId}`,
   };
@@ -424,7 +468,7 @@ async function main() {
   try {
     const env = supabaseEnv();
     envForCleanup = env;
-    extraFixtureId = null;
+    extraFixture = null;
     const sentinels = await resolveSentinels(env, runId);
     PROBE_VALUE = sentinels.probe;
     const values = {
@@ -551,18 +595,24 @@ async function main() {
       chrome_profile_dir_removed: !fs.existsSync(chromeDir),
     };
     // The run-only expense row must be gone as well: leaving Owner-private fixture data in
-    // the local stack would make the next run's baseline disagree with its own evidence.
-    try {
-      summary.cleanup.extra_expense_removed = await removeExtraExpense(envForCleanup);
-    } catch (error) {
-      summary.cleanup.extra_expense_removed = false;
-      summary.cleanup.extra_expense_error = error.message;
-    }
+    // the local stack would make the next run's baseline disagree with its own evidence, and
+    // a row the run did not create must never be deleted (review 9fadecc RP1/RP6).
+    const fixture = envForCleanup
+      ? await removeExtraExpense(envForCleanup)
+      : { id: EXTRA_EXPENSE.id, created: false, removed: false, verified_absent: false,
+        error: 'local Supabase environment was never read: absence cannot be verified' };
+    summary.cleanup.run_only_fixture_created = fixture.created === true;
+    summary.cleanup.run_only_fixture_id_sha256_12 = sha12(fixture.id);
+    summary.cleanup.extra_expense_removed = fixture.removed === true;
+    summary.cleanup.extra_expense_verified_absent = fixture.verified_absent === true;
+    if (fixture.error) summary.cleanup.extra_expense_error = fixture.error;
+    log(`run-only fixture ${sha12(fixture.id)}: created=${fixture.created === true} `
+      + `removed=${fixture.removed === true} verified_absent=${fixture.verified_absent === true}`);
     summary.cleanup.ok = summary.cleanup.dump_dir_outside_repo === true
       && summary.cleanup.raw_snapshots_remaining === 0
       && summary.cleanup.dumps_dir_removed === true
       && summary.cleanup.chrome_profile_dir_removed === true
-      && summary.cleanup.extra_expense_removed === true;
+      && fixtureCleanupOk(fixture);
     if (!summary.cleanup.ok) {
       summary.findings = [...(summary.findings || []), 'heap dump, browser profile or run-only fixture cleanup not verified'];
       if (summary.status === 'RUN') summary.status = 'FAIL';
@@ -580,13 +630,29 @@ function sentinelClassLabel(meta) {
   return `${scope}, ${rendered}, ${distinctive}`;
 }
 
+// A value longer than the published edge-label width is published as its first characters
+// before redaction runs, so that prefix is itself private (review 9fadecc RP3).
+const MIN_PREFIX_LEAK = 20;
+// Same width `heap_oracle.EDGE_LABEL_MAX` uses when it publishes a frame.
+const EDGE_LABEL_MAX = 40;
+
+function leakedPrefixes(value) {
+  const text = String(value || '');
+  return [MIN_PREFIX_LEAK, EDGE_LABEL_MAX].filter((size) => text.length >= size)
+    .map((size) => text.slice(0, size));
+}
+
 function findSentinelLeaks(texts, values = RAW_SENTINEL_VALUES) {
   // Review 57ec02c AH3-B: the published bytes must never carry a raw sentinel value.
-  // Matching the live value is exact, so this cannot fire on a hash or a length.
+  // Matching the live value is exact, so this cannot fire on a hash or a length. A truncated
+  // label is matched by its prefix (review 9fadecc RP3) so a long value cannot slip through.
   const leaks = [];
   for (const [name, value] of Object.entries(values)) {
     if (!value) continue;
-    if (texts.some((text) => String(text).includes(value))) leaks.push(name);
+    const needles = [value, ...leakedPrefixes(value)];
+    if (texts.some((text) => needles.some((needle) => String(text).includes(needle)))) {
+      leaks.push(name);
+    }
   }
   return leaks;
 }
@@ -595,7 +661,7 @@ function redactSentinels(text, values = RAW_SENTINEL_VALUES) {
   let out = String(text);
   for (const value of Object.values(values)) {
     if (!value) continue;
-    out = out.split(value).join('<redacted>');
+    for (const needle of [value, ...leakedPrefixes(value)]) out = out.split(needle).join('<redacted>');
   }
   return out;
 }
@@ -650,9 +716,14 @@ function renderReport(summary) {
     }
   }
   lines.push('', '## Residual risks', '',
-    'Rendered text the Owner saw can stay in the web engine’s segmentation LRU after the app',
-    'dropped it. That retainer is engine-internal (flutter/engine web_ui text_fragmenter.dart),',
-    'so it is published here and never counted as app state by the gate.',
+    'Values still reachable after the Owner session ended. They are published **without',
+    'attribution**: this walk proves a value is retained, not which component retained it.',
+    '',
+    '- `class: rendered` only records that the value is laid out as widget text. The shared web',
+    '  engine does keep a text segmentation cache, but this measurement does not prove that cache',
+    '  — rather than an app provider or controller — is the retainer.',
+    '- `class: identity` records shared-club data (roster ids) still reachable after the switch. It',
+    '  does not show that the new actor, or the signed-out Guest screen, was entitled to fetch it.',
     '',
     '| cycle | epoch | sentinel | root kind | path length | path sha256[:12] |',
     '| --- | --- | --- | --- | --- | --- |');
@@ -677,14 +748,13 @@ function renderReport(summary) {
     '- Web *profile* build measures the dart2js/V8 heap, not the Dart VM heap of a desktop/mobile build;',
     '  no Visual Studio or Android SDK is installed on this machine, so the VM-service path is NOT RUN.',
     '- Only *unrendered, distinctive, finance-scoped* values gate the verdict. Rendered text is',
-    '  retained by the web engine’s segmentation LRU after the app drops it, so gating on it would',
-    '  measure the engine, and a short digit run can match inside an unrelated fixture UUID (see the',
-    '  `bank` notes). Shared-club roster ids are values the new actor may fetch, so they are published',
-    '  with their paths instead of being asserted absent.',
+    '  published as an unattributed residual risk instead of being gated, and a short digit run can',
+    '  match inside an unrelated fixture UUID (see the `bank` notes). Shared-club roster ids are',
+    '  published with their paths; this measurement does not establish which actor may fetch them.',
     '- The bank account holder name is only fetched by the player payment-instructions surface, so the',
     '  Owner path never loads it; it is measured and reported as not loaded, not as coverage.',
     '- Sentinels prove that specific Owner-private values are no longer reachable; they do not enumerate',
-    '  every retained object of the financial models.',
+    '  every retained object of the financial models, and only one path per value is published.',
     '- Raw heap snapshots are written outside the repository, scanned once and deleted; only counts and',
     '  short hashes are published.', '');
   return lines.join('\n');
@@ -713,6 +783,9 @@ function writeEvidence(summary) {
   fs.writeFileSync(path.join(OUT, 'hashes.sha256'), manifest + '\n');
 }
 
-module.exports = { findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES };
+module.exports = {
+  findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES,
+  ensureExtraExpense, removeExtraExpense, fixtureCleanupOk, EXTRA_EXPENSE,
+};
 
 if (require.main === module) main().catch((e) => { console.error(e.stack || e.message); process.exitCode = 1; });

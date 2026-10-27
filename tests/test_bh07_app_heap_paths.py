@@ -16,6 +16,7 @@ Run: python -m unittest tests.test_bh07_app_heap_paths -v
 """
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -24,6 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE_PATH = ROOT / 'scripts/bh07_appheap/heap_oracle.py'
+PROBE = ROOT / 'docs/reviews/bh07/review_9fadecc_evidence/probes.py'
 _spec = importlib.util.spec_from_file_location('heap_oracle', ORACLE_PATH)
 ORACLE = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ORACLE)
@@ -85,6 +87,26 @@ def clean_graph(weak_bank=False, orphan_objects=False, label_as_sentinel=False):
         nodes.append((STRING, BANK_STRING, 0))
         del edges[2]  # and the object no longer holds the bank value
         nodes[2] = (OBJECT, 3, 2)
+    return write_snapshot(nodes, edges)
+
+
+def strings_graph(count=9, retained=True, label=8):
+    """`count` string nodes carry the bank canary; only the last one is retained."""
+    nodes = [(SYNTHETIC, 0, 1), (SYNTHETIC, 1, 1), (OBJECT, 3, 1 if retained else 0)]
+    nodes += [(STRING, BANK_STRING, 0)] * count
+    edges = [(INTERNAL, 0, 1), (INTERNAL, 0, 2)]
+    if retained:
+        edges.append((PROPERTY, label, 2 + count))
+    return write_snapshot(nodes, edges)
+
+
+def chain_graph(depth):
+    """root -> handles -> `depth` objects in a row -> the bank string node."""
+    nodes = [(SYNTHETIC, 0, 1), (SYNTHETIC, 1, 1)]
+    nodes += [(OBJECT, 3, 1)] * depth
+    nodes += [(STRING, BANK_STRING, 0)]
+    edges = [(INTERNAL, 0, 1), (INTERNAL, 0, 2)]
+    edges += [(PROPERTY, 8, node + 1) for node in range(2, 2 + depth)]
     return write_snapshot(nodes, edges)
 
 
@@ -194,6 +216,91 @@ class GraphWalkControls(unittest.TestCase):
         frames = result['paths']['bank']['frames']
         self.assertNotIn('SENTINEL-BANK-998877', json.dumps(result))
         self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
+
+
+class ReachabilityCoverageControls(unittest.TestCase):
+    """Review 9fadecc RP2: a capped target list must never turn reachability into false.
+
+    Eight orphan strings of the same value used to fill the target list before the ninth,
+    strongly retained node was looked at, so the oracle published `reachable=false` for a
+    value a live object held. The conclusion must cover every match; only the published
+    path may be bounded.
+    """
+
+    def test_retainer_after_many_orphans_is_reachable(self):
+        result = graph_scan(strings_graph(count=9, retained=True))
+        self.assertTrue(result['ok'], result)
+        record = result['paths']['bank']
+        self.assertIs(record['reachable'], True, record)
+        self.assertEqual(record['string_nodes'], 9)
+
+    def test_all_matches_are_counted(self):
+        result = graph_scan(strings_graph(count=12, retained=True))
+        self.assertEqual(result['paths']['bank']['string_nodes'], 12)
+
+    def test_many_orphans_stay_unreachable(self):
+        result = graph_scan(strings_graph(count=9, retained=False))
+        self.assertIs(result['paths']['bank']['reachable'], False)
+        self.assertEqual(result['paths']['bank']['string_nodes'], 9)
+
+    def test_deep_chain_is_not_reported_as_unreachable(self):
+        # A walk that hits its own budget is "not analysed", never "the value is gone".
+        result = graph_scan(chain_graph(depth=ORACLE.MAX_PATH_EDGES + 8))
+        record = result['paths']['bank']
+        self.assertIsNot(record.get('reachable'), False, record)
+        self.assertIn('error', record, record)
+        self.assertTrue(ORACLE.path_problems({'ok': True, 'sentinels': {
+            'bank': {'present': True, 'occurrences': 1, **CLASSES['bank']}}, 'paths': result['paths']}))
+
+    def test_budget_exhaustion_fails_the_strict_gate(self):
+        scans = cycle(bank=True, expense=True)
+        scans['owner_active']['paths']['expense'] = {
+            'error': 'retained_path_too_deep', 'reachable': None, 'string_nodes': 1, 'exact': True}
+        self.assertEqual(ORACLE.decide(scans, ORACLE.derive_expectations(scans), True, 'profile',
+                                       strict=True)['verdict'], 'FAIL')
+
+
+class LabelPrivacyControls(unittest.TestCase):
+    """Review 9fadecc RP3: redaction must read the whole label, then truncate.
+
+    Truncating first left the first 40 characters of a long private value in the published
+    frame, and the full-value matcher then had nothing to match against.
+    """
+
+    LONG = 'PRIVATE_CANARY_' + 'q' * 65
+
+    def scan_label(self, label):
+        doc = json.loads(clean_graph())
+        doc['strings'][8] = label
+        doc['strings'][BANK_STRING] = self.LONG
+        return graph_scan(json.dumps(doc, separators=(',', ':')).encode(), {'bank': self.LONG})
+
+    def test_label_equal_to_a_long_sentinel_is_redacted(self):
+        result = self.scan_label(self.LONG)
+        frames = [frame for record in result['paths'].values() for frame in record.get('frames') or []]
+        self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
+        self.assertNotIn(self.LONG[:40], json.dumps(result))
+
+    def test_sentinel_beyond_the_published_label_length_is_redacted(self):
+        result = self.scan_label('x' * 50 + self.LONG)
+        frames = [frame for record in result['paths'].values() for frame in record.get('frames') or []]
+        self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
+        self.assertNotIn(self.LONG[:40], json.dumps(result))
+
+    def test_label_that_is_only_a_prefix_is_redacted(self):
+        result = self.scan_label(self.LONG[:40])
+        frames = [frame for record in result['paths'].values() for frame in record.get('frames') or []]
+        self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
+
+    def test_short_label_positive_still_redacted(self):
+        result = graph_scan(clean_graph(label_as_sentinel=True))
+        frames = result['paths']['bank']['frames']
+        self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
+        self.assertNotIn('SENTINEL-BANK-998877'[:20], json.dumps(result))
+
+    def test_no_published_frame_carries_a_usable_prefix(self):
+        result = self.scan_label(self.LONG)
+        self.assertNotIn(self.LONG[:20], json.dumps(result))
 
 
 class PathSchemaControls(unittest.TestCase):
@@ -362,6 +469,7 @@ class StrictVerdictControls(unittest.TestCase):
     def test_identity_value_refetched_by_the_new_actor_is_not_gated(self):
         # Measured in the cohost cycle: the roster id is reachable again because the cohost
         # surface fetches the same shared-club list. Gating it would assert something false.
+        # Review 9fadecc RP5: the measurement cannot claim the actor was *entitled*.
         scans = cycle(bank=True, expense=True)
         for epoch in ('post_actor',):
             scans[epoch]['sentinels']['player'] = {
@@ -369,7 +477,41 @@ class StrictVerdictControls(unittest.TestCase):
             scans[epoch]['paths']['player'] = path_record(True)
         result = self.decide(scans)
         self.assertEqual(result['verdict'], 'PASS', result['findings'])
-        self.assertTrue(any('authorized' in note for note in result['notes']), result)
+        notes = [note for note in result['notes'] if 'player' in note]
+        self.assertTrue(notes, result)
+        self.assertFalse(any('authorized' in note for note in notes), notes)
+        self.assertTrue(any('not established' in note for note in notes), notes)
+
+    def test_identity_retention_after_logout_is_not_called_authorized(self):
+        # No actor is signed in at post_logout (Guest UI), so nothing may be asserted about
+        # who is allowed to fetch the value: it stays an unattributed retention observation.
+        scans = cycle(bank=True, expense=True)
+        scans['post_logout']['sentinels']['player'] = {
+            'present': True, 'occurrences': 1, **CLASSES['player']}
+        scans['post_logout']['paths']['player'] = path_record(True)
+        result = self.decide(scans)
+        notes = [note for note in result['notes'] if note.startswith('post_logout:') and 'player' in note]
+        self.assertTrue(notes, result)
+        self.assertFalse(any('authorized' in note for note in notes), notes)
+        risks = [risk for risk in result['residual_risks'] if risk['sentinel'] == 'player']
+        self.assertEqual([risk['epoch'] for risk in risks], ['post_logout'], result['residual_risks'])
+        self.assertEqual(risks[0]['attribution'], 'unattributed')
+
+    def test_rendered_residual_risk_is_unattributed(self):
+        # Review 9fadecc RP5: the class flag says the value is rendered text, not that the
+        # web engine and no app cache holds it. The bundle must not publish that conclusion.
+        scans = cycle(bank=True, expense=True)
+        for epoch in ('post_logout', 'post_actor'):
+            scans[epoch]['sentinels']['rendered_title'] = {
+                'present': True, 'occurrences': 1,
+                **ORACLE.sentinel_class({'rendered_title': {'rendered': True, 'scope': 'finance'}},
+                                        'rendered_title')}
+            scans[epoch]['paths']['rendered_title'] = path_record(True)
+        result = self.decide(scans)
+        self.assertEqual(result['verdict'], 'PASS', result['findings'])
+        self.assertEqual([risk['attribution'] for risk in result['residual_risks']],
+                         ['unattributed', 'unattributed'])
+        self.assertTrue(all(risk['class'] == 'rendered' for risk in result['residual_risks']))
 
     def test_identity_value_is_not_financial_coverage(self):
         # Only the roster id loaded: no finance value gates, so the run must be red.
@@ -475,6 +617,65 @@ class PathCliControls(unittest.TestCase):
         derived = json.loads(out.read_text(encoding='utf-8'))
         self.assertIs(derived['owner_active']['expense'], True)
         self.assertIs(derived['post_actor']['expense'], False)
+
+
+class ReviewerProbeReplay(unittest.TestCase):
+    """Replay `review_9fadecc_evidence/probes.py` unedited, with the new expectations.
+
+    The probe is the reviewer's file and stays byte-identical: the point is that the same
+    inputs now produce the fixed observation (RP2 reachability, RP3 redaction, RP4 class
+    agreement, RP5 attribution, RP6 cleanup), not that the probe was rewritten to agree.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        env = {**os.environ, 'PYTHONPATH': '.'}
+        result = subprocess.run([sys.executable, '-X', 'utf8', str(PROBE)], capture_output=True,
+                                text=True, cwd=ROOT, env=env)
+        if result.returncode != 0:
+            raise AssertionError(f'reviewer probe failed: {result.stdout}{result.stderr}')
+        cls.report = json.loads(result.stdout)
+
+    def test_ninth_retained_node_is_reachable(self):
+        case = self.report['ninth_retained_node']
+        self.assertIsNone(case['graph_error'])
+        self.assertEqual(case['ninth_actual_parent'], 2)
+        self.assertIs(case['reported']['reachable'], True, case['reported'])
+        self.assertEqual(case['reported']['string_nodes'], 9)
+        self.assertIs(case['counted']['present'], True, case['counted'])
+
+    def test_long_label_is_redacted(self):
+        case = self.report['long_label']
+        self.assertFalse(case['frame_contains_private_prefix'], case)
+        self.assertTrue(case['frame_has_redacted_marker'], case)
+        self.assertFalse(case['full_needle_in_frame'], case)
+
+    def test_retained_value_mutants_still_fail(self):
+        self.assertEqual(self.report['positive_real_record'], 'PASS')
+        self.assertEqual(self.report['finance_downgrade']['verdict'], 'FAIL')
+        self.assertEqual(self.report['finance_retained']['verdict'], 'FAIL')
+        self.assertEqual(self.report['missing_paths']['verdict'], 'FAIL')
+
+    def test_residual_risk_is_not_attributed_to_the_engine(self):
+        case = self.report['rendered_app_cache']
+        self.assertEqual(case['verdict'], 'PASS')
+        self.assertTrue(case['risks'], case)
+        self.assertTrue(all(risk['attribution'] == 'unattributed' for risk in case['risks']), case)
+
+    def test_logged_out_identity_is_not_called_authorized(self):
+        notes = self.report['identity_after_logout']['notes']
+        self.assertTrue(notes, self.report['identity_after_logout'])
+        self.assertFalse(any('authorized' in note for note in notes), notes)
+
+    def test_short_label_positive_is_still_redacted(self):
+        self.assertIs(self.report['short_label_positive']['redacted'], True)
+
+    def test_auditor_mutants_are_rejected_readonly(self):
+        for case in ('cleanup_false', 'cleanup_missing', 'metadata_scope_drift'):
+            with self.subTest(case=case):
+                entry = self.report[case]
+                self.assertTrue(entry['problems'], f'{case}: auditor accepted the mutant')
+                self.assertIs(entry['readonly'], True)
 
 
 class SelfTestCoverage(unittest.TestCase):
