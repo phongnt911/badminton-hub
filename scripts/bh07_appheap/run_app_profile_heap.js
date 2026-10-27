@@ -633,40 +633,69 @@ function sentinelClassLabel(meta) {
   return `${scope}, ${rendered}, ${distinctive}`;
 }
 
-// A value longer than the published edge-label width is published as its first characters
-// before redaction runs, so that prefix is itself private (review 9fadecc RP3).
+// Any run of this many characters taken from a private value is itself private. A value long
+// enough to be truncated to a published label width exposes its prefix, and a fragment that
+// reaches the text another way exposes the same bytes, so redaction must not depend on where
+// the fragment starts (review 9fadecc RP3, review 4184faf RP3-B).
 const MIN_PREFIX_LEAK = 20;
-// Same width `heap_oracle.EDGE_LABEL_MAX` uses when it publishes a frame.
-const EDGE_LABEL_MAX = 40;
 
-function leakedPrefixes(value) {
-  const text = String(value || '');
-  return [MIN_PREFIX_LEAK, EDGE_LABEL_MAX].filter((size) => text.length >= size)
-    .map((size) => text.slice(0, size));
+// Every maximal shared run of at least MIN_PREFIX_LEAK characters (or the full value when
+// shorter) between `text` and `value`. Runs are collected on the original text before any
+// replacement and merged across all values: replacing one match or one sentinel in-place
+// first would split an overlapping longer match and leave its tail below MIN_PREFIX_LEAK
+// (review 4184faf RP3-B).
+function privateRuns(text, value) {
+  const haystack = String(text);
+  const v = String(value || '');
+  const min = Math.min(v.length, MIN_PREFIX_LEAK);
+  if (!v || min === 0) return [];
+  const runs = [];
+  for (let j = 0; j + min <= v.length; j += 1) {
+    const needle = v.slice(j, j + min);
+    for (let at = haystack.indexOf(needle); at >= 0; at = haystack.indexOf(needle, at + 1)) {
+      if (at > 0 && j > 0 && haystack[at - 1] === v[j - 1]) continue;
+      let end = at + min;
+      let right = j + min;
+      while (end < haystack.length && right < v.length && haystack[end] === v[right]) {
+        end += 1;
+        right += 1;
+      }
+      runs.push({ start: at, end });
+    }
+  }
+  return runs;
 }
 
 function findSentinelLeaks(texts, values = RAW_SENTINEL_VALUES) {
   // Review 57ec02c AH3-B: the published bytes must never carry a raw sentinel value.
-  // Matching the live value is exact, so this cannot fire on a hash or a length. A truncated
-  // label is matched by its prefix (review 9fadecc RP3) so a long value cannot slip through.
+  // Matching any private run also catches a truncated label or an interior fragment, so a
+  // partially redacted draft can no longer be reported as clean.
   const leaks = [];
   for (const [name, value] of Object.entries(values)) {
     if (!value) continue;
-    const needles = [value, ...leakedPrefixes(value)];
-    if (texts.some((text) => needles.some((needle) => String(text).includes(needle)))) {
-      leaks.push(name);
-    }
+    if (texts.some((text) => privateRuns(text, value).length > 0)) leaks.push(name);
   }
   return leaks;
 }
 
 function redactSentinels(text, values = RAW_SENTINEL_VALUES) {
-  let out = String(text);
-  for (const value of Object.values(values)) {
-    if (!value) continue;
-    for (const needle of [value, ...leakedPrefixes(value)]) out = out.split(needle).join('<redacted>');
+  const haystack = String(text);
+  const runs = Object.values(values).flatMap((value) => privateRuns(haystack, value))
+    .sort((a, b) => a.start - b.start || b.end - a.end);
+  if (!runs.length) return haystack;
+  const merged = [{ ...runs[0] }];
+  for (const run of runs.slice(1)) {
+    const last = merged[merged.length - 1];
+    if (run.start <= last.end) last.end = Math.max(last.end, run.end);
+    else merged.push({ ...run });
   }
-  return out;
+  let out = '';
+  let cursor = 0;
+  for (const run of merged) {
+    out += haystack.slice(cursor, run.start) + '<redacted>';
+    cursor = run.end;
+  }
+  return out + haystack.slice(cursor);
 }
 
 function renderReport(summary) {
@@ -763,22 +792,41 @@ function renderReport(summary) {
   return lines.join('\n');
 }
 
+function redactValue(node, values = RAW_SENTINEL_VALUES) {
+  if (typeof node === 'string') return redactSentinels(node, values);
+  if (Array.isArray(node)) return node.map((item) => redactValue(item, values));
+  if (node && typeof node === 'object') {
+    return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, redactValue(v, values)]));
+  }
+  return node;
+}
+
+function collectStrings(node, out = []) {
+  if (typeof node === 'string') out.push(node);
+  else if (Array.isArray(node)) for (const item of node) collectStrings(item, out);
+  else if (node && typeof node === 'object') for (const v of Object.values(node)) collectStrings(v, out);
+  return out;
+}
+
 function writeEvidence(summary) {
   const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-  const drafts = () => ({
-    'summary.json': JSON.stringify(summary, null, 2) + '\n',
+  const drafts = (target) => ({
+    'summary.json': JSON.stringify(target, null, 2) + '\n',
     'run.log': logLines.join('\n') + '\n',
-    'report.md': renderReport(summary),
+    'report.md': renderReport(target),
   });
   // Sanitize before publication: a raw sentinel in any published byte fails the run.
-  const leaks = findSentinelLeaks(Object.values(drafts()));
+  // Checking raw string fields alongside rendered drafts catches values that JSON.stringify
+  // would escape, and redacting structured fields first preserves valid JSON/Markdown syntax.
+  const leaks = findSentinelLeaks([...collectStrings(summary), ...logLines, ...Object.values(drafts(summary))]);
   if (leaks.length) {
     summary.findings = [...(summary.findings || []),
       `raw sentinel value reached the publication step (${leaks.join(', ')}); redacted, run failed`];
     summary.verdict = 'FAIL';
     summary.status = 'FAIL';
   }
-  for (const [name, text] of Object.entries(drafts())) {
+  const cleanSummary = redactValue(summary);
+  for (const [name, text] of Object.entries(drafts(cleanSummary))) {
     fs.writeFileSync(path.join(OUT, name), redactSentinels(text));
   }
   const manifest = ['summary.json', 'run.log', 'report.md']
