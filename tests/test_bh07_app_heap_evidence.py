@@ -132,13 +132,14 @@ def render_report(summary):
     return '\n'.join(lines) + '\n'
 
 
-# Sentinel classes as the runner declares them; the gate only reads unrendered distinctive
-# values, and one finance value must stay in that set.
+# Sentinel classes as the runner declares them; the gate reads only finance values, so a
+# bundle needs two unrendered finance ids and a rendered title that cannot gate.
 CLASSES = {
     'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
     'bank': {'rendered': False, 'distinctive': False, 'scope': 'bank'},
     'expense': {'rendered': True, 'distinctive': True, 'scope': 'finance'},
     'expense_id': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+    'expense_id_2': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
     'player_a': {'rendered': False, 'distinctive': True, 'scope': 'identity'},
 }
 SENTINEL_META = {
@@ -146,6 +147,7 @@ SENTINEL_META = {
     'bank': ('club bank account number (Owner-private, digits only)', '65dce15efcc4', 10),
     'expense': ('posted session expense title rendered as widget text', 'aa92bb01cd11', 17),
     'expense_id': ('posted session expense id returned by get_session_finance', 'bd1e4f7c9a02', 36),
+    'expense_id_2': ('second posted expense id from get_session_finance', '6c4e0b1a77d1', 36),
     'player_a': ('session player id of the seeded roster', '5c8f3ab67d21', 36),
 }
 
@@ -175,16 +177,19 @@ def make_bundle(root, cycles=2, actors=ACTORS, bank_epochs=('owner_active',),
                     'bank': sentinel_record('bank', bank),
                     'expense': sentinel_record('expense', rendered),
                     'expense_id': sentinel_record('expense_id', gated),
+                    'expense_id_2': sentinel_record('expense_id_2', gated),
                     'player_a': sentinel_record('player_a', gated),
                 },
             }
             if with_paths:
-                # The strict gate needs two unrendered values, one of them financial.
+                # The strict gate needs two unrendered finance values; the roster id is
+                # identity, which the cohost may fetch, so it never counts as coverage.
                 epochs[epoch]['paths'] = {
                     'probe': path_record(True),
                     'bank': path_record(bank),
                     'expense': path_record(rendered),
                     'expense_id': path_record(gated),
+                    'expense_id_2': path_record(gated),
                     'player_a': path_record(gated),
                 }
         recorded.append({
@@ -379,7 +384,7 @@ class EvidenceAuditControls(AuditCase):
         def mutate(summary):
             for cycle in summary['cycles']:
                 for scan in cycle['epochs'].values():
-                    for name in ('expense_id', 'player_a'):
+                    for name in ('expense_id', 'expense_id_2'):
                         scan['sentinels'][name] = sentinel_record(name, False)
                         scan['paths'][name] = path_record(False)
         self.mutate_summary(mutate)
@@ -390,7 +395,7 @@ class EvidenceAuditControls(AuditCase):
         def mutate(summary):
             for cycle in summary['cycles']:
                 for scan in cycle['epochs'].values():
-                    for name in ('expense_id', 'player_a'):
+                    for name in ('expense_id', 'expense_id_2'):
                         scan['sentinels'][name] = sentinel_record(name, False)
                         scan['paths'][name] = path_record(False)
             for cycle in summary['cycles']:
@@ -406,7 +411,7 @@ class EvidenceAuditControls(AuditCase):
         def mutate(summary):
             for cycle in summary['cycles']:
                 for scan in cycle['epochs'].values():
-                    for name in ('expense_id', 'player_a'):
+                    for name in ('expense_id', 'expense_id_2'):
                         scan['sentinels'][name] = sentinel_record(name, False)
                         scan['paths'][name] = path_record(False)
         self.mutate_summary(mutate)
@@ -664,7 +669,7 @@ class ReportControls(AuditCase):
         self.assert_rejected('cycle rows')
 
     def test_report_present_sentinel_mismatch_fails(self):
-        self.rewrite_report(b'| probe, bank, expense, expense_id, player_a |', b'| probe, bank |')
+        self.rewrite_report(b'| probe, bank, expense, expense_id, expense_id_2, player_a |', b'| probe, bank |')
         self.assert_rejected('cycle rows')
 
     def test_report_missing_findings_section_fails(self):

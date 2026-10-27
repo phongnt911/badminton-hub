@@ -50,6 +50,9 @@ MAX_PARSE_BYTES = 512 << 20
 SHA12 = re.compile(r'[0-9a-f]{12}')
 MIN_GATED_SENTINELS = 2
 # Sentinel classes, declared by the runner per value:
+# - `scope: finance` is the only gated scope: Owner-private money data that no other actor
+#   may load. An `identity` roster id of the shared club is legitimately re-fetched by the
+#   cohost, so it is published with its path and reported, never asserted absent.
 # - `distinctive: false` (short digit runs) can match inside an unrelated UUID, so a hit is
 #   not evidence that the Owner surface loaded the value (measured: `0000000007` only ever
 #   matched the fixture UUID `...-000000000007`); those are reported but never gated.
@@ -57,6 +60,7 @@ MIN_GATED_SENTINELS = 2
 #   segmentation LRU (`web_ui/lib/src/engine/text_fragmenter.dart`) keeps the string after
 #   the app drops it. Retention there is a platform residual risk, not app state.
 SENTINEL_SCOPES = ('finance', 'identity', 'control', 'bank')
+GATED_SCOPES = ('finance',)
 SENTINEL_CLASS_DEFAULTS = {'rendered': False, 'distinctive': True, 'scope': 'identity'}
 
 
@@ -231,8 +235,13 @@ def derive_expectations(scans):
     when it can carry the claim: it loaded while Owner was viewing, it was not already
     visible at the guest baseline (a value present before login cannot discriminate between
     "cleared" and "never loaded"), it is distinctive enough that a hit is not a substring
-    coincidence, and it is not rendered text (the web engine's segmentation cache keeps
-    rendered strings regardless of app state).
+    coincidence, it is not rendered text (the web engine's segmentation cache keeps rendered
+    strings regardless of app state), and it is Owner-private financial data.
+
+    The last condition is the scope filter, and it is the one that keeps the gate honest:
+    a roster id of the shared club is data the cohost is *authorized* to load, so a cohost
+    path that re-fetches it says nothing about retention. Those values are published with
+    their paths and reported, never asserted absent.
     """
     owner = (scans.get('owner_active') or {}).get('sentinels') or {}
     baseline = (scans.get('baseline') or {}).get('sentinels') or {}
@@ -244,7 +253,8 @@ def derive_expectations(scans):
         record = owner.get(name) if isinstance(owner.get(name), dict) else {}
         gateable = (record.get('present') is True
                     and record.get('distinctive') is True
-                    and record.get('rendered') is not True)
+                    and record.get('rendered') is not True
+                    and record.get('scope') in GATED_SCOPES)
         seen_at_baseline = (baseline.get(name) or {}).get('present') is True
         if gateable and not seen_at_baseline:
             for epoch in epochs:
@@ -376,8 +386,14 @@ def _chain(node, parent, parent_edge):
     return chain
 
 
-def _edge_frame(doc, layout, record):
-    """Edge kind plus property name only: never a string node's value."""
+def _edge_frame(doc, layout, record, needles=()):
+    """Edge kind plus property name only: never a string node's value.
+
+    A property name can *be* a sentinel value: the engine's text cache keys entries by the
+    text itself, which is how a rendered title shows up as `property:<title>`. Publishing
+    that label would republish the value the gate is hiding, so a label carrying a sentinel
+    is published as `<redacted>` and the frame stays attributive (type + edge kind).
+    """
     edges, strings = doc['edges'], doc['strings']
     base = record * layout['edge_width']
     type_index = edges[base + layout['etype_i']]
@@ -388,6 +404,8 @@ def _edge_frame(doc, layout, record):
         raw = edges[base + layout['ename_i']]
         if isinstance(raw, int) and 0 <= raw < len(strings):
             label = strings[raw][:EDGE_LABEL_MAX]
+            if any(needle in label for needle in needles if needle):
+                label = '<redacted>'
     return f'{kind}:{label}' if label else kind
 
 
@@ -459,7 +477,7 @@ def retained_paths(doc, sentinels):
                 frames.append('root')
                 continue
             child_type = type_names[nodes[node * width + type_i]]
-            frames.append(f'{_edge_frame(doc, layout, parent_edge[node])} -> {child_type}')
+            frames.append(f'{_edge_frame(doc, layout, parent_edge[node], sentinels.values())} -> {child_type}')
         published = frames if len(frames) <= MAX_PATH_FRAMES else frames[:8] + ['...'] + frames[-8:]
         result[name] = {
             'reachable': True,
@@ -680,6 +698,11 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
             if record.get('distinctive') is False and record.get('present') is True:
                 notes.append(f'{epoch}: sentinel {sentinel} is not distinctive; a hit can be a '
                              'substring of an unrelated value, so it is reported and never gated')
+            if (record.get('present') is True and epoch != 'owner_active'
+                    and record.get('scope') == 'identity'):
+                notes.append(f'{epoch}: sentinel {sentinel} is shared-club identity data that the '
+                             'current actor is authorized to fetch; it is reported with its path '
+                             'and never gated')
             if record.get('rendered') is True and epoch != 'owner_active' and (
                     record.get('present') is True or path.get('reachable') is True):
                 residual_risks.append({
@@ -798,7 +821,7 @@ def self_test():
         if want_bank is not None and result['sentinels']['bank']['present'] != want_bank:
             failures.append(f'{name}: bank present={result["sentinels"]["bank"]["present"]} expected {want_bank}')
 
-    def graph_body(weak_bank_edge=False):
+    def graph_body(weak_bank_edge=False, label='rootRef'):
         """Valid V8-shaped object graph: root -> (Global handles) -> object -> string."""
         meta = {
             'meta': {
@@ -811,7 +834,7 @@ def self_test():
             'node_count': 5, 'edge_count': 4, 'trace_function_count': 0,
         }
         strings = ['', '(Global handles)', 'Object', 'SENTINEL-BANK-123', 'SENTINEL-PROBE-ALIVE',
-                   'rootRef', 'z' * 4200]
+                   label, 'z' * 4200]
         nodes = [1, 0, 1, 0, 1,
                  1, 1, 2, 0, 1,
                  2, 2, 3, 0, 2,
@@ -835,11 +858,13 @@ def self_test():
                 'path_sha256_12': '0123456789ab', 'exact': True}
 
     # Sentinel classes as the runner declares them: the short bank digit run is not
-    # distinctive, the expense id is a finance value, the probe is the live control.
+    # distinctive, the expense ids are finance values, the roster id is identity (the
+    # cohost may fetch it), the probe is the live control.
     classes = {
         'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
         'bank': {'rendered': False, 'distinctive': False, 'scope': 'bank'},
         'expense': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+        'expense2': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
         'player': {'rendered': False, 'distinctive': True, 'scope': 'identity'},
     }
 
@@ -859,7 +884,9 @@ def self_test():
                 'probe': record('probe', True),
                 'bank': record('bank', bank_present),
                 'expense': record('expense', expense_present),
-                # Second gateable value so the finance-coverage control has a clean case.
+                # Second finance value: the coverage control needs two of them, and the
+                # roster id alone must never count as financial coverage.
+                'expense2': record('expense2', expense_present),
                 'player': record('player', expense_present),
             },
         }
@@ -868,6 +895,7 @@ def self_test():
                 'probe': path_record(True),
                 'bank': path_record(bank_reachable),
                 'expense': path_record(expense_present),
+                'expense2': path_record(expense_present),
                 'player': path_record(expense_present),
             }
         return result
@@ -900,6 +928,19 @@ def self_test():
     checks += 1
     if weak['paths']['bank'].get('exact') is not True:
         failures.append('the weak-edge control still has an exact string match')
+
+    # Measured on the real bundle: the engine's text cache keys entries by the text itself,
+    # so an edge label can *be* the sentinel. The published frames must redact it.
+    checks += 1
+    labelled = scan(write(graph_body(label='SENTINEL-BANK-123')), sentinel, with_paths=True)
+    frames = [frame for record in labelled['paths'].values()
+              for frame in (record.get('frames') or [])]
+    if not labelled.get('ok'):
+        failures.append(f'labelled-graph snapshot unusable: {labelled.get("error")}')
+    elif any('SENTINEL-BANK-123' in frame for frame in frames):
+        failures.append('retained-path frames must not republish a sentinel value')
+    elif not any('<redacted>' in frame for frame in frames):
+        failures.append('a property label carrying a sentinel must be published as redacted')
 
     clean = {
         'baseline': scan_record(False, False, False),
@@ -983,6 +1024,9 @@ def self_test():
     # values, so the gate has a clean case with a rendered title still retained.
     add_sentinel(with_id, 'expense_id', {'scope': 'finance'}, {'owner_active'})
     add_sentinel(with_id, 'player', {'scope': 'identity'}, {'owner_active'})
+    # The rendered title is the only thing still around after logout; the second finance id
+    # must be gone, otherwise it is a real retention finding instead of a cache residual.
+    add_sentinel(with_id, 'expense2', {'scope': 'finance'}, {'owner_active'})
     gate_with_id = decide(with_id, derive_expectations(with_id), True, 'profile', strict=True)
     if gate_with_id['verdict'] != 'PASS':
         failures.append('two unrendered gated ids plus a rendered title must PASS: '
@@ -992,11 +1036,29 @@ def self_test():
                         f'{gate_with_id["residual_risks"]}')
     checks += 1
     no_finance = json.loads(json.dumps(with_id))
-    no_finance['owner_active']['sentinels']['expense_id']['scope'] = 'identity'
-    no_finance['baseline']['sentinels']['expense_id']['scope'] = 'identity'
-    no_finance['post_logout']['sentinels']['expense_id']['scope'] = 'identity'
-    if decide(no_finance, derive_expectations(no_finance), True, 'profile', strict=True)['verdict'] != 'FAIL':
+    for epoch in no_finance:
+        no_finance[epoch]['sentinels']['expense_id']['scope'] = 'identity'
+        no_finance[epoch]['sentinels']['expense2']['scope'] = 'identity'
+    no_finance_verdict = decide(no_finance, derive_expectations(no_finance), True, 'profile', strict=True)
+    if no_finance_verdict['verdict'] != 'FAIL':
         failures.append('a gated set without a finance value must FAIL')
+    checks += 1
+    # Measured in the real cohost cycle: the roster id is reachable again after the switch
+    # because the cohost surface fetches the same shared-club list. Gating it would assert
+    # something false, so it must be reported (with its path) and never fail the run.
+    identity_retained = json.loads(json.dumps(with_id))
+    post = identity_retained['post_actor'] = scan_record(False, False, False)
+    add_sentinel(identity_retained, 'expense_id', {'scope': 'finance'}, {'owner_active'})
+    post['sentinels']['player'] = {'present': True, 'occurrences': 1,
+                                   **sentinel_class(classes, 'player')}
+    post['paths']['player'] = path_record(True)
+    identity_verdict = decide(identity_retained, derive_expectations(identity_retained), True,
+                              'profile', strict=True)
+    if identity_verdict['verdict'] != 'PASS':
+        failures.append('an identity value an authorized actor re-fetches must not gate: '
+                        f'{identity_verdict["verdict"]} {identity_verdict["findings"]}')
+    if not any('authorized' in note for note in identity_verdict['notes']):
+        failures.append('a re-fetched identity value must be reported as a note')
     checks += 1
     unclassified = json.loads(json.dumps(with_id))
     unclassified['post_logout']['sentinels']['expense_id'].pop('scope')

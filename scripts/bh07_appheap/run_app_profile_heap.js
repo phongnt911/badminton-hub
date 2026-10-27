@@ -137,19 +137,66 @@ async function restGet(env, query) {
   return res.json();
 }
 
+async function restWrite(env, method, query, body) {
+  const res = await fetch(`${env.API_URL}/rest/v1/${query}`, {
+    method,
+    headers: {
+      apikey: env.SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SERVICE_ROLE_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`PostgREST ${method} ${query}: ${res.status}`);
+}
+
+// The shared browser seed ships one posted expense per session, and a single finance id is
+// too thin a gated set. This row exists only for this run, so it is removed and the removal
+// verified before the evidence is published.
+const EXTRA_EXPENSE = {
+  id: '50000000-0000-4000-8000-000000000098',
+  title: 'Tiền điện tháng 10',
+  amount_vnd: 150000,
+};
+let extraFixtureId = null;
+
+async function ensureExtraExpense(env) {
+  const existing = await restGet(env,
+    `session_expenses?id=eq.${EXTRA_EXPENSE.id}&select=id,title,status`);
+  if (existing.length && existing[0].status === 'posted') {
+    extraFixtureId = EXTRA_EXPENSE.id;
+    return;
+  }
+  await restWrite(env, 'POST', 'session_expenses', [{
+    ...EXTRA_EXPENSE, session_id: UI_SESSION_ID, category: 'other', status: 'posted',
+  }]);
+  extraFixtureId = EXTRA_EXPENSE.id;
+}
+
+async function removeExtraExpense(env) {
+  if (!extraFixtureId) return true;
+  await restWrite(env, 'DELETE', `session_expenses?id=eq.${extraFixtureId}`);
+  const left = await restGet(env, `session_expenses?id=eq.${extraFixtureId}&select=id`);
+  return left.length === 0;
+}
+
 // Sentinels are real fixture values that only the Owner's private payloads carry. Each one
 // declares the class the gate depends on (see SENTINEL_CLASSES below).
 async function resolveSentinels(env, runId) {
   const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number,account_name&status=eq.active`);
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
-  const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted`);
-  if (!expenses.length) throw new Error('no posted expense fixture for the UI session');
+  await ensureExtraExpense(env);
+  const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted&order=id.asc`);
+  if (expenses.length < 2) throw new Error('two posted expense fixtures are needed for the gated set');
   const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
   return {
     bank: banks[0].account_number,
     receiver: banks[0].account_name,
     expense: expenses[0].title,
     expense_id: expenses[0].id,
+    expense2: expenses[1].title,
+    expense_id_2: expenses[1].id,
     players: players.map((row) => row.id),
     probe: `BH07APPHEAPPROBE-${runId}`,
   };
@@ -162,12 +209,16 @@ async function resolveSentinels(env, runId) {
 // - `distinctive: false` short digit runs can match inside an unrelated UUID (measured:
 //   `0000000007` matched only `10000000-0000-4000-8000-000000000007`), so a hit proves
 //   nothing and is reported as a note instead of gating;
-// - `scope: finance` keeps at least one financial value in the gated set.
+// - `scope: finance` is the only gated scope. The roster ids are `identity`: the cohost
+//   surface legitimately fetches the same shared-club list, so asserting them absent after
+//   the switch would assert something false. They are published with their paths instead.
 const SENTINEL_CLASSES = {
   bank: { rendered: false, distinctive: false, scope: 'bank' },
   receiver: { rendered: false, distinctive: true, scope: 'bank' },
   expense: { rendered: true, distinctive: true, scope: 'finance' },
+  expense2: { rendered: true, distinctive: true, scope: 'finance' },
   expense_id: { rendered: false, distinctive: true, scope: 'finance' },
+  expense_id_2: { rendered: false, distinctive: true, scope: 'finance' },
   player_a: { rendered: false, distinctive: true, scope: 'identity' },
   player_b: { rendered: false, distinctive: true, scope: 'identity' },
   probe: { rendered: false, distinctive: true, scope: 'control' },
@@ -176,7 +227,9 @@ const SENTINEL_KINDS = {
   bank: 'club bank account number (Owner-private, digits only)',
   receiver: 'bank account holder name (loaded by payment instructions, not the Owner surface)',
   expense: 'posted session expense title rendered as widget text',
+  expense2: 'second posted expense title rendered as widget text (run-only fixture row)',
   expense_id: 'posted session expense id returned by get_session_finance (never rendered)',
+  expense_id_2: 'second posted expense id from get_session_finance (never rendered)',
   player_a: 'session player id of the seeded roster (never rendered)',
   player_b: 'second session player id of the seeded roster (never rendered)',
   probe: 'detector sanity marker set on window',
@@ -361,8 +414,11 @@ async function main() {
     cleanup: {},
   };
   let chrome, server, cdp;
+  let envForCleanup = null;
   try {
     const env = supabaseEnv();
+    envForCleanup = env;
+    extraFixtureId = null;
     const sentinels = await resolveSentinels(env, runId);
     PROBE_VALUE = sentinels.probe;
     const values = {
@@ -370,6 +426,8 @@ async function main() {
       receiver: sentinels.receiver,
       expense: sentinels.expense,
       expense_id: sentinels.expense_id,
+      expense2: sentinels.expense2,
+      expense_id_2: sentinels.expense_id_2,
       player_a: sentinels.players[0],
       player_b: sentinels.players[1],
       probe: sentinels.probe,
@@ -486,12 +544,21 @@ async function main() {
       dumps_dir_removed: !fs.existsSync(DUMPS),
       chrome_profile_dir_removed: !fs.existsSync(chromeDir),
     };
+    // The run-only expense row must be gone as well: leaving Owner-private fixture data in
+    // the local stack would make the next run's baseline disagree with its own evidence.
+    try {
+      summary.cleanup.extra_expense_removed = await removeExtraExpense(envForCleanup);
+    } catch (error) {
+      summary.cleanup.extra_expense_removed = false;
+      summary.cleanup.extra_expense_error = error.message;
+    }
     summary.cleanup.ok = summary.cleanup.dump_dir_outside_repo === true
       && summary.cleanup.raw_snapshots_remaining === 0
       && summary.cleanup.dumps_dir_removed === true
-      && summary.cleanup.chrome_profile_dir_removed === true;
+      && summary.cleanup.chrome_profile_dir_removed === true
+      && summary.cleanup.extra_expense_removed === true;
     if (!summary.cleanup.ok) {
-      summary.findings = [...(summary.findings || []), 'heap dump or browser profile cleanup not verified'];
+      summary.findings = [...(summary.findings || []), 'heap dump, browser profile or run-only fixture cleanup not verified'];
       if (summary.status === 'RUN') summary.status = 'FAIL';
     }
     writeEvidence(summary);
@@ -603,9 +670,11 @@ function renderReport(summary) {
   lines.push('## Limitations', '',
     '- Web *profile* build measures the dart2js/V8 heap, not the Dart VM heap of a desktop/mobile build;',
     '  no Visual Studio or Android SDK is installed on this machine, so the VM-service path is NOT RUN.',
-    '- Only *unrendered, distinctive* values gate the verdict. Rendered text is retained by the web',
-    '  engine’s segmentation LRU after the app drops it, so gating on it would measure the engine, and',
-    '  a short digit run can match inside an unrelated fixture UUID (measured for `0000000007`).',
+    '- Only *unrendered, distinctive, finance-scoped* values gate the verdict. Rendered text is',
+    '  retained by the web engine’s segmentation LRU after the app drops it, so gating on it would',
+    '  measure the engine, and a short digit run can match inside an unrelated fixture UUID (see the',
+    '  `bank` notes). Shared-club roster ids are values the new actor may fetch, so they are published',
+    '  with their paths instead of being asserted absent.',
     '- The bank account holder name is only fetched by the player payment-instructions surface, so the',
     '  Owner path never loads it; it is measured and reported as not loaded, not as coverage.',
     '- Sentinels prove that specific Owner-private values are no longer reachable; they do not enumerate',

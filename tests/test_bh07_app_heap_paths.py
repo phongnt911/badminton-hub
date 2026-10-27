@@ -64,7 +64,7 @@ def write_snapshot(nodes, edges):
     return json.dumps(body, separators=(',', ':')).encode('utf-8')
 
 
-def clean_graph(weak_bank=False, orphan_objects=False):
+def clean_graph(weak_bank=False, orphan_objects=False, label_as_sentinel=False):
     """root -> (Global handles) -> Object -> {bank, probe, expense} string nodes."""
     nodes = [(SYNTHETIC, 0, 1),          # 0 synthetic root
              (SYNTHETIC, 1, 1),          # 1 (Global handles)
@@ -72,9 +72,12 @@ def clean_graph(weak_bank=False, orphan_objects=False):
              (STRING, BANK_STRING, 0),   # 3
              (STRING, PROBE_STRING, 0),  # 4
              (STRING, EXPENSE_STRING, 0)]  # 5
+    # The web engine keys its text cache by the text itself, so a property name can *be*
+    # the sentinel value; publishing it verbatim would republish what the gate hides.
+    bank_label = BANK_STRING if label_as_sentinel else 8
     edges = [(INTERNAL, 0, 1),                              # root -> global handles
              (INTERNAL, 0, 2),                              # global handles -> object
-             (WEAK if weak_bank else PROPERTY, 8, 3),       # object -> bank
+             (WEAK if weak_bank else PROPERTY, bank_label, 3),  # object -> bank
              (PROPERTY, 9, 4),                              # object -> probe
              (PROPERTY, 10, 5)]                             # object -> expense
     if orphan_objects:
@@ -110,9 +113,11 @@ def path_record(reachable, root_kind='global_handles', path_len=3, exact=True):
 CLASSES = {
     'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
     # The bank digit run is not distinctive (a hit can be a UUID substring) and the title is
-    # rendered text, so neither can carry the gate; the two ids below do.
+    # rendered text, so neither can carry the gate; the finance ids below do. `player` is
+    # identity: the cohost may re-fetch the shared roster, so it is reported, never gated.
     'bank': {'rendered': False, 'distinctive': False, 'scope': 'bank'},
     'expense': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+    'expense2': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
     'player': {'rendered': False, 'distinctive': True, 'scope': 'identity'},
 }
 
@@ -124,6 +129,7 @@ def scan_record(bank, probe=True, expense=False, paths=True, bank_path=None, exa
             'probe': {'present': probe, 'occurrences': 1 if probe else 0, **CLASSES['probe']},
             'bank': {'present': bank, 'occurrences': 1 if bank else 0, **CLASSES['bank']},
             'expense': {'present': expense, 'occurrences': 1 if expense else 0, **CLASSES['expense']},
+            'expense2': {'present': expense, 'occurrences': 1 if expense else 0, **CLASSES['expense2']},
             'player': {'present': expense, 'occurrences': 1 if expense else 0, **CLASSES['player']},
         },
     }
@@ -132,6 +138,7 @@ def scan_record(bank, probe=True, expense=False, paths=True, bank_path=None, exa
             'probe': path_record(probe, exact=exact),
             'bank': path_record(bank if bank_path is None else bank_path, exact=exact),
             'expense': path_record(expense, exact=exact),
+            'expense2': path_record(expense, exact=exact),
             'player': path_record(expense, exact=exact),
         }
     return record
@@ -180,6 +187,13 @@ class GraphWalkControls(unittest.TestCase):
         published = json.dumps(result)
         for value in ('SENTINEL-BANK-998877', 'SENTINEL-PROBE-ALIVE', 'SENTINEL-EXPENSE-42'):
             self.assertNotIn(value, published)
+
+    def test_property_label_carrying_a_sentinel_is_redacted(self):
+        result = graph_scan(clean_graph(label_as_sentinel=True))
+        self.assertIs(result['paths']['bank']['reachable'], True)
+        frames = result['paths']['bank']['frames']
+        self.assertNotIn('SENTINEL-BANK-998877', json.dumps(result))
+        self.assertTrue(any('<redacted>' in frame for frame in frames), frames)
 
 
 class PathSchemaControls(unittest.TestCase):
@@ -344,6 +358,30 @@ class StrictVerdictControls(unittest.TestCase):
         result = self.decide(scans)
         self.assertEqual(result['verdict'], 'FAIL')
         self.assertTrue(any('not distinctive' in note for note in result['notes']), result)
+
+    def test_identity_value_refetched_by_the_new_actor_is_not_gated(self):
+        # Measured in the cohost cycle: the roster id is reachable again because the cohost
+        # surface fetches the same shared-club list. Gating it would assert something false.
+        scans = cycle(bank=True, expense=True)
+        for epoch in ('post_actor',):
+            scans[epoch]['sentinels']['player'] = {
+                'present': True, 'occurrences': 1, **CLASSES['player']}
+            scans[epoch]['paths']['player'] = path_record(True)
+        result = self.decide(scans)
+        self.assertEqual(result['verdict'], 'PASS', result['findings'])
+        self.assertTrue(any('authorized' in note for note in result['notes']), result)
+
+    def test_identity_value_is_not_financial_coverage(self):
+        # Only the roster id loaded: no finance value gates, so the run must be red.
+        scans = cycle(bank=True)
+        for epoch in scans:
+            scans[epoch]['sentinels']['expense'] = {
+                'present': epoch == 'owner_active', 'occurrences': 1, **CLASSES['player']}
+            scans[epoch]['paths']['expense'] = path_record(epoch == 'owner_active')
+        result = self.decide(scans)
+        self.assertEqual(result['verdict'], 'FAIL')
+        self.assertTrue(any('finance' in finding or 'at least' in finding
+                            for finding in result['findings']), result)
 
 
 class DeriveExpectationControls(unittest.TestCase):
