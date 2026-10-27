@@ -1,0 +1,207 @@
+{
+  "ninth_retained_node": {
+    "graph_error": null,
+    "ninth_actual_parent": 2,
+    "reported": {
+      "reachable": false,
+      "string_nodes": 8,
+      "exact": true
+    },
+    "counted": {
+      "present": true,
+      "occurrences": 1,
+      "rendered": false,
+      "distinctive": true,
+      "scope": "identity"
+    }
+  },
+  "long_label": {
+    "raw_length": 80,
+    "frame_contains_private_prefix": true,
+    "frame_has_redacted_marker": false,
+    "full_needle_in_frame": false
+  },
+  "positive_real_record": "PASS",
+  "finance_downgrade": {
+    "verdict": "FAIL",
+    "findings": [
+      "owner_active: only 1 sentinel(s) gated (expense_id_2); the graph measurement needs at least 2"
+    ],
+    "notes": [
+      "owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated",
+      "post_actor: sentinel player_a is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated",
+      "post_actor: sentinel player_b is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated"
+    ],
+    "residual_risks": [
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      }
+    ],
+    "epochs_checked": 4
+  },
+  "finance_retained": {
+    "verdict": "FAIL",
+    "findings": [
+      "post_logout: sentinel expense_id expected absent, got True",
+      "post_logout: sentinel expense_id still reachable from a GC root via gc_roots (20 edges)"
+    ],
+    "notes": [
+      "owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated",
+      "post_actor: sentinel player_a is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated",
+      "post_actor: sentinel player_b is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated"
+    ],
+    "residual_risks": [
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      }
+    ],
+    "epochs_checked": 4
+  },
+  "missing_paths": {
+    "verdict": "FAIL",
+    "findings": [
+      "post_actor: no retained-path analysis recorded",
+      "post_actor: sentinel probe expected reachable from a GC root, got None"
+    ],
+    "notes": [
+      "owner_active: sentinel bank is not distinctive; a hit can be a substring of an unrelated value, so it is reported and never gated",
+      "post_actor: sentinel player_a is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated",
+      "post_actor: sentinel player_b is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated"
+    ],
+    "residual_risks": [
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense",
+        "root_kind": null,
+        "path_len": null,
+        "path_sha256_12": null
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense2",
+        "root_kind": null,
+        "path_len": null,
+        "path_sha256_12": null
+      }
+    ],
+    "epochs_checked": 4
+  },
+  "rendered_app_cache": {
+    "verdict": "PASS",
+    "risks": [
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense",
+        "root_kind": "global_handles",
+        "path_len": 3,
+        "path_sha256_12": "75a4f16eeb7b"
+      },
+      {
+        "epoch": "post_logout",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      },
+      {
+        "epoch": "post_actor",
+        "sentinel": "expense2",
+        "root_kind": "gc_roots",
+        "path_len": 12,
+        "path_sha256_12": "5ae7d1eb096c"
+      }
+    ]
+  },
+  "identity_after_logout": {
+    "verdict": "PASS",
+    "notes": [
+      "post_logout: sentinel player_a is shared-club identity data that the current actor is authorized to fetch; it is reported with its path and never gated"
+    ]
+  },
+  "short_label_positive": {
+    "redacted": true
+  },
+  "cleanup_false": {
+    "problems": [],
+    "readonly": true
+  },
+  "cleanup_missing": {
+    "problems": [],
+    "readonly": true
+  },
+  "metadata_scope_drift": {
+    "problems": [],
+    "readonly": true
+  }
+}

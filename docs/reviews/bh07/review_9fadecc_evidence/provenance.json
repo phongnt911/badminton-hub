@@ -1,0 +1,39 @@
+{
+  "checkout": "9fadecc3fe27a305072e5027bf00ba41b34fe6ca",
+  "status_before_report": "",
+  "tested_source": "66bda0e7e3e1c2e983110e26a6300f6685c3a450",
+  "author_dirty": false,
+  "source_tree_docs_diff": "",
+  "app_backend_diff": "",
+  "old_bundle_diff": "",
+  "retained_hashes": {
+    "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+    "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+    "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+    "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+  },
+  "legacy_hashes": {
+    "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+    "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+    "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+    "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+  },
+  "exits": {
+    "new_verifier": 0,
+    "legacy_verifier_expected_reject": 1,
+    "python_discover": 0,
+    "self_test": 0,
+    "flutter_analyze": 0,
+    "flutter_test": 0,
+    "reviewer_probes": 0,
+    "fixture_stub_probe": 0
+  },
+  "counts": {
+    "python": 258,
+    "self_test": 32,
+    "flutter_pass": 247,
+    "flutter_skip": 1
+  },
+  "runtime": "NOT RUN; see runtime_preflight.json",
+  "fixture_absence_live_db": "NOT RUN"
+}

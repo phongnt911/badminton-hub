@@ -1,0 +1,8 @@
+{
+  "preexisting": true,
+  "post_calls": 0,
+  "delete_calls": 1,
+  "remaining": false,
+  "cleanup_result": true,
+  "truncated_private_label_sanitizer_findings": []
+}
