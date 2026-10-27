@@ -1,10 +1,10 @@
-# Bàn giao V2b §4.4 — Retained paths + finance coverage, vòng sửa 2/2 sau sửa RP3-B (Chờ review)
+# Bàn giao V2b §4.4 — Retained paths + finance coverage, sau sửa RP3-C (Chờ review)
 
-**Trạng thái: Chờ review độc lập vòng 2/2 sau sửa RP3-B.** Người triển khai **không** tự ghi Đạt.
+**Trạng thái: Chờ review độc lập sau sửa RP3-C.** Người triển khai **không** tự ghi Đạt.
 
 - Nhánh: `feat/bh07-retained-path-verification`
-- Base review: `bc09d0c9406f4934b40a00f940667c008bb7a3a8` ([review 4184faf](review_4184faf.md) + `review_4184faf_evidence/`)
-- Tested source: `6b530c52e8020f778a1caa86890ea3ba87fb084f` — `git_dirty: false`
+- Base review: `ba90ac5c0a5b76d06d3d9d9cefce6249f24c8682` ([review 04d1ea9](review_04d1ea9.md) + `review_04d1ea9_evidence/`)
+- Tested source: `29f44a8e8f86ff68e3ebe54f981cbb73ea5ceb2b` — `git_dirty: false`
 - Evidence: [`retained_path_r1_evidence/`](retained_path_r1_evidence/) — `summary.json`, `report.md`, `run.log`, `hashes.sha256` (giữ nguyên byte; không rewrite verdict lịch sử)
 - Bundle cũ [`retained_path_evidence/`](retained_path_evidence/) và [`app_profile_heap_evidence/`](app_profile_heap_evidence/) **giữ nguyên byte**; auditor mới **từ chối** cả hai (contract đổi, không rewrite verdict lịch sử)
 - Tiêu chí: [`bh07_readiness.md` §4.4](bh07_readiness.md)
@@ -20,23 +20,24 @@ Chỉ **công cụ kiểm chứng + test + tài liệu/bằng chứng**. Không 
 | Retained path / class / strict verdict | `tests/test_bh07_app_heap_paths.py` | **69** (gồm phát lại nguyên bản `review_9fadecc_evidence/probes.py`) |
 | Auditor bundle | `scripts/bh07_appheap/verify_evidence.py` | `tests/test_bh07_app_heap_evidence.py` **116** |
 | Fixture ownership | `scripts/bh07_appheap/fixture_controls.js` | **6** case, `tests/test_bh07_app_heap_fixture_ownership.py` 5 (gồm phát lại `fixture_probe.js`) |
-| Runner thật + Guard + Publication Redaction | `scripts/bh07_appheap/run_app_profile_heap.js`, `build_guard.js` | **12** tests (gồm `RedactionCompletenessControls`, `PublicationProbeReplay`, build guard, publication sanitizer) |
+| Runner thật + Guard + Publication Redaction | `scripts/bh07_appheap/run_app_profile_heap.js`, `build_guard.js` | **14** tests (gồm `RedactionCompletenessControls`, `PublicationProbeReplay`, build guard, publication sanitizer) |
 
-Tổng **310 test Python** (`python -X utf8 -m unittest discover -s tests`).
+Tổng **312 test Python** (`python -X utf8 -m unittest discover -s tests`).
 
-## 2. Bảy phát hiện review và cách sửa
+## 2. Tám phát hiện review và cách sửa
 
 | # | Mức | Sửa | Control tái hiện trước khi sửa |
 | --- | --- | --- | --- |
 | RP1 | P1 | Fixture dùng một lần lấy **UUID mới mỗi lần chạy**, có guard endpoint local, preflight từ chối khi id đã tồn tại (không POST/DELETE), đọc lại để nhận sở hữu sau POST không trả lời, chỉ DELETE dòng do chính lần chạy tạo, xác minh vắng mặt **theo id**; helper trả object thay vì ném lỗi để receipt cleanup luôn tồn tại | `fixture_controls.js` 6 case + `fixture_probe.js` phát lại: `post_calls=0, delete_calls=0, remaining=true, removed=false` (trước: `delete_calls=1, remaining=false, cleanup=true`) |
 | RP2 | P2 | Reachability tính trên **mọi** string node khớp; chỉ **đường công bố** bị giới hạn (`MAX_CHAIN_WALKS=8`). Walk vượt budget hoặc gặp chu trình ⇒ record `error` (`retained_path_too_deep`/`retained_path_cycle`) và `path_problems` **FAIL** — không bao giờ là "unreachable" | `ReachabilityCoverageControls` 5 ca; probe `ninth_retained_node` nay `reachable=true, string_nodes=9` |
 | RP3 | P2 | Nhãn cạnh kiểm trên **toàn bộ** giá trị đã decode (`needle in value or needle.startswith(label)`) **trước** khi cắt `EDGE_LABEL_MAX`; frame còn bị quét lại lần cuối; sanitizer công bố coi **tiền tố ≥20 ký tự** của giá trị riêng là riêng tư (`MIN_PREFIX_LEAK`) | `LabelPrivacyControls` 5 ca; probe `long_label` nay `frame_contains_private_prefix=false`, `truncated_private_label_sanitizer_findings=['label']` |
-| RP3-B | P2 | Quét toàn bộ **maximal private runs** (≥20 ký tự hoặc toàn bộ giá trị nếu ngắn hơn) trên chuỗi gốc trước khi thay thế, **hợp nhất (merge) các khoảng chồng lấn** giữa mọi sentinel values; xử lý triệt để multiple/overlapping values, khoảng dịch chuyển, giá trị ngắn trong dài, chuỗi tự lặp; đệ quy làm sạch các trường chuỗi có cấu trúc của `summary` bằng `redactValue` trước khi serialize nhằm **bảo toàn tuyệt đối cú pháp JSON và Markdown** | `RedactionCompletenessControls` 6 ca (mọi độ dài cắt xén, embedded/overlapping, mid-length, multiple/overlapping values, self-overlapping, writeEvidence artifact thực tế kiểm tra cú pháp JSON/Markdown); phát lại nguyên bản `redaction_probe.js` và `publication_probe.js` |
+| RP3-B | P2 | Quét toàn bộ **maximal private runs** (≥20 ký tự hoặc toàn bộ giá trị nếu ngắn hơn) trên chuỗi gốc trước khi thay thế, **hợp nhất (merge) các khoảng chồng lấn** giữa mọi sentinel values; xử lý triệt để multiple/overlapping values, khoảng dịch chuyển, giá trị ngắn trong dài, chuỗi tự lặp | `RedactionCompletenessControls` 6 ca (mọi độ dài cắt xén, embedded/overlapping, mid-length, multiple/overlapping values, self-overlapping, writeEvidence artifact thực tế kiểm tra cú pháp JSON/Markdown); phát lại nguyên bản `redaction_probe.js` và `publication_probe.js` |
+| RP3-C | P2 | Sanitize dữ liệu chuỗi có cấu trúc bằng `redactValue` trước khi serialize, **serialize một lần và không áp dụng raw-text replacement lên JSON đã serialize**; bảo toàn nguyên vẹn kiểu boolean (`cleanup.ok`, `build.served_match`, `git_dirty`), number, null; tách log free-text và report data khỏi protocol/static metadata | `json_structure_probe.js` nguyên bản của review 04d1ea9 (cả 3 case `ordinary_control`, `short_true_value`, `short_false_value` đều `summary_json_valid=true`, không còn raw placeholder in boolean); unit test `test_publication_with_boolean_null_and_numeric_sentinels_preserves_types` |
 | RP4 | P2 | Auditor đối chiếu `rendered`/`distinctive`/`scope` giữa metadata đã công bố và **từng** scan (hai chiều), và **parse bảng declaration trong `report.md`** so với `summary.json` | `ClassAgreementControls` 8 ca (metadata-only, một epoch, mọi epoch, rendered, distinctive, scan-only, report table) |
 | RP5 | P2 | `residual_risks` có `class` + `attribution: 'unattributed'`; note identity nói "not established" cho cả `post_logout` (Guest) và `post_actor`; report/limitations bỏ mọi suy "engine chứ không phải app" và "actor được phép fetch" | `test_rendered_residual_risk_is_unattributed`, `test_identity_retention_after_logout_is_not_called_authorized`, probe `rendered_app_cache`/`identity_after_logout` |
 | RP6 | P2 | Contract cleanup: `run_only_fixture_created`, `run_only_fixture_id_sha256_12`, `extra_expense_removed`, `extra_expense_verified_absent`, optional `extra_expense_error`; auditor đòi created/removed/absent đều `true`, sha12 hợp lệ, không error, và **receipt JSON trong `report.md` phải bằng `summary.cleanup`** | `FixtureCleanupControls` 11 ca (thiếu/false/null/không sở hữu/error/thiếu hash/ok=false/receipt lệch/thiếu receipt) |
 
-Probe của reviewer (`review_4184faf_evidence/redaction_probe.js`, `publication_probe.js`, `review_9fadecc_evidence/fixture_probe.js`, `probes.py`) được phát lại **nguyên bản**; các kiểm tra đều đạt kỳ vọng.
+Probe của reviewer (`review_04d1ea9_evidence/json_structure_probe.js`, `review_4184faf_evidence/redaction_probe.js`, `publication_probe.js`, `review_9fadecc_evidence/fixture_probe.js`, `probes.py`) được phát lại **nguyên bản**; các kiểm tra đều đạt kỳ vọng.
 
 ## 3. Cổng mới (thu hẹp §4.4, có giới hạn)
 
@@ -80,20 +81,21 @@ extra_expense_removed: true, extra_expense_verified_absent: true, ok: true
 
 Kiểm độc lập sau lượt đo: `select count(*) from public.session_expenses where title like 'Tiền điện BH-07%'` **= 0**. Dump heap + profile Chrome ghi ngoài repo, xoá và xác minh (`raw_snapshots_remaining: 0`).
 
-## 7. Lệnh đã chạy (máy triển khai, tested source `6b530c5`)
+## 7. Lệnh đã chạy (máy triển khai, tested source `29f44a8`)
 
 | Lệnh | Exit | Ghi chú |
 | --- | --- | --- |
+| `node docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js` | 0 | **3/3** check RP3-C: `summary_json_valid=true`, không còn raw placeholder in boolean |
 | `node docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js` | 0 | **4/4** check RP3-B: full value, prefix20, prefix40, prefix60 đều `redacted_completely=true`, không còn fragment |
 | `node docs/reviews/bh07/review_4184faf_evidence/publication_probe.js` | 0 | `status=FAIL, verdict=FAIL`, `published_private_middle20=false`, `actual_private_fragment_absent=true` |
 | `node docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js` | 0 | `post_calls=0, delete_calls=0, remaining=true` |
 | `python -X utf8 docs/reviews/bh07/review_9fadecc_evidence/probes.py` | 0 | quan sát probes đúng kỳ vọng |
 | `node scripts/bh07_appheap/fixture_controls.js --self-test` | 0 | **6/6** case ownership |
 | `python -X utf8 scripts/bh07_appheap/heap_oracle.py self-test` | 0 | **34/34** |
-| `python -X utf8 -m unittest discover -s tests` | 0 | **310/310 OK** |
+| `python -X utf8 -m unittest discover -s tests` | 0 | **312/312 OK** |
 | `python -X utf8 scripts/bh07_appheap/verify_evidence.py --dir <abs path r1>` | 0 | PASS (bắt buộc **đường dẫn tuyệt đối**) |
 | Auditor trên 2 bundle cũ (`retained_path_evidence`, `app_profile_heap_evidence`) | 1 | mỗi bundle exit 1 đúng kỳ vọng |
-| `flutter analyze` | 0 | no issues found (26.9s) |
+| `flutter analyze` | 0 | no issues found (18.0s) |
 | `flutter test` | 0 | 247 pass + 1 skip |
 
 ## 8. Giới hạn / NOT RUN
