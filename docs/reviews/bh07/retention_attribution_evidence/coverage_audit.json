@@ -4,9 +4,10 @@
     "verified_clean_web_profile": 1,
     "partially_verified_engine_residual": 1,
     "partially_visited_ungated": 1,
-    "verified_provider_harness_only": 1,
+    "verified_provider_harness_only": 0,
     "reported_note_not_gated": 1,
-    "not_measured_in_app_heap": 6
+    "not_measured_in_app_heap": 6,
+    "not_run_web_heap_object_graph": 1
   },
   "inventory": [
     {
@@ -36,7 +37,7 @@
     {
       "id": "session_charges",
       "entity": "Session Charges",
-      "model": "lib/models/finance.dart:258 (FinanceCharge)",
+      "model": "lib/models/finance.dart:258 (FinanceCharge: playerId, displayName, amountDueVnd)",
       "provider": "lib/providers/finance_provider.dart:180 (_finance.charges)",
       "screen": "lib/screens/session_finance_screen.dart:648 (_chargesSection)",
       "scope": "finance",
@@ -48,7 +49,7 @@
     {
       "id": "session_payments",
       "entity": "Session Payments",
-      "model": "lib/models/finance.dart:279 (FinancePayment)",
+      "model": "lib/models/finance.dart:279 (FinancePayment: paymentId, playerId, amountVnd, method, status, reference, confirmedAt, createdAt)",
       "provider": "lib/providers/finance_provider.dart:180 (_finance.payments)",
       "screen": "lib/screens/session_finance_screen.dart:696 (_paymentsSection)",
       "scope": "finance",
@@ -60,7 +61,7 @@
     {
       "id": "club_bank_account",
       "entity": "Club Bank Account Number",
-      "model": "lib/models/club.dart:122 (BankAccount.accountNumber)",
+      "model": "lib/models/club.dart:122 (BankAccount: id, clubId, userId, bankCode, accountNumber, accountName, status)",
       "provider": "lib/providers/club_provider.dart:112 (_currentBankAccount)",
       "screen": "lib/screens/clubs_screen.dart:472 (_showConfigureBankDialog)",
       "scope": "bank",
@@ -72,7 +73,7 @@
     {
       "id": "bank_receiver",
       "entity": "Bank Account Holder / Receiver",
-      "model": "lib/models/club.dart:122 (BankAccount.accountName) / PaymentInstructions.accountHolder",
+      "model": "lib/models/club.dart:122 (BankAccount.accountName) / lib/models/finance.dart:34 (PaymentInstructions.receiverSnapshot)",
       "provider": "lib/providers/club_provider.dart:112 / finance_provider.dart:101",
       "screen": "lib/screens/clubs_screen.dart / payment QR dialog",
       "scope": "bank",
@@ -84,7 +85,7 @@
     {
       "id": "payment_instructions",
       "entity": "Payment Instructions & VietQR",
-      "model": "lib/models/finance.dart:34 (PaymentInstructions)",
+      "model": "lib/models/finance.dart:34 (PaymentInstructions: sessionId, playerId, displayName, billingState, activeRevisionId, sourceVersion, amountDueVnd, totalPaidVnd, outstandingVnd, reference, receiverSnapshot, hasReceiver, canPay)",
       "provider": "lib/providers/finance_provider.dart:101 (_instructions)",
       "screen": "lib/screens/session_finance_screen.dart:458 (player QR instructions)",
       "scope": "finance",
@@ -108,7 +109,7 @@
     {
       "id": "session_summary_totals",
       "entity": "Session Summary Aggregate Financial Totals",
-      "model": "lib/models/finance.dart:98 (SessionSummary)",
+      "model": "lib/models/finance.dart:98 (SessionSummary: expensesTotalVnd, amountDueTotalVnd, totalPaidVnd, outstandingTotalVnd)",
       "provider": "lib/providers/finance_provider.dart (_summary)",
       "screen": "lib/screens/session_summary_screen.dart:58 (SessionSummaryScreen)",
       "scope": "finance",
@@ -138,8 +139,8 @@
       "scope": "control",
       "rendered": false,
       "distinctive": true,
-      "measured_status": "VERIFIED_PROVIDER_HARNESS",
-      "gap": "Clean in AST audit (0 static collections, balanced removeListener in dispose); Web profile heap shows _generation / serial discard working."
+      "measured_status": "NOT_RUN_WEB_HEAP_OBJECT_GRAPH",
+      "gap": "AST zero-static and Provider test verify balance of listeners in unit harness, but Web profile heap object graph of active listener nodes was NOT RUN."
     }
   ]
 }

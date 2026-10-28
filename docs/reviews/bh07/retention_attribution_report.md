@@ -2,7 +2,7 @@
 
 - Ngày: 28/10/2026, Asia/Saigon.
 - Vai trò: AI thực thi điều tra độc lập phần còn lại V2b BH-07.
-- Nhánh: `feat/bh07-retention-attribution`, tạo từ base `90e9d99b848f30fa3e3b2a3e643dbf784baaea9e`.
+- Nhánh: `feat/bh07-retention-attribution`, base `272bb29d2960959cb856771e8b95c16f140645f4`.
 - Nguồn đo runtime đối chiếu: `b13e468d33e0d96437b58bb2da6088bff689b9eb` (`git_dirty: false`), theo [báo cáo QA runtime](review_runtime_b13e468.md), [audit điều phối](review_3b393d3.md), và [QA evidence](review_runtime_b13e468_evidence/).
 - Bộ chứng cứ điều tra độc lập đi kèm: [retention_attribution_evidence/](retention_attribution_evidence/).
 - Nguyên tắc tuân thủ: Giữ nguyên vẹn 100% byte mọi bundle lịch sử; không sửa app/backend/DB contract; không nới lỏng các gate đã đóng; không tự đóng toàn V2b/BH-07, không merge/deploy/pilot/BH-08.
@@ -12,7 +12,7 @@
 ## 1. Tóm tắt điều hành & Mục tiêu điều tra
 
 Báo cáo này giải quyết trọn vẹn 2 nhiệm vụ cốt lõi mà QA độc lập và Codex điều phối đã ghi nhận là còn mở sau lượt đo runtime retained-path 28/10/2026:
-1. **Phân định nguyên nhân kỹ thuật (Attribution Investigation) của 8 residual risk** đối với tiêu đề chi phí đã render (`expense`, `expense2`): Phân tích khách quan hai phía Engine (Flutter Web/CanvasKit/V8) và App (`badminton-hub`), đối chiếu chính xác phiên bản Flutter SDK, Chrome và bản build web profile của phép đo.
+1. **Phân định nguyên nhân kỹ thuật (Attribution Investigation) của 8 residual risk** đối với tiêu đề chi phí đã render (`expense`, `expense2`): Phân tích khách quan hai phía Engine (Flutter Web/CanvasKit/V8) và App (`badminton-hub`), đối chiếu chính xác phiên bản Flutter SDK, Chrome và bản build web profile của phép đo. Phân tách rõ ràng giữa quan sát thực nghiệm (observed), giả thuyết có bằng chứng hỗ trợ (supported hypothesis) và các giới hạn kỹ thuật chưa được chứng minh (unknown/limits).
 2. **Thiết lập Bản đồ độ phủ (Coverage Map)** toàn diện cho các private models, caches, listeners và các thực thể tài chính/danh tính còn thiếu bằng chứng đo thực (`charges`, `payments`, `bank`, `receiver`, `ledger`, `payment instructions`).
 
 ---
@@ -48,9 +48,9 @@ Trong 2 chu kỳ đo thực (`Owner → logout → Cohost` và `Owner → logout
 | 2 | `post_actor` (`member`) | `expense` | `finance` | `rendered` | 12 | `5ae7d1eb096c` | `reachable: true`, `occurrences: 1` |
 | 2 | `post_actor` (`member`) | `expense2` | `finance` | `rendered` | 12 | `5ae7d1eb096c` | `reachable: true`, `occurrences: 1` |
 
-Tổng số: **8 bản ghi**. Giá trị sentinel gồm:
-- `expense`: Tiêu đề chi phí hạt giống ("Tiền thuê sân 2h", độ dài 16 ký tự, sha12 `41a394dd2dcd`).
-- `expense2`: Tiêu đề chi phí fixture dùng một lần ("Tiền điện BH-07...", độ dài 28 ký tự, sha12 `09ac31ed38b0`).
+Tổng số: **8 bản ghi**. Các sentinel đã được sanitize theo đúng chính sách:
+- `expense`: Tiêu đề chi phí hạt giống (độ dài 16 ký tự, sha256_12 `41a394dd2dcd`, class `rendered`).
+- `expense2`: Tiêu đề chi phí fixture dùng một lần (độ dài 28 ký tự, sha256_12 `09ac31ed38b0`, class `rendered`).
 
 ### 3.2. Mổ xẻ Chuỗi Giữ Ngắn nhất (Retainer Path)
 
@@ -75,7 +75,7 @@ Frame 12: property:hashMapCellKey -> string
 ### 3.3. Phân tích Phía Web Engine (Flutter Web Engine / CanvasKit)
 
 1. **Vị trí định nghĩa trong mã nguồn Flutter SDK:**
-   - Tập tin: `C:\src\flutter\bin\cache\flutter_web_sdk\lib\_engine\engine\text_fragmenter.dart` (dòng 32-47).
+   - Tập tin: `flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart` (dòng 32-47).
    - Biến toàn cục tĩnh:
      ```dart
      final SegmentationCache segmentationCache = (
@@ -106,13 +106,13 @@ Frame 12: property:hashMapCellKey -> string
 ### 3.4. Phân tích Phía Ứng dụng (`badminton-hub`)
 
 1. **Vòng đời State trong ứng dụng:**
-   - Màn hình hiển thị tiêu đề chi phí: [`SessionFinanceScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_finance_screen.dart#L620) (`_expenseTile`).
-   - State quản lý chi phí: [`FinanceProvider`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L180) giữ `SessionFinance? _finance`, trong đó `_finance.expenses` chứa danh sách các đối tượng [`FinanceExpense`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L222).
-   - Mỗi đối tượng `FinanceExpense` chứa cả 2 trường song hành:
+   - Màn hình hiển thị tiêu đề chi phí: [`SessionFinanceScreen`](../../../lib/screens/session_finance_screen.dart#L620) (`_expenseTile`).
+   - State quản lý chi phí: [`FinanceProvider`](../../../lib/providers/finance_provider.dart#L180) giữ `SessionFinance? _finance`, trong đó `_finance.expenses` chứa danh sách các đối tượng [`FinanceExpense`](../../../lib/models/finance.dart#L222).
+   - Mỗi đối tượng `FinanceExpense` chứa các trường:
      - `final String expenseId;` (UUID 36 ký tự, chỉ dùng định danh nội bộ, **không render lên UI**).
      - `final String title;` (Chuỗi tiêu đề chi phí, **render lên UI qua widget Text**).
 2. **Cơ chế dọn dẹp khi Logout:**
-   - Khi Owner đăng xuất, [`AuthProvider.signOut()`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/auth_provider.dart) xóa session token và kích hoạt listener `_onAuthChanged()` trong `FinanceProvider`.
+   - Khi Owner đăng xuất, [`AuthProvider.signOut()`](../../../lib/providers/auth_provider.dart) xóa session token và kích hoạt listener `_onAuthChanged()` trong `FinanceProvider`.
    - `FinanceProvider.clearAll()` thực thi:
      ```dart
      _resetFinance(); // _finance = null; _financeSessionId = null;
@@ -120,63 +120,64 @@ Frame 12: property:hashMapCellKey -> string
      _resetSummary(); // _summary = null;
      _resetLedger(); // _ledger = null;
      ```
-   - Màn hình `SessionFinanceScreen` được Navigator pop khỏi ngăn xếp điều hướng, widget và element unmount hoàn toàn.
+   - Màn hình `SessionFinanceScreen` được Navigator pop khỏi ngăn xếp điều hướng, widget và element unmount.
 3. **Bằng chứng Thực nghiệm Khách quan từ Sentinel Không Render (`expense_id`):**
    - Trong cùng các snapshot đó:
      - Tại `owner_active`: Cả `expense_id` và `expense_id_2` đều **có mặt** (`occurrences: 1`) và reachable từ GC root với đường đi độ dài 20 xuyên qua widget tree và Provider:
        `root -> ... -> WidgetsBinding -> _framework$_element -> _inheritedElements -> _InheritedProviderScopeElement -> _finance -> expenses -> expenseId`.
      - Tại `post_logout` và `post_actor` (cả 2 chu kỳ): Cả `expense_id` và `expense_id_2` **biến mất 100% khỏi heap** (`present: false`, `occurrences: 0`, `reachable: false`, `string_nodes: 0`).
-   - **Lý giải kỹ thuật mang tính quyết định:**
-     Nếu ứng dụng còn giữ tham chiếu sống (dù qua Provider, Controller, Listener hay Widget Tree) tới danh sách `_finance.expenses` hoặc instance `FinanceExpense`, thì trường `expenseId` **bắt buộc phải còn tồn tại trong heap**.
-     Việc `expenseId` giảm từ 1 xuống đúng **0 occurrences** chứng minh chắc chắn rằng toàn bộ cấu trúc dữ liệu `FinanceExpense` cấp ứng dụng đã được V8 Garbage Collector thu hồi triệt để.
 
-### 3.5. Kết luận Phân định Attribution
+### 3.5. Kết luận Phân định Attribution (Tách bạch Observed, Hypothesis, Limits)
 
-| Tiêu chí | Phía Web Engine | Phía Ứng dụng |
-| :--- | :--- | :--- |
-| **Thực thể giữ chuỗi trực tiếp** | `dart._engine.segmentationCache` (Map `_itemMap` -> `_strings`) | Không tìm thấy bất kỳ đối tượng ứng dụng nào giữ tham chiếu sống |
-| **Dung lượng cache** | Cố định 10.000 phần tử (LRU), không có cơ chế tự dọn | State được reset về `null` ngay khi auth state thay đổi |
-| **Bằng chứng đối chứng** | Chuỗi giữ đi thẳng từ Root vào closure của engine `text_fragmenter.dart` | Sentinel không render của cùng model (`expense_id`) biến mất 100% (`occurrences: 0`) |
-| **Phạm vi nền tảng** | Chỉ xuất hiện trên Flutter Web (CanvasKit/dart2js) | Đạt AST memory audit (0 static mutable collections) |
+Nhằm bảo đảm tính khách quan và tuân thủ tuyệt đối [review_37b4954](review_37b4954.md), kết luận phân định được chia thành 3 bình diện rõ ràng:
 
-**Kết luận kỹ thuật:**
-1. Nguyên nhân 8 residual risk giữ tiêu đề chi phí sau logout **thuộc về cơ chế Text Segmentation Caching của Flutter Web Engine** (`package:flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart`).
-2. Tầng ứng dụng (`badminton-hub`) **đã giải phóng hoàn toàn** các model tài chính và widget tương ứng (chứng minh qua việc sentinel không render `expense_id` có `occurrences: 0`).
-3. Trên nền tảng Desktop/Mobile (Dart VM), Flutter không sử dụng `text_fragmenter.dart` mà sử dụng engine C++ Skia/Impeller native, do đó cơ chế lưu cache này không áp dụng cho Dart VM heap.
-4. Việc QA ban đầu gán nhãn `unattributed` là đúng quy trình thận trọng vì thuật toán BFS chỉ in ra một đường đi ngắn nhất; tuy nhiên bằng chứng đối chiếu chéo với peer sentinel `expense_id` đã làm sáng tỏ hoàn toàn bản chất kỹ thuật của hiện tượng này.
+#### A. Quan sát Thực nghiệm (Observed)
+1. **Retainer path trong V8 heap snapshot:** Đường dẫn giữ ngắn nhất (BFS) dẫn thẳng từ GC root qua closure của engine đến `dart._engine.segmentationCache._itemMap._strings`.
+2. **Hành vi của sentinel không render:** 2 mã chi phí (`expense_id`, `expense_id_2`) có `occurrences: 1` ở `owner_active` và giảm về `occurrences: 0`, `reachable: false` sau khi logout và sau khi đổi actor ở cả 2 chu kỳ.
+
+#### B. Giả thuyết có Bằng chứng Hỗ trợ (Supported Hypothesis)
+1. Cấu trúc frame (`segmentationCache`, `_itemMap`, `_strings`) hoàn toàn khớp với cơ chế LRU cache 10.000 mục được định nghĩa trong mã nguồn `flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart:43`.
+2. Việc unrendered model key (`expense_id`) biến mất hỗ trợ cho giả thuyết rằng instance `FinanceExpense` trong Provider đã được GC thu hồi sau khi gọi `clearAll()`.
+
+#### C. Giới hạn Kỹ thuật & Phần Chưa Chứng minh (Unknown & Limits)
+1. **Không loại trừ đường dẫn phụ:** Một đường dẫn ngắn nhất BFS trong snapshot V8 không thể chứng minh sự vắng mặt của các đường dẫn giữ khác từ phía ứng dụng (nếu có).
+2. **Phạm vi hai expense ID không chứng minh toàn app:** Việc 2 ID chi phí biến mất không chứng minh rằng app không giữ chuỗi ở nơi khác, cũng không chứng minh cho các model tài chính khác (`charges`, `payments`, `bank`, `ledger`).
+3. **Dart VM desktop/mobile là NOT RUN:** Chưa có phép đo đối chứng trên native Dart VM; không suy diễn rằng heap native không có hiện tượng retention.
+4. **Phân loại chính thức:** Theo readiness §4.4 và AGENTS.md, 8 bản ghi này **tiếp tục giữ phân loại chính thức là `unattributed residual risk`**. Toàn bộ V2b/BH-07 **CHƯA NGHIỆM THU**.
 
 ---
 
 ## 4. Phần 2: Bản đồ Độ phủ Toàn diện (V2b Coverage Map)
 
 Cổng V2b §4.4 yêu cầu xác minh việc không rò rỉ bộ nhớ sau khi đổi actor đối với **toàn bộ dữ liệu tài chính chi tiết của Owner**.
-Bảng dưới đây tổng hợp hiện trạng kiểm chứng của 11 thực thể tài chính/danh tính trong codebase:
+Bảng dưới đây đối chiếu đúng 100% các model, DTO, field hiện hành trong codebase:
 
 | STT | Thực thể dữ liệu | Vị trí Model trong mã nguồn | Provider & Cache quản lý | Màn hình UI hiển thị | Hiện trạng Provider Unit Test | Hiện trạng Web Profile Heap Snapshot | Sentinel & Khả năng Đo Heap | Khoảng trống Kỹ thuật (GAP) |
-| :---: | :--- | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
-| 1 | **Mã chi phí (`expense_id`)** | [`FinanceExpense.expenseId`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L222) | [`FinanceProvider._finance`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L180) | Không render (khóa model) | ĐẠT (33/33) | **ĐẠT (2 chu kỳ, 0 occ sau logout)** | UUID 36 ký tự, distinctive, unrendered | **Dart VM desktop/mobile NOT RUN**. |
-| 2 | **Tiêu đề chi phí (`expense_titles`)** | [`FinanceExpense.title`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L222) | [`FinanceProvider._finance`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_finance_screen.dart#L620) | ĐẠT (33/33) | **Residual risk Engine segmentationCache** | Chuỗi văn bản, distinctive, rendered | Giữ trong engine text cache (10.000 entry LRU); Dart VM NOT RUN. |
-| 3 | **Khoản thu người chơi (`session_charges`)** | [`FinanceCharge`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L258) (`playerId`, `chargeVnd`, `notes`) | [`FinanceProvider._finance.charges`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_finance_screen.dart#L648) (`_chargesSection`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `playerId` / ghi chú thu phí | Chưa khai báo sentinel trong runner; chưa assert trên heap snapshot. |
-| 4 | **Thanh toán người chơi (`session_payments`)** | [`FinancePayment`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L279) (`paymentId`, `amountVnd`, `referenceCode`) | [`FinanceProvider._finance.payments`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_finance_screen.dart#L696) (`_paymentsSection`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `paymentId` / `referenceCode` | Chưa khai báo sentinel trong runner; chưa assert trên heap snapshot. |
-| 5 | **Số tài khoản ngân hàng CLB (`club_bank_account`)** | [`BankAccount.accountNumber`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/club.dart#L127) | [`ClubProvider._currentBankAccount`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/club_provider.dart#L112) | [`ClubsScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/clubs_screen.dart#L472) (dialog ngân hàng) | ĐẠT (33/33) | **CHƯA ĐO ĐÚNG (NOT RUN)** | Cần STK dạng chữ-số phân biệt (tránh va chạm UUID) | Chuỗi 10 số va chạm với đuôi UUID; luồng đo không mở màn hình ngân hàng CLB. |
-| 6 | **Tên chủ tài khoản nhận tiền (`bank_receiver`)** | [`BankAccount.accountName`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/club.dart#L128) | [`ClubProvider._currentBankAccount`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/club_provider.dart#L112) | [`ClubsScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/clubs_screen.dart#L913) / dialog QR | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Chuỗi tên chủ TK, distinctive, unrendered | Có khai báo sentinel nhưng `occurrences: 0` ở `owner_active` vì luồng không mở màn hình ngân hàng. |
-| 7 | **Chỉ dẫn thanh toán & QR (`payment_instructions`)** | [`PaymentInstructions`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L34) (`vietqrUrl`, `transferContent`) | [`FinanceProvider._instructions`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart#L101) | [`SessionFinanceScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_finance_screen.dart#L458) (màn hình Player) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `transferContent` / URL QR | Màn hình chỉ dẫn thanh toán của player chưa được duyệt trong luồng heap runner. |
-| 8 | **Sổ quỹ CLB (`club_ledger`)** | [`ClubLedger`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L447), [`ClubLedgerEntry`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L402) | [`FinanceProvider._ledger`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart) | [`ClubFundScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/club_fund_screen.dart#L179) (`_balanceCard`, `_entryTile`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `transactionId` / mô tả giao dịch | Màn hình Quỹ CLB (`ClubFundScreen`) chưa từng được mở trong `run_app_profile_heap.js`. |
-| 9 | **Số tiền tổng hợp buổi (`session_summary_totals`)** | [`SessionSummary`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/finance.dart#L98) (`totalExpensesVnd`, `remainingVnd`) | [`FinanceProvider._summary`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/finance_provider.dart) | [`SessionSummaryScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_summary_screen.dart#L58) | ĐẠT (33/33) | **MỞ MÀN HÌNH NHƯNG CHƯA GATE** | Số tiền dạng số nguyên (không distinctive) | Màn hình được duyệt nhưng số tiền không thể làm sentinel chuỗi độc nhất. |
-| 10 | **Danh tính người chơi CLB (`roster_identities`)** | [`SessionPlayer.id`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/models/session.dart#L237) | [`SessionProvider`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/providers/session_provider.dart) | [`SessionDetailScreen`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/lib/screens/session_detail_screen.dart) | ĐẠT (33/33) | **GHI NHẬN NOTE (path 18)** | UUID, distinctive, `scope: identity` | Còn reachable ở Cohost (path 18); heap không chứng minh quyền truy cập. |
-| 11 | **Auth Listeners & Subscription** | `addListener(_onAuthChanged)` | Các Provider | Toàn app | ĐẠT (AST Clean, dispose cân bằng) | **ĐẠT (không rò rỉ listener sống)** | Listener function closure | Hoạt động bình thường; không rò rỉ object qua static/global listener. |
+| :---: | :--- | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
+| 1 | **Mã chi phí (`expense_id`)** | [`FinanceExpense.expenseId`](../../../lib/models/finance.dart#L222) | [`FinanceProvider._finance`](../../../lib/providers/finance_provider.dart#L180) | Không render (khóa model) | ĐẠT (33/33) | **ĐẠT (2 chu kỳ, 0 occ sau logout)** | UUID 36 ký tự, distinctive, unrendered | **Dart VM desktop/mobile NOT RUN**. |
+| 2 | **Tiêu đề chi phí (`expense_titles`)** | [`FinanceExpense.title`](../../../lib/models/finance.dart#L222) | [`FinanceProvider._finance`](../../../lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](../../../lib/screens/session_finance_screen.dart#L620) | ĐẠT (33/33) | **Residual risk Engine segmentationCache** | Chuỗi văn bản, distinctive, rendered | Giữ trong engine text cache (10.000 entry LRU); Dart VM NOT RUN. |
+| 3 | **Khoản thu người chơi (`session_charges`)** | [`FinanceCharge`](../../../lib/models/finance.dart#L258) (`playerId`, `displayName`, `amountDueVnd`) | [`FinanceProvider._finance.charges`](../../../lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](../../../lib/screens/session_finance_screen.dart#L648) (`_chargesSection`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `playerId` / dữ liệu thu phí | Chưa khai báo sentinel trong runner; chưa assert trên heap snapshot. |
+| 4 | **Thanh toán người chơi (`session_payments`)** | [`FinancePayment`](../../../lib/models/finance.dart#L279) (`paymentId`, `playerId`, `amountVnd`, `method`, `status`, `reference`, `confirmedAt`, `createdAt`) | [`FinanceProvider._finance.payments`](../../../lib/providers/finance_provider.dart#L180) | [`SessionFinanceScreen`](../../../lib/screens/session_finance_screen.dart#L696) (`_paymentsSection`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `paymentId` / `reference` | Chưa khai báo sentinel trong runner; chưa assert trên heap snapshot. |
+| 5 | **Số tài khoản ngân hàng CLB (`club_bank_account`)** | [`BankAccount`](../../../lib/models/club.dart#L122) (`id`, `clubId`, `userId`, `bankCode`, `accountNumber`, `accountName`, `status`) | [`ClubProvider._currentBankAccount`](../../../lib/providers/club_provider.dart#L112) | [`ClubsScreen`](../../../lib/screens/clubs_screen.dart#L472) (dialog ngân hàng) | ĐẠT (33/33) | **CHƯA ĐO ĐÚNG (NOT RUN)** | Cần STK dạng chữ-số phân biệt (tránh va chạm UUID) | Chuỗi 10 số va chạm với đuôi UUID; luồng đo không mở màn hình ngân hàng CLB. |
+| 6 | **Tên chủ tài khoản nhận tiền (`bank_receiver`)** | [`BankAccount.accountName`](../../../lib/models/club.dart#L122) / [`PaymentInstructions.receiverSnapshot`](../../../lib/models/finance.dart#L34) | [`ClubProvider._currentBankAccount`](../../../lib/providers/club_provider.dart#L112) / [`FinanceProvider._instructions`](../../../lib/providers/finance_provider.dart#L101) | [`ClubsScreen`](../../../lib/screens/clubs_screen.dart#L913) / dialog QR | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Chuỗi tên chủ TK, distinctive, unrendered | Có khai báo sentinel nhưng `occurrences: 0` ở `owner_active` vì luồng không mở màn hình ngân hàng. |
+| 7 | **Chỉ dẫn thanh toán & QR (`payment_instructions`)** | [`PaymentInstructions`](../../../lib/models/finance.dart#L34) (`sessionId`, `playerId`, `displayName`, `billingState`, `activeRevisionId`, `sourceVersion`, `amountDueVnd`, `totalPaidVnd`, `outstandingVnd`, `reference`, `receiverSnapshot`, `hasReceiver`, `canPay`) | [`FinanceProvider._instructions`](../../../lib/providers/finance_provider.dart#L101) | [`SessionFinanceScreen`](../../../lib/screens/session_finance_screen.dart#L458) (màn hình Player) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `reference` / `activeRevisionId` | Màn hình chỉ dẫn thanh toán của player chưa được duyệt trong luồng heap runner. |
+| 8 | **Sổ quỹ CLB (`club_ledger`)** | [`ClubLedger`](../../../lib/models/finance.dart#L447), [`ClubLedgerEntry`](../../../lib/models/finance.dart#L402) | [`FinanceProvider._ledger`](../../../lib/providers/finance_provider.dart) | [`ClubFundScreen`](../../../lib/screens/club_fund_screen.dart#L179) (`_balanceCard`, `_entryTile`) | ĐẠT (33/33) | **CHƯA ĐO (NOT RUN)** | Cần sentinel `transactionId` / mô tả giao dịch | Màn hình Quỹ CLB (`ClubFundScreen`) chưa từng được mở trong `run_app_profile_heap.js`. |
+| 9 | **Số tiền tổng hợp buổi (`session_summary_totals`)** | [`SessionSummary`](../../../lib/models/finance.dart#L98) (`expensesTotalVnd`, `amountDueTotalVnd`, `totalPaidVnd`, `outstandingTotalVnd`) | [`FinanceProvider._summary`](../../../lib/providers/finance_provider.dart) | [`SessionSummaryScreen`](../../../lib/screens/session_summary_screen.dart#L58) | ĐẠT (33/33) | **MỞ MÀN HÌNH NHƯNG CHƯA GATE** | Số tiền dạng số nguyên (không distinctive) | Màn hình được duyệt nhưng số tiền không thể làm sentinel chuỗi độc nhất. |
+| 10 | **Danh tính người chơi CLB (`roster_identities`)** | [`SessionPlayer.id`](../../../lib/models/session.dart#L237) | [`SessionProvider`](../../../lib/providers/session_provider.dart) | [`SessionDetailScreen`](../../../lib/screens/session_detail_screen.dart) | ĐẠT (33/33) | **GHI NHẬN NOTE (path 18)** | UUID, distinctive, `scope: identity` | Còn reachable ở Cohost (path 18); heap không chứng minh quyền truy cập. |
+| 11 | **Auth Listeners & Subscription** | `addListener(_onAuthChanged)` | Các Provider | Toàn app | ĐẠT (AST Clean, dispose cân bằng) | **CHƯA ĐO TRÊN WEB HEAP OBJECT GRAPH (NOT RUN)** | Object graph listener closure | AST zero-static không chứng minh heap sạch; chưa đo object retention graph trên heap. |
 
 ---
 
 ## 5. Phần 3: Công cụ Kiểm soát Tự động & Kết quả Tự Kiểm tra
 
-Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận định chủ quan, công cụ kiểm tra tự động đã được bổ sung:
-1. **Script điều tra & kiểm tra bản đồ độ phủ:** [`scripts/bh07_appheap/audit_retention_attribution.py`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/scripts/bh07_appheap/audit_retention_attribution.py).
-2. **Suite kiểm thử tự động:** [`tests/test_bh07_retention_attribution.py`](file:///c:/Users/POTA/Documents/GitHub/badminton-hub/tests/test_bh07_retention_attribution.py) (4/4 tests PASS, bao gồm kiểm soát mutant rò rỉ giả lập và sai lệch số lượng rủi ro).
+Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận định chủ quan, công cụ kiểm tra tự động đã được cập nhật và kiểm chứng:
+1. **Script điều tra & kiểm tra bản đồ độ phủ:** [`scripts/bh07_appheap/audit_retention_attribution.py`](../../../scripts/bh07_appheap/audit_retention_attribution.py) — logic fail-closed, trả exit code 1 và nhãn `UNATTRIBUTED` khi điều kiện tiên đề thất bại.
+2. **Suite kiểm thử tự động:** [`tests/test_bh07_retention_attribution.py`](../../../tests/test_bh07_retention_attribution.py) (5/5 tests PASS, phát lại đầy đủ các ca probe reviewer, kiểm tra fail-closed exit khác 0, đối chiếu DTO field thực trong mã nguồn Dart).
 3. **Chạy hồi quy toàn bộ:**
-   - `python -X utf8 -m unittest discover -s tests`: **316/316 OK** (312 test cũ + 4 test mới).
-   - `python -X utf8 scripts/bh07_appheap/verify_evidence.py --dir "C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh07\review_runtime_b13e468_evidence"`: **PASS** (exit 0).
-   - `python -X utf8 scripts/bh07_browser/clean_and_manifest.py --verify --evidence-dir "C:\Users\POTA\Documents\GitHub\badminton-hub\docs\reviews\bh07\review_runtime_b13e468_evidence"`: **ALL CHECKS PASSED** (exit 0).
+   - `python -X utf8 -m unittest discover -s tests`: **317/317 OK** (312 test cũ + 5 test mới).
+   - `python docs/reviews/bh07/review_37b4954_evidence/probes.py`: Cả 3 mutant (`peer_retained`, `wrong_environment`, `missing_rendered_paths`) đều trả **exit 1** và `primary_retainer_component = 'UNATTRIBUTED'`; positive control trả **exit 0**.
+   - `python -X utf8 scripts/bh07_appheap/verify_evidence.py --dir docs/reviews/bh07/review_runtime_b13e468_evidence`: **PASS** (exit 0).
+   - `python -X utf8 scripts/bh07_browser/clean_and_manifest.py --verify --evidence-dir docs/reviews/bh07/review_runtime_b13e468_evidence`: **ALL CHECKS PASSED** (exit 0).
    - `flutter analyze`: **No issues found!** (exit 0).
    - `flutter test`: **247 passed + 1 skipped** (exit 0).
 
@@ -186,10 +187,10 @@ Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận �
 
 1. **Về 8 Residual Risk Tiêu đề Chi phí:**
    - Không cần và **không được sửa ép app** (như tìm cách can thiệp vào bộ nhớ riêng tư của web engine hoặc dùng các hack không chính quy) vì đây là hành vi thiết kế nội tại của bộ segmenter văn bản trong Flutter Web SDK.
-   - Khi nghiệm thu V2b/BH-07, chủ dự án có thể áp dụng điều khoản Chấp nhận rủi ro còn lại (Residual-Risk Acceptance) cho chuỗi đã render trên web profile, vì dữ liệu thô tài chính và các model nhạy cảm của app đã được chứng minh sạch sẽ hoàn toàn.
+   - Khi nghiệm thu V2b/BH-07, chủ dự án có thể áp dụng điều khoản Chấp nhận rủi ro còn lại (Residual-Risk Acceptance) cho chuỗi đã render trên web profile, đối chiếu với việc 2 expense ID không render đã được giải phóng.
 2. **Về Bản đồ Độ phủ (Coverage Map):**
    - Hiện tại phép đo V2b runtime chỉ mới chứng minh cho **2 mã chi phí** (`expense_id`, `expense_id_2`).
-   - Có ít nhất **6 thực thể tài chính/ngân hàng** (`charges`, `payments`, `bank`, `receiver`, `ledger`, `payment instructions`) chưa từng được đo thực tế trong heap của app thật khi chạy trình duyệt.
+   - Có ít nhất **6 thực thể tài chính/ngân hàng** (`charges`, `payments`, `bank`, `receiver`, `ledger`, `payment instructions`) và listener object graph chưa từng được đo thực tế trong heap của app thật khi chạy trình duyệt.
    - Do đó, **toàn bộ cổng V2b §4.4 và toàn bộ BH-07 PHẢI TIẾP TỤC GIỮ TRẠNG THÁI CHƯA NGHIỆM THU**.
 3. **Các Cổng Khác:**
    - Dart VM heap trên desktop/mobile: Giữ **NOT RUN**.

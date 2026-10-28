@@ -4,11 +4,15 @@ Controls:
 1. Verifies 8 residual risks in QA runtime evidence (review_runtime_b13e468).
 2. Verifies exact retainer path structure (length 12, segmentationCache).
 3. Verifies non-rendered peer sentinel drop (expense_id occurrences 1 -> 0).
-4. Verifies mutant detection (peer leaks, count mismatch).
-5. Verifies coverage map completeness across all private financial/identity models.
+4. Verifies mutant detection (AT1: fail-closed on peer leak, bad env, missing paths).
+5. Verifies probe replay with reviewer cases (positive -> exit 0; mutants -> exit 1, UNATTRIBUTED).
+6. Verifies coverage map field mapping against real Dart models (AT3).
+7. Verifies auth_listeners marked NOT RUN on Web heap object graph (AT3).
 """
 import copy
 import json
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -57,40 +61,65 @@ class TestRetentionAttribution(unittest.TestCase):
         # Attribution analysis
         attribution = auditor.analyze_attribution(result)
         verdict = attribution['attribution_verdict']
+        self.assertTrue(verdict['valid'])
+        self.assertEqual(verdict['status'], 'SUPPORTED_HYPOTHESIS_WITH_LIMITS')
         self.assertTrue(verdict['rendered_title_retained'])
         self.assertIn('segmentationCache', verdict['primary_retainer_component'])
         self.assertFalse(verdict['app_model_retention'])
         self.assertTrue(verdict['peer_sentinel_proof_valid'])
 
-    def test_mutant_peer_sentinel_leak(self):
-        """If expense_id were still present/reachable at post_logout, peer_clean must be False."""
-        mutant = copy.deepcopy(self.qa_raw_data)
-        # Inject leak in cycle 1 post_logout
-        c1_post_logout_s = mutant['cycles'][0]['epochs']['post_logout']['sentinels']
-        c1_post_logout_s['expense_id']['present'] = True
-        c1_post_logout_s['expense_id']['occurrences'] = 1
-        c1_post_logout_p = mutant['cycles'][0]['epochs']['post_logout']['paths']
-        c1_post_logout_p['expense_id']['reachable'] = True
+        # Separation of concerns: observed, supported_hypothesis, unknown_and_limits
+        self.assertIn('observed', attribution)
+        self.assertIn('supported_hypothesis', attribution)
+        self.assertIn('unknown_and_limits', attribution)
 
-        import tempfile
-        with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8') as tf:
-            json.dump(mutant, tf)
-            temp_path = tf.name
+    def test_reviewer_probes_cases_fail_closed(self):
+        """AT1: All 3 mutant cases from reviewer probe must fail-closed (exit 1, UNATTRIBUTED)."""
+        cases = ['positive', 'peer_retained', 'wrong_environment', 'missing_rendered_paths']
+        for case in cases:
+            s = copy.deepcopy(self.qa_raw_data)
+            if case == 'peer_retained':
+                e = s['cycles'][0]['epochs']['post_logout']
+                e['sentinels']['expense_id'].update(present=True, occurrences=1)
+                e['paths']['expense_id']['reachable'] = True
+            elif case == 'wrong_environment':
+                s['environment']['flutter'] = 'Wrong SDK'
+                s['environment']['build']['mode'] = 'debug'
+            elif case == 'missing_rendered_paths':
+                for c in s['cycles']:
+                    for e in c['epochs'].values():
+                        e['paths'].pop('expense', None)
+                        e['paths'].pop('expense2', None)
 
-        try:
-            result = auditor.audit_summary_json(temp_path)
-            self.assertFalse(result['cycle_findings'][0]['peer_sentinels_clean'])
-            attribution = auditor.analyze_attribution(result)
-            self.assertFalse(attribution['attribution_verdict']['peer_sentinel_proof_valid'])
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+            with tempfile.TemporaryDirectory() as td:
+                p = Path(td) / 'input.json'
+                p.write_text(json.dumps(s), encoding='utf-8')
+                v = auditor.audit_summary_json(p)
+                claim = auditor.analyze_attribution(v)
+                run = subprocess.run(
+                    [sys.executable, str(ROOT / 'scripts/bh07_appheap/audit_retention_attribution.py'),
+                     '--summary', str(p), '--out-dir', str(Path(td) / 'out')],
+                    capture_output=True, text=True, encoding='utf-8'
+                )
+
+                verdict = claim['attribution_verdict']
+                if case == 'positive':
+                    self.assertEqual(run.returncode, 0, f"Positive control must exit 0: {run.stderr}")
+                    self.assertTrue(verdict['valid'])
+                    self.assertEqual(verdict['primary_retainer_component'], 'Flutter Web Engine (dart._engine.segmentationCache)')
+                    self.assertFalse(verdict['app_model_retention'])
+                else:
+                    self.assertNotEqual(run.returncode, 0, f"Mutant {case} must exit non-zero: exit={run.returncode}")
+                    self.assertFalse(verdict['valid'], f"Mutant {case} must not have valid verdict")
+                    self.assertEqual(verdict['status'], 'FAIL')
+                    self.assertEqual(verdict['primary_retainer_component'], 'UNATTRIBUTED')
+                    self.assertEqual(verdict['app_model_retention'], 'UNKNOWN_OR_UNCLEAN')
 
     def test_mutant_residual_risk_count_mismatch(self):
         """If residual risks count is not 8, auditor must raise ValueError."""
         mutant = copy.deepcopy(self.qa_raw_data)
         mutant['residual_risks'] = mutant['residual_risks'][:7]  # truncated
 
-        import tempfile
         with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8') as tf:
             json.dump(mutant, tf)
             temp_path = tf.name
@@ -109,7 +138,6 @@ class TestRetentionAttribution(unittest.TestCase):
         inventory = cov['inventory']
 
         self.assertEqual(summary['total_entities'], 11)
-        # Check specific critical gaps
         entity_ids = {item['id']: item for item in inventory}
 
         self.assertIn('expense_ids', entity_ids)
@@ -136,8 +164,48 @@ class TestRetentionAttribution(unittest.TestCase):
         self.assertIn('payment_instructions', entity_ids)
         self.assertEqual(entity_ids['payment_instructions']['measured_status'], 'NOT_MEASURED_IN_APP_HEAP')
 
-        # At least 6 entities are NOT_MEASURED_IN_APP_HEAP, confirming full V2b §4.4 cannot be marked complete
-        self.assertGreaterEqual(summary['not_measured_in_app_heap'], 6)
+        # AT3: auth_listeners must be NOT_RUN_WEB_HEAP_OBJECT_GRAPH
+        self.assertIn('auth_listeners', entity_ids)
+        self.assertEqual(entity_ids['auth_listeners']['measured_status'], 'NOT_RUN_WEB_HEAP_OBJECT_GRAPH')
+
+        # At least 7 entities are not verified on Web heap
+        self.assertGreaterEqual(summary['not_measured_in_app_heap'] + summary['not_run_web_heap_object_graph'], 7)
+
+    def test_coverage_map_real_model_fields(self):
+        """AT3: Verify inventory fields exist in actual Dart models (no hallucinated fields)."""
+        finance_dart = (ROOT / 'lib/models/finance.dart').read_text(encoding='utf-8')
+        club_dart = (ROOT / 'lib/models/club.dart').read_text(encoding='utf-8')
+
+        # FinanceCharge
+        self.assertIn('final String playerId;', finance_dart)
+        self.assertIn('final String? displayName;', finance_dart)
+        self.assertIn('final int amountDueVnd;', finance_dart)
+        self.assertNotIn('chargeId', finance_dart.split('class FinanceCharge')[1].split('}')[0])
+        self.assertNotIn('chargeVnd', finance_dart.split('class FinanceCharge')[1].split('}')[0])
+        self.assertNotIn('notes', finance_dart.split('class FinanceCharge')[1].split('}')[0])
+
+        # FinancePayment
+        self.assertIn('final String paymentId;', finance_dart)
+        self.assertIn('final String? reference;', finance_dart)
+        self.assertNotIn('referenceCode', finance_dart.split('class FinancePayment')[1].split('}')[0])
+
+        # PaymentInstructions
+        self.assertIn('final Map<String, dynamic>? receiverSnapshot;', finance_dart)
+        self.assertIn('final String? reference;', finance_dart)
+        self.assertNotIn('accountHolder', finance_dart.split('class PaymentInstructions')[1].split('}')[0])
+        self.assertNotIn('vietqrUrl', finance_dart.split('class PaymentInstructions')[1].split('}')[0])
+
+        # SessionSummary
+        self.assertIn('final int? expensesTotalVnd;', finance_dart)
+        self.assertIn('final int? amountDueTotalVnd;', finance_dart)
+        self.assertIn('final int? totalPaidVnd;', finance_dart)
+        self.assertIn('final int? outstandingTotalVnd;', finance_dart)
+        self.assertNotIn('totalExpensesVnd', finance_dart.split('class SessionSummary')[1].split('}')[0])
+        self.assertNotIn('remainingVnd', finance_dart.split('class SessionSummary')[1].split('}')[0])
+
+        # BankAccount
+        self.assertIn('final String accountNumber;', club_dart)
+        self.assertIn('final String accountName;', club_dart)
 
 
 if __name__ == '__main__':

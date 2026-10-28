@@ -4,7 +4,7 @@ This tool performs an objective, reproducible investigation of:
 1. The 8 residual risk rendered-title retention entries published in QA evidence
    (`docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json`).
 2. The exact retainer path frames from GC roots to `segmentationCache`.
-3. The peer non-rendered sentinels (`expense_id`, `expense_id_2`) proving app-level
+3. The peer non-rendered sentinels (`expense_id`, `expense_id_2`) checking app-level
    release of the underlying `FinanceExpense` model instances.
 4. The completeness of the private models/caches/listeners coverage map for V2b §4.4.
 
@@ -58,11 +58,11 @@ ENTITIES_INVENTORY = [
     {
         'id': 'session_charges',
         'entity': 'Session Charges',
-        'model': 'lib/models/finance.dart:258 (FinanceCharge)',
+        'model': 'lib/models/finance.dart:258 (FinanceCharge: playerId, displayName, amountDueVnd)',
         'provider': 'lib/providers/finance_provider.dart:180 (_finance.charges)',
         'screen': 'lib/screens/session_finance_screen.dart:648 (_chargesSection)',
         'scope': 'finance',
-        'rendered': True,  # amounts/names rendered, player IDs unrendered
+        'rendered': True,  # amounts/names rendered, playerId unrendered
         'distinctive': True,
         'measured_status': 'NOT_MEASURED_IN_APP_HEAP',
         'gap': 'Tested in Provider-level unit test only; no sentinel declared in run_app_profile_heap.js.',
@@ -70,11 +70,11 @@ ENTITIES_INVENTORY = [
     {
         'id': 'session_payments',
         'entity': 'Session Payments',
-        'model': 'lib/models/finance.dart:279 (FinancePayment)',
+        'model': 'lib/models/finance.dart:279 (FinancePayment: paymentId, playerId, amountVnd, method, status, reference, confirmedAt, createdAt)',
         'provider': 'lib/providers/finance_provider.dart:180 (_finance.payments)',
         'screen': 'lib/screens/session_finance_screen.dart:696 (_paymentsSection)',
         'scope': 'finance',
-        'rendered': True,  # amounts/names rendered, paymentId/refCode unrendered
+        'rendered': True,  # amounts/reference rendered, paymentId unrendered
         'distinctive': True,
         'measured_status': 'NOT_MEASURED_IN_APP_HEAP',
         'gap': 'Tested in Provider-level unit test only; no payment sentinel declared in run_app_profile_heap.js.',
@@ -82,7 +82,7 @@ ENTITIES_INVENTORY = [
     {
         'id': 'club_bank_account',
         'entity': 'Club Bank Account Number',
-        'model': 'lib/models/club.dart:122 (BankAccount.accountNumber)',
+        'model': 'lib/models/club.dart:122 (BankAccount: id, clubId, userId, bankCode, accountNumber, accountName, status)',
         'provider': 'lib/providers/club_provider.dart:112 (_currentBankAccount)',
         'screen': 'lib/screens/clubs_screen.dart:472 (_showConfigureBankDialog)',
         'scope': 'bank',
@@ -94,7 +94,7 @@ ENTITIES_INVENTORY = [
     {
         'id': 'bank_receiver',
         'entity': 'Bank Account Holder / Receiver',
-        'model': 'lib/models/club.dart:122 (BankAccount.accountName) / PaymentInstructions.accountHolder',
+        'model': 'lib/models/club.dart:122 (BankAccount.accountName) / lib/models/finance.dart:34 (PaymentInstructions.receiverSnapshot)',
         'provider': 'lib/providers/club_provider.dart:112 / finance_provider.dart:101',
         'screen': 'lib/screens/clubs_screen.dart / payment QR dialog',
         'scope': 'bank',
@@ -106,7 +106,7 @@ ENTITIES_INVENTORY = [
     {
         'id': 'payment_instructions',
         'entity': 'Payment Instructions & VietQR',
-        'model': 'lib/models/finance.dart:34 (PaymentInstructions)',
+        'model': 'lib/models/finance.dart:34 (PaymentInstructions: sessionId, playerId, displayName, billingState, activeRevisionId, sourceVersion, amountDueVnd, totalPaidVnd, outstandingVnd, reference, receiverSnapshot, hasReceiver, canPay)',
         'provider': 'lib/providers/finance_provider.dart:101 (_instructions)',
         'screen': 'lib/screens/session_finance_screen.dart:458 (player QR instructions)',
         'scope': 'finance',
@@ -130,7 +130,7 @@ ENTITIES_INVENTORY = [
     {
         'id': 'session_summary_totals',
         'entity': 'Session Summary Aggregate Financial Totals',
-        'model': 'lib/models/finance.dart:98 (SessionSummary)',
+        'model': 'lib/models/finance.dart:98 (SessionSummary: expensesTotalVnd, amountDueTotalVnd, totalPaidVnd, outstandingTotalVnd)',
         'provider': 'lib/providers/finance_provider.dart (_summary)',
         'screen': 'lib/screens/session_summary_screen.dart:58 (SessionSummaryScreen)',
         'scope': 'finance',
@@ -160,8 +160,8 @@ ENTITIES_INVENTORY = [
         'scope': 'control',
         'rendered': False,
         'distinctive': True,
-        'measured_status': 'VERIFIED_PROVIDER_HARNESS',
-        'gap': 'Clean in AST audit (0 static collections, balanced removeListener in dispose); Web profile heap shows _generation / serial discard working.',
+        'measured_status': 'NOT_RUN_WEB_HEAP_OBJECT_GRAPH',
+        'gap': 'AST zero-static and Provider test verify balance of listeners in unit harness, but Web profile heap object graph of active listener nodes was NOT RUN.',
     },
 ]
 
@@ -311,19 +311,35 @@ def audit_summary_json(summary_path):
 
 
 def analyze_attribution(summary_audit):
-    """Synthesize evidence into an objective attribution conclusion."""
-    # Check all cycle findings
-    all_peers_clean = all(cf['peer_sentinels_clean'] for cf in summary_audit['cycle_findings'])
-    all_paths_engine_cache = all(
-        cf['path_has_segmentation_cache'] and cf['path_has_item_map'] and cf['path_has_strings']
-        for cf in summary_audit['cycle_findings']
-    )
-    all_path_lens = [cf['rendered_path_length'] for cf in summary_audit['cycle_findings']]
+    """Synthesize evidence into an objective attribution conclusion.
 
-    # Criteria for Engine attribution:
-    # 1. Shortest retainer path traverses global engine closure -> segmentationCache -> _itemMap -> _strings.
-    # 2. Text fragmenter source code (text_fragmenter.dart) confirms an LRU cache of 10,000 entries for medium strings.
-    # 3. Flutter Web engine never calls segmentationCache.clear() on route pop or user sign out.
+    Fail-closed: if preconditions (environment consistency, peer clean release,
+    rendered paths through cache, risk count) fail, verdict must be FAIL and UNATTRIBUTED.
+    """
+    env_consistent = summary_audit.get('environment', {}).get('consistent', False)
+    all_peers_clean = all(cf.get('peer_sentinels_clean', False) for cf in summary_audit.get('cycle_findings', []))
+    all_paths_engine_cache = (
+        len(summary_audit.get('cycle_findings', [])) > 0
+        and all(
+            cf.get('path_has_segmentation_cache', False)
+            and cf.get('path_has_item_map', False)
+            and cf.get('path_has_strings', False)
+            for cf in summary_audit.get('cycle_findings', [])
+        )
+    )
+    count_ok = summary_audit.get('residual_risks_count') == EXPECTED_RESIDUAL_RISK_COUNT
+
+    preconditions_valid = env_consistent and all_peers_clean and all_paths_engine_cache and count_ok
+    failure_reasons = []
+    if not env_consistent:
+        failure_reasons.append('Environment inconsistent with expected Flutter/Chrome/build')
+    if not all_peers_clean:
+        failure_reasons.append('Peer non-rendered sentinels were not cleanly released post-logout (app model leak detected or unverified)')
+    if not all_paths_engine_cache:
+        failure_reasons.append('Rendered title retainer path does not traverse engine segmentationCache or path missing')
+    if not count_ok:
+        failure_reasons.append(f'Residual risks count mismatch (expected {EXPECTED_RESIDUAL_RISK_COUNT}, got {summary_audit.get("residual_risks_count")})')
+
     engine_criteria = {
         'path_leads_to_segmentationCache': all_paths_engine_cache,
         'cache_capacity': 10000,
@@ -331,45 +347,73 @@ def analyze_attribution(summary_audit):
         'cache_scope': 'flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart',
     }
 
-    # Criteria for App attribution:
-    # 1. Does the app hold onto FinanceExpense after logout?
-    #    Empirical proof: expense_id and expense_id_2 are fields of FinanceExpense. If the FinanceExpense
-    #    instance were alive in any app provider, controller, or widget, the unrendered IDs would be present.
-    #    In reality, occurrences dropped to 0 in both post_logout and post_actor across both cycles.
-    # 2. Does the app have any static/singleton text caches?
-    #    AST audit of 38 Dart files found 0 static mutable collections.
-    # 3. Does FinanceProvider implement proper state reset?
-    #    clearAll() sets _finance = null, _instructions = null, _summary = null, _ledger = null.
     app_criteria = {
-        'unrendered_peer_sentinels_occurrences_post_logout': 0,
-        'app_model_instance_retained': False,
+        'unrendered_peer_sentinels_occurrences_post_logout': 0 if all_peers_clean else 'LEAK_OR_UNVERIFIED',
+        'app_model_instance_retained': False if all_peers_clean else 'UNKNOWN_OR_UNCLEAN',
         'app_static_mutable_caches': 0,
         'provider_clear_implemented': True,
     }
 
-    # Attribution verdict:
-    # Retained in memory: YES (occurrences: 1 in V8 heap).
-    # Component retaining: Flutter Web Engine segmentationCache (text_fragmenter.dart).
-    # App-level retention: FALSE (disproven by unrendered peer sentinel elimination).
-    # Black-box caveat: Single-path BFS in V8 snapshot cannot formally prove absence of secondary paths
-    # without peer sentinel proof. With peer sentinel proof, secondary app-model paths are disproven.
-    attribution_verdict = {
-        'rendered_title_retained': True,
-        'primary_retainer_component': 'Flutter Web Engine (dart._engine.segmentationCache)',
-        'app_model_retention': False,
-        'peer_sentinel_proof_valid': all_peers_clean,
-        'unattributed_status_justification': (
-            'The initial report correctly flagged attribution as unattributed because single-path BFS alone '
-            'does not prove exhaustiveness. This deeper investigation cross-references the exact engine source '
-            '(text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) '
-            'to conclusively attribute the retainer to the engine text segmentation LRU cache.'
-        ),
+    if not preconditions_valid:
+        attribution_verdict = {
+            'valid': False,
+            'status': 'FAIL',
+            'rendered_title_retained': True,
+            'primary_retainer_component': 'UNATTRIBUTED',
+            'app_model_retention': 'UNKNOWN_OR_UNCLEAN',
+            'peer_sentinel_proof_valid': all_peers_clean,
+            'preconditions_valid': False,
+            'failure_reasons': failure_reasons,
+            'unattributed_status_justification': (
+                'Preconditions failed. Retention cannot be attributed to engine LRU cache while controls fail or evidence is incomplete.'
+            ),
+        }
+    else:
+        attribution_verdict = {
+            'valid': True,
+            'status': 'SUPPORTED_HYPOTHESIS_WITH_LIMITS',
+            'rendered_title_retained': True,
+            'primary_retainer_component': 'Flutter Web Engine (dart._engine.segmentationCache)',
+            'app_model_retention': False,
+            'peer_sentinel_proof_valid': True,
+            'preconditions_valid': True,
+            'failure_reasons': [],
+            'unattributed_status_justification': (
+                'Single-path BFS in QA bundle traverses engine segmentationCache. '
+                'Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis '
+                'that the underlying FinanceExpense model instance was freed by app provider. '
+                'However, by readiness §4.4 and AGENTS.md, residual risk remains officially unattributed '
+                'because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN.'
+            ),
+        }
+
+    observed = {
+        'bfs_path_length': 12,
+        'bfs_path_target': 'dart._engine.segmentationCache._itemMap._strings',
+        'unrendered_peer_sentinels_occurrences_post_logout': 0 if all_peers_clean else 'FAILED',
+        'measured_scope': 'V8 / dart2js web profile on Chrome 155',
+    }
+    supported_hypothesis = {
+        'component': 'Flutter Web Engine text segmentation LRU cache',
+        'cache_capacity': 10000,
+        'source_reference': 'flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart:43',
+    }
+    unknown_and_limits = {
+        'single_path_exhaustiveness_proven': False,
+        'secondary_app_paths_possible': True,
+        'dart_vm_desktop_mobile_status': 'NOT_RUN',
+        'untested_private_entities_count': 9,
+        'v2b_readiness_status': 'CHUA_NGHIEM_THU',
+        'residual_risk_official_classification': 'unattributed',
     }
 
     return {
         'engine_criteria': engine_criteria,
         'app_criteria': app_criteria,
         'attribution_verdict': attribution_verdict,
+        'observed': observed,
+        'supported_hypothesis': supported_hypothesis,
+        'unknown_and_limits': unknown_and_limits,
     }
 
 
@@ -383,6 +427,7 @@ def build_coverage_map_audit():
         'verified_provider_harness_only': 0,
         'reported_note_not_gated': 0,
         'not_measured_in_app_heap': 0,
+        'not_run_web_heap_object_graph': 0,
     }
 
     for item in ENTITIES_INVENTORY:
@@ -399,6 +444,8 @@ def build_coverage_map_audit():
             summary['reported_note_not_gated'] += 1
         elif status == 'NOT_MEASURED_IN_APP_HEAP':
             summary['not_measured_in_app_heap'] += 1
+        elif status == 'NOT_RUN_WEB_HEAP_OBJECT_GRAPH':
+            summary['not_run_web_heap_object_graph'] += 1
 
     return {
         'summary': summary,
@@ -424,12 +471,15 @@ def main():
     print(f'Residual risks count: {summary_audit["residual_risks_count"]}')
 
     attribution = analyze_attribution(summary_audit)
-    print(f'Attribution result: {attribution["attribution_verdict"]["primary_retainer_component"]}')
+    verdict = attribution['attribution_verdict']
+    print(f'Attribution result: {verdict["primary_retainer_component"]}')
+    print(f'Attribution status: {verdict["status"]} (valid={verdict["valid"]})')
 
     coverage_audit = build_coverage_map_audit()
     print(f'Coverage entities analyzed: {coverage_audit["summary"]["total_entities"]}')
     print(f' - Verified clean Web profile: {coverage_audit["summary"]["verified_clean_web_profile"]}')
     print(f' - Not measured in app heap: {coverage_audit["summary"]["not_measured_in_app_heap"]}')
+    print(f' - Not run web heap object graph: {coverage_audit["summary"]["not_run_web_heap_object_graph"]}')
 
     # Save structured audit artifacts
     attr_out = out_dir / 'attribution_audit.json'
@@ -441,6 +491,10 @@ def main():
     with open(cov_out, 'w', encoding='utf-8') as f:
         json.dump(coverage_audit, f, indent=2)
     print(f'Wrote: {cov_out}')
+
+    if not verdict['valid']:
+        print(f'[FAIL] Attribution audit failed preconditions: {verdict.get("failure_reasons")}', file=sys.stderr)
+        return 1
 
     return 0
 

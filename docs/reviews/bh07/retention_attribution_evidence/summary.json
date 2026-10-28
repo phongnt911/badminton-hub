@@ -5,10 +5,10 @@
   "investigation_surface": "V8 heap snapshot evidence audit + Flutter Web Engine source inspection + Coverage gap inventory",
   "tested_source_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
   "investigation_branch": "feat/bh07-retention-attribution",
-  "base_sha": "90e9d99b848f30fa3e3b2a3e643dbf784baaea9e",
+  "base_sha": "272bb29d2960959cb856771e8b95c16f140645f4",
   "git_dirty": false,
   "git_dirty_paths": [],
-  "completed_at": "2026-10-28T09:30:00.000Z",
+  "completed_at": "2026-10-28T10:00:00.000Z",
   "environment": {
     "os": "win32 10.0.26100",
     "node": "v24.21.0",
@@ -35,7 +35,13 @@
       "peer_reachable_post_logout": false,
       "static_mutable_collections": 0
     },
-    "verdict": "Retained by Flutter Web Engine segmentationCache; app layer releases models on logout."
+    "limits_and_unknown": {
+      "single_path_exhaustiveness_proven": false,
+      "secondary_app_paths_possible": true,
+      "dart_vm_desktop_mobile_status": "NOT_RUN",
+      "residual_risk_official_classification": "unattributed"
+    },
+    "verdict": "Observed BFS path 12 traverses engine segmentationCache; peer sentinels drop to 0 post-logout supporting app model release. Residual risks remain officially unattributed per §4.4 as single path does not prove exhaustiveness and Dart VM desktop/mobile is NOT RUN."
   },
   "coverage_map_findings": {
     "total_entities_mapped": 11,
@@ -44,7 +50,7 @@
     "not_measured_in_app_heap": 6,
     "partially_visited_ungated": 1,
     "reported_note_not_gated": 1,
-    "verified_provider_harness": 1,
-    "verdict": "Full V2b §4.4 remains incomplete and NOT RUN for 6 private entities."
+    "not_run_web_heap_object_graph": 1,
+    "verdict": "Full V2b §4.4 remains incomplete and NOT RUN for 6 private entities and web heap object graph."
   }
 }
