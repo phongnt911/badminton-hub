@@ -2,7 +2,7 @@
 
 - Ngày: 28/10/2026, Asia/Saigon.
 - Vai trò: AI thực thi điều tra độc lập phần còn lại V2b BH-07.
-- Nhánh: `feat/bh07-retention-attribution`, base `272bb29d2960959cb856771e8b95c16f140645f4`.
+- Nhánh: `feat/bh07-retention-attribution`, base `dcdb7ce51095d03afbbb7f28e4bbb5117f8a3e48`.
 - Nguồn đo runtime đối chiếu: `b13e468d33e0d96437b58bb2da6088bff689b9eb` (`git_dirty: false`), theo [báo cáo QA runtime](review_runtime_b13e468.md), [audit điều phối](review_3b393d3.md), và [QA evidence](review_runtime_b13e468_evidence/).
 - Bộ chứng cứ điều tra độc lập đi kèm: [retention_attribution_evidence/](retention_attribution_evidence/).
 - Nguyên tắc tuân thủ: Giữ nguyên vẹn 100% byte mọi bundle lịch sử; không sửa app/backend/DB contract; không nới lỏng các gate đã đóng; không tự đóng toàn V2b/BH-07, không merge/deploy/pilot/BH-08.
@@ -129,10 +129,10 @@ Frame 12: property:hashMapCellKey -> string
 
 ### 3.5. Kết luận Phân định Attribution (Tách bạch Observed, Hypothesis, Limits)
 
-Nhằm bảo đảm tính khách quan và tuân thủ tuyệt đối [review_37b4954](review_37b4954.md), kết luận phân định được chia thành 3 bình diện rõ ràng:
+Nhằm bảo đảm tính khách quan và tuân thủ tuyệt đối [review_37b4954](review_37b4954.md) và [review_eda1ead](review_eda1ead.md), kết luận phân định được chia thành 3 bình diện rõ ràng:
 
 #### A. Quan sát Thực nghiệm (Observed)
-1. **Retainer path trong V8 heap snapshot:** Đường dẫn giữ ngắn nhất (BFS) dẫn thẳng từ GC root qua closure của engine đến `dart._engine.segmentationCache._itemMap._strings`.
+1. **Retainer path trong V8 heap snapshot:** Đường dẫn giữ ngắn nhất (BFS) dẫn thẳng từ GC root qua closure của engine đến `dart._engine.segmentationCache._itemMap._strings` ở cả 8 bản ghi (2 chu kỳ × 2 mốc × 2 tiêu đề).
 2. **Hành vi của sentinel không render:** 2 mã chi phí (`expense_id`, `expense_id_2`) có `occurrences: 1` ở `owner_active` và giảm về `occurrences: 0`, `reachable: false` sau khi logout và sau khi đổi actor ở cả 2 chu kỳ.
 
 #### B. Giả thuyết có Bằng chứng Hỗ trợ (Supported Hypothesis)
@@ -141,7 +141,7 @@ Nhằm bảo đảm tính khách quan và tuân thủ tuyệt đối [review_37b
 
 #### C. Giới hạn Kỹ thuật & Phần Chưa Chứng minh (Unknown & Limits)
 1. **Không loại trừ đường dẫn phụ:** Một đường dẫn ngắn nhất BFS trong snapshot V8 không thể chứng minh sự vắng mặt của các đường dẫn giữ khác từ phía ứng dụng (nếu có).
-2. **Phạm vi hai expense ID không chứng minh toàn app:** Việc 2 ID chi phí biến mất không chứng minh rằng app không giữ chuỗi ở nơi khác, cũng không chứng minh cho các model tài chính khác (`charges`, `payments`, `bank`, `ledger`).
+2. **Phạm vi hai expense ID không chứng minh toàn app:** Việc 2 ID chi phí biến mất không chứng minh rằng app không giữ chuỗi ở nơi khác, cũng không chứng minh cho các model tài chính khác (`charges`, `payments`, `bank`, `ledger`); trạng thái giữ bộ nhớ toàn ứng dụng (app-wide retention) vẫn là **UNKNOWN**.
 3. **Dart VM desktop/mobile là NOT RUN:** Chưa có phép đo đối chứng trên native Dart VM; không suy diễn rằng heap native không có hiện tượng retention.
 4. **Phân loại chính thức:** Theo readiness §4.4 và AGENTS.md, 8 bản ghi này **tiếp tục giữ phân loại chính thức là `unattributed residual risk`**. Toàn bộ V2b/BH-07 **CHƯA NGHIỆM THU**.
 
@@ -171,11 +171,12 @@ Bảng dưới đây đối chiếu đúng 100% các model, DTO, field hiện h�
 ## 5. Phần 3: Công cụ Kiểm soát Tự động & Kết quả Tự Kiểm tra
 
 Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận định chủ quan, công cụ kiểm tra tự động đã được cập nhật và kiểm chứng:
-1. **Script điều tra & kiểm tra bản đồ độ phủ:** [`scripts/bh07_appheap/audit_retention_attribution.py`](../../../scripts/bh07_appheap/audit_retention_attribution.py) — logic fail-closed, trả exit code 1 và nhãn `UNATTRIBUTED` khi điều kiện tiên đề thất bại.
-2. **Suite kiểm thử tự động:** [`tests/test_bh07_retention_attribution.py`](../../../tests/test_bh07_retention_attribution.py) (5/5 tests PASS, phát lại đầy đủ các ca probe reviewer, kiểm tra fail-closed exit khác 0, đối chiếu DTO field thực trong mã nguồn Dart).
+1. **Script điều tra & kiểm tra bản đồ độ phủ:** [`scripts/bh07_appheap/audit_retention_attribution.py`](../../../scripts/bh07_appheap/audit_retention_attribution.py) — logic fail-closed, xác thực toàn bộ 8 tổ hợp cycle×epoch×sentinel không trùng/thiếu, kiểm tra rendered paths cho cả 4 mốc của 2 chu kỳ, không mặc định missing count thành 0, trả exit code 1 và nhãn `UNATTRIBUTED` khi điều kiện tiên đề thất bại.
+2. **Suite kiểm thử tự động:** [`tests/test_bh07_retention_attribution.py`](../../../tests/test_bh07_retention_attribution.py) (5/5 tests PASS, phát lại đầy đủ các ca probe reviewer cũ và 4 ca mutant `extra_controls.py`, kiểm tra fail-closed exit khác 0, kiểm tra AT2 machine fields không khẳng định toàn app sạch).
 3. **Chạy hồi quy toàn bộ:**
-   - `python -X utf8 -m unittest discover -s tests`: **317/317 OK** (312 test cũ + 5 test mới).
+   - `python -X utf8 -m unittest discover -s tests`: **317/317 OK**.
    - `python docs/reviews/bh07/review_37b4954_evidence/probes.py`: Cả 3 mutant (`peer_retained`, `wrong_environment`, `missing_rendered_paths`) đều trả **exit 1** và `primary_retainer_component = 'UNATTRIBUTED'`; positive control trả **exit 0**.
+   - `python docs/reviews/bh07/review_eda1ead_evidence/extra_controls.py`: Cả 4 mutant (`expense2_path_missing`, `post_actor_paths_missing`, `duplicate_risk_record`, `missing_post_logout_occurrences`) đều trả **exit 1** và `primary_retainer_component = 'UNATTRIBUTED'`; positive control trả **exit 0**.
    - `python -X utf8 scripts/bh07_appheap/verify_evidence.py --dir docs/reviews/bh07/review_runtime_b13e468_evidence`: **PASS** (exit 0).
    - `python -X utf8 scripts/bh07_browser/clean_and_manifest.py --verify --evidence-dir docs/reviews/bh07/review_runtime_b13e468_evidence`: **ALL CHECKS PASSED** (exit 0).
    - `flutter analyze`: **No issues found!** (exit 0).
@@ -186,8 +187,8 @@ Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận �
 ## 6. Khuyến nghị Kỹ thuật & Ranh giới Nghiệm thu
 
 1. **Về 8 Residual Risk Tiêu đề Chi phí:**
-   - Không cần và **không được sửa ép app** (như tìm cách can thiệp vào bộ nhớ riêng tư của web engine hoặc dùng các hack không chính quy) vì đây là hành vi thiết kế nội tại của bộ segmenter văn bản trong Flutter Web SDK.
-   - Khi nghiệm thu V2b/BH-07, chủ dự án có thể áp dụng điều khoản Chấp nhận rủi ro còn lại (Residual-Risk Acceptance) cho chuỗi đã render trên web profile, đối chiếu với việc 2 expense ID không render đã được giải phóng.
+   - Hiện tượng chuỗi đã render tồn lưu trong `segmentationCache` của Flutter Web Engine là một giả thuyết kỹ thuật có bằng chứng mạnh hỗ trợ. Tuy nhiên, do một đường dẫn BFS không chứng minh tính vét cạn và chưa có đo đạc đối chứng trên native Dart VM, hiện tượng này tiếp tục được ghi nhận chính thức là **unattributed residual risk**.
+   - Người triển khai không kết luận dứt khoát nguyên nhân thuộc về engine hay loại trừ hoàn toàn phía app, và không tự ý sửa đổi ứng dụng/backend khi chưa có chỉ đạo từ chủ dự án. Việc chấp nhận rủi ro còn lại (Residual-Risk Acceptance) hay yêu cầu các biện pháp xử lý khác hoàn toàn thuộc thẩm quyền quyết định của chủ dự án và reviewer độc lập.
 2. **Về Bản đồ Độ phủ (Coverage Map):**
    - Hiện tại phép đo V2b runtime chỉ mới chứng minh cho **2 mã chi phí** (`expense_id`, `expense_id_2`).
    - Có ít nhất **6 thực thể tài chính/ngân hàng** (`charges`, `payments`, `bank`, `receiver`, `ledger`, `payment instructions`) và listener object graph chưa từng được đo thực tế trong heap của app thật khi chạy trình duyệt.
@@ -196,3 +197,4 @@ Nhằm đảm bảo tính tái lập 100% và không phụ thuộc vào nhận �
    - Dart VM heap trên desktop/mobile: Giữ **NOT RUN**.
    - Trình duyệt khác (Safari, Firefox, Mobile web): Giữ **NOT RUN**.
    - Tuyệt đối không merge nhánh, không deploy staging/production, không pilot và không mở BH-08.
+   - Người triển khai không tự ghi Đạt.

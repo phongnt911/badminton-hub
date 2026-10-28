@@ -5,9 +5,11 @@ Controls:
 2. Verifies exact retainer path structure (length 12, segmentationCache).
 3. Verifies non-rendered peer sentinel drop (expense_id occurrences 1 -> 0).
 4. Verifies mutant detection (AT1: fail-closed on peer leak, bad env, missing paths).
-5. Verifies probe replay with reviewer cases (positive -> exit 0; mutants -> exit 1, UNATTRIBUTED).
-6. Verifies coverage map field mapping against real Dart models (AT3).
-7. Verifies auth_listeners marked NOT RUN on Web heap object graph (AT3).
+5. Verifies probe replay with original reviewer cases (positive -> exit 0; 3 mutants -> exit 1, UNATTRIBUTED).
+6. Verifies extra controls replay from review_eda1ead (4 new mutants -> exit 1, UNATTRIBUTED).
+7. Verifies AT2 consistency: no app-wide clean claims, observed_peer_ids_absent=True, app_wide_retention_proven=False.
+8. Verifies coverage map field mapping against real Dart models (AT3).
+9. Verifies auth_listeners marked NOT RUN on Web heap object graph (AT3).
 """
 import copy
 import json
@@ -52,11 +54,7 @@ class TestRetentionAttribution(unittest.TestCase):
         self.assertEqual(len(result['cycle_findings']), 2)
         for cf in result['cycle_findings']:
             self.assertTrue(cf['peer_sentinels_clean'], f"Cycle {cf['cycle']} peer sentinels must be clean")
-            self.assertEqual(cf['rendered_path_length'], 12)
-            self.assertTrue(cf['path_has_segmentation_cache'])
-            self.assertTrue(cf['path_has_item_map'])
-            self.assertTrue(cf['path_has_strings'])
-            self.assertTrue(cf['path_has_hash_map_key'])
+            self.assertTrue(cf['rendered_paths_valid'], f"Cycle {cf['cycle']} rendered paths must be valid")
 
         # Attribution analysis
         attribution = auditor.analyze_attribution(result)
@@ -65,16 +63,23 @@ class TestRetentionAttribution(unittest.TestCase):
         self.assertEqual(verdict['status'], 'SUPPORTED_HYPOTHESIS_WITH_LIMITS')
         self.assertTrue(verdict['rendered_title_retained'])
         self.assertIn('segmentationCache', verdict['primary_retainer_component'])
-        self.assertFalse(verdict['app_model_retention'])
         self.assertTrue(verdict['peer_sentinel_proof_valid'])
+
+        # AT2: No boolean False for entire app; scoped peer IDs verified
+        self.assertTrue(verdict['observed_peer_ids_absent'])
+        self.assertFalse(verdict['app_wide_retention_proven'])
+        self.assertNotEqual(verdict.get('app_model_retention'), False)
+        self.assertEqual(verdict.get('app_model_retention'), 'SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN')
 
         # Separation of concerns: observed, supported_hypothesis, unknown_and_limits
         self.assertIn('observed', attribution)
         self.assertIn('supported_hypothesis', attribution)
         self.assertIn('unknown_and_limits', attribution)
+        self.assertTrue(attribution['unknown_and_limits']['secondary_app_paths_possible'])
+        self.assertEqual(attribution['unknown_and_limits']['residual_risk_official_classification'], 'unattributed')
 
     def test_reviewer_probes_cases_fail_closed(self):
-        """AT1: All 3 mutant cases from reviewer probe must fail-closed (exit 1, UNATTRIBUTED)."""
+        """AT1: All 3 mutant cases from review_37b4954 probe must fail-closed (exit 1, UNATTRIBUTED)."""
         cases = ['positive', 'peer_retained', 'wrong_environment', 'missing_rendered_paths']
         for case in cases:
             s = copy.deepcopy(self.qa_raw_data)
@@ -106,8 +111,9 @@ class TestRetentionAttribution(unittest.TestCase):
                 if case == 'positive':
                     self.assertEqual(run.returncode, 0, f"Positive control must exit 0: {run.stderr}")
                     self.assertTrue(verdict['valid'])
-                    self.assertEqual(verdict['primary_retainer_component'], 'Flutter Web Engine (dart._engine.segmentationCache)')
-                    self.assertFalse(verdict['app_model_retention'])
+                    self.assertIn('segmentationCache', verdict['primary_retainer_component'])
+                    self.assertTrue(verdict['observed_peer_ids_absent'])
+                    self.assertFalse(verdict['app_wide_retention_proven'])
                 else:
                     self.assertNotEqual(run.returncode, 0, f"Mutant {case} must exit non-zero: exit={run.returncode}")
                     self.assertFalse(verdict['valid'], f"Mutant {case} must not have valid verdict")
@@ -115,21 +121,48 @@ class TestRetentionAttribution(unittest.TestCase):
                     self.assertEqual(verdict['primary_retainer_component'], 'UNATTRIBUTED')
                     self.assertEqual(verdict['app_model_retention'], 'UNKNOWN_OR_UNCLEAN')
 
-    def test_mutant_residual_risk_count_mismatch(self):
-        """If residual risks count is not 8, auditor must raise ValueError."""
-        mutant = copy.deepcopy(self.qa_raw_data)
-        mutant['residual_risks'] = mutant['residual_risks'][:7]  # truncated
+    def test_reviewer_extra_controls_cases_fail_closed(self):
+        """AT1: All 4 mutant cases from review_eda1ead extra_controls.py must fail-closed (exit 1, UNATTRIBUTED)."""
+        mutant_names = [
+            'expense2_path_missing',
+            'post_actor_paths_missing',
+            'duplicate_risk_record',
+            'missing_post_logout_occurrences',
+        ]
+        for name in mutant_names:
+            s = copy.deepcopy(self.qa_raw_data)
+            if name == 'expense2_path_missing':
+                for c in s['cycles']:
+                    for e in ['post_logout', 'post_actor']:
+                        c['epochs'][e]['paths'].pop('expense2', None)
+            elif name == 'post_actor_paths_missing':
+                for c in s['cycles']:
+                    for key in ['expense', 'expense2']:
+                        c['epochs']['post_actor']['paths'].pop(key, None)
+            elif name == 'duplicate_risk_record':
+                s['residual_risks'] = [copy.deepcopy(s['residual_risks'][0]) for _ in range(8)]
+            elif name == 'missing_post_logout_occurrences':
+                for c in s['cycles']:
+                    for k in ['expense_id', 'expense_id_2']:
+                        c['epochs']['post_logout']['sentinels'][k].pop('occurrences', None)
 
-        with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8') as tf:
-            json.dump(mutant, tf)
-            temp_path = tf.name
+            with tempfile.TemporaryDirectory() as td:
+                p = Path(td) / 'input.json'
+                p.write_text(json.dumps(s), encoding='utf-8')
+                v = auditor.audit_summary_json(p)
+                claim = auditor.analyze_attribution(v)
+                run = subprocess.run(
+                    [sys.executable, str(ROOT / 'scripts/bh07_appheap/audit_retention_attribution.py'),
+                     '--summary', str(p), '--out-dir', str(Path(td) / 'out')],
+                    capture_output=True, text=True, encoding='utf-8'
+                )
 
-        try:
-            with self.assertRaises(ValueError) as ctx:
-                auditor.audit_summary_json(temp_path)
-            self.assertIn('Expected 8 residual risks', str(ctx.exception))
-        finally:
-            Path(temp_path).unlink(missing_ok=True)
+                verdict = claim['attribution_verdict']
+                self.assertNotEqual(run.returncode, 0, f"Extra control {name} must exit non-zero: exit={run.returncode}")
+                self.assertFalse(verdict['valid'], f"Extra control {name} must not have valid verdict")
+                self.assertEqual(verdict['status'], 'FAIL')
+                self.assertEqual(verdict['primary_retainer_component'], 'UNATTRIBUTED')
+                self.assertEqual(verdict['app_model_retention'], 'UNKNOWN_OR_UNCLEAN')
 
     def test_coverage_map_completeness(self):
         """Verifies coverage map inventory spans all private models and correctly identifies gaps."""

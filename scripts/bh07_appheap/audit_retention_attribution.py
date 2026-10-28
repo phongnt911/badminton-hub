@@ -30,6 +30,17 @@ EXPECTED_BUILD_MODE = 'profile'
 EXPECTED_RESIDUAL_RISK_COUNT = 8
 EXPECTED_PATH_LEN = 12
 
+EXPECTED_COMBINATIONS = {
+    (1, 'post_logout', 'expense'),
+    (1, 'post_logout', 'expense2'),
+    (1, 'post_actor', 'expense'),
+    (1, 'post_actor', 'expense2'),
+    (2, 'post_logout', 'expense'),
+    (2, 'post_logout', 'expense2'),
+    (2, 'post_actor', 'expense'),
+    (2, 'post_actor', 'expense2'),
+}
+
 ENTITIES_INVENTORY = [
     {
         'id': 'expense_titles',
@@ -189,10 +200,12 @@ def audit_summary_json(summary_path):
 
     # 2. Residual risks check
     residual_risks = data.get('residual_risks', [])
-    if len(residual_risks) != EXPECTED_RESIDUAL_RISK_COUNT:
-        raise ValueError(f'Expected {EXPECTED_RESIDUAL_RISK_COUNT} residual risks, found {len(residual_risks)}')
+    if not isinstance(residual_risks, list) or len(residual_risks) != EXPECTED_RESIDUAL_RISK_COUNT:
+        raise ValueError(f'Expected {EXPECTED_RESIDUAL_RISK_COUNT} residual risks, found {len(residual_risks) if isinstance(residual_risks, list) else 0}')
 
-    # Group residual risks by cycle and epoch
+    # Validate all 8 cycle/epoch/sentinel combinations without duplicates or omissions
+    combinations_found = set()
+    duplicate_found = False
     rr_matrix = {}
     for rr in residual_risks:
         cycle = rr.get('cycle')
@@ -201,6 +214,10 @@ def audit_summary_json(summary_path):
         path_len = rr.get('path_len')
         attribution = rr.get('attribution')
         path_hash = rr.get('path_sha256_12')
+        combo = (cycle, epoch, sentinel)
+        if combo in combinations_found:
+            duplicate_found = True
+        combinations_found.add(combo)
         key = f'cycle_{cycle}_{epoch}_{sentinel}'
         rr_matrix[key] = {
             'path_len': path_len,
@@ -209,6 +226,8 @@ def audit_summary_json(summary_path):
             'class': rr.get('class'),
             'root_kind': rr.get('root_kind'),
         }
+
+    combinations_valid = (not duplicate_found) and (combinations_found == EXPECTED_COMBINATIONS)
 
     # 3. Retainer path inspection in cycles
     cycles = data.get('cycles', [])
@@ -230,69 +249,83 @@ def audit_summary_json(summary_path):
         expense_id_2_owner_s = oa_sentinels.get('expense_id_2', {})
         expense_id_2_owner_p = oa_paths.get('expense_id_2', {})
 
-        # Inspect post_logout
-        post_logout = epochs.get('post_logout', {})
-        pl_sentinels = post_logout.get('sentinels', {})
-        pl_paths = post_logout.get('paths', {})
-        expense_id_logout_s = pl_sentinels.get('expense_id', {})
-        expense_id_logout_p = pl_paths.get('expense_id', {})
-        expense_id_2_logout_s = pl_sentinels.get('expense_id_2', {})
-        expense_id_2_logout_p = pl_paths.get('expense_id_2', {})
-        expense_logout_s = pl_sentinels.get('expense', {})
-        expense_logout_p = pl_paths.get('expense', {})
+        # Peer sentinel verification (no default 0; occurrences must be explicit integer)
+        def _check_owner_peer(s_dict, p_dict):
+            return (
+                isinstance(s_dict, dict)
+                and s_dict.get('present') is True
+                and ('occurrences' in s_dict)
+                and (type(s_dict['occurrences']) is int)
+                and s_dict['occurrences'] == 1
+                and isinstance(p_dict, dict)
+                and p_dict.get('reachable') is True
+                and p_dict.get('path_len') == 20
+            )
 
-        # Inspect post_actor
-        post_actor = epochs.get('post_actor', {})
-        pa_sentinels = post_actor.get('sentinels', {})
-        pa_paths = post_actor.get('paths', {})
-        expense_id_actor_s = pa_sentinels.get('expense_id', {})
-        expense_id_actor_p = pa_paths.get('expense_id', {})
-        expense_id_2_actor_s = pa_sentinels.get('expense_id_2', {})
-        expense_id_2_actor_p = pa_paths.get('expense_id_2', {})
+        def _check_post_peer(s_dict, p_dict):
+            return (
+                isinstance(s_dict, dict)
+                and s_dict.get('present') is False
+                and ('occurrences' in s_dict)
+                and (type(s_dict['occurrences']) is int)
+                and s_dict['occurrences'] == 0
+                and isinstance(p_dict, dict)
+                and p_dict.get('reachable') is False
+            )
 
-        # Peer sentinel verification:
-        # In owner_active: both expense_id and expense_id_2 MUST be reachable with path_len == 20
-        # In post_logout and post_actor: both MUST be present=false, reachable=false, occurrences=0
         peer_clean = (
-            expense_id_owner_s.get('present') is True
-            and expense_id_owner_s.get('occurrences') == 1
-            and expense_id_owner_p.get('reachable') is True
-            and expense_id_owner_p.get('path_len') == 20
-            and expense_id_2_owner_s.get('present') is True
-            and expense_id_2_owner_s.get('occurrences') == 1
-            and expense_id_2_owner_p.get('reachable') is True
-            and expense_id_2_owner_p.get('path_len') == 20
-            and expense_id_logout_s.get('present') is False
-            and expense_id_logout_s.get('occurrences', 0) == 0
-            and expense_id_logout_p.get('reachable') is False
-            and expense_id_2_logout_s.get('present') is False
-            and expense_id_2_logout_s.get('occurrences', 0) == 0
-            and expense_id_2_logout_p.get('reachable') is False
-            and expense_id_actor_s.get('present') is False
-            and expense_id_actor_s.get('occurrences', 0) == 0
-            and expense_id_actor_p.get('reachable') is False
-            and expense_id_2_actor_s.get('present') is False
-            and expense_id_2_actor_s.get('occurrences', 0) == 0
-            and expense_id_2_actor_p.get('reachable') is False
+            _check_owner_peer(expense_id_owner_s, expense_id_owner_p)
+            and _check_owner_peer(expense_id_2_owner_s, expense_id_2_owner_p)
         )
 
-        # Rendered sentinels path frames:
-        frames_logout = expense_logout_p.get('frames', [])
-        path_has_segmentation_cache = any('segmentationCache' in f for f in frames_logout)
-        path_has_item_map = any('_itemMap' in f for f in frames_logout)
-        path_has_strings = any('_strings' in f for f in frames_logout)
-        path_has_hash_map_key = any('hashMapCellKey' in f for f in frames_logout)
+        for e_name in ['post_logout', 'post_actor']:
+            e_dict = epochs.get(e_name, {})
+            e_sentinels = e_dict.get('sentinels', {})
+            e_paths = e_dict.get('paths', {})
+            s1 = e_sentinels.get('expense_id')
+            p1 = e_paths.get('expense_id')
+            s2 = e_sentinels.get('expense_id_2')
+            p2 = e_paths.get('expense_id_2')
+            if not (_check_post_peer(s1, p1) and _check_post_peer(s2, p2)):
+                peer_clean = False
+
+        # Rendered path verification: must check both expense and expense2 at both post_logout and post_actor
+        rendered_paths_valid = True
+        for e_name in ['post_logout', 'post_actor']:
+            e_dict = epochs.get(e_name, {})
+            e_paths = e_dict.get('paths', {})
+            for s_name in ['expense', 'expense2']:
+                p_obj = e_paths.get(s_name)
+                if not isinstance(p_obj, dict):
+                    rendered_paths_valid = False
+                    break
+                if p_obj.get('reachable') is not True or p_obj.get('path_len') != EXPECTED_PATH_LEN:
+                    rendered_paths_valid = False
+                    break
+                frames = p_obj.get('frames', [])
+                if not (
+                    any('segmentationCache' in f for f in frames)
+                    and any('_itemMap' in f for f in frames)
+                    and any('_strings' in f for f in frames)
+                    and any('hashMapCellKey' in f for f in frames)
+                ):
+                    rendered_paths_valid = False
+                    break
+                # Cross-check with residual_risks record
+                rr_key = f'cycle_{cycle_no}_{e_name}_{s_name}'
+                rr_entry = rr_matrix.get(rr_key)
+                if not rr_entry:
+                    rendered_paths_valid = False
+                    break
+                if rr_entry.get('path_len') != p_obj.get('path_len'):
+                    rendered_paths_valid = False
+                    break
 
         cycle_findings.append({
             'cycle': cycle_no,
             'actor': actor,
             'peer_sentinels_clean': peer_clean,
-            'rendered_path_length': expense_logout_p.get('path_len'),
-            'path_has_segmentation_cache': path_has_segmentation_cache,
-            'path_has_item_map': path_has_item_map,
-            'path_has_strings': path_has_strings,
-            'path_has_hash_map_key': path_has_hash_map_key,
-            'frames': frames_logout,
+            'rendered_paths_valid': rendered_paths_valid,
         })
 
     return {
@@ -305,6 +338,7 @@ def audit_summary_json(summary_path):
             'consistent': env_consistent,
         },
         'residual_risks_count': len(residual_risks),
+        'residual_risks_combinations_valid': combinations_valid,
         'residual_risks_matrix': rr_matrix,
         'cycle_findings': cycle_findings,
     }
@@ -314,42 +348,50 @@ def analyze_attribution(summary_audit):
     """Synthesize evidence into an objective attribution conclusion.
 
     Fail-closed: if preconditions (environment consistency, peer clean release,
-    rendered paths through cache, risk count) fail, verdict must be FAIL and UNATTRIBUTED.
+    rendered paths through cache, risk count, combinations validity) fail, verdict must be FAIL and UNATTRIBUTED.
     """
     env_consistent = summary_audit.get('environment', {}).get('consistent', False)
     all_peers_clean = all(cf.get('peer_sentinels_clean', False) for cf in summary_audit.get('cycle_findings', []))
-    all_paths_engine_cache = (
-        len(summary_audit.get('cycle_findings', [])) > 0
-        and all(
-            cf.get('path_has_segmentation_cache', False)
-            and cf.get('path_has_item_map', False)
-            and cf.get('path_has_strings', False)
-            for cf in summary_audit.get('cycle_findings', [])
-        )
+    all_rendered_paths_valid = (
+        len(summary_audit.get('cycle_findings', [])) == 2
+        and all(cf.get('rendered_paths_valid', False) for cf in summary_audit.get('cycle_findings', []))
     )
     count_ok = summary_audit.get('residual_risks_count') == EXPECTED_RESIDUAL_RISK_COUNT
+    combinations_ok = summary_audit.get('residual_risks_combinations_valid', False)
 
-    preconditions_valid = env_consistent and all_peers_clean and all_paths_engine_cache and count_ok
+    preconditions_valid = (
+        env_consistent
+        and all_peers_clean
+        and all_rendered_paths_valid
+        and count_ok
+        and combinations_ok
+    )
+
     failure_reasons = []
     if not env_consistent:
         failure_reasons.append('Environment inconsistent with expected Flutter/Chrome/build')
     if not all_peers_clean:
         failure_reasons.append('Peer non-rendered sentinels were not cleanly released post-logout (app model leak detected or unverified)')
-    if not all_paths_engine_cache:
-        failure_reasons.append('Rendered title retainer path does not traverse engine segmentationCache or path missing')
+    if not all_rendered_paths_valid:
+        failure_reasons.append('Rendered title retainer paths invalid, missing, or do not traverse engine segmentationCache across all cycles/epochs/sentinels')
     if not count_ok:
         failure_reasons.append(f'Residual risks count mismatch (expected {EXPECTED_RESIDUAL_RISK_COUNT}, got {summary_audit.get("residual_risks_count")})')
+    if not combinations_ok:
+        failure_reasons.append('Residual risks combinations invalid or duplicated (must contain exactly 8 distinct cycle/epoch/sentinel sets)')
 
     engine_criteria = {
-        'path_leads_to_segmentationCache': all_paths_engine_cache,
+        'path_leads_to_segmentationCache': all_rendered_paths_valid,
         'cache_capacity': 10000,
         'cache_eviction_lifecycle_hook_present': False,
         'cache_scope': 'flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart',
     }
 
+    # AT2: Separate scoped two-ID observation from app-wide retention (which remains UNKNOWN)
     app_criteria = {
         'unrendered_peer_sentinels_occurrences_post_logout': 0 if all_peers_clean else 'LEAK_OR_UNVERIFIED',
-        'app_model_instance_retained': False if all_peers_clean else 'UNKNOWN_OR_UNCLEAN',
+        'observed_two_expense_ids_clean': all_peers_clean,
+        'app_wide_model_retention_proven': False,
+        'app_wide_model_retention': 'UNKNOWN',
         'app_static_mutable_caches': 0,
         'provider_clear_implemented': True,
     }
@@ -361,6 +403,8 @@ def analyze_attribution(summary_audit):
             'rendered_title_retained': True,
             'primary_retainer_component': 'UNATTRIBUTED',
             'app_model_retention': 'UNKNOWN_OR_UNCLEAN',
+            'observed_peer_ids_absent': False,
+            'app_wide_retention_proven': False,
             'peer_sentinel_proof_valid': all_peers_clean,
             'preconditions_valid': False,
             'failure_reasons': failure_reasons,
@@ -374,7 +418,9 @@ def analyze_attribution(summary_audit):
             'status': 'SUPPORTED_HYPOTHESIS_WITH_LIMITS',
             'rendered_title_retained': True,
             'primary_retainer_component': 'Flutter Web Engine (dart._engine.segmentationCache)',
-            'app_model_retention': False,
+            'app_model_retention': 'SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN',
+            'observed_peer_ids_absent': True,
+            'app_wide_retention_proven': False,
             'peer_sentinel_proof_valid': True,
             'preconditions_valid': True,
             'failure_reasons': [],
@@ -391,6 +437,7 @@ def analyze_attribution(summary_audit):
         'bfs_path_length': 12,
         'bfs_path_target': 'dart._engine.segmentationCache._itemMap._strings',
         'unrendered_peer_sentinels_occurrences_post_logout': 0 if all_peers_clean else 'FAILED',
+        'observed_two_expense_ids_absent': all_peers_clean,
         'measured_scope': 'V8 / dart2js web profile on Chrome 155',
     }
     supported_hypothesis = {
@@ -401,6 +448,7 @@ def analyze_attribution(summary_audit):
     unknown_and_limits = {
         'single_path_exhaustiveness_proven': False,
         'secondary_app_paths_possible': True,
+        'app_wide_retention_status': 'UNKNOWN',
         'dart_vm_desktop_mobile_status': 'NOT_RUN',
         'untested_private_entities_count': 9,
         'v2b_readiness_status': 'CHUA_NGHIEM_THU',
@@ -481,7 +529,7 @@ def main():
     print(f' - Not measured in app heap: {coverage_audit["summary"]["not_measured_in_app_heap"]}')
     print(f' - Not run web heap object graph: {coverage_audit["summary"]["not_run_web_heap_object_graph"]}')
 
-    # Save structured audit artifacts
+    # Save structured audit artifacts before deciding exit code
     attr_out = out_dir / 'attribution_audit.json'
     with open(attr_out, 'w', encoding='utf-8') as f:
         json.dump({'summary_audit': summary_audit, 'attribution': attribution}, f, indent=2)

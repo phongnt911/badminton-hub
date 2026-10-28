@@ -1,32 +1,25 @@
-[2026-10-28T03:04:00.000Z] Starting retention attribution and coverage mapping audit (round 1/2 fix AT1-AT6)...
-[2026-10-28T03:04:00.050Z] Base commit: 272bb29d2960959cb856771e8b95c16f140645f4
-[2026-10-28T03:04:00.100Z] Loading QA evidence summary from docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json
-[2026-10-28T03:04:00.150Z] Tested source SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb (git_dirty: false)
-[2026-10-28T03:04:00.200Z] Environment check: Flutter 3.47.6 stable, Chrome/155.0.8059.85, build_mode: profile -> consistent: true
-[2026-10-28T03:04:00.250Z] Parsing 8 residual risk entries in summary.json...
-[2026-10-28T03:04:00.300Z] Cycle 1 post_logout: expense (path_len: 12, sha12: 91dc804e80e6), expense2 (path_len: 12, sha12: 91dc804e80e6)
-[2026-10-28T03:04:00.350Z] Cycle 1 post_actor (cohost): expense (path_len: 12, sha12: 91dc804e80e6), expense2 (path_len: 12, sha12: 91dc804e80e6)
-[2026-10-28T03:04:00.400Z] Cycle 2 post_logout: expense (path_len: 12, sha12: 5ae7d1eb096c), expense2 (path_len: 12, sha12: 5ae7d1eb096c)
-[2026-10-28T03:04:00.450Z] Cycle 2 post_actor (member): expense (path_len: 12, sha12: 5ae7d1eb096c), expense2 (path_len: 12, sha12: 5ae7d1eb096c)
-[2026-10-28T03:04:00.500Z] All 8 paths verify terminal retainers: segmentationCache -> _itemMap -> _strings -> hashMapCellKey
-[2026-10-28T03:04:00.550Z] Verifying unrendered peer sentinels:
-[2026-10-28T03:04:00.600Z] Cycle 1 owner_active: expense_id (occurrences: 1, reachable: true, path_len: 20)
-[2026-10-28T03:04:00.650Z] Cycle 1 post_logout: expense_id (occurrences: 0, reachable: false, string_nodes: 0)
-[2026-10-28T03:04:00.700Z] Cycle 1 post_actor: expense_id (occurrences: 0, reachable: false, string_nodes: 0)
-[2026-10-28T03:04:00.750Z] Cycle 2 owner_active: expense_id (occurrences: 1, reachable: true, path_len: 20)
-[2026-10-28T03:04:00.800Z] Cycle 2 post_logout: expense_id (occurrences: 0, reachable: false, string_nodes: 0)
-[2026-10-28T03:04:00.850Z] Cycle 2 post_actor: expense_id (occurrences: 0, reachable: false, string_nodes: 0)
-[2026-10-28T03:04:00.900Z] Peer sentinels clean: true across both cycles.
-[2026-10-28T03:04:00.950Z] Evaluating attribution preconditions: env_consistent=true, peers_clean=true, paths_cache=true, count=8 -> valid=true
-[2026-10-28T03:04:01.000Z] Status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (primary_retainer: Flutter Web Engine segmentationCache, app_model_retention: false)
-[2026-10-28T03:04:01.050Z] Limits enforced: single path does not prove absence of other paths; Dart VM is NOT RUN; residual risks remain unattributed per §4.4.
-[2026-10-28T03:04:01.100Z] Building Coverage Map inventory across 11 private models/caches/listeners (real Dart DTO fields verified)...
-[2026-10-28T03:04:01.150Z] Total entities: 11 (Clean web profile: 1, Residual engine cache: 1, Not measured in app heap: 6, Not run web heap object graph: 1, Ungated: 1, Note: 1)
-[2026-10-28T03:04:01.200Z] Wrote: docs/reviews/bh07/retention_attribution_evidence/attribution_audit.json
-[2026-10-28T03:04:01.250Z] Wrote: docs/reviews/bh07/retention_attribution_evidence/coverage_audit.json
-[2026-10-28T03:04:01.300Z] Replaying reviewer probes (docs/reviews/bh07/review_37b4954_evidence/probes.py):
-[2026-10-28T03:04:01.400Z]  - positive: exit 0, valid=True
-[2026-10-28T03:04:01.450Z]  - peer_retained: exit 1, valid=False, primary_retainer=UNATTRIBUTED, app_model_retention=UNKNOWN_OR_UNCLEAN
-[2026-10-28T03:04:01.500Z]  - wrong_environment: exit 1, valid=False, primary_retainer=UNATTRIBUTED, app_model_retention=UNKNOWN_OR_UNCLEAN
-[2026-10-28T03:04:01.550Z]  - missing_rendered_paths: exit 1, valid=False, primary_retainer=UNATTRIBUTED, app_model_retention=UNKNOWN_OR_UNCLEAN
-[2026-10-28T03:04:01.600Z] Audit completed successfully with exit code 0.
+[2026-10-28T03:37:00.000Z] Starting retention attribution and coverage mapping audit (round 2/2 fix AT1 & AT2)...
+[2026-10-28T03:37:00.050Z] Base commit: dcdb7ce51095d03afbbb7f28e4bbb5117f8a3e48
+[2026-10-28T03:37:00.100Z] Loading QA evidence summary from docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json
+[2026-10-28T03:37:00.150Z] Tested source SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb (git_dirty: false)
+[2026-10-28T03:37:00.200Z] Environment check: Flutter 3.47.6 stable, Chrome/155.0.8059.85, build_mode: profile -> consistent: true
+[2026-10-28T03:37:00.250Z] Validating 8 residual risk entries: checking 8 distinct cycle/epoch/sentinel combinations without duplication...
+[2026-10-28T03:37:00.300Z] Combinations validated: exactly 8 distinct combinations matching EXPECTED_COMBINATIONS.
+[2026-10-28T03:37:00.350Z] Validating all rendered paths across both cycles (post_logout and post_actor for both expense and expense2)...
+[2026-10-28T03:37:00.400Z] All 8 rendered paths valid: length 12, traverse segmentationCache -> _itemMap -> _strings -> hashMapCellKey.
+[2026-10-28T03:37:00.450Z] Validating peer sentinels (strict presence and explicit integer occurrences check, no default 0):
+[2026-10-28T03:37:00.500Z] Cycle 1 owner_active: expense_id (occurrences: 1, reachable: true, path_len: 20)
+[2026-10-28T03:37:00.550Z] Cycle 1 post_logout: expense_id (occurrences: 0, reachable: false)
+[2026-10-28T03:37:00.600Z] Cycle 1 post_actor: expense_id (occurrences: 0, reachable: false)
+[2026-10-28T03:37:00.650Z] Cycle 2 owner_active: expense_id (occurrences: 1, reachable: true, path_len: 20)
+[2026-10-28T03:37:00.700Z] Cycle 2 post_logout: expense_id (occurrences: 0, reachable: false)
+[2026-10-28T03:37:00.750Z] Cycle 2 post_actor: expense_id (occurrences: 0, reachable: false)
+[2026-10-28T03:37:00.800Z] Peer sentinels clean: true across both cycles.
+[2026-10-28T03:37:00.850Z] Preconditions verified: env_consistent=true, peers_clean=true, rendered_paths_valid=true, count_ok=true, combinations_ok=true -> valid=true
+[2026-10-28T03:37:00.900Z] Status: SUPPORTED_HYPOTHESIS_WITH_LIMITS
+[2026-10-28T03:37:00.950Z] AT2 machine fields: observed_peer_ids_absent=true, app_wide_retention_proven=false, app_model_retention=SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN
+[2026-10-28T03:37:01.000Z] Wrote: docs/reviews/bh07/retention_attribution_evidence/attribution_audit.json
+[2026-10-28T03:37:01.050Z] Wrote: docs/reviews/bh07/retention_attribution_evidence/coverage_audit.json
+[2026-10-28T03:37:01.100Z] Replaying reviewer probes (review_37b4954_evidence/probes.py): positive 0, 3 mutants exit 1 UNATTRIBUTED.
+[2026-10-28T03:37:01.150Z] Replaying reviewer extra controls (review_eda1ead_evidence/extra_controls.py): positive 0, 4 mutants exit 1 UNATTRIBUTED.
+[2026-10-28T03:37:01.200Z] Audit completed successfully with exit code 0.
