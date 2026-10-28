@@ -1,0 +1,258 @@
+00:00 +0: loading test/core/app_config_test.dart
+00:00 +0: test/core/app_config_test.dart: configuration is explicit and test/production targets are guarded
+00:00 +1: test/core/app_routes_test.dart: share link contains configured origin and round trips
+00:00 +2: test/core/app_routes_test.dart: AppRoutes.parse chấp nhận path nội bộ /sessions/:id
+00:00 +3: test/core/app_routes_test.dart: AppRoutes.parse chấp nhận URL tuyệt đối với host trong allowlist
+00:00 +4: test/core/app_routes_test.dart: AppRoutes.parse chuẩn hoá UUID về chữ thường
+00:00 +5: test/core/app_routes_test.dart: AppRoutes.parse từ chối host lạ
+00:00 +6: test/core/app_routes_test.dart: AppRoutes.parse từ chối scheme lạ
+00:00 +7: test/core/app_routes_test.dart: AppRoutes.parse từ chối path không nằm trong allowlist
+00:00 +8: test/core/app_routes_test.dart: AppRoutes.parse từ chối id không phải UUID
+00:00 +9: test/core/app_routes_test.dart: AppRoutes.parse từ chối query chưa định nghĩa (không nhận token lạ)
+00:00 +10: test/core/app_routes_test.dart: AppRoutes.parse chấp nhận query đã định nghĩa
+00:00 +11: test/core/app_routes_test.dart: AppRoutes.parse hỗ trợ /clubs/:id
+00:00 +12: test/core/app_routes_test.dart: AppRoutes.parse trả null cho chuỗi rỗng/null
+00:00 +13: test/core/app_routes_test.dart: AppRoutes helpers sessionPath và clubPath
+00:00 +14: test/core/app_routes_test.dart: AppRoutes helpers isSafeReturnRoute chỉ nhận route nội bộ hợp lệ
+00:00 +15: test/core/session_summary_text_test.dart: finance copy dùng aggregate server, giữ NULL là dấu gạch
+00:00 +16: test/core/session_summary_text_test.dart: management-only không sao chép phần tài chính
+00:00 +17: test/core/session_summary_text_test.dart: bản sao không chứa contact hay tài khoản ngân hàng
+00:00 +18: test/core/time_utils_test.dart: ngày Việt Nam đổi sang UTC+7 không phụ thuộc múi giờ thiết bị
+00:00 +19: test/core/time_utils_test.dart: mốc ngày Việt Nam bao phủ từ nửa đêm đến hết ngày
+00:01 +20: test/data/auth_repository_test.dart: (setUpAll)
+00:01 +20: test/data/auth_repository_test.dart: AuthRepository Tests currentUser và isAuthenticated phản ánh đúng trạng thái
+00:01 +21: test/data/auth_repository_test.dart: AuthRepository Tests currentSession phản ánh đúng phiên
+00:01 +22: test/data/auth_repository_test.dart: AuthRepository Tests signInWithEmail thành công trả về AuthResponse
+00:01 +23: test/data/auth_repository_test.dart: AuthRepository Tests signInWithEmail thất bại dịch lỗi thân thiện tiếng Việt
+00:01 +24: test/data/auth_repository_test.dart: AuthRepository Tests signUpWithEmail thành công gọi signUp với dữ liệu metadata
+00:01 +25: test/data/auth_repository_test.dart: AuthRepository Tests signUpWithEmail báo lỗi khi email đã tồn tại
+00:01 +26: test/data/auth_repository_test.dart: AuthRepository Tests sendPasswordResetEmail gọi resetPasswordForEmail
+00:01 +27: test/data/auth_repository_test.dart: AuthRepository Tests updatePassword gọi updateUser với mật khẩu mới
+00:01 +28: test/data/auth_repository_test.dart: AuthRepository Tests signOut gọi auth.signOut
+00:01 +29: test/data/auth_repository_test.dart: AuthRepository Tests authStateChanges stream hoạt động chuẩn
+00:01 +30: test/data/auth_repository_test.dart: (tearDownAll)
+00:02 +30: test/data/bh07_repository_test.dart: (setUpAll)
+00:02 +30: test/data/bh07_repository_test.dart: getSessionSummary gọi đúng RPC/DTO và giữ tiền null
+00:02 +31: test/data/bh07_repository_test.dart: listMySessionHistory gửi limit/offset/filter đúng signature A
+00:02 +32: test/data/bh07_repository_test.dart: (tearDownAll)
+00:02 +32: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:02 +33: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +33: test/integration/bh07_http_auth_test.dart: BH-07 HTTP/Auth verification is disabled
+  Skip: Set BH07_HTTP_TEST=1 and use scripts/bh07_http/run.ps1
+00:03 +33 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +34 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +35 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +36 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +37 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +38 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +39 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +40 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +41 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +42 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +43 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +44 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +45 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +46 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +47 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +48 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +49 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +50 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +51 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +52 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +53 ~1: test/integration/bh06_finance_flow_test.dart: manager: chot phi -> thu tien mat -> confirm qua provider that
+00:03 +54 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +55 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +56 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +57 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +58 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +59 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +60 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +61 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +62 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +63 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +64 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +65 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +66 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +67 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +68 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +69 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +70 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +71 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +72 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +73 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +74 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +75 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:03 +76 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +77 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +78 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +79 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +80 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +81 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +82 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +83 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +84 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +85 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +86 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +87 ~1: test/integration/bh07_full_flow_test.dart: host: start -> điểm danh -> chốt phí -> complete -> history refresh, giữ công nợ
+00:04 +88 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +89 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +90 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +91 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +92 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +93 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +94 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) Mutant Control M2: Retained field on simulated failed clearAll is caught by Oracle
+00:04 +95 ~1: test/integration/bh07_full_flow_test.dart: complete bị khoá khi phí stale hoặc chưa chốt, không gọi RPC
+00:04 +96 ~1: test/integration/bh07_full_flow_test.dart: complete bị khoá khi phí stale hoặc chưa chốt, không gọi RPC
+00:04 +97 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +98 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +99 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +100 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +101 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +102 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +103 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +104 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +105 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +106 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +107 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +108 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +109 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +110 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +111 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +112 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +113 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +114 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +115 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +116 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +117 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +118 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +119 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +120 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +121 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +122 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +123 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +124 ~1: test/integration/bh07_heap_verification_test.dart: V2b — Provider In-Memory State Purge & WeakReference Retention (Supporting Evidence) SessionProvider & ClubProvider: Private session and club details are purged from heap on logout
+00:04 +125 ~1: test/integration/bh07_full_flow_test.dart: VERSION_CONFLICT: không báo thành công, tải lại lấy version mới rồi complete
+00:04 +126 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +127 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +128 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +129 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +130 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +131 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +132 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +133 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +134 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +135 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +136 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +137 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +138 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +139 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +140 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +141 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +142 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +143 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +144 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +145 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +146 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +147 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +148 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +149 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +150 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +151 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +152 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +153 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +154 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +155 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +156 ~1: test/integration/bh07_full_flow_test.dart: retry cùng intent complete giữ request_id, không báo thành công giả
+00:04 +157 ~1: test/schema/schema_v1_1_migration_test.dart: Kiểm thử cấu trúc Schema Migration v1.1 (BH-02) (setUpAll)
+00:04 +157 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +158 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +159 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +160 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +161 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +162 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +163 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +164 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +165 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +166 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +167 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:04 +168 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:06 +169 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:06 +170 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:06 +171 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:06 +172 ~1: test/integration/bh07_full_flow_test.dart: history: offset/dedupe, lọc CLB và ngày UTC+7, mở chi tiết rồi quay lại refresh
+00:06 +173 ~1: test/screens/club_fund_screen_test.dart: chủ nhiệm thấy số dư, giao dịch và nạp thêm trang
+00:06 +174 ~1: test/screens/club_fund_screen_test.dart: chủ nhiệm thấy số dư, giao dịch và nạp thêm trang
+00:06 +175 ~1: test/screens/club_fund_screen_test.dart: chủ nhiệm thấy số dư, giao dịch và nạp thêm trang
+00:06 +176 ~1: test/screens/club_fund_screen_test.dart: chủ nhiệm thấy số dư, giao dịch và nạp thêm trang
+00:06 +177 ~1: test/screens/sessions_screen_test.dart: guest thấy ghi chú khách, không có nút tạo buổi
+00:06 +178 ~1: test/screens/sessions_screen_test.dart: guest thấy ghi chú khách, không có nút tạo buổi
+00:06 +179 ~1: test/screens/sessions_screen_test.dart: guest thấy ghi chú khách, không có nút tạo buổi
+00:06 +180 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +181 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +182 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +183 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +184 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +185 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +186 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +187 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +188 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +189 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +190 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +191 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:07 +192 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +193 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +194 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +195 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +196 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +197 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +198 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +199 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +200 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +201 ~1: test/screens/session_detail_screen_test.dart: application opens initial session URL and returns after login
+00:08 +202 ~1: test/screens/session_history_screen_test.dart: lọc theo CLB gửi đúng filter và empty có xoá lọc
+00:08 +203 ~1: test/screens/session_history_screen_test.dart: lọc theo CLB gửi đúng filter và empty có xoá lọc
+00:08 +204 ~1: test/screens/session_history_screen_test.dart: lọc theo CLB gửi đúng filter và empty có xoá lọc
+00:08 +205 ~1: test/screens/session_finance_screen_test.dart: người chơi: không thấy thao tác finance, gửi đúng registration ID và reference do RPC sinh
+00:08 +206 ~1: test/screens/session_detail_screen_test.dart: roster error is not empty state and retry recovers
+00:08 +207 ~1: test/screens/session_summary_screen_test.dart: FORBIDDEN hiện lỗi và cho retry tải lại
+00:08 +208 ~1: test/screens/session_history_screen_test.dart: cache rỗng không che lỗi refresh; có retry
+00:08 +209 ~1: test/screens/session_finance_screen_test.dart: C2: gửi lại sau từ chối dùng request ID mới và reference RPC sinh
+00:08 +210 ~1: test/screens/session_finance_screen_test.dart: C2: gửi lại sau từ chối dùng request ID mới và reference RPC sinh
+00:08 +211 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:08 +212 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:08 +213 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:08 +214 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:08 +215 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +216 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +217 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +218 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +219 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +220 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +221 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +222 ~1: test/screens/session_history_screen_test.dart: ngày lọc là ngày Việt Nam và gửi mốc UTC+7
+00:09 +223 ~1: test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:09 +224 ~1: test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:09 +225 ~1: test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:09 +226 ~1: test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:10 +227 ~1: test/screens/session_finance_screen_test.dart: C3: prefill thu tiền mặt lấy outstanding từ RPC
+00:10 +228 ~1: test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:10 +229 ~1: test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:10 +230 ~1: test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:10 +231 ~1: test/screens/session_detail_screen_test.dart: C3 lỗi tải roster hiển thị lỗi và cho thử lại
+00:10 +232 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:10 +233 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:10 +234 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:10 +235 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:10 +236 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:10 +237 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:11 +238 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:11 +239 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:11 +240 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:11 +241 ~1: test/screens/session_finance_screen_test.dart: C4: mọi loại chi phí gửi category RPC hỗ trợ; Nước ghi thành other
+00:11 +242 ~1: test/screens/session_detail_screen_test.dart: người chơi không thấy lối vào tổng kết
+00:11 +243 ~1: test/screens/session_finance_screen_test.dart: I2: refresh cập nhật session version hiện hành sau VERSION_CONFLICT
+00:11 +244 ~1: test/screens/session_finance_screen_test.dart: manager: kết thúc buổi gửi đúng version và trả true
+00:11 +245 ~1: test/screens/session_finance_screen_test.dart: manager: thiếu sessionVersion DTO thì nút kết thúc bị khoá dù route có version
+00:11 +246 ~1: test/screens/session_finance_screen_test.dart: manager: stale thì nút kết thúc bị khoá
+00:11 +247 ~1: test/screens/session_finance_screen_test.dart: (tearDownAll)
+00:11 +247 ~1: All tests passed!

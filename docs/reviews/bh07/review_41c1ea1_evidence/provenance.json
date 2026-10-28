@@ -1,0 +1,18 @@
+{
+  "role": "Independent reviewer (Antigravity); did not participate in AT1 round 3 implementation",
+  "branch": "feat/bh07-retention-attribution",
+  "head_docs_sha": "41c1ea184835b0678504c6bc012c711871351d38",
+  "tested_source_sha": "f11d20f6c5025f7f774c266298bc0309fcd0de0c",
+  "base_review_sha": "a35c219d7c8f61742ad0753359681e72c9bf5a32",
+  "runtime_reference_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+  "new_runtime_executed": false,
+  "dirty_before_run": "",
+  "app_backend_diff_since_b13e468": "",
+  "source_hashes": {
+    "scripts/bh07_appheap/audit_retention_attribution.py": "9e278bec37f4e1cdb5699432d510ed3ad9d5bc80d6598c08a22e1ffa79d4a67e",
+    "tests/test_bh07_retention_attribution.py": "09e8ec3fcacedc530ad38da9c3d27462fb20a40d6e4697dbc379f8c57fd42f1b",
+    "scripts/bh07_appheap/heap_oracle.py": "b319121c5137b08a7323721dab26f5ac666643b2eec1676792ee8977cce2947c"
+  },
+  "markdown_links_checked": 88,
+  "markdown_links_missing": []
+}

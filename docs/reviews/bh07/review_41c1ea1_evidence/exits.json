@@ -1,0 +1,79 @@
+{
+  "unit": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests"
+    ],
+    "exit": 0
+  },
+  "analyze": {
+    "command": [
+      "flutter",
+      "analyze"
+    ],
+    "exit": 0
+  },
+  "flutter_test": {
+    "command": [
+      "flutter",
+      "test"
+    ],
+    "exit": 0
+  },
+  "auditor_temp_out": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "scripts/bh07_appheap/audit_retention_attribution.py",
+      "--out-dir",
+      "<temp_out_dir>"
+    ],
+    "exit": 0
+  },
+  "probes_37b4954": {
+    "positive_exit": 0,
+    "mutant_exits": {
+      "peer_retained": 1,
+      "wrong_environment": 1,
+      "missing_rendered_paths": 1
+    }
+  },
+  "extra_controls_eda1ead": {
+    "positive_exit": 0,
+    "mutant_exits": {
+      "expense2_path_missing": 1,
+      "post_actor_paths_missing": 1,
+      "duplicate_risk_record": 1,
+      "missing_post_logout_occurrences": 1
+    }
+  },
+  "closure_controls_5226a3d": {
+    "positive_exit": 0,
+    "mutant_exits": {
+      "duplicate_cycle_payload": 1,
+      "rendered_presence_contradiction": 1,
+      "risk_path_hash_mismatch": 1
+    }
+  },
+  "reviewer_at1_controls": {
+    "swapped_actors": 1,
+    "boolean_cycle_id": 1,
+    "unrendered_peer_present_unreachable": 1,
+    "absent_sentinel_nonzero_string_nodes": 1,
+    "reachable_zero_string_nodes": 1,
+    "path_len_frames_mismatch": 1,
+    "forged_both_path_and_risk_hash": 1,
+    "risk_attribution_attributed": 1,
+    "risk_root_kind_mismatch": 1,
+    "risk_class_mismatch": 1,
+    "finance_sentinel_rendered_flip": 1,
+    "scan_ok_false": 1
+  }
+}

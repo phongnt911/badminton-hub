@@ -1,0 +1,113 @@
+{
+  "swapped_actors": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Cycle actor does not match the Owner-to-Cohost/Member contract",
+      "Cycle actor does not match the Owner-to-Cohost/Member contract"
+    ]
+  },
+  "boolean_cycle_id": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Cycle payloads must contain unique integer cycles 1 and 2",
+      "Rendered title retainer paths invalid, missing, or do not traverse engine segmentationCache across all cycles/epochs/sentinels"
+    ]
+  },
+  "unrendered_peer_present_unreachable": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Peer non-rendered sentinels were not cleanly released post-logout (app model leak detected or unverified)"
+    ]
+  },
+  "absent_sentinel_nonzero_string_nodes": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_logout: absent sentinel contradicts path node count"
+    ]
+  },
+  "reachable_zero_string_nodes": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_logout: reachable path contradicts sentinel presence"
+    ]
+  },
+  "path_len_frames_mismatch": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_logout: path length/hash does not match frames",
+      "Rendered title retainer paths invalid, missing, or do not traverse engine segmentationCache across all cycles/epochs/sentinels"
+    ]
+  },
+  "forged_both_path_and_risk_hash": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_logout: path length/hash does not match frames"
+    ]
+  },
+  "risk_attribution_attributed": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Risk class/root/length/hash does not match its source path"
+    ]
+  },
+  "risk_root_kind_mismatch": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Risk class/root/length/hash does not match its source path"
+    ]
+  },
+  "risk_class_mismatch": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "Risk class/root/length/hash does not match its source path"
+    ]
+  },
+  "finance_sentinel_rendered_flip": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_logout: finance sentinel class missing or inconsistent"
+    ]
+  },
+  "scan_ok_false": {
+    "exit": 1,
+    "valid": false,
+    "status": "FAIL",
+    "primary_retainer_component": "UNATTRIBUTED",
+    "failure_reasons": [
+      "post_actor: usable scan missing"
+    ]
+  }
+}

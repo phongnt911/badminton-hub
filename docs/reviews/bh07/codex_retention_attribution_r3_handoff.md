@@ -1,6 +1,6 @@
 # Codex sửa trực tiếp Retention Attribution — vòng3 theo ủy quyền
 
-- Trạng thái: **Chờ reviewer độc lập chốt**. Codex tự sửa/tự kiểm, **KHÔNG phải review độc lập**; không tự ghi Đạt ticket.
+- Trạng thái: **Đạt trong phạm vi AT1 retention attribution tooling**, đã đóng bởi reviewer độc lập tại [review_41c1ea1.md](review_41c1ea1.md) ([evidence](review_41c1ea1_evidence/)). (Lịch sử khi bàn giao: Chờ reviewer độc lập chốt; Codex tự sửa/tự kiểm, KHÔNG phải review độc lập.)
 - Chủ dự án đã ủy quyền bổ sung: **“mở vòng 3 sửa”**, sau khi dừng2vòng theo AGENTS.
 - Base review: `a35c219d7c8f61742ad0753359681e72c9bf5a32` ([review5226a3d](review_5226a3d.md)).
 - Tested auditor source: `f11d20f6c5025f7f774c266298bc0309fcd0de0c`; sạch trước full self-check, source hashes trong [provenance](retention_attribution_codex_r3_evidence/provenance.json).

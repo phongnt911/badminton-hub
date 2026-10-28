@@ -1,4 +1,4 @@
-**Hiện hành:** Codex đã sửa trực tiếp AT1 vòng3 theo ủy quyền chủ dự án; **Chờ reviewer độc lập**, không tự ghi Đạt. Xem [bàn giao mới](codex_retention_attribution_r3_handoff.md),source f11d20f6. Phần dưới là lịch sử bàn giao vòng2/2.
+**Hiện hành:** AT1–AT6 retention attribution tooling **Đạt** theo [review độc lập](review_41c1ea1.md),source `f11d20f6c5025f7f774c266298bc0309fcd0de0c`,bàn giao vòng3 [codex_retention_attribution_r3_handoff.md](codex_retention_attribution_r3_handoff.md). Phần dưới là lịch sử bàn giao vòng2/2.
 
 # Bàn giao Điều tra Phân định Giữ Dữ liệu (Retention Attribution) & Bản đồ Phủ (Coverage Map) V2b BH-07
 
