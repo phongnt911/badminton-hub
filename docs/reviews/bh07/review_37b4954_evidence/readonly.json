@@ -1,0 +1,29 @@
+{
+  "exit": 0,
+  "before": {
+    "probes.py": "25825fd780cb2e287846087d45a327a9f1ddf06dad68e0396b95ab2b160ad2b7",
+    "probes.json": "bb645849ef9de2a3bcbaa59ad3eba073bfe9a6f8bbedeaad2b301d812a30e82d",
+    "integrity.json": "65928afd99c305915896c6782c73eeaf7bd9d29c47a440eec5b808196a96d16f",
+    "commands.md": "ffd968f824c757e682f7f93a94fabf51c2528aafe5f3421697e62268fceb0f04",
+    "analyze.log": "80503321021484f788fc6658d73e64e8cdf5de6642f03af2ea115a73c83b1655",
+    "flutter_test.log": "100bbc87a5dcd7175f762e35f87455222493e756d79f9b5044f594dfdd610cde",
+    "author_verify.log": "4e6d63138df5fd044a92fa61effe083db0c9483e3bbc02eb74d180a1061ffbcf",
+    "hashes.sha256": "404994488b2a7a09c41c62fd2007cb6fa0105955fe2dac01a4b78a4351c9472d",
+    "exits.json": "9af19e30d16c9c7935ceb83e1bce788acc6960cf27f1a7f8061a398ca474b51d",
+    "unit.log": "5d4a9f7fda06f83cf853920a0139662f2a4fc6f6833d397558f537183753cdb6"
+  },
+  "after": {
+    "probes.py": "25825fd780cb2e287846087d45a327a9f1ddf06dad68e0396b95ab2b160ad2b7",
+    "probes.json": "bb645849ef9de2a3bcbaa59ad3eba073bfe9a6f8bbedeaad2b301d812a30e82d",
+    "integrity.json": "65928afd99c305915896c6782c73eeaf7bd9d29c47a440eec5b808196a96d16f",
+    "commands.md": "ffd968f824c757e682f7f93a94fabf51c2528aafe5f3421697e62268fceb0f04",
+    "analyze.log": "80503321021484f788fc6658d73e64e8cdf5de6642f03af2ea115a73c83b1655",
+    "flutter_test.log": "100bbc87a5dcd7175f762e35f87455222493e756d79f9b5044f594dfdd610cde",
+    "author_verify.log": "4e6d63138df5fd044a92fa61effe083db0c9483e3bbc02eb74d180a1061ffbcf",
+    "hashes.sha256": "404994488b2a7a09c41c62fd2007cb6fa0105955fe2dac01a4b78a4351c9472d",
+    "exits.json": "9af19e30d16c9c7935ceb83e1bce788acc6960cf27f1a7f8061a398ca474b51d",
+    "unit.log": "5d4a9f7fda06f83cf853920a0139662f2a4fc6f6833d397558f537183753cdb6"
+  },
+  "unchanged": true,
+  "output": "=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===\nALL CHECKS PASSED: 9/9 files verified, 0 secret/JWT outside allowlist, strict UTF-8 LF.\n"
+}

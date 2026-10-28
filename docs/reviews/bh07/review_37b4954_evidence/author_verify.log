@@ -1,0 +1,4 @@
+=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===
+
+AUDIT FAILED with 1 error(s):
+  [X] MISSING FILE (declared in manifest): run.log

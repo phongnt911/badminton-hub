@@ -1,0 +1,7 @@
+# Independent reviewer 28/10/2026 Asia/Saigon
+
+Clean checkout37b49540,base90e9d99b. No implementation changes. Python/control probes read current implementation and create only owned temporary input/output. probes.py is reviewer-authored and invokes actual CLI; original QA summary is never edited. Run `python docs/reviews/bh07/review_37b4954_evidence/probes.py` from repo root to replay. The probe itself exits0 to publish observations; invalid cases actually exit0 inside CLI, which is the finding, not a successful negative gate.
+
+Python discover,Flutter analyze,Flutter test commands/exits are in exits.json and logs. No new browser/DB runtime; source app/backend unchanged. Attribution CLI ran four times via probes with `--out-dir` in TemporaryDirectory; default output into author evidence was intentionally avoided. Original author bundle verify exits1 because run.log is absent; manifests/bundle bytes not altered. Source script claims Windows SDK inspection but no exact engine-source extract/hash is included in author bundle; reviewer does not assert a different SDK matches.
+
+Own publication logs are UTF-8 LF, terminal carriage returns and trailing padding normalized; no author bytes normalized or regenerated. Synthetic inputs use existing sanitized metadata, not raw heap/credentials. Author documentation prints a raw seed expense-title sentinel; reviewer report refers to its location without repeating the value. No production/staging/pilot action.

@@ -1,0 +1,66 @@
+{
+  "positive": {
+    "exit": 0,
+    "environment_consistent": true,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": true,
+      "unattributed_status_justification": "The initial report correctly flagged attribution as unattributed because single-path BFS alone does not prove exhaustiveness. This deeper investigation cross-references the exact engine source (text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) to conclusively attribute the retainer to the engine text segmentation LRU cache."
+    }
+  },
+  "peer_retained": {
+    "exit": 0,
+    "environment_consistent": true,
+    "peer_clean": [
+      false,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": false,
+      "unattributed_status_justification": "The initial report correctly flagged attribution as unattributed because single-path BFS alone does not prove exhaustiveness. This deeper investigation cross-references the exact engine source (text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) to conclusively attribute the retainer to the engine text segmentation LRU cache."
+    }
+  },
+  "wrong_environment": {
+    "exit": 0,
+    "environment_consistent": false,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": true,
+      "unattributed_status_justification": "The initial report correctly flagged attribution as unattributed because single-path BFS alone does not prove exhaustiveness. This deeper investigation cross-references the exact engine source (text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) to conclusively attribute the retainer to the engine text segmentation LRU cache."
+    }
+  },
+  "missing_rendered_paths": {
+    "exit": 0,
+    "environment_consistent": true,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": false,
+    "verdict": {
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": true,
+      "unattributed_status_justification": "The initial report correctly flagged attribution as unattributed because single-path BFS alone does not prove exhaustiveness. This deeper investigation cross-references the exact engine source (text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) to conclusively attribute the retainer to the engine text segmentation LRU cache."
+    }
+  }
+}

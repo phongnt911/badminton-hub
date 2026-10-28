@@ -1,0 +1,62 @@
+{
+  "retention_attribution_evidence": {
+    "matching_payloads": 4,
+    "missing": [
+      "run.log"
+    ],
+    "readonly": true,
+    "hashes": {
+      "coverage_audit.json": "88a953e377006f6f514c955403237773efcd33685d78119116a225e9c47dff07",
+      "summary.json": "39ceeede4b36c038857bc56dedf1f76312a9faa14686488e45062c9f8a39b49b",
+      "attribution_audit.json": "7a46476a070d383b7f6d3ecb847a3bf43330db5e5aee89c2c6a54921d370d24d",
+      "report.md": "7a59baa0a038a8b6142f6fdf717525a335bea33e3fac6d6253b155f18c2f6f0a",
+      "hashes.sha256": "67aaa0856da1a720ae70d82629cb4cc2b4fc14704408b027e458d795b4407db3"
+    }
+  },
+  "review_runtime_b13e468_evidence": {
+    "matching_payloads": 3,
+    "missing": [],
+    "readonly": true,
+    "hashes": {
+      "summary.json": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+      "report.md": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+      "run.log": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+      "hashes.sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764"
+    }
+  },
+  "retained_path_r1_evidence": {
+    "matching_payloads": 3,
+    "missing": [],
+    "readonly": true,
+    "hashes": {
+      "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+      "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+      "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+      "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+    }
+  },
+  "retained_path_evidence": {
+    "matching_payloads": 3,
+    "missing": [],
+    "readonly": true,
+    "hashes": {
+      "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+      "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+      "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+      "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+    }
+  },
+  "app_profile_heap_evidence": {
+    "matching_payloads": 3,
+    "missing": [],
+    "readonly": true,
+    "hashes": {
+      "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+      "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+      "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+      "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+    }
+  },
+  "checkout": "37b49540ea174acd2c93de4500dec7a5b95b5b75",
+  "dirty_before_report": "?? docs/reviews/bh07/review_37b4954_evidence/\n"
+}

@@ -1,0 +1,29 @@
+{
+  "unit": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests"
+    ],
+    "exit": 0
+  },
+  "analyze": {
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "analyze"
+    ],
+    "exit": 0
+  },
+  "flutter_test": {
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test"
+    ],
+    "exit": 0
+  }
+}
