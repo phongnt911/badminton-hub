@@ -1,0 +1,69 @@
+{
+  "source": "511ce612cb8bcc5757a6735ee14d0bacd9433721",
+  "tracked_evidence_files_checked": 1596,
+  "historical_readonly": true,
+  "all_six_controls_match": true,
+  "controls": {
+    "positive": {
+      "expected_auditor_exit": 0,
+      "auditor_exit": 0,
+      "auditor_output": "PASS: evidence bundle at build\\bh07_finance_probe_hkmz08s0 is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+      "summary_verdict": "PASS",
+      "payment_gated_by_cycle": [
+        true,
+        true
+      ]
+    },
+    "payment_never_loaded": {
+      "expected_auditor_exit": 1,
+      "auditor_exit": 1,
+      "auditor_output": "FAIL status RUN requires verdict PASS\nFAIL cycle 1: sentinel payment_id declared for finance coverage was not gated in owner_active\nFAIL cycle 2: sentinel payment_id declared for finance coverage was not gated in owner_active\n",
+      "summary_verdict": "FAIL",
+      "payment_gated_by_cycle": [
+        false,
+        false
+      ]
+    },
+    "payment_receipt_removed": {
+      "expected_auditor_exit": 1,
+      "auditor_exit": 1,
+      "auditor_output": "FAIL status RUN with payment coverage requires run_only_payment_created=True: run_only_payment_created=None\nFAIL status RUN requires the run-only payment id_sha256_12 receipt: None\nFAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_removed=None\nFAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_verified_absent=None\n",
+      "summary_verdict": "PASS",
+      "payment_gated_by_cycle": [
+        true,
+        true
+      ]
+    },
+    "payment_created_flag_missing": {
+      "expected_auditor_exit": 1,
+      "auditor_exit": 1,
+      "auditor_output": "FAIL status RUN with payment coverage requires run_only_payment_created=True: run_only_payment_created=None\nFAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_removed=False\nFAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_verified_absent=False\nFAIL run-only payment fixture cleanup reported an error: control: delete failed\n",
+      "summary_verdict": "PASS",
+      "payment_gated_by_cycle": [
+        true,
+        true
+      ]
+    },
+    "payment_cleanup_false_control": {
+      "expected_auditor_exit": 1,
+      "auditor_exit": 1,
+      "auditor_output": "FAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_removed=False\n",
+      "summary_verdict": "PASS",
+      "payment_gated_by_cycle": [
+        true,
+        true
+      ]
+    },
+    "payment_receipt_hash_wrong": {
+      "expected_auditor_exit": 1,
+      "auditor_exit": 1,
+      "auditor_output": "FAIL payment receipt sha256_12 '000000000000' does not match declared payment_id sha256_12 '852eec161334'\n",
+      "summary_verdict": "PASS",
+      "payment_gated_by_cycle": [
+        true,
+        true
+      ]
+    }
+  }
+}
+

@@ -1,3 +1,7 @@
+**Hiện hành 28/10/2026 — Đạt bản sửa FH1–FH4 finance heap coverage trong phạm vi tooling/tài liệu local sau review độc lập vòng1/2**,tested code/docs `511ce612cb8bcc5757a6735ee14d0bacd9433721`,base `303a6ccf4374e28188ff0d924fd39d2c8ab674dc`. Reviewer tự chạy331/331 Python,analyze0,247Flutter+1skip,fixture8/8;auditor finance vàlegacy b13e468 exit0;semantic positive0/5mutant1,1.596file evidence tracked readonly. Không còn P0/P1/P2 mở trong phạm vi sửa;đóng gói FH1–FH4,không tự mở vòng2. Runtime kế thừa vẫn cd25e1e3557e2013e8991b2031a240818ee84c96;runtime heap/DB mới của reviewer NOT RUN,không retag 511ce61 thành runtime mới. Toàn V2b/BH-07 chưa nghiệm thu;payment_ref unattributed,app-wide/model/listener/native vàcoverage ngoài sentinel giữ UNKNOWN/NOT RUN;không merge/deploy/pilot/BH-08. Theo [review chốt](review_511ce61.md).
+
+**Lịch sử trạng thái trước review 511ce61 (giữ nguyên để truy vết):**
+
 **Hiện hành (Sửa vòng 1/2):** Đã sửa đủ FH1–FH4, đính chính source SHA thực `cd25e1e3557e2013e8991b2031a240818ee84c96`, thu hẹp phạm vi kết luận sentinel V8 và khớp path length 21/20, chờ review độc lập vòng 1/2. Không tự ghi Đạt toàn V2b/BH-07.
 
 # Bản đồ Độ phủ Bộ nhớ Riêng tư V2b BH-07 (Private Memory & In-Memory Cache Coverage Map)
