@@ -1,4 +1,6 @@
-**Hiện hành 28/10/2026 — Retention attribution Chưa đạt vòng1/2 tại eda1eadd**,theo [review](review_eda1ead.md);AT3–AT6 đóng,còn AT1 P1(validate chưa đủ8record/thiếu count) và AT2 P2(JSON app sạch mâu thuẫn limits). Ba mutant cũ chặn đúng,bốn control mới vẫnCLI0;reviewer317Python,analyze0,247Flutter+1skip,bundle5/5 readonly. Giao sửa vòng2/2 chỉ script/test/docs;không sửa app/backend. QA runtime hai expense-ID b13e468,RP3-C,V1,V5b giữ Đạt local;residual title unattributed,full V2b/BH-07 chưa nghiệm thu,các phần coverage/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
+**Hiện hành 28/10/2026 — Retention attribution Chưa đạt vòng2/2 tại5226a3df,DỪNG theo AGENTS**,theo [review](review_5226a3d.md);đóng AT2,giữ AT3–AT6,còn AT1 P1(payload cycle lặp,scan/path presence mâu thuẫn,risk/path hash lệch vẫnCLI0). Báo chủ dự án,không tự mở vòng3/sửa source. Reviewer317Python,analyze0,247Flutter+1skip;7mutant cũ chặn đúng,3closure mutant chưa chặn,bundle5/5 readonly. QA runtime local hai expense-ID b13e468,tooling RP3-C,V1,V5b giữ Đạt;title residual risk unattributed,full V2b/BH-07 chưa nghiệm thu,các giới hạn/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
+
+**(Lịch sử trước chốt attribution vòng2/2) 28/10/2026 — Retention attribution Chưa đạt vòng1/2 tại eda1eadd**,theo [review](review_eda1ead.md);AT3–AT6 đóng,còn AT1 P1(validate chưa đủ8record/thiếu count) và AT2 P2(JSON app sạch mâu thuẫn limits). Ba mutant cũ chặn đúng,bốn control mới vẫnCLI0;reviewer317Python,analyze0,247Flutter+1skip,bundle5/5 readonly. Giao sửa vòng2/2 chỉ script/test/docs;không sửa app/backend. QA runtime hai expense-ID b13e468,RP3-C,V1,V5b giữ Đạt local;residual title unattributed,full V2b/BH-07 chưa nghiệm thu,các phần coverage/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
 
 **(Lịch sử trước review attribution vòng1/2) 28/10/2026 — Retention attribution/coverage Chưa đạt tại37b4954**,theo [review](review_37b4954.md);còn AT1 P1 vàAT2–AT6 P2:CLI fail-open,kết luận engine/app/native vượt bằng chứng,map field/listener sai,thiếu run.log,link máy riêng,sentinel thô trong docs. Giao sửa vòng1/2 chỉ script/test/docs;không sửa app/backend. **Giữ Đạt QA runtime local hai expense-ID b13e468 và tooling RP3-C**;residual rendered-title vẫn unattributed,full V2b/BH-07 chưa nghiệm thu. Reviewer316Python,analyze0,247Flutter+1skip;control mutant vẫn kết luận sai,manifest tác giả4/5 exit1. Runtime/DB mới,coverage rộng/Dart VM và các cổng khác giữ NOT RUN;V1,V5b giữ Đạt local;không merge/deploy/pilot/BH-08.
 
@@ -139,7 +141,7 @@ Nguyên tắc phân định quyền hạn:
 
 ### 4.4. V2b — Đo private Dart heap/cache sau đổi actor
 
-**Trạng thái hiện hành V2b: QA runtime hai expense-ID giữ Đạt;attribution Chưa đạt vòng1/2** theo [review](review_eda1ead.md),còn AT1 P1/AT2 P2;AT3–AT6 đóng,giao sửa vòng2/2. Residual title unattributed;coverage rộng/Dart VM vàtoàn V2b/BH-07 chưa nghiệm thu.
+**Trạng thái hiện hành V2b: QA runtime hai expense-ID giữ Đạt;attribution Chưa đạt vòng2/2,DỪNG** theo [review](review_5226a3d.md). Còn AT1 P1;AT2–AT6 đóng. Báo chủ dự án,không tự mở vòng3;residual title unattributed,full coverage/Dart VM vàtoàn V2b/BH-07 chưa nghiệm thu.
 
 **(Lịch sử bàn giao trước review04d1ea9)** **Trạng thái hiện hành V2b: retained-path Chưa đạt vòng1/2,còn RP3-B P2**,theo [review](review_4184faf.md). Đóng RP1,RP2,RP4,RP5,RP6 và oracle-label redaction;publication sanitizer còn để sót fragment trong failed artifact. Reviewer302/302 Python,fixture6/self34,analyze0,247Flutter+1skip;bundle mới PASS,2bundle cũ reject,bytes giữ nguyên. Runtime/DB query reviewer NOT RUN do thiếu stack/đĩa;coverage ngoài2expense id,bank field thật,Dart VM/mobile/browser khác/tải/staging/production NOT RUN. Giao sửa vòng2/2 chỉ RP3-B;không sửa app/backend/DB,không merge/deploy/pilot/BH-08;full V2b/BH-07 chưa nghiệm thu.
 
@@ -267,7 +269,7 @@ Nguyên tắc phân định quyền hạn:
 ## 5. Thứ tự thực hiện đề xuất
 
 1. **R0:** review hồ sơ này, chốt các trạng thái và điểm tiếp tục.
-2. **V1 và V5b giữ Đạt local**. QA runtime hai expense-ID giữ Đạt;attribution eda1eadd Chưa đạt vòng1/2 theo [review](review_eda1ead.md);giao AT1/AT2 vòng2/2,không mở gate khác.
+2. **V1 và V5b giữ Đạt local**. QA runtime hai expense-ID giữ Đạt;attribution5226a3df Chưa đạt vòng2/2 theo [review](review_5226a3d.md),còn AT1 P1,dừng/báo chủ dự án;không tự mở gate/vòng3.
 3. **V3/V4:** managed backup/PITR/retention và concurrent writers — cổng vận hành còn trống lớn nhất.
 4. **V5:** staging restore/deploy cần môi trường và phê duyệt riêng; production không được thử tự động. **V5b full CLI reset đã đóng local**, không đồng nghĩa V5 đã chạy.
 5. **V2/V2b:** mobile/browser khác/offline/deep link và đo heap/cache — có thể chạy song song V3/V4 nếu đủ thiết bị/công cụ.

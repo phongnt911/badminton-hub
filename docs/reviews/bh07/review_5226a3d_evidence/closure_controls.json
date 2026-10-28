@@ -1,0 +1,66 @@
+{
+  "positive": {
+    "exit": 0,
+    "verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": "SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN",
+      "observed_peer_ids_absent": true,
+      "app_wide_retention_proven": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    }
+  },
+  "duplicate_cycle_payload": {
+    "exit": 0,
+    "verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": "SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN",
+      "observed_peer_ids_absent": true,
+      "app_wide_retention_proven": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    }
+  },
+  "rendered_presence_contradiction": {
+    "exit": 0,
+    "verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": "SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN",
+      "observed_peer_ids_absent": true,
+      "app_wide_retention_proven": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    }
+  },
+  "risk_path_hash_mismatch": {
+    "exit": 0,
+    "verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": "SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN",
+      "observed_peer_ids_absent": true,
+      "app_wide_retention_proven": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    }
+  }
+}
