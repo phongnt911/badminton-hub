@@ -1,0 +1,88 @@
+{
+  "positive": {
+    "exit": 0,
+    "environment_consistent": true,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    }
+  },
+  "peer_retained": {
+    "exit": 1,
+    "environment_consistent": true,
+    "peer_clean": [
+      false,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "valid": false,
+      "status": "FAIL",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "UNATTRIBUTED",
+      "app_model_retention": "UNKNOWN_OR_UNCLEAN",
+      "peer_sentinel_proof_valid": false,
+      "preconditions_valid": false,
+      "failure_reasons": [
+        "Peer non-rendered sentinels were not cleanly released post-logout (app model leak detected or unverified)"
+      ],
+      "unattributed_status_justification": "Preconditions failed. Retention cannot be attributed to engine LRU cache while controls fail or evidence is incomplete."
+    }
+  },
+  "wrong_environment": {
+    "exit": 1,
+    "environment_consistent": false,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": true,
+    "verdict": {
+      "valid": false,
+      "status": "FAIL",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "UNATTRIBUTED",
+      "app_model_retention": "UNKNOWN_OR_UNCLEAN",
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": false,
+      "failure_reasons": [
+        "Environment inconsistent with expected Flutter/Chrome/build"
+      ],
+      "unattributed_status_justification": "Preconditions failed. Retention cannot be attributed to engine LRU cache while controls fail or evidence is incomplete."
+    }
+  },
+  "missing_rendered_paths": {
+    "exit": 1,
+    "environment_consistent": true,
+    "peer_clean": [
+      true,
+      true
+    ],
+    "path_cache": false,
+    "verdict": {
+      "valid": false,
+      "status": "FAIL",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "UNATTRIBUTED",
+      "app_model_retention": "UNKNOWN_OR_UNCLEAN",
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": false,
+      "failure_reasons": [
+        "Rendered title retainer path does not traverse engine segmentationCache or path missing"
+      ],
+      "unattributed_status_justification": "Preconditions failed. Retention cannot be attributed to engine LRU cache while controls fail or evidence is incomplete."
+    }
+  }
+}

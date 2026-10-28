@@ -1,0 +1,42 @@
+{
+  "before": {
+    "extra_controls.py": "ab7500532cf7c11470d43456beb121b413489d334832bab79079282c9a262c36",
+    "retained_path_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "retained_path_r1_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "probes.json": "f16c7b218a1ea8292ddb90b6b6f169bd02c18c9c871ceb8aecc86dd1bd1b8b40",
+    "integrity.json": "48da81cefdde2f6633ebc579670debac61547916b03c978f70562c8445877a6d",
+    "commands.md": "4ce666515da64970701c9c26e71f4d37641605f12b5e20cabaa0dd9448dc65ca",
+    "analyze.log": "2c7a6f635cac9951c84f73ce95a770c1086d1c580f193b1cf9eedb79cd69db30",
+    "extra_controls.json": "4574f438c5fe11bfa2dcee9da962209ce659cec007eff2db412409a79563c297",
+    "flutter_test.log": "8265c6b4fd0e5cd6ab040456e498026d683d17f2536a00d577b36c904246b66a",
+    "integrity_audit.py": "10400429e2f231e69fb1824fbe212dc9abcc202bf8a1cddbcde067a5a4e59230",
+    "retention_attribution_evidence_integrity.log": "376985f0baabe430d6ac26111eb9cecc1b2c30e2990c2f2ac4c205c024583102",
+    "hashes.sha256": "3382b0e41d9f1521f28e1f95a3c676ec99ebd96828238757164a49f46f4ba9f2",
+    "app_profile_heap_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "exits.json": "9af19e30d16c9c7935ceb83e1bce788acc6960cf27f1a7f8061a398ca474b51d",
+    "unit.log": "43a460b391b28603cec38ae0586b61fe66b655dcbd53cb875e8db0158cbf71b1",
+    "review_runtime_b13e468_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196"
+  },
+  "after": {
+    "extra_controls.py": "ab7500532cf7c11470d43456beb121b413489d334832bab79079282c9a262c36",
+    "retained_path_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "retained_path_r1_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "probes.json": "f16c7b218a1ea8292ddb90b6b6f169bd02c18c9c871ceb8aecc86dd1bd1b8b40",
+    "integrity.json": "48da81cefdde2f6633ebc579670debac61547916b03c978f70562c8445877a6d",
+    "commands.md": "4ce666515da64970701c9c26e71f4d37641605f12b5e20cabaa0dd9448dc65ca",
+    "analyze.log": "2c7a6f635cac9951c84f73ce95a770c1086d1c580f193b1cf9eedb79cd69db30",
+    "extra_controls.json": "4574f438c5fe11bfa2dcee9da962209ce659cec007eff2db412409a79563c297",
+    "flutter_test.log": "8265c6b4fd0e5cd6ab040456e498026d683d17f2536a00d577b36c904246b66a",
+    "integrity_audit.py": "10400429e2f231e69fb1824fbe212dc9abcc202bf8a1cddbcde067a5a4e59230",
+    "retention_attribution_evidence_integrity.log": "376985f0baabe430d6ac26111eb9cecc1b2c30e2990c2f2ac4c205c024583102",
+    "hashes.sha256": "3382b0e41d9f1521f28e1f95a3c676ec99ebd96828238757164a49f46f4ba9f2",
+    "app_profile_heap_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196",
+    "exits.json": "9af19e30d16c9c7935ceb83e1bce788acc6960cf27f1a7f8061a398ca474b51d",
+    "unit.log": "43a460b391b28603cec38ae0586b61fe66b655dcbd53cb875e8db0158cbf71b1",
+    "review_runtime_b13e468_evidence_integrity.log": "f8bac15c3fa3ef6eae2baeef5dabdd2dd7a13f11826e549ee5983d79297fb196"
+  },
+  "unchanged": true,
+  "exit": 0,
+  "output": "=== [READ-ONLY VERIFY MODE] Auditing manifest, integrity, encoding and secrets ===\nALL CHECKS PASSED: 15/15 files verified, 0 secret/JWT outside allowlist, strict UTF-8 LF.\n",
+  "links": 782
+}
