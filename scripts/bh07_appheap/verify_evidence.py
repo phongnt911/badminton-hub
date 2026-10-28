@@ -276,6 +276,15 @@ def _check_cycles(summary, build, problems):
                 problems.append(f'{label} {epoch}: {problem}')
         verdict = heap_oracle.decide(scans, expectations_from(scans), True, build.get('mode'),
                                      strict=True)
+        owner_gated = expectations_from(scans).get('owner_active') or {}
+        for name, meta in (summary.get('sentinels') or {}).items():
+            if (isinstance(meta, dict) and meta.get('available') is not False
+                    and meta.get('scope') == 'finance'
+                    and meta.get('distinctive') is True
+                    and meta.get('rendered') is not True):
+                if not owner_gated.get(name):
+                    problems.append(f'{label}: sentinel {name} declared for finance coverage '
+                                    f'was not gated in owner_active')
         stored = cycle.get('verdict') if isinstance(cycle.get('verdict'), dict) else {}
         if stored.get('verdict') != verdict['verdict']:
             problems.append(f'{label}: recorded verdict {stored.get("verdict")!r} but the recorded '
@@ -567,13 +576,26 @@ def _check_cleanup(summary, problems):
     if 'extra_expense_error' in cleanup:
         problems.append(f'run-only fixture cleanup reported an error: {cleanup["extra_expense_error"]}')
 
-    if 'run_only_payment_created' in cleanup:
+    # Review 6f59f5e FH2: require payment fixture cleanup whenever payment coverage is declared,
+    # rather than exempting the check if the runner omitted run_only_payment_created.
+    has_payment_coverage = (
+        'payment_id' in (summary.get('sentinels') or {})
+        or 'payment_id' in _scan_sentinel_names(summary)
+        or 'run_only_payment_created' in cleanup
+    )
+    if has_payment_coverage:
         if cleanup.get('run_only_payment_created') is not True:
-            problems.append('status RUN requires run_only_payment_created=True: '
+            problems.append('status RUN with payment coverage requires run_only_payment_created=True: '
                             f'run_only_payment_created={cleanup.get("run_only_payment_created")!r}')
-        if not HEX12.fullmatch(str(cleanup.get('run_only_payment_id_sha256_12') or '')):
+        receipt_sha12 = str(cleanup.get('run_only_payment_id_sha256_12') or '')
+        if not HEX12.fullmatch(receipt_sha12):
             problems.append('status RUN requires the run-only payment id_sha256_12 receipt: '
                             f'{cleanup.get("run_only_payment_id_sha256_12")!r}')
+        else:
+            meta_sha12 = ((summary.get('sentinels') or {}).get('payment_id') or {}).get('sha256_12')
+            if meta_sha12 and receipt_sha12 != meta_sha12:
+                problems.append(f'payment receipt sha256_12 {receipt_sha12!r} does not match '
+                                f'declared payment_id sha256_12 {meta_sha12!r}')
         for field in ('extra_payment_removed', 'extra_payment_verified_absent'):
             if cleanup.get(field) is not True:
                 problems.append(f'status RUN requires a verified run-only payment fixture cleanup: '

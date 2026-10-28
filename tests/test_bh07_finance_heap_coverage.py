@@ -37,6 +37,11 @@ _spec = importlib.util.spec_from_file_location('heap_oracle', ORACLE_PATH)
 ORACLE = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ORACLE)
 
+VERIFIER_PATH = ROOT / 'scripts/bh07_appheap/verify_evidence.py'
+_v_spec = importlib.util.spec_from_file_location('verify_evidence', VERIFIER_PATH)
+VERIFIER = importlib.util.module_from_spec(_v_spec)
+_v_spec.loader.exec_module(VERIFIER)
+
 
 def path_record(reachable, root_kind='global_handles', path_len=3):
     if not reachable:
@@ -195,8 +200,35 @@ class TestFinanceHeapCoverageOracle(unittest.TestCase):
         scans = make_scans(self.classes, active, logout, actor)
         expectations = ORACLE.derive_expectations(scans)
 
-        # payment_id should not be in expectations because it was not present in owner_active
+        # payment_id must not be gated since it was never loaded
         self.assertNotIn('payment_id', expectations['owner_active'])
+
+        # FH1: decide() must fail when declared payment_id was not gated in owner_active
+        verdict = ORACLE.decide(scans, expectations, cleanup_ok=True, mode='profile', strict=True)
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        findings_str = ' '.join(verdict['findings'])
+        self.assertIn('payment_id', findings_str)
+        self.assertIn('precondition not met', findings_str)
+
+    def test_mutant_2b_payment_id_seen_at_baseline_fails_precondition(self):
+        """Mutant 2b: payment_id already present at baseline fails discrimination precondition."""
+        active = {'probe', 'expense_id', 'expense_id_2', 'payment_id'}
+        logout = {'probe'}
+        actor = {'probe'}
+        baseline = {'probe', 'payment_id'}  # NOT discriminating!
+
+        scans = make_scans(self.classes, active, logout, actor, baseline_sentinels=baseline)
+        expectations = ORACLE.derive_expectations(scans)
+
+        # payment_id cannot be gated because it was visible at baseline
+        self.assertNotIn('payment_id', expectations['owner_active'])
+
+        # FH1: decide() must fail when payment_id failed baseline discrimination
+        verdict = ORACLE.decide(scans, expectations, cleanup_ok=True, mode='profile', strict=True)
+        self.assertEqual(verdict['verdict'], 'FAIL')
+        findings_str = ' '.join(verdict['findings'])
+        self.assertIn('payment_id', findings_str)
+        self.assertIn('precondition not met', findings_str)
 
     def test_mutant_3_roster_conflation_prevention(self):
         """Mutant 3: Roster identity (player_a) at post_cohost must NOT be treated as a finance charge leak.
@@ -223,6 +255,103 @@ class TestFinanceHeapCoverageOracle(unittest.TestCase):
         flawed_verdict = ORACLE.decide(flawed_scans, flawed_expectations, cleanup_ok=True, mode='profile', strict=True)
         self.assertEqual(flawed_verdict['verdict'], 'FAIL')
         self.assertIn('player_a', ' '.join(flawed_verdict['findings']))
+
+
+class TestFinanceCoverageVerifier(unittest.TestCase):
+    """Review 6f59f5e FH1 & FH2: verify_evidence auditor controls for payment coverage."""
+
+    def setUp(self):
+        self.base_summary = {
+            'gate': 'V2b — app-profile Dart heap / in-memory retention after actor switch',
+            'status': 'RUN',
+            'verdict': 'PASS',
+            'tested_source_sha': 'cd25e1e3557e2013e8991b2031a240818ee84c96',
+            'git_dirty': False,
+            'environment': {
+                'build': {
+                    'mode': 'profile',
+                    'artifacts': {'index.html': 'a'*64, 'main.dart.js': 'b'*64},
+                    'served_match': True,
+                    'started_at': '2026-10-28T00:00:00Z',
+                }
+            },
+            'sentinels': {
+                'expense_id': {'available': True, 'sha256_12': '111111111111', 'length': 36, 'scope': 'finance', 'rendered': False, 'distinctive': True},
+                'expense_id_2': {'available': True, 'sha256_12': '222222222222', 'length': 36, 'scope': 'finance', 'rendered': False, 'distinctive': True},
+                'payment_id': {'available': True, 'sha256_12': '333333333333', 'length': 36, 'scope': 'finance', 'rendered': False, 'distinctive': True},
+                'probe': {'available': True, 'sha256_12': '444444444444', 'length': 20, 'scope': 'control', 'rendered': False, 'distinctive': True},
+            },
+            'cleanup': {
+                'run_only_fixture_created': True,
+                'run_only_fixture_id_sha256_12': '222222222222',
+                'extra_expense_removed': True,
+                'extra_expense_verified_absent': True,
+                'run_only_payment_created': True,
+                'run_only_payment_id_sha256_12': '333333333333',
+                'extra_payment_removed': True,
+                'extra_payment_verified_absent': True,
+            }
+        }
+
+    def test_payment_receipt_removed_fails(self):
+        """FH2: removing payment cleanup fields while payment_id sentinel is declared must FAIL."""
+        summary = copy.deepcopy(self.base_summary)
+        summary['cleanup'] = {k: v for k, v in summary['cleanup'].items() if 'payment' not in k}
+        problems = []
+        VERIFIER._check_cleanup(summary, problems)
+        self.assertTrue(any('run_only_payment_created' in p for p in problems), problems)
+
+    def test_payment_created_flag_missing_fails(self):
+        """FH2: omitting run_only_payment_created cannot exempt other cleanup checks."""
+        summary = copy.deepcopy(self.base_summary)
+        summary['cleanup'].pop('run_only_payment_created')
+        summary['cleanup']['extra_payment_removed'] = False
+        summary['cleanup']['extra_payment_error'] = 'delete failed'
+        problems = []
+        VERIFIER._check_cleanup(summary, problems)
+        self.assertTrue(any('run_only_payment_created' in p for p in problems), problems)
+        self.assertTrue(any('extra_payment_removed' in p for p in problems), problems)
+        self.assertTrue(any('error' in p for p in problems), problems)
+
+    def test_payment_receipt_hash_wrong_fails(self):
+        """FH2: sha12 of payment receipt must match payment_id metadata."""
+        summary = copy.deepcopy(self.base_summary)
+        summary['cleanup']['run_only_payment_id_sha256_12'] = '000000000000'
+        problems = []
+        VERIFIER._check_cleanup(summary, problems)
+        self.assertTrue(any('does not match' in p for p in problems), problems)
+
+    def test_legacy_cleanup_without_payment_sentinel_passes(self):
+        """FH2: legacy profile without payment_id is not required to have payment cleanup."""
+        summary = copy.deepcopy(self.base_summary)
+        summary['sentinels'].pop('payment_id')
+        summary['cleanup'] = {k: v for k, v in summary['cleanup'].items() if 'payment' not in k}
+        problems = []
+        VERIFIER._check_cleanup(summary, problems)
+        payment_problems = [p for p in problems if 'payment' in p]
+        self.assertEqual(len(payment_problems), 0, payment_problems)
+
+    def test_payment_never_gated_in_cycles_fails_auditor(self):
+        """FH1: payment_id declared in sentinels but absent in cycle scans must FAIL cycle audit."""
+        summary = copy.deepcopy(self.base_summary)
+        classes = {
+            'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
+            'expense_id': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+            'expense_id_2': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+            'payment_id': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+        }
+        # payment_id NOT present in active
+        scans_c1 = make_scans(classes, active_sentinels={'probe', 'expense_id', 'expense_id_2'},
+                              logout_sentinels={'probe'}, actor_sentinels={'probe'})
+        scans_c2 = make_scans(classes, active_sentinels={'probe', 'expense_id', 'expense_id_2'},
+                              logout_sentinels={'probe'}, actor_sentinels={'probe'})
+        summary['cycles'] = [
+            {'cycle': 1, 'actor': 'cohost', 'same_document': True, 'time_origin': 1000, 'epochs': scans_c1, 'verdict': {'verdict': 'FAIL', 'findings': []}},
+            {'cycle': 2, 'actor': 'member', 'same_document': True, 'time_origin': 2000, 'epochs': scans_c2, 'verdict': {'verdict': 'FAIL', 'findings': []}},
+        ]
+        problems = []
+        VERIFIER._check_cycles(summary, summary['environment']['build'], problems)
+        self.assertTrue(any('payment_id declared for finance coverage was not gated' in p for p in problems), problems)
 
 
 if __name__ == '__main__':

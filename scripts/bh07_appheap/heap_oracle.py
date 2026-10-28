@@ -814,6 +814,15 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
             findings.append(f'owner_active: no finance value among the gated sentinels '
                             f'({", ".join(gated) or "none"}); the graph measurement would not cover '
                             'financial data')
+        # Review 6f59f5e FH1: when payment coverage is declared via payment_id in owner_sentinels,
+        # it is part of the required contract. It cannot be silently dropped from the gate while
+        # relying on expense IDs; failing its precondition (not loaded in owner_active or already
+        # visible at baseline) must FAIL the measurement.
+        if 'payment_id' in owner_sentinels and 'payment_id' not in gated:
+            verdict_ok = False
+            findings.append('owner_active: payment_id declared for finance coverage was not gated '
+                            '(precondition not met: payment_id not loaded in owner_active '
+                            'or already visible at baseline)')
 
     return {
         'verdict': 'PASS' if verdict_ok else 'FAIL',
