@@ -20,6 +20,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from heap_oracle import scan_problems  # noqa: E402
+
 QA_EVIDENCE_DIR = ROOT / 'docs/reviews/bh07/review_runtime_b13e468_evidence'
 R1_EVIDENCE_DIR = ROOT / 'docs/reviews/bh07/retained_path_r1_evidence'
 OUT_EVIDENCE_DIR = ROOT / 'docs/reviews/bh07/retention_attribution_evidence'
@@ -177,6 +180,58 @@ ENTITIES_INVENTORY = [
 ]
 
 
+def source_record_problems(data):
+    """Validate the source records, not just the derived risk matrix."""
+    problems = []
+    expected_actors = {1: 'cohost', 2: 'member'}
+    cycles = data.get('cycles', [])
+    cycle_ids = [c.get('cycle') for c in cycles if isinstance(c, dict)]
+    if (len(cycle_ids) != 2 or any(type(n) is not int for n in cycle_ids)
+            or set(cycle_ids) != set(expected_actors)):
+        problems.append('Cycle payloads must contain unique integer cycles 1 and 2')
+    for cycle in cycles:
+        number = cycle.get('cycle')
+        if cycle.get('actor') != expected_actors.get(number):
+            problems.append('Cycle actor does not match the Owner-to-Cohost/Member contract')
+        epochs = cycle.get('epochs', {})
+        for epoch_name in ('baseline', 'owner_active', 'post_logout', 'post_actor'):
+            scan = epochs.get(epoch_name)
+            if not isinstance(scan, dict) or scan.get('ok') is not True:
+                problems.append(f'{epoch_name}: usable scan missing')
+                continue
+            if scan_problems(scan, require_paths=True):
+                problems.append(f'{epoch_name}: invalid scan/count/path schema')
+                continue
+            for name, record in scan['sentinels'].items():
+                path = scan['paths'][name]
+                if path['reachable'] and (not record['present'] or path.get('string_nodes', 0) < 1):
+                    problems.append(f'{epoch_name}: reachable path contradicts sentinel presence')
+                if not record['present'] and (path['reachable'] or path.get('string_nodes') != 0):
+                    problems.append(f'{epoch_name}: absent sentinel contradicts path node count')
+                if path['reachable']:
+                    frames = path['frames']
+                    digest = hashlib.sha256('\n'.join(frames).encode('utf-8')).hexdigest()[:12]
+                    if path['path_len'] != len(frames) - 1 or path['path_sha256_12'] != digest:
+                        problems.append(f'{epoch_name}: path length/hash does not match frames')
+            for name in ('expense', 'expense2', 'expense_id', 'expense_id_2'):
+                record = scan['sentinels'].get(name, {})
+                rendered = name in ('expense', 'expense2')
+                if (record.get('scope') != 'finance' or record.get('rendered') is not rendered
+                        or record.get('distinctive') is not True):
+                    problems.append(f'{epoch_name}: finance sentinel class missing or inconsistent')
+    for risk in data.get('residual_risks', []):
+        matching = [c for c in cycles if c.get('cycle') == risk.get('cycle')]
+        if len(matching) != 1:
+            problems.append('Risk record has no unique source cycle')
+            continue
+        scan = matching[0].get('epochs', {}).get(risk.get('epoch'), {})
+        path = scan.get('paths', {}).get(risk.get('sentinel'), {})
+        if (any(risk.get(key) != path.get(key) for key in ('path_len', 'root_kind', 'path_sha256_12'))
+                or risk.get('class') != 'rendered' or risk.get('attribution') != 'unattributed'):
+            problems.append('Risk class/root/length/hash does not match its source path')
+    return problems
+
+
 def audit_summary_json(summary_path):
     """Deep audit of summary.json for attribution analysis."""
     if not os.path.exists(summary_path):
@@ -329,6 +384,7 @@ def audit_summary_json(summary_path):
         })
 
     return {
+        'source_record_problems': source_record_problems(data),
         'tested_source_sha': data.get('tested_source_sha'),
         'git_dirty': data.get('git_dirty'),
         'environment': {
@@ -358,6 +414,7 @@ def analyze_attribution(summary_audit):
     )
     count_ok = summary_audit.get('residual_risks_count') == EXPECTED_RESIDUAL_RISK_COUNT
     combinations_ok = summary_audit.get('residual_risks_combinations_valid', False)
+    source_problems = summary_audit.get('source_record_problems', ['Source validation missing'])
 
     preconditions_valid = (
         env_consistent
@@ -365,9 +422,11 @@ def analyze_attribution(summary_audit):
         and all_rendered_paths_valid
         and count_ok
         and combinations_ok
+        and not source_problems
     )
 
     failure_reasons = []
+    failure_reasons.extend(source_problems)
     if not env_consistent:
         failure_reasons.append('Environment inconsistent with expected Flutter/Chrome/build')
     if not all_peers_clean:

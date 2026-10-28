@@ -28,6 +28,53 @@ import audit_retention_attribution as auditor  # noqa: E402
 
 class TestRetentionAttribution(unittest.TestCase):
 
+    def test_round_two_closure_probe_is_fail_closed(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / 'docs/reviews/bh07/review_5226a3d_evidence/closure_controls.py')],
+            cwd=ROOT, capture_output=True, text=True, encoding='utf-8',
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        cases = json.loads(result.stdout)
+        self.assertEqual(cases['positive']['exit'], 0)
+        self.assertTrue(cases['positive']['verdict']['valid'])
+        for name in ('duplicate_cycle_payload', 'rendered_presence_contradiction', 'risk_path_hash_mismatch'):
+            with self.subTest(case=name):
+                self.assertEqual(cases[name]['exit'], 1)
+                self.assertFalse(cases[name]['verdict']['valid'])
+                self.assertEqual(cases[name]['verdict']['primary_retainer_component'], 'UNATTRIBUTED')
+
+    def test_cycle_actor_and_record_links_are_validated(self):
+        for case in ('wrong_actor', 'risk_root_mismatch', 'risk_class_mismatch',
+                     'scan_not_usable', 'path_frames_hash_mismatch', 'rendered_scope_mismatch'):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as td:
+                data = copy.deepcopy(self.qa_raw_data)
+                epoch = data['cycles'][0]['epochs']['post_logout']
+                if case == 'wrong_actor':
+                    data['cycles'][1]['actor'] = 'cohost'
+                elif case == 'risk_root_mismatch':
+                    data['residual_risks'][0]['root_kind'] = 'global_handles'
+                elif case == 'risk_class_mismatch':
+                    data['residual_risks'][0]['class'] = 'identity'
+                elif case == 'scan_not_usable':
+                    epoch['ok'] = False
+                elif case == 'path_frames_hash_mismatch':
+                    epoch['paths']['expense']['frames'][-1] = 'property:other -> string'
+                elif case == 'rendered_scope_mismatch':
+                    epoch['sentinels']['expense']['scope'] = 'identity'
+                source = Path(td) / 'input.json'
+                source.write_text(json.dumps(data), encoding='utf-8')
+                output = Path(td) / 'out'
+                run = subprocess.run(
+                    [sys.executable, str(ROOT / 'scripts/bh07_appheap/audit_retention_attribution.py'),
+                     '--summary', str(source), '--out-dir', str(output)],
+                    capture_output=True, text=True, encoding='utf-8',
+                )
+                self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+                verdict = json.loads((output / 'attribution_audit.json').read_text())['attribution']['attribution_verdict']
+                self.assertFalse(verdict['valid'])
+                self.assertFalse(verdict['app_wide_retention_proven'])
+                self.assertEqual(verdict['status'], 'FAIL')
+
     @classmethod
     def setUpClass(cls):
         cls.qa_summary_path = QA_SUMMARY_PATH
