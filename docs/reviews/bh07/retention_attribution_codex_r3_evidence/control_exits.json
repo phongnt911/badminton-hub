@@ -1,0 +1,30 @@
+{
+  "original": {
+    "probe_exit": 0,
+    "cli_exits": {
+      "positive": 0,
+      "peer_retained": 1,
+      "wrong_environment": 1,
+      "missing_rendered_paths": 1
+    }
+  },
+  "extra": {
+    "probe_exit": 0,
+    "cli_exits": {
+      "positive": 0,
+      "expense2_path_missing": 1,
+      "post_actor_paths_missing": 1,
+      "duplicate_risk_record": 1,
+      "missing_post_logout_occurrences": 1
+    }
+  },
+  "closure": {
+    "probe_exit": 0,
+    "cli_exits": {
+      "positive": 0,
+      "duplicate_cycle_payload": 1,
+      "rendered_presence_contradiction": 1,
+      "risk_path_hash_mismatch": 1
+    }
+  }
+}

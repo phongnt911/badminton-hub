@@ -1,4 +1,6 @@
-**Hiện hành 28/10/2026 — Retention attribution Chưa đạt vòng2/2 tại5226a3df,DỪNG theo AGENTS**,theo [review](review_5226a3d.md);đóng AT2,giữ AT3–AT6,còn AT1 P1(payload cycle lặp,scan/path presence mâu thuẫn,risk/path hash lệch vẫnCLI0). Báo chủ dự án,không tự mở vòng3/sửa source. Reviewer317Python,analyze0,247Flutter+1skip;7mutant cũ chặn đúng,3closure mutant chưa chặn,bundle5/5 readonly. QA runtime local hai expense-ID b13e468,tooling RP3-C,V1,V5b giữ Đạt;title residual risk unattributed,full V2b/BH-07 chưa nghiệm thu,các giới hạn/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
+**Hiện hành 28/10/2026 — Chờ reviewer độc lập sau Codex sửa trực tiếp AT1 vòng3 theo ủy quyền “mở vòng 3 sửa”**,source `f11d20f6c5025f7f774c266298bc0309fcd0de0c`,base a35c219d,theo [bàn giao](codex_retention_attribution_r3_handoff.md). **Codex tự sửa/tự kiểm,KHÔNG phải review độc lập**;kiểm cycle/actor duy nhất vàscan/count/path/risk/hash nhất quán,không sửa app/backend. Red2method8fail→green targeted7;self-check319Python,analyze0,247Flutter+1skip;3positive0/10mutant1. AT2–AT6 giữ đóng theo review trước;AT1 chờ chốt,không tự ghi Đạt. Bundle cũ giữ byte,runtime tham chiếu vẫn b13e468;không có runtime/DB mới. QA hai expense-ID,RP3-C,V1,V5b giữ Đạt local;title residual risk unattributed,full V2b/BH-07 chưa nghiệm thu,các giới hạn/native/cổng khác NOT RUN;không merge/deploy/pilot/BH-08.
+
+**(Lịch sử dừng trước ủy quyền sửa trực tiếp vòng3) 28/10/2026 — Retention attribution Chưa đạt vòng2/2 tại5226a3df,DỪNG theo AGENTS**,theo [review](review_5226a3d.md);đóng AT2,giữ AT3–AT6,còn AT1 P1(payload cycle lặp,scan/path presence mâu thuẫn,risk/path hash lệch vẫnCLI0). Báo chủ dự án,không tự mở vòng3/sửa source. Reviewer317Python,analyze0,247Flutter+1skip;7mutant cũ chặn đúng,3closure mutant chưa chặn,bundle5/5 readonly. QA runtime local hai expense-ID b13e468,tooling RP3-C,V1,V5b giữ Đạt;title residual risk unattributed,full V2b/BH-07 chưa nghiệm thu,các giới hạn/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
 
 **(Lịch sử trước chốt attribution vòng2/2) 28/10/2026 — Retention attribution Chưa đạt vòng1/2 tại eda1eadd**,theo [review](review_eda1ead.md);AT3–AT6 đóng,còn AT1 P1(validate chưa đủ8record/thiếu count) và AT2 P2(JSON app sạch mâu thuẫn limits). Ba mutant cũ chặn đúng,bốn control mới vẫnCLI0;reviewer317Python,analyze0,247Flutter+1skip,bundle5/5 readonly. Giao sửa vòng2/2 chỉ script/test/docs;không sửa app/backend. QA runtime hai expense-ID b13e468,RP3-C,V1,V5b giữ Đạt local;residual title unattributed,full V2b/BH-07 chưa nghiệm thu,các phần coverage/runtime/native còn NOT RUN;không merge/deploy/pilot/BH-08.
 
@@ -141,7 +143,7 @@ Nguyên tắc phân định quyền hạn:
 
 ### 4.4. V2b — Đo private Dart heap/cache sau đổi actor
 
-**Trạng thái hiện hành V2b: QA runtime hai expense-ID giữ Đạt;attribution Chưa đạt vòng2/2,DỪNG** theo [review](review_5226a3d.md). Còn AT1 P1;AT2–AT6 đóng. Báo chủ dự án,không tự mở vòng3;residual title unattributed,full coverage/Dart VM vàtoàn V2b/BH-07 chưa nghiệm thu.
+**Trạng thái hiện hành V2b: QA runtime hai expense-ID giữ Đạt;AT1 Chờ reviewer độc lập sau Codex sửa trực tiếp vòng3 được chủ dự án ủy quyền**,source f11d20f6,theo [bàn giao](codex_retention_attribution_r3_handoff.md). Tự sửa/tự kiểm KHÔNG độc lập;AT2–AT6 giữ đóng. Full coverage/Dart VM/toàn V2b/BH-07 chưa nghiệm thu,residual title unattributed.
 
 **(Lịch sử bàn giao trước review04d1ea9)** **Trạng thái hiện hành V2b: retained-path Chưa đạt vòng1/2,còn RP3-B P2**,theo [review](review_4184faf.md). Đóng RP1,RP2,RP4,RP5,RP6 và oracle-label redaction;publication sanitizer còn để sót fragment trong failed artifact. Reviewer302/302 Python,fixture6/self34,analyze0,247Flutter+1skip;bundle mới PASS,2bundle cũ reject,bytes giữ nguyên. Runtime/DB query reviewer NOT RUN do thiếu stack/đĩa;coverage ngoài2expense id,bank field thật,Dart VM/mobile/browser khác/tải/staging/production NOT RUN. Giao sửa vòng2/2 chỉ RP3-B;không sửa app/backend/DB,không merge/deploy/pilot/BH-08;full V2b/BH-07 chưa nghiệm thu.
 
@@ -269,7 +271,7 @@ Nguyên tắc phân định quyền hạn:
 ## 5. Thứ tự thực hiện đề xuất
 
 1. **R0:** review hồ sơ này, chốt các trạng thái và điểm tiếp tục.
-2. **V1 và V5b giữ Đạt local**. QA runtime hai expense-ID giữ Đạt;attribution5226a3df Chưa đạt vòng2/2 theo [review](review_5226a3d.md),còn AT1 P1,dừng/báo chủ dự án;không tự mở gate/vòng3.
+2. **V1 và V5b giữ Đạt local**. QA hai expense-ID giữ Đạt;AT1 Chờ reviewer độc lập sau sửa trực tiếp Codex vòng3 theo ủy quyền,sourcef11d20f6,theo [bàn giao](codex_retention_attribution_r3_handoff.md). Không dùng self-check làm verdict độc lập hoặc nghiệm thu full V2b/BH-07.
 3. **V3/V4:** managed backup/PITR/retention và concurrent writers — cổng vận hành còn trống lớn nhất.
 4. **V5:** staging restore/deploy cần môi trường và phê duyệt riêng; production không được thử tự động. **V5b full CLI reset đã đóng local**, không đồng nghĩa V5 đã chạy.
 5. **V2/V2b:** mobile/browser khác/offline/deep link và đo heap/cache — có thể chạy song song V3/V4 nếu đủ thiết bị/công cụ.

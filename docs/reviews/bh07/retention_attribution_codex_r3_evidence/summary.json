@@ -1,0 +1,50 @@
+{
+  "role": "Codex direct implementation and self-check; NOT independent review",
+  "authorization": "Owner: mở vòng 3 sửa",
+  "base_review": "a35c219d7c8f61742ad0753359681e72c9bf5a32",
+  "tested_auditor_source_sha": "f11d20f6c5025f7f774c266298bc0309fcd0de0c",
+  "dirty_before_run": "",
+  "runtime_reference_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+  "new_runtime": false,
+  "status": "CHO_REVIEW_DOC_LAP",
+  "self_check": "PASS; awaiting independent reviewer verdict",
+  "independent_verdict": null,
+  "scope": "AT1 cycle/actor identity and scan/path/risk consistency; AT2–AT6 preserved",
+  "not_run": [
+    "new browser/heap/SQL/DB runtime",
+    "full V2b outside two expense-ID sentinels",
+    "Dart VM desktop/mobile and other browsers",
+    "managed backup/PITR/offsite/encryption/retention/concurrent writers",
+    "staging/production/restore/banking/webhook/load/rehearsal/pilot/full BH07"
+  ],
+  "results": {
+    "python": {
+      "passed": 319,
+      "exit": 0
+    },
+    "analyze": {
+      "issues": 0,
+      "exit": 0
+    },
+    "flutter": {
+      "passed": 247,
+      "skipped": 1,
+      "exit": 0
+    },
+    "immutable_probes": {
+      "positives": 3,
+      "positive_exit": 0,
+      "mutants": 10,
+      "mutant_exit": 1
+    },
+    "targeted": {
+      "passed": 7,
+      "exit": 0
+    },
+    "red_before_fix": {
+      "methods": 2,
+      "failed_assertions": 8,
+      "exit": 1
+    }
+  }
+}

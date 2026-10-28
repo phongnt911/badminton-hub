@@ -1,0 +1,146 @@
+{
+  "summary": {
+    "total_entities": 11,
+    "verified_clean_web_profile": 1,
+    "partially_verified_engine_residual": 1,
+    "partially_visited_ungated": 1,
+    "verified_provider_harness_only": 0,
+    "reported_note_not_gated": 1,
+    "not_measured_in_app_heap": 6,
+    "not_run_web_heap_object_graph": 1
+  },
+  "inventory": [
+    {
+      "id": "expense_titles",
+      "entity": "Session Expense Title",
+      "model": "lib/models/finance.dart:222 (FinanceExpense.title)",
+      "provider": "lib/providers/finance_provider.dart:180 (_finance.expenses)",
+      "screen": "lib/screens/session_finance_screen.dart:620 (_expenseTile)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": true,
+      "measured_status": "PARTIALLY_VERIFIED_RESIDUAL_ENGINE_CACHE",
+      "gap": "Rendered string retained in Flutter Web engine segmentationCache (unattributed residual risk); not measured on Dart VM desktop/mobile."
+    },
+    {
+      "id": "expense_ids",
+      "entity": "Session Expense ID",
+      "model": "lib/models/finance.dart:222 (FinanceExpense.expenseId)",
+      "provider": "lib/providers/finance_provider.dart:180 (_finance.expenses)",
+      "screen": "lib/screens/session_finance_screen.dart (unrendered model key)",
+      "scope": "finance",
+      "rendered": false,
+      "distinctive": true,
+      "measured_status": "VERIFIED_CLEAN_LOCAL_WEB_PROFILE",
+      "gap": "Gated on 2 expense IDs on Web profile (V8); Dart VM desktop/mobile NOT RUN."
+    },
+    {
+      "id": "session_charges",
+      "entity": "Session Charges",
+      "model": "lib/models/finance.dart:258 (FinanceCharge: playerId, displayName, amountDueVnd)",
+      "provider": "lib/providers/finance_provider.dart:180 (_finance.charges)",
+      "screen": "lib/screens/session_finance_screen.dart:648 (_chargesSection)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": true,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "Tested in Provider-level unit test only; no sentinel declared in run_app_profile_heap.js."
+    },
+    {
+      "id": "session_payments",
+      "entity": "Session Payments",
+      "model": "lib/models/finance.dart:279 (FinancePayment: paymentId, playerId, amountVnd, method, status, reference, confirmedAt, createdAt)",
+      "provider": "lib/providers/finance_provider.dart:180 (_finance.payments)",
+      "screen": "lib/screens/session_finance_screen.dart:696 (_paymentsSection)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": true,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "Tested in Provider-level unit test only; no payment sentinel declared in run_app_profile_heap.js."
+    },
+    {
+      "id": "club_bank_account",
+      "entity": "Club Bank Account Number",
+      "model": "lib/models/club.dart:122 (BankAccount: id, clubId, userId, bankCode, accountNumber, accountName, status)",
+      "provider": "lib/providers/club_provider.dart:112 (_currentBankAccount)",
+      "screen": "lib/screens/clubs_screen.dart:472 (_showConfigureBankDialog)",
+      "scope": "bank",
+      "rendered": false,
+      "distinctive": false,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "Bank screen was never opened in openOwnerFinance; 10 digits collided with fixture UUID; need distinctive alphanumeric or UUID account sentinel."
+    },
+    {
+      "id": "bank_receiver",
+      "entity": "Bank Account Holder / Receiver",
+      "model": "lib/models/club.dart:122 (BankAccount.accountName) / lib/models/finance.dart:34 (PaymentInstructions.receiverSnapshot)",
+      "provider": "lib/providers/club_provider.dart:112 / finance_provider.dart:101",
+      "screen": "lib/screens/clubs_screen.dart / payment QR dialog",
+      "scope": "bank",
+      "rendered": false,
+      "distinctive": true,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "Declared in summary.json but occurrences: 0 in owner_active because flow never visited bank or payment instructions screens."
+    },
+    {
+      "id": "payment_instructions",
+      "entity": "Payment Instructions & VietQR",
+      "model": "lib/models/finance.dart:34 (PaymentInstructions: sessionId, playerId, displayName, billingState, activeRevisionId, sourceVersion, amountDueVnd, totalPaidVnd, outstandingVnd, reference, receiverSnapshot, hasReceiver, canPay)",
+      "provider": "lib/providers/finance_provider.dart:101 (_instructions)",
+      "screen": "lib/screens/session_finance_screen.dart:458 (player QR instructions)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": true,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "Tested in Provider-level unit test only; player payment instructions flow not executed in Web profile heap runner."
+    },
+    {
+      "id": "club_ledger",
+      "entity": "Club Ledger Entries & Balance",
+      "model": "lib/models/finance.dart:402 (ClubLedgerEntry) / 447 (ClubLedger)",
+      "provider": "lib/providers/finance_provider.dart (_ledger)",
+      "screen": "lib/screens/club_fund_screen.dart:179 (ClubFundScreen)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": true,
+      "measured_status": "NOT_MEASURED_IN_APP_HEAP",
+      "gap": "ClubFundScreen was never visited in run_app_profile_heap.js; tested in Provider-level unit test only."
+    },
+    {
+      "id": "session_summary_totals",
+      "entity": "Session Summary Aggregate Financial Totals",
+      "model": "lib/models/finance.dart:98 (SessionSummary: expensesTotalVnd, amountDueTotalVnd, totalPaidVnd, outstandingTotalVnd)",
+      "provider": "lib/providers/finance_provider.dart (_summary)",
+      "screen": "lib/screens/session_summary_screen.dart:58 (SessionSummaryScreen)",
+      "scope": "finance",
+      "rendered": true,
+      "distinctive": false,
+      "measured_status": "PARTIALLY_VISITED_UNGATED",
+      "gap": "SessionSummaryScreen visited in openOwnerFinance, but numeric aggregates were not distinctive sentinels."
+    },
+    {
+      "id": "roster_identities",
+      "entity": "Shared Club Roster Player IDs",
+      "model": "lib/models/session.dart:237 (SessionPlayer.id)",
+      "provider": "lib/providers/session_provider.dart",
+      "screen": "lib/screens/session_detail_screen.dart",
+      "scope": "identity",
+      "rendered": false,
+      "distinctive": true,
+      "measured_status": "REPORTED_NOTE_NOT_GATED",
+      "gap": "Reachable at post_cohost (path len 18); identity entitlement cannot be established by heap measurement alone."
+    },
+    {
+      "id": "auth_listeners",
+      "entity": "Auth Change Listeners & State Dispatch",
+      "model": "lib/providers/auth_provider.dart -> addListener(_onAuthChanged)",
+      "provider": "FinanceProvider, ClubProvider, SessionProvider",
+      "screen": "All screens",
+      "scope": "control",
+      "rendered": false,
+      "distinctive": true,
+      "measured_status": "NOT_RUN_WEB_HEAP_OBJECT_GRAPH",
+      "gap": "AST zero-static and Provider test verify balance of listeners in unit harness, but Web profile heap object graph of active listener nodes was NOT RUN."
+    }
+  ]
+}

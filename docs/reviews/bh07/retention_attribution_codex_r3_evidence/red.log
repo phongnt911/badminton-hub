@@ -1,0 +1,134 @@
+test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) ...
+  test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='duplicate_cycle_payload') ... FAIL
+  test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='rendered_presence_contradiction') ... FAIL
+  test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='risk_path_hash_mismatch') ... FAIL
+test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) ...
+  test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='wrong_actor') ... FAIL
+  test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='risk_root_mismatch') ... FAIL
+  test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='risk_class_mismatch') ... FAIL
+  test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='scan_not_usable') ... FAIL
+  test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='rendered_scope_mismatch') ... FAIL
+
+======================================================================
+FAIL: test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='duplicate_cycle_payload')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 42, in test_round_two_closure_probe_is_fail_closed
+    self.assertEqual(cases[name]['exit'], 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='rendered_presence_contradiction')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 42, in test_round_two_closure_probe_is_fail_closed
+    self.assertEqual(cases[name]['exit'], 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) (case='risk_path_hash_mismatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 42, in test_round_two_closure_probe_is_fail_closed
+    self.assertEqual(cases[name]['exit'], 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='wrong_actor')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 72, in test_cycle_actor_and_record_links_are_validated
+    self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+AssertionError: 0 != 1 : Auditing summary: /tmp/tmp5n9s1nug/input.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /tmp/tmp5n9s1nug/out/attribution_audit.json
+Wrote: /tmp/tmp5n9s1nug/out/coverage_audit.json
+
+
+======================================================================
+FAIL: test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='risk_root_mismatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 72, in test_cycle_actor_and_record_links_are_validated
+    self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+AssertionError: 0 != 1 : Auditing summary: /tmp/tmpxz97v3nf/input.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /tmp/tmpxz97v3nf/out/attribution_audit.json
+Wrote: /tmp/tmpxz97v3nf/out/coverage_audit.json
+
+
+======================================================================
+FAIL: test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='risk_class_mismatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 72, in test_cycle_actor_and_record_links_are_validated
+    self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+AssertionError: 0 != 1 : Auditing summary: /tmp/tmpf_4coksu/input.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /tmp/tmpf_4coksu/out/attribution_audit.json
+Wrote: /tmp/tmpf_4coksu/out/coverage_audit.json
+
+
+======================================================================
+FAIL: test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='scan_not_usable')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 72, in test_cycle_actor_and_record_links_are_validated
+    self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+AssertionError: 0 != 1 : Auditing summary: /tmp/tmpmlk9w7ml/input.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /tmp/tmpmlk9w7ml/out/attribution_audit.json
+Wrote: /tmp/tmpmlk9w7ml/out/coverage_audit.json
+
+
+======================================================================
+FAIL: test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) (case='rendered_scope_mismatch')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/badminton-hub/tests/test_bh07_retention_attribution.py", line 72, in test_cycle_actor_and_record_links_are_validated
+    self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+AssertionError: 0 != 1 : Auditing summary: /tmp/tmp2xzj9tu4/input.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /tmp/tmp2xzj9tu4/out/attribution_audit.json
+Wrote: /tmp/tmp2xzj9tu4/out/coverage_audit.json
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.395s
+
+FAILED (failures=8)

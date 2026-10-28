@@ -1,0 +1,3 @@
+# AT1 round3 — Codex self-check, not independent review
+
+Source f11d20f6c5025f7f774c266298bc0309fcd0de0c, clean before regression. Owner explicitly authorized round3. Tests fail first (2 methods,8 assertions,exit1), then targeted7/7 and full319/319,analyze0,Flutter247+1skip. Original reviewer probes unchanged:3 positive0,10 mutant1. Generated auditor output refers to runtime QA b13e468 only; no new heap/DB/browser runtime. No app/backend/contract changes. Five historical bundles remain byte-identical and verified readonly. Official risk unattributed,app-wide unknown,full V2b/BH-07 not accepted. Independent verdict pending. See handoff and commands for scope,source hashes,exits and NOT RUN.

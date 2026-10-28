@@ -1,3 +1,5 @@
+**Hiện hành:** Codex đã sửa trực tiếp AT1 vòng3 theo ủy quyền chủ dự án; **Chờ reviewer độc lập**, không tự ghi Đạt. Xem [bàn giao mới](codex_retention_attribution_r3_handoff.md),source f11d20f6. Phần dưới là lịch sử bàn giao vòng2/2.
+
 # Bàn giao Điều tra Phân định Giữ Dữ liệu (Retention Attribution) & Bản đồ Phủ (Coverage Map) V2b BH-07
 
 - Ngày: 28/10/2026, Asia/Saigon.

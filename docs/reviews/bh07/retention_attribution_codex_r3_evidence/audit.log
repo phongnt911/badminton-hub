@@ -1,0 +1,11 @@
+Auditing summary: /workspace/badminton-hub/docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json
+Tested SHA: b13e468d33e0d96437b58bb2da6088bff689b9eb
+Residual risks count: 8
+Attribution result: Flutter Web Engine (dart._engine.segmentationCache)
+Attribution status: SUPPORTED_HYPOTHESIS_WITH_LIMITS (valid=True)
+Coverage entities analyzed: 11
+ - Verified clean Web profile: 1
+ - Not measured in app heap: 6
+ - Not run web heap object graph: 1
+Wrote: /workspace/scratch/attribution-fix3/audit_output/attribution_audit.json
+Wrote: /workspace/scratch/attribution-fix3/audit_output/coverage_audit.json

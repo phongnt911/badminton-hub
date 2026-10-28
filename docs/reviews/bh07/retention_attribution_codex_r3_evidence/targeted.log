@@ -1,0 +1,17 @@
+test_audit_real_qa_summary (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_audit_real_qa_summary)
+Audits the genuine b13e468 QA evidence bundle summary. ... ok
+test_coverage_map_completeness (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_coverage_map_completeness)
+Verifies coverage map inventory spans all private models and correctly identifies gaps. ... ok
+test_coverage_map_real_model_fields (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_coverage_map_real_model_fields)
+AT3: Verify inventory fields exist in actual Dart models (no hallucinated fields). ... ok
+test_cycle_actor_and_record_links_are_validated (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_cycle_actor_and_record_links_are_validated) ... ok
+test_reviewer_extra_controls_cases_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_reviewer_extra_controls_cases_fail_closed)
+AT1: All 4 mutant cases from review_eda1ead extra_controls.py must fail-closed (exit 1, UNATTRIBUTED). ... ok
+test_reviewer_probes_cases_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_reviewer_probes_cases_fail_closed)
+AT1: All 3 mutant cases from review_37b4954 probe must fail-closed (exit 1, UNATTRIBUTED). ... ok
+test_round_two_closure_probe_is_fail_closed (tests.test_bh07_retention_attribution.TestRetentionAttribution.test_round_two_closure_probe_is_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.751s
+
+OK

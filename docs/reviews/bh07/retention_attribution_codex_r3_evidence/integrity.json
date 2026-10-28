@@ -1,0 +1,93 @@
+{
+  "attribution_cli_exit": 0,
+  "historical_bundles": {
+    "retention_attribution_evidence": {
+      "before": {
+        "coverage_audit.json": "c029a5a1d99ab6a96a7e7562d0888730ffaed9dee6e97d45c7561cac0b8b4e45",
+        "summary.json": "fdb7b2970f31b416f561688a297de9861138f311b5e5381e4d55cda028bdd0ff",
+        "attribution_audit.json": "3766bed39da7f968363a6c0702dab292bc631e0149646bea680f9be705cae1af",
+        "report.md": "91122ae1decfd8b517da176e58dc76aec426ce394ed4de1a939ba4fa5aa9aaf7",
+        "run.log": "900900a221490b51fe40a634ca9adda9fd25dcd7b35076ef094706fb3bf41426",
+        "hashes.sha256": "3f4a8cbb83ff2abd8f0ad3fe3e7baaecdd3824a3d89ef8b5247d1ec965cfd7f5"
+      },
+      "after": {
+        "coverage_audit.json": "c029a5a1d99ab6a96a7e7562d0888730ffaed9dee6e97d45c7561cac0b8b4e45",
+        "summary.json": "fdb7b2970f31b416f561688a297de9861138f311b5e5381e4d55cda028bdd0ff",
+        "attribution_audit.json": "3766bed39da7f968363a6c0702dab292bc631e0149646bea680f9be705cae1af",
+        "report.md": "91122ae1decfd8b517da176e58dc76aec426ce394ed4de1a939ba4fa5aa9aaf7",
+        "run.log": "900900a221490b51fe40a634ca9adda9fd25dcd7b35076ef094706fb3bf41426",
+        "hashes.sha256": "3f4a8cbb83ff2abd8f0ad3fe3e7baaecdd3824a3d89ef8b5247d1ec965cfd7f5"
+      },
+      "exit": 0,
+      "readonly": true
+    },
+    "review_runtime_b13e468_evidence": {
+      "before": {
+        "summary.json": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+        "report.md": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+        "run.log": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+        "hashes.sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764"
+      },
+      "after": {
+        "summary.json": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+        "report.md": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+        "run.log": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+        "hashes.sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764"
+      },
+      "exit": 0,
+      "readonly": true
+    },
+    "retained_path_r1_evidence": {
+      "before": {
+        "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+        "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+        "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+        "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+      },
+      "after": {
+        "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+        "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+        "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+        "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+      },
+      "exit": 0,
+      "readonly": true
+    },
+    "retained_path_evidence": {
+      "before": {
+        "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+        "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+        "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+        "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+      },
+      "after": {
+        "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+        "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+        "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+        "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+      },
+      "exit": 0,
+      "readonly": true
+    },
+    "app_profile_heap_evidence": {
+      "before": {
+        "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+        "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+        "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+        "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+      },
+      "after": {
+        "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+        "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+        "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+        "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+      },
+      "exit": 0,
+      "readonly": true
+    }
+  },
+  "review_runtime_b13e468_evidence_semantic_exit": 0,
+  "retained_path_r1_evidence_semantic_exit": 0,
+  "retained_path_evidence_semantic_exit": 1,
+  "app_profile_heap_evidence_semantic_exit": 1
+}

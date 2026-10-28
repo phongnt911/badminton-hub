@@ -1,0 +1,137 @@
+{
+  "summary_audit": {
+    "source_record_problems": [],
+    "tested_source_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+    "git_dirty": false,
+    "environment": {
+      "flutter": "Flutter 3.47.6 \u2022 channel stable \u2022 https://github.com/flutter/flutter.git",
+      "chrome": "Chrome/155.0.8059.85",
+      "build_mode": "profile",
+      "consistent": true
+    },
+    "residual_risks_count": 8,
+    "residual_risks_combinations_valid": true,
+    "residual_risks_matrix": {
+      "cycle_1_post_logout_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_logout_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_actor_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_actor_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_logout_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_logout_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_actor_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_actor_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      }
+    },
+    "cycle_findings": [
+      {
+        "cycle": 1,
+        "actor": "cohost",
+        "peer_sentinels_clean": true,
+        "rendered_paths_valid": true
+      },
+      {
+        "cycle": 2,
+        "actor": "member",
+        "peer_sentinels_clean": true,
+        "rendered_paths_valid": true
+      }
+    ]
+  },
+  "attribution": {
+    "engine_criteria": {
+      "path_leads_to_segmentationCache": true,
+      "cache_capacity": 10000,
+      "cache_eviction_lifecycle_hook_present": false,
+      "cache_scope": "flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart"
+    },
+    "app_criteria": {
+      "unrendered_peer_sentinels_occurrences_post_logout": 0,
+      "observed_two_expense_ids_clean": true,
+      "app_wide_model_retention_proven": false,
+      "app_wide_model_retention": "UNKNOWN",
+      "app_static_mutable_caches": 0,
+      "provider_clear_implemented": true
+    },
+    "attribution_verdict": {
+      "valid": true,
+      "status": "SUPPORTED_HYPOTHESIS_WITH_LIMITS",
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": "SCOPED_TWO_IDS_CLEAN_APP_WIDE_UNKNOWN",
+      "observed_peer_ids_absent": true,
+      "app_wide_retention_proven": false,
+      "peer_sentinel_proof_valid": true,
+      "preconditions_valid": true,
+      "failure_reasons": [],
+      "unattributed_status_justification": "Single-path BFS in QA bundle traverses engine segmentationCache. Unrendered peer sentinels drop to 0 occurrences post-logout, supporting the hypothesis that the underlying FinanceExpense model instance was freed by app provider. However, by readiness \u00a74.4 and AGENTS.md, residual risk remains officially unattributed because single-path BFS does not establish full exhaustiveness and native Dart VM is NOT RUN."
+    },
+    "observed": {
+      "bfs_path_length": 12,
+      "bfs_path_target": "dart._engine.segmentationCache._itemMap._strings",
+      "unrendered_peer_sentinels_occurrences_post_logout": 0,
+      "observed_two_expense_ids_absent": true,
+      "measured_scope": "V8 / dart2js web profile on Chrome 155"
+    },
+    "supported_hypothesis": {
+      "component": "Flutter Web Engine text segmentation LRU cache",
+      "cache_capacity": 10000,
+      "source_reference": "flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart:43"
+    },
+    "unknown_and_limits": {
+      "single_path_exhaustiveness_proven": false,
+      "secondary_app_paths_possible": true,
+      "app_wide_retention_status": "UNKNOWN",
+      "dart_vm_desktop_mobile_status": "NOT_RUN",
+      "untested_private_entities_count": 9,
+      "v2b_readiness_status": "CHUA_NGHIEM_THU",
+      "residual_risk_official_classification": "unattributed"
+    }
+  }
+}
