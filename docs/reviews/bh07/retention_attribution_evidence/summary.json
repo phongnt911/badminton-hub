@@ -1,0 +1,50 @@
+{
+  "gate": "V2b — retention attribution & coverage map",
+  "reference": "docs/reviews/bh07/bh07_readiness.md §4.4",
+  "status": "ATTRIBUTION_INVESTIGATED_COVERAGE_MAPPED",
+  "investigation_surface": "V8 heap snapshot evidence audit + Flutter Web Engine source inspection + Coverage gap inventory",
+  "tested_source_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+  "investigation_branch": "feat/bh07-retention-attribution",
+  "base_sha": "90e9d99b848f30fa3e3b2a3e643dbf784baaea9e",
+  "git_dirty": false,
+  "git_dirty_paths": [],
+  "completed_at": "2026-10-28T09:30:00.000Z",
+  "environment": {
+    "os": "win32 10.0.26100",
+    "node": "v24.21.0",
+    "flutter": "Flutter 3.47.6 • channel stable • Framework revision 5fc346839b • Engine revision 692136cb65 • Dart 3.13.5",
+    "chrome": "Chrome/155.0.8059.85",
+    "build_mode": "profile"
+  },
+  "attribution_findings": {
+    "residual_risks_count": 8,
+    "sentinels": ["expense", "expense2"],
+    "path_length": 12,
+    "shortest_retainer_root": "gc_roots",
+    "retainer_terminal_component": "dart._engine.segmentationCache (text_fragmenter.dart:43)",
+    "engine_cache_spec": {
+      "cache_type": "LruCache",
+      "capacity": 10000,
+      "max_text_length": 100,
+      "lifecycle_clear_called_by_framework": false
+    },
+    "app_layer_status": {
+      "models_released": true,
+      "peer_unrendered_sentinels": ["expense_id", "expense_id_2"],
+      "peer_occurrences_post_logout": 0,
+      "peer_reachable_post_logout": false,
+      "static_mutable_collections": 0
+    },
+    "verdict": "Retained by Flutter Web Engine segmentationCache; app layer releases models on logout."
+  },
+  "coverage_map_findings": {
+    "total_entities_mapped": 11,
+    "verified_clean_web_profile": 1,
+    "residual_risk_engine_cache": 1,
+    "not_measured_in_app_heap": 6,
+    "partially_visited_ungated": 1,
+    "reported_note_not_gated": 1,
+    "verified_provider_harness": 1,
+    "verdict": "Full V2b §4.4 remains incomplete and NOT RUN for 6 private entities."
+  }
+}

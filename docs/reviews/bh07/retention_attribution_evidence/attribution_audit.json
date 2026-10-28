@@ -1,0 +1,144 @@
+{
+  "summary_audit": {
+    "tested_source_sha": "b13e468d33e0d96437b58bb2da6088bff689b9eb",
+    "git_dirty": false,
+    "environment": {
+      "flutter": "Flutter 3.47.6 \u2022 channel stable \u2022 https://github.com/flutter/flutter.git",
+      "chrome": "Chrome/155.0.8059.85",
+      "build_mode": "profile",
+      "consistent": true
+    },
+    "residual_risks_count": 8,
+    "residual_risks_matrix": {
+      "cycle_1_post_logout_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_logout_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_actor_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_1_post_actor_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "91dc804e80e6",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_logout_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_logout_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_actor_expense": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      },
+      "cycle_2_post_actor_expense2": {
+        "path_len": 12,
+        "attribution": "unattributed",
+        "path_sha256_12": "5ae7d1eb096c",
+        "class": "rendered",
+        "root_kind": "gc_roots"
+      }
+    },
+    "cycle_findings": [
+      {
+        "cycle": 1,
+        "actor": "cohost",
+        "peer_sentinels_clean": true,
+        "rendered_path_length": 12,
+        "path_has_segmentation_cache": true,
+        "path_has_item_map": true,
+        "path_has_strings": true,
+        "path_has_hash_map_key": true,
+        "frames": [
+          "root",
+          "element -> synthetic",
+          "element -> synthetic",
+          "internal:63 -> closure",
+          "property:call$0 -> closure",
+          "internal:context -> object",
+          "context -> object",
+          "property:segmentationCache -> object",
+          "property:_1 -> object",
+          "property:_itemMap -> object",
+          "property:_strings -> object",
+          "property:<redacted> -> object",
+          "property:hashMapCellKey -> string"
+        ]
+      },
+      {
+        "cycle": 2,
+        "actor": "member",
+        "peer_sentinels_clean": true,
+        "rendered_path_length": 12,
+        "path_has_segmentation_cache": true,
+        "path_has_item_map": true,
+        "path_has_strings": true,
+        "path_has_hash_map_key": true,
+        "frames": [
+          "root",
+          "element -> synthetic",
+          "element -> synthetic",
+          "internal:68 -> closure",
+          "property:call$0 -> closure",
+          "internal:context -> object",
+          "context -> object",
+          "property:segmentationCache -> object",
+          "property:_1 -> object",
+          "property:_itemMap -> object",
+          "property:_strings -> object",
+          "property:<redacted> -> object",
+          "property:hashMapCellKey -> string"
+        ]
+      }
+    ]
+  },
+  "attribution": {
+    "engine_criteria": {
+      "path_leads_to_segmentationCache": true,
+      "cache_capacity": 10000,
+      "cache_eviction_lifecycle_hook_present": false,
+      "cache_scope": "flutter_web_sdk/lib/_engine/engine/text_fragmenter.dart"
+    },
+    "app_criteria": {
+      "unrendered_peer_sentinels_occurrences_post_logout": 0,
+      "app_model_instance_retained": false,
+      "app_static_mutable_caches": 0,
+      "provider_clear_implemented": true
+    },
+    "attribution_verdict": {
+      "rendered_title_retained": true,
+      "primary_retainer_component": "Flutter Web Engine (dart._engine.segmentationCache)",
+      "app_model_retention": false,
+      "peer_sentinel_proof_valid": true,
+      "unattributed_status_justification": "The initial report correctly flagged attribution as unattributed because single-path BFS alone does not prove exhaustiveness. This deeper investigation cross-references the exact engine source (text_fragmenter.dart:43), the exact frame layout, and the unrendered peer sentinel drop (expense_id: 1 -> 0) to conclusively attribute the retainer to the engine text segmentation LRU cache."
+    }
+  }
+}
