@@ -1,0 +1,62 @@
+{
+  "positive": {
+    "expected_auditor_exit": 0,
+    "auditor_exit": 0,
+    "auditor_output": "PASS: evidence bundle at build/bh07_finance_probe_2fww2867 is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      true,
+      true
+    ]
+  },
+  "payment_never_loaded": {
+    "expected_auditor_exit": 1,
+    "auditor_exit": 0,
+    "auditor_output": "PASS: evidence bundle at build/bh07_finance_probe_m21ic7qg is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      false,
+      false
+    ]
+  },
+  "payment_receipt_removed": {
+    "expected_auditor_exit": 1,
+    "auditor_exit": 0,
+    "auditor_output": "PASS: evidence bundle at build/bh07_finance_probe_bnf3kmmf is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      true,
+      true
+    ]
+  },
+  "payment_created_flag_missing": {
+    "expected_auditor_exit": 1,
+    "auditor_exit": 0,
+    "auditor_output": "PASS: evidence bundle at build/bh07_finance_probe_ivo90fon is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      true,
+      true
+    ]
+  },
+  "payment_cleanup_false_control": {
+    "expected_auditor_exit": 1,
+    "auditor_exit": 1,
+    "auditor_output": "FAIL status RUN requires a verified run-only payment fixture cleanup: extra_payment_removed=False\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      true,
+      true
+    ]
+  },
+  "payment_receipt_hash_wrong": {
+    "expected_auditor_exit": 1,
+    "auditor_exit": 0,
+    "auditor_output": "PASS: evidence bundle at build/bh07_finance_probe_v2hmlwhe is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n",
+    "summary_verdict": "PASS",
+    "payment_gated_by_cycle": [
+      true,
+      true
+    ]
+  }
+}

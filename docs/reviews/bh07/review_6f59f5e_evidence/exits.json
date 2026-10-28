@@ -1,0 +1,58 @@
+{
+  "new_verify": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/finance_heap_evidence"
+    ],
+    "exit": 0
+  },
+  "fixture": {
+    "command": [
+      "node",
+      "scripts/bh07_appheap/fixture_controls.js"
+    ],
+    "exit": 0
+  },
+  "old_verify": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/review_runtime_b13e468_evidence"
+    ],
+    "exit": 0
+  },
+  "unit": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests"
+    ],
+    "exit": 0
+  },
+  "analyze": {
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "analyze"
+    ],
+    "exit": 0
+  },
+  "flutter_test": {
+    "command": [
+      "/workspace/toolchains/flutter-review-3.47.7/bin/flutter",
+      "test"
+    ],
+    "exit": 0
+  }
+}

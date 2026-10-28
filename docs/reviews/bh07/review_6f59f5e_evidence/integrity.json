@@ -1,0 +1,508 @@
+{
+  "finance_heap_evidence": {
+    "payloads": 3,
+    "before": {
+      "summary.json": "d1f33d9d3f76bd811a8710dab85d7863ee58421d6b8f37e2cb2d96a11b1764c2",
+      "report.md": "c7508890544680ff15ce7f9e0aa88a57393fc4b3aa1d70cb78771703d1f1d833",
+      "run.log": "ba67018edec39581470b006cdbb223af91410209414e97017326a74a4d28c497",
+      "hashes.sha256": "993edd2f3846c38360355a11eea293599e25835ca6b89ad2f9792c18dd5d162c"
+    },
+    "after": {
+      "summary.json": "d1f33d9d3f76bd811a8710dab85d7863ee58421d6b8f37e2cb2d96a11b1764c2",
+      "report.md": "c7508890544680ff15ce7f9e0aa88a57393fc4b3aa1d70cb78771703d1f1d833",
+      "run.log": "ba67018edec39581470b006cdbb223af91410209414e97017326a74a4d28c497",
+      "hashes.sha256": "993edd2f3846c38360355a11eea293599e25835ca6b89ad2f9792c18dd5d162c"
+    },
+    "exit": 0,
+    "readonly": true
+  },
+  "review_runtime_b13e468_evidence": {
+    "payloads": 3,
+    "before": {
+      "summary.json": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+      "report.md": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+      "run.log": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+      "hashes.sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764"
+    },
+    "after": {
+      "summary.json": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+      "report.md": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+      "run.log": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+      "hashes.sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764"
+    },
+    "exit": 0,
+    "readonly": true
+  },
+  "retained_path_r1_evidence": {
+    "payloads": 3,
+    "before": {
+      "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+      "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+      "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+      "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+    },
+    "after": {
+      "summary.json": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+      "report.md": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+      "run.log": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+      "hashes.sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf"
+    },
+    "exit": 0,
+    "readonly": true
+  },
+  "retained_path_evidence": {
+    "payloads": 3,
+    "before": {
+      "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+      "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+      "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+      "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+    },
+    "after": {
+      "summary.json": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+      "report.md": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+      "run.log": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+      "hashes.sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363"
+    },
+    "exit": 0,
+    "readonly": true
+  },
+  "app_profile_heap_evidence": {
+    "payloads": 3,
+    "before": {
+      "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+      "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+      "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+      "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+    },
+    "after": {
+      "summary.json": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+      "report.md": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+      "run.log": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+      "hashes.sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad"
+    },
+    "exit": 0,
+    "readonly": true
+  },
+  "source": {
+    "handoff_claim": "cd25e1ea1f93e9a7eecdb8da951a37c56bf0a624",
+    "claim_resolves": false,
+    "actual_source": "cd25e1e3557e2013e8991b2031a240818ee84c96",
+    "checkout": "6f59f5e9fb9a8280a46c70aa9ca237b81fb8a023",
+    "no_app_backend_diff": true,
+    "docs_tip_same_source_tree": true,
+    "dirty_before_report": ""
+  },
+  "observed_payment_records": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "epoch": "baseline",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      }
+    },
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "epoch": "owner_active",
+      "payment_id": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 21,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:GestureBinding__instance -> object",
+            "property:WidgetsBinding__observers -> object",
+            "element -> object",
+            "property:_widget -> object",
+            "property:builder -> object",
+            "property:_receiver -> object",
+            "property:_framework$_element -> object",
+            "property:_framework$_parent -> object",
+            "property:_framework$_parent -> object",
+            "property:___InheritedProviderScopeElement__delega -> object",
+            "property:_provider$_value -> object",
+            "property:_finance -> object",
+            "property:payments -> object",
+            "element -> object",
+            "property:paymentId -> string"
+          ],
+          "path_sha256_12": "57e3b232e780",
+          "string_nodes": 1,
+          "exact": true
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 2,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 2,
+          "exact": true
+        }
+      }
+    },
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "epoch": "post_logout",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 1,
+          "exact": false
+        }
+      }
+    },
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "epoch": "post_actor",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 1,
+          "exact": false
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "epoch": "baseline",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "epoch": "owner_active",
+      "payment_id": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 20,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:GestureBinding__instance -> object",
+            "property:WidgetsBinding__observers -> object",
+            "element -> object",
+            "property:_framework$_element -> object",
+            "property:_inheritedElements -> object",
+            "property:_persistent_hash_map$_root -> object",
+            "property:keyValuePairs -> object",
+            "element -> object",
+            "property:___InheritedProviderScopeElement__delega -> object",
+            "property:_provider$_value -> object",
+            "property:_finance -> object",
+            "property:payments -> object",
+            "element -> object",
+            "property:paymentId -> string"
+          ],
+          "path_sha256_12": "ed1a89da694e",
+          "string_nodes": 1,
+          "exact": true
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 2,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 2,
+          "exact": true
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "epoch": "post_logout",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 1,
+          "exact": false
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "epoch": "post_actor",
+      "payment_id": {
+        "present": false,
+        "occurrences": 0,
+        "rendered": false,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": false,
+          "string_nodes": 0,
+          "exact": false
+        }
+      },
+      "payment_ref": {
+        "present": true,
+        "occurrences": 1,
+        "rendered": true,
+        "distinctive": true,
+        "scope": "finance",
+        "path": {
+          "reachable": true,
+          "root_kind": "gc_roots",
+          "path_len": 12,
+          "frames": [
+            "root",
+            "element -> synthetic",
+            "element -> synthetic",
+            "internal:68 -> closure",
+            "property:call$0 -> closure",
+            "internal:context -> object",
+            "context -> object",
+            "property:segmentationCache -> object",
+            "property:_1 -> object",
+            "property:_itemMap -> object",
+            "property:_strings -> object",
+            "property:<redacted> -> object",
+            "property:hashMapCellKey -> string"
+          ],
+          "path_sha256_12": "5ae7d1eb096c",
+          "string_nodes": 1,
+          "exact": false
+        }
+      }
+    }
+  ],
+  "observed_cleanup": {
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "run_only_fixture_created": true,
+    "run_only_fixture_id_sha256_12": "47fa042b8b84",
+    "extra_expense_removed": true,
+    "extra_expense_verified_absent": true,
+    "run_only_payment_created": true,
+    "run_only_payment_id_sha256_12": "852eec161334",
+    "extra_payment_removed": true,
+    "extra_payment_verified_absent": true,
+    "ok": true
+  },
+  "residual_count": 12,
+  "tracked_raw_heap_files": []
+}
