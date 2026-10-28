@@ -165,6 +165,21 @@ const EXTRA_EXPENSE = (() => {
 // `null` until ensureExtraExpense ran: the cleanup then owns nothing.
 let extraFixture = null;
 
+// Run-only payment fixture: tests retention release of real FinancePayment DTOs.
+// Fresh UUID per process, verified absence cleanup, never conflated with roster identity.
+const EXTRA_PAYMENT = (() => {
+  const refSuffix = crypto.randomBytes(4).toString('hex');
+  return {
+    id: crypto.randomUUID(),
+    session_player_id: '30000000-0000-4000-8000-000000000091',
+    amount_vnd: 50000,
+    method: 'bank_transfer',
+    status: 'submitted',
+    reference: `PAYREF-BH07-${refSuffix}`,
+  };
+})();
+let extraPaymentFixture = null;
+
 function assertLocalEndpoint(env) {
   // The measurement mutates a fixture table; a hosted project is never a valid target.
   const url = String((env && env.API_URL) || '');
@@ -223,6 +238,48 @@ async function removeExtraExpense(env) {
   return result;
 }
 
+async function ensureExtraPayment(env) {
+  assertLocalEndpoint(env);
+  const existing = await restGet(env, `payments?id=eq.${EXTRA_PAYMENT.id}&select=id`);
+  if (existing.length) {
+    extraPaymentFixture = { id: EXTRA_PAYMENT.id, created: false, refused: 'run_only_fixture_id_exists' };
+    return extraPaymentFixture;
+  }
+  const seeded = await restGet(env,
+    `session_players?session_id=eq.${UI_SESSION_ID}&select=user_id&limit=1`);
+  if (!seeded.length || !seeded[0].user_id) throw new Error('no seeded session player to borrow user_id from');
+  extraPaymentFixture = { id: EXTRA_PAYMENT.id, created: false };
+  try {
+    await restWrite(env, 'POST', 'payments', [{
+      ...EXTRA_PAYMENT,
+      submitted_by: seeded[0].user_id,
+    }]);
+    extraPaymentFixture.created = true;
+  } catch (error) {
+    const left = await restGet(env, `payments?id=eq.${EXTRA_PAYMENT.id}&select=id`);
+    extraPaymentFixture.created = left.length > 0;
+    extraPaymentFixture.error = error.message;
+    throw error;
+  }
+  return extraPaymentFixture;
+}
+
+async function removeExtraPayment(env) {
+  const state = extraPaymentFixture || { id: EXTRA_PAYMENT.id, created: false };
+  const result = { id: state.id, created: state.created === true, removed: false, verified_absent: false };
+  try {
+    if (state.created === true) {
+      await restWrite(env, 'DELETE', `payments?id=eq.${state.id}`);
+      result.removed = true;
+    }
+    const left = await restGet(env, `payments?id=eq.${state.id}&select=id`);
+    result.verified_absent = left.length === 0;
+  } catch (error) {
+    result.error = error.message;
+  }
+  return result;
+}
+
 function fixtureCleanupOk(cleanup) {
   // A clean fixture means exactly one of: the row we created is gone (removal + absence), or
   // we created nothing and nothing carrying our id exists.
@@ -237,11 +294,14 @@ async function resolveSentinels(env, runId) {
   const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number,account_name&status=eq.active`);
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
   await ensureExtraExpense(env);
+  await ensureExtraPayment(env);
   const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted&order=id.asc`);
   // Identified by id, never by sort order: the run-only row is only ours when we posted it.
   const runOnly = expenses.find((row) => row.id === EXTRA_EXPENSE.id);
   const seededExpense = expenses.find((row) => row.id !== EXTRA_EXPENSE.id);
   if (!seededExpense || !runOnly) throw new Error('two posted expense fixtures are needed for the gated set');
+  const payments = await restGet(env, `payments?id=eq.${EXTRA_PAYMENT.id}&select=id,reference`);
+  if (!payments.length) throw new Error('run-only payment fixture row missing');
   const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
   return {
     bank: banks[0].account_number,
@@ -250,6 +310,8 @@ async function resolveSentinels(env, runId) {
     expense_id: seededExpense.id,
     expense2: runOnly.title,
     expense_id_2: runOnly.id,
+    payment_id: payments[0].id,
+    payment_ref: payments[0].reference,
     players: players.map((row) => row.id),
     probe: `BH07APPHEAPPROBE-${runId}`,
   };
@@ -272,6 +334,8 @@ const SENTINEL_CLASSES = {
   expense2: { rendered: true, distinctive: true, scope: 'finance' },
   expense_id: { rendered: false, distinctive: true, scope: 'finance' },
   expense_id_2: { rendered: false, distinctive: true, scope: 'finance' },
+  payment_id: { rendered: false, distinctive: true, scope: 'finance' },
+  payment_ref: { rendered: true, distinctive: true, scope: 'finance' },
   player_a: { rendered: false, distinctive: true, scope: 'identity' },
   player_b: { rendered: false, distinctive: true, scope: 'identity' },
   probe: { rendered: false, distinctive: true, scope: 'control' },
@@ -283,6 +347,8 @@ const SENTINEL_KINDS = {
   expense2: 'second posted expense title rendered as widget text (run-only fixture row)',
   expense_id: 'posted session expense id returned by get_session_finance (never rendered)',
   expense_id_2: 'second posted expense id from get_session_finance (never rendered)',
+  payment_id: 'submitted session payment id from get_session_finance (never rendered)',
+  payment_ref: 'submitted session payment reference rendered as widget text',
   player_a: 'session player id of the seeded roster (never rendered)',
   player_b: 'second session player id of the seeded roster (never rendered)',
   probe: 'detector sanity marker set on window',
@@ -365,6 +431,7 @@ async function openOwnerFinance(cdp) {
   // and payments of the session (retained-path coverage for §4.4).
   await cdp.clickSemantic((e) => text(e).includes('Tài chính & thu tiền'), 'Open session finance');
   await cdp.waitForSemantic((e) => text(e).includes('Chi phí ('), 'Owner finance screen loaded');
+  await wait(500);
   await cdp.clickBack('Return to session detail');
   await cdp.clickSemantic((e) => text(e).includes('Tổng kết buổi'), 'Summary entry');
   await cdp.waitForSemantic((e) => text(e).includes('Tài chính tổng hợp'), 'Owner finance card loaded');
@@ -481,6 +548,8 @@ async function main() {
       expense_id: sentinels.expense_id,
       expense2: sentinels.expense2,
       expense_id_2: sentinels.expense_id_2,
+      payment_id: sentinels.payment_id,
+      payment_ref: sentinels.payment_ref,
       player_a: sentinels.players[0],
       player_b: sentinels.players[1],
       probe: sentinels.probe,
@@ -604,18 +673,32 @@ async function main() {
       ? await removeExtraExpense(envForCleanup)
       : { id: EXTRA_EXPENSE.id, created: false, removed: false, verified_absent: false,
         error: 'local Supabase environment was never read: absence cannot be verified' };
+    const paymentFixture = envForCleanup
+      ? await removeExtraPayment(envForCleanup)
+      : { id: EXTRA_PAYMENT.id, created: false, removed: false, verified_absent: false,
+        error: 'local Supabase environment was never read: absence cannot be verified' };
     summary.cleanup.run_only_fixture_created = fixture.created === true;
     summary.cleanup.run_only_fixture_id_sha256_12 = sha12(fixture.id);
     summary.cleanup.extra_expense_removed = fixture.removed === true;
     summary.cleanup.extra_expense_verified_absent = fixture.verified_absent === true;
     if (fixture.error) summary.cleanup.extra_expense_error = fixture.error;
-    log(`run-only fixture ${sha12(fixture.id)}: created=${fixture.created === true} `
+
+    summary.cleanup.run_only_payment_created = paymentFixture.created === true;
+    summary.cleanup.run_only_payment_id_sha256_12 = sha12(paymentFixture.id);
+    summary.cleanup.extra_payment_removed = paymentFixture.removed === true;
+    summary.cleanup.extra_payment_verified_absent = paymentFixture.verified_absent === true;
+    if (paymentFixture.error) summary.cleanup.extra_payment_error = paymentFixture.error;
+
+    log(`run-only fixture expense ${sha12(fixture.id)}: created=${fixture.created === true} `
       + `removed=${fixture.removed === true} verified_absent=${fixture.verified_absent === true}`);
+    log(`run-only fixture payment ${sha12(paymentFixture.id)}: created=${paymentFixture.created === true} `
+      + `removed=${paymentFixture.removed === true} verified_absent=${paymentFixture.verified_absent === true}`);
     summary.cleanup.ok = summary.cleanup.dump_dir_outside_repo === true
       && summary.cleanup.raw_snapshots_remaining === 0
       && summary.cleanup.dumps_dir_removed === true
       && summary.cleanup.chrome_profile_dir_removed === true
-      && fixtureCleanupOk(fixture);
+      && fixtureCleanupOk(fixture)
+      && fixtureCleanupOk(paymentFixture);
     if (!summary.cleanup.ok) {
       summary.findings = [...(summary.findings || []), 'heap dump, browser profile or run-only fixture cleanup not verified'];
       if (summary.status === 'RUN') summary.status = 'FAIL';
@@ -836,7 +919,8 @@ function writeEvidence(summary) {
 
 module.exports = {
   findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES,
-  ensureExtraExpense, removeExtraExpense, fixtureCleanupOk, EXTRA_EXPENSE,
+  ensureExtraExpense, removeExtraExpense, ensureExtraPayment, removeExtraPayment,
+  fixtureCleanupOk, EXTRA_EXPENSE, EXTRA_PAYMENT,
 };
 
 if (require.main === module) main().catch((e) => { console.error(e.stack || e.message); process.exitCode = 1; });

@@ -45,8 +45,11 @@ function stub(table = [SEEDED], options = {}) {
     const method = (init.method || 'GET').toUpperCase();
     const parsed = new URL(url);
     calls.push(method);
-    if (!parsed.pathname.endsWith('/session_expenses')) {
+    if (!parsed.pathname.endsWith('/session_expenses') && !parsed.pathname.endsWith('/payments') && !parsed.pathname.endsWith('/session_players')) {
       return { ok: false, status: 404, text: async () => 'unexpected table' };
+    }
+    if (parsed.pathname.endsWith('/session_players')) {
+      return { ok: true, status: 200, json: async () => [{ user_id: '11111111-1111-4111-8111-111111111111' }] };
     }
     if (method === 'GET') return { ok: true, status: 200, json: async () => select(parsed.searchParams) };
     if (method === 'POST') {
@@ -76,7 +79,7 @@ function loadRunner(fetchImpl) {
   };
   vm.createContext(context);
   vm.runInContext(`${source}\nglobalThis.fx = { ensureExtraExpense, removeExtraExpense, `
-    + 'fixtureCleanupOk, EXTRA_EXPENSE };', context);
+    + 'ensureExtraPayment, removeExtraPayment, fixtureCleanupOk, EXTRA_EXPENSE, EXTRA_PAYMENT };', context);
   return context.fx;
 }
 
@@ -163,6 +166,34 @@ control('remote_endpoint_refused', async () => {
   } catch (error) { failed = error.message; }
   check(failed && failed.includes('local'), `failed=${failed}`);
   check(table.calls.length === 0, `no request may leave the machine: ${JSON.stringify(table.calls)}`);
+});
+
+control('payment_collision_refused', async () => {
+  const existing = { id: 'placeholder', session_player_id: 'p1', amount_vnd: 50000, reference: 'REF-OLD' };
+  const table = stub([existing]);
+  const loaded = loadRunner(table.fetch);
+  existing.id = loaded.EXTRA_PAYMENT.id;
+  table.rows.set(existing.id, existing);
+  const created = await loaded.ensureExtraPayment(ENV);
+  check(created.created === false, `created=${JSON.stringify(created)}`);
+  check(created.refused === 'run_only_fixture_id_exists', `refused=${created.refused}`);
+  check(!table.calls.includes('POST'), 'a refused payment collision must not post');
+  const cleanup = await loaded.removeExtraPayment(ENV);
+  check(!table.calls.includes('DELETE'), 'a payment row this run did not create must not be deleted');
+  check(cleanup.removed === false && cleanup.verified_absent === false, JSON.stringify(cleanup));
+  check(loaded.fixtureCleanupOk(cleanup) === false, 'a refused payment collision cannot report a clean fixture');
+});
+
+control('payment_create_then_clean', async () => {
+  const table = stub([]);
+  const fx = loadRunner(table.fetch);
+  const created = await fx.ensureExtraPayment(ENV);
+  check(created.created === true, JSON.stringify(created));
+  check(table.calls.filter((c) => c === 'POST').length === 1, JSON.stringify(table.calls));
+  const cleanup = await fx.removeExtraPayment(ENV);
+  check(cleanup.removed === true && cleanup.verified_absent === true, JSON.stringify(cleanup));
+  check(table.rows.size === 0, 'payment row must be cleaned up');
+  check(fx.fixtureCleanupOk(cleanup) === true, 'payment ownership plus verified absence is clean');
 });
 
 async function main() {

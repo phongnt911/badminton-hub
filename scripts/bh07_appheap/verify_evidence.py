@@ -567,6 +567,20 @@ def _check_cleanup(summary, problems):
     if 'extra_expense_error' in cleanup:
         problems.append(f'run-only fixture cleanup reported an error: {cleanup["extra_expense_error"]}')
 
+    if 'run_only_payment_created' in cleanup:
+        if cleanup.get('run_only_payment_created') is not True:
+            problems.append('status RUN requires run_only_payment_created=True: '
+                            f'run_only_payment_created={cleanup.get("run_only_payment_created")!r}')
+        if not HEX12.fullmatch(str(cleanup.get('run_only_payment_id_sha256_12') or '')):
+            problems.append('status RUN requires the run-only payment id_sha256_12 receipt: '
+                            f'{cleanup.get("run_only_payment_id_sha256_12")!r}')
+        for field in ('extra_payment_removed', 'extra_payment_verified_absent'):
+            if cleanup.get(field) is not True:
+                problems.append(f'status RUN requires a verified run-only payment fixture cleanup: '
+                                f'{field}={cleanup.get(field)!r}')
+        if 'extra_payment_error' in cleanup:
+            problems.append(f'run-only payment fixture cleanup reported an error: {cleanup["extra_payment_error"]}')
+
 
 def _scan_sentinel_names(summary):
     """Every sentinel name any scan claims, so metadata coverage can be checked."""
@@ -751,7 +765,7 @@ def main():
         print(f'FAIL {problem}')
     if problems:
         return 1
-    print(f'PASS: evidence bundle at {Path(args.dir).relative_to(ROOT)} is complete, hash-consistent, '
+    print(f'PASS: evidence bundle at {Path(args.dir).resolve().relative_to(ROOT.resolve())} is complete, hash-consistent, '
           'internally consistent with the oracle, free of raw heap dumps and credentials')
     return 0
 
