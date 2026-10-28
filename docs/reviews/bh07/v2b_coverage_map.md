@@ -1,7 +1,7 @@
 # Bản đồ Độ phủ Bộ nhớ Riêng tư V2b BH-07 (Private Memory & In-Memory Cache Coverage Map)
 
 - Tài liệu tham chiếu: [AGENTS.md](../../../AGENTS.md), [bh07_readiness.md §4.4](bh07_readiness.md), [retention_attribution_report.md](retention_attribution_report.md).
-- Trạng thái hiện hành: **Phạm vi đo thực mới chỉ bao phủ 2 expense ID; các thực thể tài chính/ngân hàng còn lại và listener/object graph Web heap GIỮ NOT RUN.**
+- Trạng thái hiện hành: **Đã mở rộng đo thực thêm payments (`payment_id` clean, `payment_ref` residual risk unattributed) cùng 2 expense ID trên Web profile local; phân định rõ ranh giới DTO charges và chống nhập nhằng roster identity; các thực thể ngân hàng/sổ quỹ còn lại và listener/object graph Web heap GIỮ NOT RUN.**
 
 ---
 
@@ -24,8 +24,8 @@ Bản đồ này vạch rõ từng thực thể dữ liệu riêng tư nhạy c�
 
 | Thực thể | Chi tiết Kỹ thuật | Trạng thái Hiện tại | Yêu cầu để Nghiệm thu Đầy đủ |
 | :--- | :--- | :--- | :--- |
-| **Khoản thu người chơi (`charges`)** | - Model: [`FinanceCharge`](../../../lib/models/finance.dart#L258) (`playerId`, `displayName`, `amountDueVnd`)<br>- Provider: [`FinanceProvider._finance.charges`](../../../lib/providers/finance_provider.dart#L180)<br>- UI: [`SessionFinanceScreen._chargesSection`](../../../lib/screens/session_finance_screen.dart#L648)<br>- Scope: `finance` | **CHƯA ĐO TRONG APP HEAP (NOT RUN)**.<br>Mới chỉ có unit test cấp Provider (`bh07_heap_verification_test.dart`). Runner Chrome chưa khai báo sentinel cho charge trong `run_app_profile_heap.js`. | Cần tạo fixture charge có dữ liệu phân biệt, khai báo sentinel trong `run_app_profile_heap.js`, kiểm tra sự có mặt ở `owner_active` và biến mất ở `post_logout`. |
-| **Khoản thanh toán của người chơi (`payments`)** | - Model: [`FinancePayment`](../../../lib/models/finance.dart#L279) (`paymentId`, `playerId`, `amountVnd`, `method`, `status`, `reference`, `confirmedAt`, `createdAt`)<br>- Provider: [`FinanceProvider._finance.payments`](../../../lib/providers/finance_provider.dart#L180)<br>- UI: [`SessionFinanceScreen._paymentsSection`](../../../lib/screens/session_finance_screen.dart#L696)<br>- Scope: `finance` | **CHƯA ĐO TRONG APP HEAP (NOT RUN)**.<br>Mới chỉ có unit test cấp Provider. Chưa có sentinel cho `paymentId` hay mã tham chiếu thanh toán (`reference`). | Cần bổ sung fixture thanh toán đã ghi nhận (`paymentId` UUID độc nhất), đưa vào danh sách sentinel và chạy kiểm chứng heap thực tế. |
+| **Khoản thu người chơi (`charges`)** | - Model: [`FinanceCharge`](../../../lib/models/finance.dart#L258) (`playerId`, `displayName`, `amountDueVnd`) — *Lưu ý kỹ thuật: DTO KHÔNG có `chargeId`, KHÔNG có `notes`*.<br>- Provider: [`FinanceProvider._finance.charges`](../../../lib/providers/finance_provider.dart#L180)<br>- UI: [`SessionFinanceScreen._chargesSection`](../../../lib/screens/session_finance_screen.dart#L648)<br>- Scope: `finance` | **PHÂN ĐỊNH RANH GIỚI DTO & CHỐNG NHẬP NHẰNG ROSTER IDENTITY (CHƯA CÓ RETAINER TÀI CHÍNH ĐỘC QUYỀN)**.<br>Do `FinanceCharge` chỉ lưu `playerId` (trùng mã thành viên phiên `SessionPlayer.id`), tại `post_logout` toàn bộ provider reset (`occurrences: 0`). Tại `post_cohost`, `playerId` xuất hiện lại qua `SessionProvider._session.players` (path len 18) do Cohost tải lại danh sách thành viên phiên. Đây là retainer danh tính (`scope: identity`), **KHÔNG PHẢI** retain của `FinanceCharge`. Không thể dùng `playerId` làm bằng chứng độc lập cho `FinanceCharge` mà không phân tích retain graph; Provider unit test đã kiểm chứng `_finance.charges` được giải phóng. | Cần thiết lập trường dữ liệu phân biệt độc quyền nếu DTO/schema tương lai bổ sung trường tài chính riêng; kiểm chứng trên Dart VM desktop/mobile. |
+| **Khoản thanh toán của người chơi (`payments`)** | - Model: [`FinancePayment`](../../../lib/models/finance.dart#L279) (`paymentId`, `playerId`, `amountVnd`, `method`, `status`, `reference`, `confirmedAt`, `createdAt`)<br>- Provider: [`FinanceProvider._finance.payments`](../../../lib/providers/finance_provider.dart#L180)<br>- UI: [`SessionFinanceScreen._paymentsSection`](../../../lib/screens/session_finance_screen.dart#L696)<br>- Scope: `finance` | **1. `payment_id` (UUID không render): ĐÃ ĐO THỰC & ĐẠT LOCAL** trên Web profile (cd25e1ea1f93e9a7eecdb8da951a37c56bf0a624, bundle `finance_heap_evidence`). Có mặt tại `owner_active` (path len 20), biến mất 100% (`occurrences: 0`, `reachable: false`) sau logout ở cả 2 chu kỳ Owner -> logout -> Cohost/Member.<br>**2. `payment_ref` (Mã tham chiếu thanh toán rendered): RESIDUAL RISK UNATTRIBUTED**. Chuỗi còn trong `segmentationCache` của Flutter Web Engine (`text_fragmenter.dart`, path len 12), tương tự `expense` title. Việc `payment_id` biến mất 100% hỗ trợ bằng chứng model `FinancePayment` trong Dart heap đã được giải phóng khi logout. | Dart VM desktop/mobile (iOS/Android/Windows) vẫn `NOT RUN`. Cần văn bản chấp thuận rủi ro tồn lưu (Residual-Risk Acceptance) cho chuỗi render trong web engine cache. |
 
 ### 2.3. Nhóm Dữ liệu Ngân hàng CLB & Chỉ dẫn Thanh toán QR (`bank` & `receiver`)
 
@@ -53,27 +53,27 @@ Bản đồ này vạch rõ từng thực thể dữ liệu riêng tư nhạy c�
 
 ## 3. Tổng kết Phân loại Khoảng trống (GAP Summary)
 
-Dựa trên kiểm tra tự động qua [`scripts/bh07_appheap/audit_retention_attribution.py`](../../../scripts/bh07_appheap/audit_retention_attribution.py):
+Dựa trên mở rộng đo thực tế và phân tích DTO:
 - **Tổng số thực thể theo dõi:** 11.
-- **Đã xác minh sạch trên Web Profile Heap:** 1 (`expense_id`).
-- **Residual Risk giữ unattributed:** 1 (`expense_titles` - LRU cache Web engine).
-- **Chưa đo trong App Heap (NOT RUN):** 6 (`charges`, `payments`, `bank`, `receiver`, `payment_instructions`, `ledger`).
+- **Đã xác minh sạch trên Web Profile Heap:** 2 (`expense_id`, `payment_id`).
+- **Residual Risk giữ unattributed (Web engine `segmentationCache`):** 2 (`expense_titles`, `payment_ref`).
+- **Phân định ranh giới DTO / Roster (chưa có trường tài chính riêng biệt):** 1 (`charges`).
+- **Chưa đo trong App Heap (NOT RUN):** 4 (`bank`, `receiver`, `payment_instructions`, `ledger`).
 - **Màn hình đã mở nhưng chưa có Sentinel thích hợp:** 1 (`session_summary`).
 - **Dữ liệu danh tính báo cáo dạng Note:** 1 (`roster_identities`).
 - **Bộ lắng nghe Auth trên Web heap object graph:** 1 (`auth_listeners` - NOT RUN).
-- **Đánh giá chung:** Toàn bộ V2b §4.4 **CHƯA ĐỦ ĐIỀU KIỆN NGHIỆM THU**.
+- **Đánh giá chung:** Toàn bộ V2b §4.4 **CHƯA ĐỦ ĐIỀU KIỆN NGHIỆM THU**. Giữ nguyên NOT RUN cho các thực thể còn lại và Dart VM desktop/mobile.
 
 ## 4. Lộ trình Kỹ thuật Đề xuất để Đóng Hoàn toàn V2b §4.4
 
-Để chuyển trạng thái V2b §4.4 từ **Đạt phạm vi hẹp** sang **Nghiệm thu toàn diện**, cần thực hiện:
+Để tiếp tục thu hẹp khoảng cách và tiến tới nghiệm thu toàn diện V2b §4.4:
 1. **Mở rộng kịch bản `run_app_profile_heap.js`** để duyệt qua:
    - Màn hình Quỹ CLB (`ClubFundScreen` -> nạp `ClubLedger`).
    - Màn hình Cấu hình Ngân hàng CLB (`ClubsScreen` -> nạp `BankAccount`).
    - Màn hình Chỉ dẫn Thanh toán QR (`PaymentInstructions`).
 2. **Bổ sung Sentinel độc nhất cho từng thực thể mới**:
-   - `charge_playerId` (UUID).
-   - `payment_id` (UUID).
    - `transaction_id` (UUID của sổ quỹ).
    - `bank_account_custom` (chuỗi số kèm tiền tố chữ, ví dụ `STK-9999888877`).
+   - `payment_instructions_ref` (mã tham chiếu hướng dẫn thanh toán).
 3. **Đo heap trên Dart VM (desktop hoặc mobile)**:
    - Dựng môi trường có Dart VM service kết nối qua DevTools Memory Profiler trên Windows desktop hoặc Android emulator để đối chiếu hành vi retention mà không bị ảnh hưởng bởi `segmentationCache` của web engine.

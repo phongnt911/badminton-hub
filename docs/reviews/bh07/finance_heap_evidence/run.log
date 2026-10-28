@@ -1,0 +1,15 @@
+[2026-10-28T11:32:52.286Z] building Flutter web profile bundle (dart-defines not printed)
+[2026-10-28T11:33:33.946Z] cycle 1: actor path Owner -> logout -> cohost
+[2026-10-28T11:33:41.833Z] c1_baseline: snapshot 58375056 bytes sha=677ba16ee0b7 ok=true present={"bank":false,"receiver":false,"expense":false,"expense_id":false,"expense2":false,"expense_id_2":false,"payment_id":false,"payment_ref":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-28T11:34:17.244Z] c1_owner_active: snapshot 84198009 bytes sha=a58335d7b4c3 ok=true present={"bank":true,"receiver":false,"expense":true,"expense_id":true,"expense2":true,"expense_id_2":true,"payment_id":true,"payment_ref":true,"player_a":true,"player_b":true,"probe":true}
+[2026-10-28T11:34:44.369Z] c1_post_logout: snapshot 69474034 bytes sha=87c92e9d9f99 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"payment_id":false,"payment_ref":true,"player_a":false,"player_b":false,"probe":true}
+[2026-10-28T11:35:12.588Z] c1_post_cohost: snapshot 82094864 bytes sha=67f24be3c850 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"payment_id":false,"payment_ref":true,"player_a":true,"player_b":true,"probe":true}
+[2026-10-28T11:35:12.833Z] cycle 2: actor path Owner -> logout -> member
+[2026-10-28T11:35:20.831Z] c2_baseline: snapshot 58451489 bytes sha=e54b480814a7 ok=true present={"bank":false,"receiver":false,"expense":false,"expense_id":false,"expense2":false,"expense_id_2":false,"payment_id":false,"payment_ref":false,"player_a":false,"player_b":false,"probe":true}
+[2026-10-28T11:35:56.400Z] c2_owner_active: snapshot 84612140 bytes sha=948c9d81219c ok=true present={"bank":true,"receiver":false,"expense":true,"expense_id":true,"expense2":true,"expense_id_2":true,"payment_id":true,"payment_ref":true,"player_a":true,"player_b":true,"probe":true}
+[2026-10-28T11:36:23.863Z] c2_post_logout: snapshot 69485112 bytes sha=4a5741c8be23 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"payment_id":false,"payment_ref":true,"player_a":false,"player_b":false,"probe":true}
+[2026-10-28T11:36:47.849Z] c2_post_member: snapshot 73974665 bytes sha=36761c4e0bd6 ok=true present={"bank":false,"receiver":false,"expense":true,"expense_id":false,"expense2":true,"expense_id_2":false,"payment_id":false,"payment_ref":true,"player_a":false,"player_b":false,"probe":true}
+[2026-10-28T11:36:48.110Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-28T11:36:48.110Z] chrome stderr: DevTools listening on ws://<redacted>
+[2026-10-28T11:36:48.243Z] run-only fixture expense 47fa042b8b84: created=true removed=true verified_absent=true
+[2026-10-28T11:36:48.243Z] run-only fixture payment 852eec161334: created=true removed=true verified_absent=true
