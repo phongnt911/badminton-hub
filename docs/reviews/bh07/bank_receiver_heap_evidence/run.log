@@ -1,0 +1,8 @@
+[2026-10-29T03:38:02.280Z] building Flutter web profile bundle (dart-defines not printed)
+[2026-10-29T03:38:34.946Z] cycle 1: actor path Owner -> logout -> cohost
+[2026-10-29T03:38:41.940Z] c1_baseline: snapshot 58384445 bytes sha=803761d744d7 ok=true present={"bank":false,"receiver":false,"expense":false,"expense_id":false,"expense2":false,"expense_id_2":false,"payment_id":false,"payment_ref":false,"player_a":false,"player_b":false,"probe":true,"bank_account_id":false}
+[2026-10-29T03:39:33.933Z] aborted: Could not find semantic element to click for: Clubs tab
+[2026-10-29T03:39:34.067Z] run-only fixture expense b85d1a100889: created=true removed=true verified_absent=true
+[2026-10-29T03:39:34.067Z] run-only fixture payment ee689bbad9ca: created=true removed=true verified_absent=true
+[2026-10-29T03:39:34.086Z] disposable bank fixture c7c6b1ad2ee6: created=true removed=true verified_absent=true
+[2026-10-29T03:39:34.086Z] disposable club fixture 1e591d2bb5a7: created=true removed=true verified_absent=true

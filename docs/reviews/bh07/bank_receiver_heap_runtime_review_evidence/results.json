@@ -1,0 +1,40 @@
+{
+  "auditor_exit": 1,
+  "status": "NOT RUN",
+  "verdict": null,
+  "tested_source_sha": "c73bc4404cb6992141797ace13e1009db83342b0",
+  "git_dirty": false,
+  "error": "Could not find semantic element to click for: Clubs tab",
+  "cycles": [],
+  "cleanup": {
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": false,
+    "run_only_fixture_created": true,
+    "run_only_fixture_id_sha256_12": "b85d1a100889",
+    "extra_expense_removed": true,
+    "extra_expense_verified_absent": true,
+    "run_only_payment_created": true,
+    "run_only_payment_id_sha256_12": "ee689bbad9ca",
+    "extra_payment_removed": true,
+    "extra_payment_verified_absent": true,
+    "disposable_club_id_sha256_12": "1e591d2bb5a7",
+    "disposable_bank_id_sha256_12": "c7c6b1ad2ee6",
+    "disposable_club_created": true,
+    "disposable_bank_created": true,
+    "disposable_club_removed": true,
+    "disposable_bank_removed": true,
+    "disposable_club_verified_absent": true,
+    "disposable_bank_verified_absent": true,
+    "ok": false
+  },
+  "readonly": {
+    "historical_evidence": {
+      "count": 1606,
+      "mismatches": []
+    },
+    "app_backend": {
+      "count": 87,
+      "mismatches": []
+    }
+  }
+}

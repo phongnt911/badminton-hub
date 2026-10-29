@@ -1,3 +1,5 @@
+**2026-10-29 — Bank/receiver heap: NOT ACCEPTED; STOP after correction round 3/3.** Fresh reviewer runtime at `c73bc4404cb6992141797ace13e1009db83342b0` (`git_dirty: false`) aborted at `Clubs tab`: runner expects `Câu Lạc Bộ`, actual destination `CLB & Quỹ`. No completed cycle/verdict; bank coverage NOT RUN. DB fixtures removed and independent before/after row fingerprints match. Chrome profile cleanup remains incomplete; Stop-Process is blocked by lean-ctx. 358 Python, analyze0,247Flutter+1skip do not override runtime failure. BKR8/BKR9 open; no fourth round, merge/push/deploy/pilot/BH-08. See [runtime review](bank_receiver_heap_runtime_review.md). Earlier status below is historical.
+
 # Bàn giao Kỹ thuật: Bank & Receiver Heap Coverage (Round 3/3)
 
 > **Thông báo quan trọng**: Đây là tài liệu bàn giao từ phía tác giả triển khai (author handoff), **không phải biên bản nghiệm thu độc lập**. Toàn bộ gói công việc BH-07 chưa được nghiệm thu; không merge, deploy, push, pilot hoặc chuyển sang BH-08.

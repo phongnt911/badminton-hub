@@ -1,0 +1,7 @@
+FAIL summary.json missing field: verdict
+FAIL summary status is 'NOT RUN', not RUN: the gate has no successful measurement
+FAIL summary must record exactly 2 cycles, got 0
+FAIL status RUN requires verified heap dump cleanup: ok
+FAIL status RUN requires verified heap dump cleanup: dump_dir_outside_repo
+FAIL status RUN requires verified heap dump cleanup: chrome_profile_dir_removed
+FAIL status RUN requires zero raw heap snapshots left on disk
