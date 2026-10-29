@@ -1,0 +1,28 @@
+{
+  "base": "94fd997674285f4bfe9e56a5ad8e70c06eb8d84b",
+  "surface": "fake HTTP/FS or synthetic evidence clones only; no live bank runtime",
+  "http_before_round2": {
+    "archive_id": "7e9c7c84a5c28a10",
+    "response_status": 403,
+    "status_forwarded": null,
+    "claimed_after_rejection": true,
+    "deleted_after_rejection": true
+  },
+  "graph_before_round2": {
+    "archive_id": "5ae463f0c1da49d8",
+    "bank_positive_exit": 0,
+    "rendered_owner_values_unreachable_exit": 0,
+    "rendered_baseline_path_retained_exit": 0
+  },
+  "publication_after_round1": {
+    "archive_id": "e77cf5164c5e56b0",
+    "raw_number": false,
+    "raw_name": false,
+    "registered_before_error": true
+  },
+  "hash_baseline": {
+    "historical_files": 1606,
+    "app_backend_files": 87,
+    "changed": 0
+  }
+}

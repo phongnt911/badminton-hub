@@ -1,0 +1,82 @@
+{
+  "python": {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests"
+    ],
+    "exit": 0
+  },
+  "console": {
+    "command": [
+      "node",
+      ".tmp/bank_console_probe.cjs"
+    ],
+    "exit": 0
+  },
+  "http403": {
+    "command": [
+      "node",
+      ".tmp/bank_httpstatus_probe.cjs"
+    ],
+    "exit": 0
+  },
+  "graph": {
+    "command": [
+      "python",
+      ".tmp/bank_owner_graph_probe.py"
+    ],
+    "exit": 0
+  },
+  "fixture": {
+    "command": [
+      "node",
+      "scripts/bh07_appheap/fixture_controls.js"
+    ],
+    "exit": 0
+  },
+  "finance_audit": {
+    "command": [
+      "python",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/finance_heap_evidence"
+    ],
+    "exit": 0
+  },
+  "legacy_audit": {
+    "command": [
+      "python",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/review_runtime_b13e468_evidence"
+    ],
+    "exit": 0
+  },
+  "readonly": {
+    "historical_evidence": {
+      "count": 1606,
+      "mismatches": []
+    },
+    "app_backend": {
+      "count": 87,
+      "mismatches": []
+    }
+  },
+  "flutter_analyze": {
+    "exit": 0,
+    "issues": 0,
+    "archive": "7d5829e847c8e700"
+  },
+  "flutter_test": {
+    "exit": 0,
+    "passed": 247,
+    "skipped": 1,
+    "archive": "681f1c3f6eb1c0b6"
+  }
+}

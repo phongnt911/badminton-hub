@@ -1,0 +1,9 @@
+ok collision_refused
+ok create_then_clean
+ok post_rejected_row_committed
+ok post_rejected_row_absent
+ok delete_rejected
+ok remote_endpoint_refused
+ok payment_collision_refused
+ok payment_create_then_clean
+fixture controls: 8/8 controls passed

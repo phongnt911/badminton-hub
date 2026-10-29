@@ -17,7 +17,53 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '../..');
-const OUT = path.resolve(process.env.BH07_APPHEAP_EVIDENCE || path.join(ROOT, 'docs/reviews/bh07/app_profile_heap_evidence'));
+const isBankCoverage = process.argv.includes('--bank-coverage');
+const DEFAULT_EVIDENCE_REL = isBankCoverage ? 'docs/reviews/bh07/bank_receiver_heap_evidence' : 'docs/reviews/bh07/app_profile_heap_evidence';
+const OUT = path.resolve(process.env.BH07_APPHEAP_EVIDENCE || path.join(ROOT, DEFAULT_EVIDENCE_REL));
+
+function isNestedUnderEvidence(targetPath) {
+  let curr = path.resolve(targetPath);
+  let parent = path.dirname(curr);
+  while (parent && parent !== curr && parent !== ROOT) {
+    if (fs.existsSync(path.join(parent, 'hashes.sha256')) || fs.existsSync(path.join(parent, 'summary.json'))) {
+      return true;
+    }
+    curr = parent;
+    parent = path.dirname(curr);
+  }
+  return false;
+}
+
+function claimOutputDirectory(outDir, isBankCoverageMode) {
+  const resolved = path.resolve(outDir);
+  if (!isBankCoverageMode) {
+    fs.mkdirSync(resolved, { recursive: true });
+    return { claimed: true, dir: resolved };
+  }
+
+  // 1. Do not permit nesting new output under an existing published evidence bundle
+  if (isNestedUnderEvidence(resolved)) {
+    throw new Error(`refusing to nest bank evidence under existing evidence bundle: ${resolved}`);
+  }
+
+  // 2. Reject pre-existing target (even if empty or populated)
+  if (fs.existsSync(resolved)) {
+    throw new Error(`refusing to overwrite existing output directory for --bank-coverage: ${resolved}`);
+  }
+
+  // 3. Atomically claim new directory (parent may be created recursively, target must be atomic)
+  const parent = path.dirname(resolved);
+  if (!fs.existsSync(parent)) {
+    fs.mkdirSync(parent, { recursive: true });
+  }
+  try {
+    fs.mkdirSync(resolved);
+  } catch (err) {
+    throw new Error(`failed to atomically claim output directory for --bank-coverage (${err.code}): ${resolved}`);
+  }
+
+  return { claimed: true, dir: resolved };
+}
 const DUMPS = path.join(os.tmpdir(), `bh07_appheap_dumps_${process.pid}`);
 const ORACLE = path.join(__dirname, 'heap_oracle.py');
 const DRIVER = path.join(ROOT, 'scripts/bh07_browser/run_browser_verification.js');
@@ -43,7 +89,7 @@ const ACTORS = ['cohost', 'member'];
 const logLines = [];
 function log(msg) {
   const line = `[${new Date().toISOString()}] ${msg}`;
-  console.log(line);
+  console.log(redactSentinels(line));
   logLines.push(line);
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -133,7 +179,11 @@ async function restGet(env, query) {
   const res = await fetch(`${env.API_URL}/rest/v1/${query}`, {
     headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}` },
   });
-  if (!res.ok) throw new Error(`PostgREST ${query}: ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`PostgREST ${query}: ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -148,7 +198,12 @@ async function restWrite(env, method, query, body) {
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`PostgREST ${method} ${query}: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  if (!res.ok) {
+    const text = (await res.text()).slice(0, 200);
+    const err = new Error(`PostgREST ${method} ${query}: ${res.status} ${text}`);
+    err.status = res.status;
+    throw err;
+  }
 }
 
 // The shared browser seed ships one posted expense per session, and a single finance id is
@@ -280,6 +335,45 @@ async function removeExtraPayment(env) {
   return result;
 }
 
+const RAW_SENTINEL_VALUES = {};
+const { DisposableBankFixture } = require('./disposable_bank_fixture');
+let disposableBankFixture = null;
+
+function registerDisposableBankRedactions(fixture) {
+  if (!fixture) return;
+  if (fixture.accountNumber) RAW_SENTINEL_VALUES['bank'] = fixture.accountNumber;
+  if (fixture.accountName) RAW_SENTINEL_VALUES['receiver'] = fixture.accountName;
+  if (fixture.bankId) RAW_SENTINEL_VALUES['bank_account_id'] = fixture.bankId;
+  if (fixture.clubId) RAW_SENTINEL_VALUES['disposable_club_id'] = fixture.clubId;
+  if (fixture.memberId) RAW_SENTINEL_VALUES['disposable_member_id'] = fixture.memberId;
+}
+
+function makeEnvTransport(env) {
+  return {
+    apiUrl: env.API_URL,
+    restGet: (query) => restGet(env, query),
+    restWrite: (method, table, payload) => restWrite(env, method, table, payload),
+  };
+}
+
+async function ensureDisposableBank(env) {
+  assertLocalEndpoint(env);
+  if (!disposableBankFixture) {
+    disposableBankFixture = new DisposableBankFixture();
+  }
+  // Register private values with publication redactor BEFORE any POST can fail
+  registerDisposableBankRedactions(disposableBankFixture);
+  await disposableBankFixture.ensure(makeEnvTransport(env));
+  return disposableBankFixture;
+}
+
+async function removeDisposableBank(env) {
+  if (!disposableBankFixture) {
+    disposableBankFixture = new DisposableBankFixture();
+  }
+  return await disposableBankFixture.cleanup(makeEnvTransport(env));
+}
+
 function fixtureCleanupOk(cleanup) {
   // A clean fixture means exactly one of: the row we created is gone (removal + absence), or
   // we created nothing and nothing carrying our id exists.
@@ -290,11 +384,14 @@ function fixtureCleanupOk(cleanup) {
 
 // Sentinels are real fixture values that only the Owner's private payloads carry. Each one
 // declares the class the gate depends on (see SENTINEL_CLASSES below).
-async function resolveSentinels(env, runId) {
+async function resolveSentinels(env, runId, isBankCoverageMode = false) {
   const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number,account_name&status=eq.active`);
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
   await ensureExtraExpense(env);
   await ensureExtraPayment(env);
+  if (isBankCoverageMode) {
+    await ensureDisposableBank(env);
+  }
   const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted&order=id.asc`);
   // Identified by id, never by sort order: the run-only row is only ours when we posted it.
   const runOnly = expenses.find((row) => row.id === EXTRA_EXPENSE.id);
@@ -303,6 +400,21 @@ async function resolveSentinels(env, runId) {
   const payments = await restGet(env, `payments?id=eq.${EXTRA_PAYMENT.id}&select=id,reference`);
   if (!payments.length) throw new Error('run-only payment fixture row missing');
   const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
+  if (isBankCoverageMode) {
+    return {
+      bank: disposableBankFixture.accountNumber,
+      receiver: disposableBankFixture.accountName,
+      bank_account_id: disposableBankFixture.bankId,
+      expense: seededExpense.title,
+      expense_id: seededExpense.id,
+      expense2: runOnly.title,
+      expense_id_2: runOnly.id,
+      payment_id: payments[0].id,
+      payment_ref: payments[0].reference,
+      players: players.map((row) => row.id),
+      probe: `BH07APPHEAPPROBE-${runId}`,
+    };
+  }
   return {
     bank: banks[0].account_number,
     receiver: banks[0].account_name,
@@ -437,6 +549,27 @@ async function openOwnerFinance(cdp) {
   await cdp.waitForSemantic((e) => text(e).includes('Tài chính tổng hợp'), 'Owner finance card loaded');
 }
 
+async function openOwnerBank(cdp, clubName, bankCode = 'VCB') {
+  await home(cdp);
+  // Navigate to Clubs tab
+  await cdp.clickSemantic((e) => e.role === 'tab' && (e.aria === 'Câu Lạc Bộ' || text(e).includes('Câu Lạc Bộ')), 'Clubs tab');
+  await wait(600);
+  // Select disposable club
+  await cdp.clickSemantic((e) => text(e).includes(clubName), 'Select disposable test club');
+  await wait(800);
+  // Look for Bank configuration / tab
+  const all = await cdp.getAllSemantics();
+  const bankTab = all.find((e) => text(e).includes('Tài khoản quỹ') || text(e).includes('Ngân hàng') || e.aria === 'Tài khoản quỹ');
+  if (bankTab) {
+    await cdp.clickSemantic((e) => text(e).includes('Tài khoản quỹ') || text(e).includes('Ngân hàng') || e.aria === 'Tài khoản quỹ', 'Bank tab');
+    await wait(600);
+  }
+  // Wait for bank account card to be displayed in UI
+  await cdp.waitForSemantic((e) => text(e).includes('ĐANG DÙNG') || text(e).includes('VCB') || text(e).includes(bankCode), 'Bank account loaded');
+  await wait(500);
+  await home(cdp);
+}
+
 async function openCohostSummary(cdp) {
   await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
   await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
@@ -483,7 +616,7 @@ async function takeSnapshot(cdp, label, sentinelsPath, classesPath) {
   return scanned;
 }
 
-async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp) {
+async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverageMode = false) {
   const epochs = {};
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
   await wait(500);
@@ -491,6 +624,9 @@ async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp) {
 
   await login(cdp, 'ownera');
   await openOwnerFinance(cdp);
+  if (isBankCoverageMode && disposableBankFixture) {
+    await openOwnerBank(cdp, disposableBankFixture.clubName, disposableBankFixture.bankCode);
+  }
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
   epochs.owner_active = await takeSnapshot(cdp, `c${cycle}_owner_active`, sentinelsPath, classesPath);
 
@@ -506,14 +642,22 @@ async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp) {
 }
 
 let PROBE_VALUE = '';
-// Live sentinel values, kept only in memory so publication can be checked and redacted.
-const RAW_SENTINEL_VALUES = {};
 
 async function main() {
-  fs.mkdirSync(OUT, { recursive: true });
+  const argv = process.argv.slice(2);
+  const isBankCoverage = argv.includes('--bank-coverage');
+
+  try {
+    claimOutputDirectory(OUT, isBankCoverage);
+  } catch (claimErr) {
+    console.error(redactSentinels(`[FATAL] Output directory claim rejected: ${claimErr.message}`));
+    console.log(JSON.stringify(redactValue({ status: 'NOT RUN', verdict: null, error: claimErr.message })));
+    process.exitCode = 1;
+    return;
+  }
+
   fs.mkdirSync(DUMPS, { recursive: true });
   const runId = crypto.randomBytes(4).toString('hex');
-  const argv = process.argv.slice(2);
   const cycles = Number(argv[argv.indexOf('--cycles') + 1]) || 2;
   const reuseBuild = argv.includes('--reuse-build');
   const summary = {
@@ -539,7 +683,15 @@ async function main() {
     const env = supabaseEnv();
     envForCleanup = env;
     extraFixture = null;
-    const sentinels = await resolveSentinels(env, runId);
+    disposableBankFixture = null;
+    if (isBankCoverage) {
+      summary.coverage_profile = 'bank';
+      summary.bank_coverage_contract = {
+        version: '1.0',
+        required_owner_load: ['bank_account_id', 'bank', 'receiver'],
+      };
+    }
+    const sentinels = await resolveSentinels(env, runId, isBankCoverage);
     PROBE_VALUE = sentinels.probe;
     const values = {
       bank: sentinels.bank,
@@ -554,23 +706,33 @@ async function main() {
       player_b: sentinels.players[1],
       probe: sentinels.probe,
     };
+    if (isBankCoverage) {
+      values.bank_account_id = sentinels.bank_account_id;
+    }
     if (!values.player_b) throw new Error('the fixture session needs two players for the gated set');
     Object.assign(RAW_SENTINEL_VALUES, values);
-    // `available` is explicit so the auditor never has to guess why a length/hash is
-    // missing (review 76334e2 AH8). A value the Owner surface never loaded is reported as
-    // not loaded instead of being invented as coverage.
+    const activeSentinelClasses = { ...SENTINEL_CLASSES };
+    const activeSentinelKinds = { ...SENTINEL_KINDS };
+    if (isBankCoverage) {
+      activeSentinelClasses.bank = { rendered: true, distinctive: true, scope: 'bank' };
+      activeSentinelClasses.receiver = { rendered: true, distinctive: true, scope: 'bank' };
+      activeSentinelClasses.bank_account_id = { rendered: false, distinctive: true, scope: 'finance' };
+      activeSentinelKinds.bank = 'disposable club bank account number rendered as widget text';
+      activeSentinelKinds.receiver = 'disposable club bank account holder name rendered as widget text';
+      activeSentinelKinds.bank_account_id = 'disposable club bank account ID from club_bank_accounts (never rendered)';
+    }
     summary.sentinels = Object.fromEntries(Object.entries(values).filter(([, v]) => v)
       .map(([name, value]) => [name, {
         available: true,
         sha256_12: sha12(value),
         length: value.length,
-        kind: SENTINEL_KINDS[name],
-        ...SENTINEL_CLASSES[name],
+        kind: activeSentinelKinds[name],
+        ...activeSentinelClasses[name],
       }]));
     const sentinelsPath = path.join(DUMPS, 'sentinels.json');
     const classesPath = path.join(DUMPS, 'classes.json');
     fs.writeFileSync(sentinelsPath, JSON.stringify(values));
-    fs.writeFileSync(classesPath, JSON.stringify(SENTINEL_CLASSES));
+    fs.writeFileSync(classesPath, JSON.stringify(activeSentinelClasses));
 
     if (reuseBuild) {
       // A build this run did not produce cannot prove profile provenance (review AH5).
@@ -603,7 +765,7 @@ async function main() {
       summary.environment.chrome = chrome.version['Browser'] || chrome.version.Browser;
       await cdp.waitForSemantic((e) => text(e).includes('Bạn đang xem dưới dạng khách'), 'guest baseline UI', 30000);
       const origin = await cdp.evaluate('performance.timeOrigin');
-      const epochs = await runCycle(cycle, actor, sentinelsPath, classesPath, cdp);
+      const epochs = await runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverage);
       const originAfter = await cdp.evaluate('performance.timeOrigin');
       if (origin !== originAfter) throw new Error(`cycle ${cycle}: document reloaded between epochs (${origin} != ${originAfter})`);
       const scans = {};
@@ -693,12 +855,62 @@ async function main() {
       + `removed=${fixture.removed === true} verified_absent=${fixture.verified_absent === true}`);
     log(`run-only fixture payment ${sha12(paymentFixture.id)}: created=${paymentFixture.created === true} `
       + `removed=${paymentFixture.removed === true} verified_absent=${paymentFixture.verified_absent === true}`);
+
+    let bankReceipt = null;
+    let bankCleanupOk = true;
+    if (disposableBankFixture || isBankCoverage) {
+      if (disposableBankFixture && envForCleanup) {
+        bankReceipt = await disposableBankFixture.cleanup(makeEnvTransport(envForCleanup));
+      } else if (disposableBankFixture) {
+        bankReceipt = await disposableBankFixture.cleanup({ apiUrl: null, restGet: async () => [], restWrite: async () => {} });
+      } else {
+        bankReceipt = {
+          disposable_club_id_sha256_12: '000000000000',
+          disposable_bank_id_sha256_12: '000000000000',
+          disposable_club_created: false,
+          disposable_bank_created: false,
+          disposable_club_removed: false,
+          disposable_bank_removed: false,
+          disposable_club_verified_absent: false,
+          disposable_bank_verified_absent: false,
+          error: 'disposable bank fixture was never created',
+        };
+      }
+      summary.cleanup.disposable_club_id_sha256_12 = bankReceipt.disposable_club_id_sha256_12;
+      summary.cleanup.disposable_bank_id_sha256_12 = bankReceipt.disposable_bank_id_sha256_12;
+      summary.cleanup.disposable_club_created = bankReceipt.disposable_club_created === true;
+      summary.cleanup.disposable_bank_created = bankReceipt.disposable_bank_created === true;
+      summary.cleanup.disposable_club_removed = bankReceipt.disposable_club_removed === true;
+      summary.cleanup.disposable_bank_removed = bankReceipt.disposable_bank_removed === true;
+      summary.cleanup.disposable_club_verified_absent = bankReceipt.disposable_club_verified_absent === true;
+      summary.cleanup.disposable_bank_verified_absent = bankReceipt.disposable_bank_verified_absent === true;
+      if (bankReceipt.error) {
+        summary.cleanup.disposable_bank_error = bankReceipt.error;
+        summary.cleanup.disposable_club_error = bankReceipt.error;
+      }
+      log(`disposable bank fixture ${bankReceipt.disposable_bank_id_sha256_12}: created=${bankReceipt.disposable_bank_created === true} `
+        + `removed=${bankReceipt.disposable_bank_removed === true} verified_absent=${bankReceipt.disposable_bank_verified_absent === true}`);
+      log(`disposable club fixture ${bankReceipt.disposable_club_id_sha256_12}: created=${bankReceipt.disposable_club_created === true} `
+        + `removed=${bankReceipt.disposable_club_removed === true} verified_absent=${bankReceipt.disposable_club_verified_absent === true}`);
+
+      if (isBankCoverage) {
+        bankCleanupOk = !bankReceipt.error
+          && bankReceipt.disposable_bank_created === true
+          && bankReceipt.disposable_club_created === true
+          && bankReceipt.disposable_bank_removed === true
+          && bankReceipt.disposable_club_removed === true
+          && bankReceipt.disposable_bank_verified_absent === true
+          && bankReceipt.disposable_club_verified_absent === true;
+      }
+    }
+
     summary.cleanup.ok = summary.cleanup.dump_dir_outside_repo === true
       && summary.cleanup.raw_snapshots_remaining === 0
       && summary.cleanup.dumps_dir_removed === true
       && summary.cleanup.chrome_profile_dir_removed === true
       && fixtureCleanupOk(fixture)
-      && fixtureCleanupOk(paymentFixture);
+      && fixtureCleanupOk(paymentFixture)
+      && (!isBankCoverage || bankCleanupOk);
     if (!summary.cleanup.ok) {
       summary.findings = [...(summary.findings || []), 'heap dump, browser profile or run-only fixture cleanup not verified'];
       if (summary.status === 'RUN') summary.status = 'FAIL';
@@ -920,7 +1132,11 @@ function writeEvidence(summary) {
 module.exports = {
   findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES,
   ensureExtraExpense, removeExtraExpense, ensureExtraPayment, removeExtraPayment,
+  ensureDisposableBank, removeDisposableBank, registerDisposableBankRedactions, DisposableBankFixture,
+  openOwnerBank,
   fixtureCleanupOk, EXTRA_EXPENSE, EXTRA_PAYMENT,
+  claimOutputDirectory, isNestedUnderEvidence,
+  restGet, restWrite, makeEnvTransport,
 };
 
-if (require.main === module) main().catch((e) => { console.error(e.stack || e.message); process.exitCode = 1; });
+if (require.main === module) main().catch((e) => { console.error(redactSentinels(e.stack || e.message)); process.exitCode = 1; });

@@ -824,6 +824,68 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
                             '(precondition not met: payment_id not loaded in owner_active '
                             'or already visible at baseline)')
 
+        # Bank coverage contract: when bank coverage is declared via bank_account_id in owner_sentinels
+        if 'bank_account_id' in owner_sentinels:
+            if 'bank_account_id' not in gated:
+                verdict_ok = False
+                findings.append('owner_active: bank_account_id declared for bank coverage was not gated '
+                                '(precondition not met: bank_account_id not loaded in owner_active '
+                                'or already visible at baseline)')
+            ba_rec = owner_sentinels.get('bank_account_id') or {}
+            if ba_rec.get('rendered') is True:
+                verdict_ok = False
+                findings.append('owner_active: bank_account_id must be declared rendered: false')
+            if ba_rec.get('scope') != 'finance':
+                verdict_ok = False
+                findings.append('owner_active: bank_account_id must be declared scope: finance')
+            if ba_rec.get('distinctive') is not True:
+                verdict_ok = False
+                findings.append('owner_active: bank_account_id must be declared distinctive: true')
+
+            owner_paths = (scans.get('owner_active') or {}).get('paths')
+            owner_paths = owner_paths if isinstance(owner_paths, dict) else {}
+            base_paths = (scans.get('baseline') or {}).get('paths')
+            base_paths = base_paths if isinstance(base_paths, dict) else {}
+
+            ba_owner_path = owner_paths.get('bank_account_id') or {}
+            if ba_owner_path.get('reachable') is not True:
+                verdict_ok = False
+                if not any('bank_account_id' in f and 'reachable' in f for f in findings):
+                    findings.append('owner_active: bank_account_id declared for bank coverage was not reachable from a GC root')
+            ba_base_path = base_paths.get('bank_account_id') or {}
+            if ba_base_path.get('reachable') is True:
+                verdict_ok = False
+                if not any('bank_account_id' in f and 'reachable' in f for f in findings):
+                    findings.append('baseline: bank_account_id declared for bank coverage was reachable from a GC root')
+
+            for req in ('bank', 'receiver'):
+                if req not in owner_sentinels:
+                    verdict_ok = False
+                    findings.append(f'owner_active: bank coverage contract requires {req} sentinel to be declared')
+                    continue
+                req_rec = owner_sentinels.get(req) or {}
+                if req_rec.get('rendered') is not True:
+                    verdict_ok = False
+                    findings.append(f'owner_active: {req} must be declared rendered: true')
+                if req_rec.get('scope') != 'bank':
+                    verdict_ok = False
+                    findings.append(f'owner_active: {req} must be declared scope: bank')
+                if req_rec.get('present') is not True:
+                    verdict_ok = False
+                    findings.append(f'owner_active: {req} declared for bank coverage was not loaded in owner_active')
+                req_owner_path = owner_paths.get(req) or {}
+                if req_owner_path.get('reachable') is not True:
+                    verdict_ok = False
+                    findings.append(f'owner_active: {req} declared for bank coverage was not reachable from a GC root')
+                base_rec = ((scans.get('baseline') or {}).get('sentinels') or {}).get(req) or {}
+                if base_rec.get('present') is True:
+                    verdict_ok = False
+                    findings.append(f'baseline: {req} declared for bank coverage was already visible at baseline')
+                req_base_path = base_paths.get(req) or {}
+                if req_base_path.get('reachable') is True:
+                    verdict_ok = False
+                    findings.append(f'baseline: {req} declared for bank coverage was reachable from a GC root')
+
     return {
         'verdict': 'PASS' if verdict_ok else 'FAIL',
         'findings': findings,

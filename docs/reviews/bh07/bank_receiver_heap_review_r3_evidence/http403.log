@@ -1,0 +1,6 @@
+{
+  "http_response": 403,
+  "error_status_forwarded": 403,
+  "claimed_club_after_definite_rejection": false,
+  "deleted_club_after_rejection": false
+}

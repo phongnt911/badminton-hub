@@ -53,6 +53,12 @@ SECRET_PATTERNS = (
 )
 REQUIRED_SUMMARY_FIELDS = ('gate', 'status', 'measurement_surface', 'oracle', 'tested_source_sha',
                            'cycles', 'cleanup', 'environment', 'sentinels', 'verdict')
+REQUIRED_BANK_SENTINELS = ('bank_account_id', 'bank', 'receiver')
+REQUIRED_BANK_CLASSES = {
+    'bank_account_id': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
+    'bank': {'rendered': True, 'distinctive': True, 'scope': 'bank'},
+    'receiver': {'rendered': True, 'distinctive': True, 'scope': 'bank'},
+}
 HEX12 = re.compile(r'[0-9a-f]{12}')
 HEX64 = re.compile(r'[0-9a-f]{64}')
 SHA1 = re.compile(r'[0-9a-f]{40}')
@@ -603,6 +609,149 @@ def _check_cleanup(summary, problems):
         if 'extra_payment_error' in cleanup:
             problems.append(f'run-only payment fixture cleanup reported an error: {cleanup["extra_payment_error"]}')
 
+    # Bank coverage contract & cleanup receipts verification
+    has_bank_coverage = (
+        'bank_account_id' in (summary.get('sentinels') or {})
+        or 'bank_account_id' in _scan_sentinel_names(summary)
+        or summary.get('coverage_profile') == 'bank'
+        or 'disposable_bank_created' in cleanup
+    )
+    if has_bank_coverage:
+        contract = summary.get('bank_coverage_contract')
+        if not isinstance(contract, dict):
+            problems.append('status RUN with bank coverage requires bank_coverage_contract object')
+        else:
+            if contract.get('version') != '1.0':
+                problems.append(f'bank_coverage_contract version must be 1.0, got {contract.get("version")!r}')
+            reqs = contract.get('required_owner_load')
+            if not isinstance(reqs, list) or set(reqs) != {'bank_account_id', 'bank', 'receiver'}:
+                problems.append(f'bank_coverage_contract required_owner_load must be [bank_account_id, bank, receiver], got {reqs}')
+
+        if cleanup.get('disposable_bank_created') is not True:
+            problems.append('status RUN with bank coverage requires disposable_bank_created=True')
+        if cleanup.get('disposable_club_created') is not True:
+            problems.append('status RUN with bank coverage requires disposable_club_created=True')
+
+        bank_receipt_sha12 = str(cleanup.get('disposable_bank_id_sha256_12') or '')
+        if not HEX12.fullmatch(bank_receipt_sha12):
+            problems.append(f'status RUN requires disposable_bank_id_sha256_12 receipt: {bank_receipt_sha12!r}')
+        else:
+            meta_sha12 = ((summary.get('sentinels') or {}).get('bank_account_id') or {}).get('sha256_12')
+            if not meta_sha12:
+                problems.append('status RUN with bank coverage requires declared bank_account_id sha256_12 metadata')
+            elif bank_receipt_sha12 != meta_sha12:
+                problems.append(f'disposable bank receipt sha256_12 {bank_receipt_sha12!r} does not match '
+                                f'declared bank_account_id sha256_12 {meta_sha12!r}')
+
+        club_receipt_sha12 = str(cleanup.get('disposable_club_id_sha256_12') or '')
+        if not HEX12.fullmatch(club_receipt_sha12):
+            problems.append(f'status RUN requires disposable_club_id_sha256_12 receipt: {club_receipt_sha12!r}')
+
+        for field in ('disposable_bank_removed', 'disposable_bank_verified_absent',
+                      'disposable_club_removed', 'disposable_club_verified_absent'):
+            if cleanup.get(field) is not True:
+                problems.append(f'status RUN with bank coverage requires {field}=True')
+        if 'disposable_bank_error' in cleanup:
+            problems.append(f'disposable bank cleanup reported an error: {cleanup["disposable_bank_error"]}')
+        if 'disposable_club_error' in cleanup:
+            problems.append(f'disposable club cleanup reported an error: {cleanup["disposable_club_error"]}')
+
+
+def _check_bank_coverage(summary, problems):
+    """Enforce mandatory bank contract, metadata, Owner-load, baseline discrimination and absence."""
+    cleanup = summary.get('cleanup') if isinstance(summary.get('cleanup'), dict) else {}
+    has_bank_coverage = (
+        'bank_account_id' in (summary.get('sentinels') or {})
+        or 'bank_account_id' in _scan_sentinel_names(summary)
+        or summary.get('coverage_profile') == 'bank'
+        or 'bank_coverage_contract' in summary
+        or 'disposable_bank_created' in cleanup
+    )
+    if not has_bank_coverage:
+        return
+
+    # Enforce declared versioned contract
+    contract = summary.get('bank_coverage_contract')
+    if not isinstance(contract, dict):
+        problems.append('status RUN with bank coverage requires bank_coverage_contract object')
+    else:
+        if contract.get('version') != '1.0':
+            problems.append(f'bank_coverage_contract version must be 1.0, got {contract.get("version")!r}')
+        reqs = contract.get('required_owner_load')
+        if not isinstance(reqs, list) or set(reqs) != set(REQUIRED_BANK_SENTINELS):
+            problems.append(f'bank_coverage_contract required_owner_load must be {list(REQUIRED_BANK_SENTINELS)}, got {reqs}')
+
+    # Enforce mandatory sentinel metadata and classes
+    sentinels = summary.get('sentinels')
+    if not isinstance(sentinels, dict):
+        problems.append('status RUN with bank coverage requires sentinels object')
+        sentinels = {}
+    for name in REQUIRED_BANK_SENTINELS:
+        if name not in sentinels:
+            problems.append(f'bank coverage profile requires {name} in summary.sentinels metadata')
+            continue
+        meta = sentinels[name]
+        if not isinstance(meta, dict):
+            problems.append(f'sentinel {name} metadata is not an object')
+            continue
+        expected_cls = REQUIRED_BANK_CLASSES[name]
+        for field, expected_val in expected_cls.items():
+            if meta.get(field) != expected_val:
+                problems.append(f'sentinel {name} metadata must have {field}={expected_val!r}, got {meta.get(field)!r}')
+        if meta.get('available') is False:
+            problems.append(f'sentinel {name} cannot be marked available: false in bank coverage')
+
+    # Enforce cycle scan entries, Owner present/reachable controls, and baseline discrimination
+    cycles = summary.get('cycles') or []
+    if not isinstance(cycles, list):
+        cycles = []
+    for cycle in cycles:
+        if not isinstance(cycle, dict):
+            continue
+        c_num = cycle.get('cycle', '?')
+        epochs = cycle.get('epochs') or {}
+        if not isinstance(epochs, dict):
+            continue
+
+        baseline = epochs.get('baseline') or {}
+        base_sentinels = baseline.get('sentinels') or {} if isinstance(baseline, dict) else {}
+        base_paths = baseline.get('paths') or {} if isinstance(baseline, dict) else {}
+        for name in REQUIRED_BANK_SENTINELS:
+            b_rec = base_sentinels.get(name) or {}
+            if b_rec.get('present') is True:
+                problems.append(f'cycle {c_num} baseline: {name} was already visible at baseline')
+            b_path = base_paths.get(name) or {}
+            if b_path.get('reachable') is True:
+                problems.append(f'cycle {c_num} baseline: {name} still reachable from a GC root')
+
+        owner = epochs.get('owner_active') or {}
+        owner_sentinels = owner.get('sentinels') or {} if isinstance(owner, dict) else {}
+        owner_paths = owner.get('paths') or {} if isinstance(owner, dict) else {}
+        for name in REQUIRED_BANK_SENTINELS:
+            if name not in owner_sentinels:
+                problems.append(f'cycle {c_num} owner_active scan missing sentinel {name}')
+            else:
+                o_rec = owner_sentinels.get(name) or {}
+                if o_rec.get('present') is not True:
+                    problems.append(f'cycle {c_num} owner_active scan: {name} was not loaded in owner_active')
+                expected_cls = REQUIRED_BANK_CLASSES[name]
+                for field, expected_val in expected_cls.items():
+                    if o_rec.get(field) != expected_val:
+                        problems.append(f'cycle {c_num} owner_active: sentinel {name} scan has {field}={o_rec.get(field)!r}, expected {expected_val!r}')
+                o_path = owner_paths.get(name) or {}
+                if o_path.get('reachable') is not True:
+                    problems.append(f'cycle {c_num} owner_active: {name} must be reachable from a GC root')
+
+        for ep_name, ep_scan in epochs.items():
+            if ep_name in ('baseline', 'owner_active') or not isinstance(ep_scan, dict):
+                continue
+            ep_sentinels = ep_scan.get('sentinels') or {}
+            ep_paths = ep_scan.get('paths') or {}
+            if (ep_sentinels.get('bank_account_id') or {}).get('present') is True:
+                problems.append(f'cycle {c_num} {ep_name}: bank_account_id is present after owner session ended')
+            if (ep_paths.get('bank_account_id') or {}).get('reachable') is True:
+                problems.append(f'cycle {c_num} {ep_name}: bank_account_id is reachable after owner session ended')
+
 
 def _scan_sentinel_names(summary):
     """Every sentinel name any scan claims, so metadata coverage can be checked."""
@@ -764,6 +913,7 @@ def verify(evidence_dir):
         build = _check_build(summary, problems)
         _check_cycles(summary, build, problems)
         _check_cleanup(summary, problems)
+        _check_bank_coverage(summary, problems)
         _check_report(evidence_dir, summary, build, problems)
         _check_sentinels(summary, texts, problems)
 
