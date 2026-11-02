@@ -1,0 +1,50 @@
+{
+  "positive": {
+    "exit": 0,
+    "expected_exit": 0,
+    "expected_reason_found": true,
+    "output": "PASS: evidence bundle at build\\bank_receipt_g_851a9z\\bundle is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n"
+  },
+  "missing_bank_created": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL status RUN with bank coverage requires disposable_bank_created=True\n"
+  },
+  "wrong_bank_receipt_sha12": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL disposable bank receipt sha256_12 '000000000000' does not match declared bank_account_id sha256_12 '18a4170637b8'\n"
+  },
+  "club_not_removed": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL status RUN with bank coverage requires disposable_club_removed=True\n"
+  },
+  "bank_not_absent": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL status RUN with bank coverage requires disposable_bank_verified_absent=True\n"
+  },
+  "missing_contract": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL status RUN with bank coverage requires bank_coverage_contract object\nFAIL status RUN with bank coverage requires bank_coverage_contract object\n"
+  },
+  "missing_bank_id": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL status RUN with bank coverage requires declared bank_account_id sha256_12 metadata\nFAIL bank coverage profile requires bank_account_id in summary.sentinels metadata\nFAIL a scan records sentinel bank_account_id that has no published metadata\n"
+  },
+  "wrong_contract_version": {
+    "exit": 1,
+    "expected_exit": 1,
+    "expected_reason_found": true,
+    "output": "FAIL bank_coverage_contract version must be 1.0, got '2.0'\nFAIL bank_coverage_contract version must be 1.0, got '2.0'\n"
+  }
+}

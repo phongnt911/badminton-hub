@@ -1,0 +1,167 @@
+{
+  "auditor_exit": 0,
+  "status": "RUN",
+  "verdict": "PASS",
+  "tested_source_sha": "a095a457f2f12e8d65fe69ba5a3ca3ddb79ea110",
+  "git_dirty": false,
+  "error": null,
+  "cycles": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "epochs": {
+        "baseline": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": false,
+            "reachable": false
+          },
+          "receiver": {
+            "present": false,
+            "reachable": false
+          }
+        },
+        "owner_active": {
+          "bank_account_id": {
+            "present": true,
+            "reachable": true
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        },
+        "post_logout": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        },
+        "post_actor": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        }
+      }
+    },
+    {
+      "cycle": 2,
+      "actor": "member",
+      "epochs": {
+        "baseline": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": false,
+            "reachable": false
+          },
+          "receiver": {
+            "present": false,
+            "reachable": false
+          }
+        },
+        "owner_active": {
+          "bank_account_id": {
+            "present": true,
+            "reachable": true
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        },
+        "post_logout": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        },
+        "post_actor": {
+          "bank_account_id": {
+            "present": false,
+            "reachable": false
+          },
+          "bank": {
+            "present": true,
+            "reachable": true
+          },
+          "receiver": {
+            "present": true,
+            "reachable": true
+          }
+        }
+      }
+    }
+  ],
+  "cleanup": {
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "run_only_fixture_created": true,
+    "run_only_fixture_id_sha256_12": "4e640813866e",
+    "extra_expense_removed": true,
+    "extra_expense_verified_absent": true,
+    "run_only_payment_created": true,
+    "run_only_payment_id_sha256_12": "7c11b6a10e23",
+    "extra_payment_removed": true,
+    "extra_payment_verified_absent": true,
+    "disposable_club_id_sha256_12": "95c027d4b085",
+    "disposable_bank_id_sha256_12": "18a4170637b8",
+    "disposable_club_created": true,
+    "disposable_bank_created": true,
+    "disposable_club_removed": true,
+    "disposable_bank_removed": true,
+    "disposable_club_verified_absent": true,
+    "disposable_bank_verified_absent": true,
+    "ok": true
+  },
+  "readonly": {
+    "historical_evidence": {
+      "count": 1606,
+      "mismatches": []
+    },
+    "app_backend": {
+      "count": 87,
+      "mismatches": []
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "tested_source_sha": "a095a457f2f12e8d65fe69ba5a3ca3ddb79ea110",
+  "git_dirty": false,
+  "build_mode": "profile",
+  "served_match": true,
+  "build_artifact_count": 39,
+  "cycles": 2,
+  "epochs": 8,
+  "all_same_document": true,
+  "residual_risk_counts": {
+    "bank": 4,
+    "expense": 4,
+    "expense2": 4,
+    "payment_ref": 4,
+    "receiver": 4
+  },
+  "all_residuals_unattributed": true,
+  "reviewed_source_hash_matches": {
+    "scripts/bh07_appheap/run_app_profile_heap.js": true,
+    "scripts/bh07_appheap/owned_browser_cleanup.js": true,
+    "tests/test_bh07_bank_navigation_cleanup.py": true,
+    "tests/test_bh07_owned_browser_cleanup.py": true
+  },
+  "prior_round4_bundle_payloads_unchanged": true,
+  "prior_round4_bundle_payload_count": 16,
+  "historical_profiles_removed": [
+    "bh07_appheap_chrome_84440",
+    "bh07_appheap_chrome_96928",
+    "bh07_appheap_chrome_98756"
+  ],
+  "flutter_analyze": {
+    "exit": 0,
+    "issues": 0,
+    "archive": "acc950d1867dbe8f"
+  },
+  "flutter_test": {
+    "exit": 0,
+    "passed": 247,
+    "skipped": 1,
+    "archive": "7b13b952014a42cb"
+  },
+  "flutter_log_copies": "UTF-8 LF with trailing progress padding removed; original tool archives retained",
+  "python": {
+    "passed": 375,
+    "evidence": "bank_receiver_heap_round4_evidence/python.log"
+  }
+}

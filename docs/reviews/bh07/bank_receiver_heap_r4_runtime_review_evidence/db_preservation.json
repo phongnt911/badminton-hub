@@ -1,0 +1,100 @@
+{
+  "child_exit": 0,
+  "status": "RUN",
+  "verdict": "PASS",
+  "tested_source_sha": "a095a457f2f12e8d65fe69ba5a3ca3ddb79ea110",
+  "git_dirty": false,
+  "cycles": 2,
+  "preexisting_rows_preserved": true,
+  "receipt_ids_absent": true,
+  "before": {
+    "clubs": {
+      "count": 2,
+      "sha256": "b80aa1b7f7685d1d30d3ac362d0a8cdd9b1b1494eed6e17bcfff8f45a7336e7a",
+      "id_hashes": [
+        "9d9b8a12235e",
+        "924e89d178a5"
+      ]
+    },
+    "club_members": {
+      "count": 5,
+      "sha256": "dab216c4e4a45a85dfc02b398919bd40369f005ff6660f4c374c820e0c6c1597",
+      "id_hashes": [
+        "78e249dba116",
+        "d6c92409bbdb",
+        "f732613e0cb1",
+        "27eda9be86e0",
+        "1b68bf78cb91"
+      ]
+    },
+    "club_bank_accounts": {
+      "count": 1,
+      "sha256": "3210604868df907345eab11c91dcd766db937e0a76803fe2fe273fa70105db2b",
+      "id_hashes": [
+        "40daaed497b4"
+      ]
+    },
+    "session_expenses": {
+      "count": 3,
+      "sha256": "18efc7da726a5384328aab20524ed34a5c6822b020496b10b0242fb2844ce34e",
+      "id_hashes": [
+        "072e4e6126bd",
+        "287b5ddbe266",
+        "7b5ed5cb05a0"
+      ]
+    },
+    "payments": {
+      "count": 1,
+      "sha256": "fda29d00f0eefdbdfc0becf76b05b986ae1a2e76642f562ffe85b167e1602065",
+      "id_hashes": [
+        "6964221939c9"
+      ]
+    }
+  },
+  "after": {
+    "clubs": {
+      "count": 2,
+      "sha256": "b80aa1b7f7685d1d30d3ac362d0a8cdd9b1b1494eed6e17bcfff8f45a7336e7a",
+      "id_hashes": [
+        "9d9b8a12235e",
+        "924e89d178a5"
+      ]
+    },
+    "club_members": {
+      "count": 5,
+      "sha256": "dab216c4e4a45a85dfc02b398919bd40369f005ff6660f4c374c820e0c6c1597",
+      "id_hashes": [
+        "78e249dba116",
+        "d6c92409bbdb",
+        "f732613e0cb1",
+        "27eda9be86e0",
+        "1b68bf78cb91"
+      ]
+    },
+    "club_bank_accounts": {
+      "count": 1,
+      "sha256": "3210604868df907345eab11c91dcd766db937e0a76803fe2fe273fa70105db2b",
+      "id_hashes": [
+        "40daaed497b4"
+      ]
+    },
+    "session_expenses": {
+      "count": 3,
+      "sha256": "18efc7da726a5384328aab20524ed34a5c6822b020496b10b0242fb2844ce34e",
+      "id_hashes": [
+        "072e4e6126bd",
+        "287b5ddbe266",
+        "7b5ed5cb05a0"
+      ]
+    },
+    "payments": {
+      "count": 1,
+      "sha256": "fda29d00f0eefdbdfc0becf76b05b986ae1a2e76642f562ffe85b167e1602065",
+      "id_hashes": [
+        "6964221939c9"
+      ]
+    }
+  },
+  "captured_output_bytes": 13349,
+  "captured_output_sha256": "755264470c15534c973335968eeade2a7bcb7c703a33f6e0eb2f66a9ef293120"
+}
