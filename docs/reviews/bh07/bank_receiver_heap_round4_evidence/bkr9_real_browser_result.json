@@ -1,0 +1,16 @@
+{
+  "created": true,
+  "port": 59216,
+  "launcher_before": {
+    "pid": 82300,
+    "exitCode": 0,
+    "signalCode": null
+  },
+  "receipt": {
+    "exited": true,
+    "profileRemoved": true,
+    "error": null
+  },
+  "profile_absent": true,
+  "old_profile_existence_preserved": true
+}

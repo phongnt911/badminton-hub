@@ -1,0 +1,54 @@
+{
+  "real_browser": {
+    "exit": 0,
+    "command": [
+      "node",
+      "build/bkr9_real_browser_probe.cjs"
+    ]
+  },
+  "python": {
+    "exit": 0,
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests"
+    ]
+  },
+  "preservation": {
+    "exit": 0,
+    "command": [
+      "python",
+      "build/bank_round4_preservation.py"
+    ]
+  },
+  "fixture": {
+    "exit": 0,
+    "command": [
+      "node",
+      "scripts/bh07_appheap/fixture_controls.js"
+    ]
+  },
+  "finance_audit": {
+    "exit": 0,
+    "command": [
+      "python",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/finance_heap_evidence"
+    ]
+  },
+  "legacy_audit": {
+    "exit": 0,
+    "command": [
+      "python",
+      "scripts/bh07_appheap/verify_evidence.py",
+      "--dir",
+      "docs/reviews/bh07/review_runtime_b13e468_evidence"
+    ]
+  }
+}

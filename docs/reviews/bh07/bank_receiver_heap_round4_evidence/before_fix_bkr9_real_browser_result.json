@@ -1,0 +1,10 @@
+{
+  "created": true,
+  "receipt": {
+    "exited": true,
+    "profileRemoved": false,
+    "error": "EPERM, Permission denied: \\\\?\\C:\\Users\\POTA\\AppData\\Local\\Temp\\bh07_appheap_chrome_96928 '\\\\?\\C:\\Users\\POTA\\AppData\\Local\\Temp\\bh07_appheap_chrome_96928'"
+  },
+  "profile_absent": false,
+  "old_profile_existence_preserved": true
+}

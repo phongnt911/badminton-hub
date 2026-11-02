@@ -1,0 +1,9 @@
+{
+  "normal_error": {
+    "code": -32600,
+    "message": "Message may have string 'sessionId' property"
+  },
+  "normal_timeout": false,
+  "raw_error": null,
+  "raw_has_version": true
+}

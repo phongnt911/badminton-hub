@@ -78,6 +78,7 @@ const PY = process.platform === 'win32' ? 'python' : 'python3';
 
 const { CdpClient } = require(DRIVER);
 const { hashArtifacts, snapshotArtifacts, assertArtifactsFresh, assertPortFree, assertServedMatches } = require('./build_guard');
+const { shutdownOwnedBrowser } = require('./owned_browser_cleanup');
 const CHROME_PATH = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const DEBUG_PORT = 9337;
 const BUILD_DIR = path.join(ROOT, 'build/web');
@@ -124,31 +125,73 @@ async function checked(cdp, method, params = {}, timeoutMs = 60000) {
 
 // Chrome is launched here (not through the V1 driver helper) so its stderr lands in a
 // file: a browser that dies mid-run must leave a reason behind, not a silent hang.
-async function startChromeLogged(logFile) {
+async function startChromeLogged(logFile, opts = {}) {
+  const port = opts.port ?? DEBUG_PORT;
+  const chromePath = opts.chromePath ?? CHROME_PATH;
+  const maxAttempts = opts.maxAttempts ?? 50;
+  const pollIntervalMs = opts.pollIntervalMs ?? 200;
+  const fetchTimeoutMs = opts.fetchTimeoutMs ?? 1000;
+  await assertPortFree(port);
   const userDataDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
-  fs.rmSync(userDataDir, { recursive: true, force: true });
+  if (fs.existsSync(userDataDir)) {
+    throw new Error(`preexisting chrome profile directory ${userDataDir} detected, refusing to overwrite`);
+  }
   fs.mkdirSync(userDataDir, { recursive: true });
   const stderr = fs.openSync(logFile, 'a');
-  const proc = spawn(CHROME_PATH, [
-    `--remote-debugging-port=${DEBUG_PORT}`,
-    '--headless=new',
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    '--disable-background-networking',
-    '--window-size=1280,900',
-    `--user-data-dir=${userDataDir}`,
-    'about:blank',
-  ], { detached: true, stdio: ['ignore', 'ignore', stderr] });
+  let proc = null;
+  let spawnError = null;
+  try {
+    proc = spawn(chromePath, [
+      `--remote-debugging-port=${port}`,
+      '--headless=new',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-gpu',
+      '--disable-background-networking',
+      '--window-size=1280,900',
+      `--user-data-dir=${userDataDir}`,
+      'about:blank',
+    ], { detached: true, stdio: ['ignore', 'ignore', stderr] });
+    proc.on('error', (err) => {
+      spawnError = err;
+    });
+  } catch (spawnErr) {
+    fs.closeSync(stderr);
+    await shutdownOwnedBrowser({ proc: null, userDataDir });
+    throw spawnErr;
+  }
   fs.closeSync(stderr);
-  for (let i = 0; i < 50; i++) {
-    await wait(200);
+  for (let i = 0; i < maxAttempts; i++) {
+    if (spawnError) break;
+    await wait(pollIntervalMs);
+    if (spawnError) break;
     try {
-      const res = await fetch(`http://127.0.0.1:${DEBUG_PORT}/json/version`);
-      if (res.ok) return { proc, version: await res.json(), userDataDir };
+      const signal = typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
+        ? AbortSignal.timeout(fetchTimeoutMs)
+        : undefined;
+      const res = await fetch(`http://127.0.0.1:${port}/json/version`, { signal });
+      if (res.ok) {
+        const version = await res.json();
+        const closeBrowser = async () => {
+          if (!version.webSocketDebuggerUrl) return;
+          const browserCdp = new CdpClient(version.webSocketDebuggerUrl);
+          browserCdp.sessionId = undefined;
+          try {
+            await browserCdp.connect();
+            await browserCdp.send('Browser.close');
+          } catch (_) {
+            /* best effort */
+          } finally {
+            try { if (browserCdp.ws) browserCdp.ws.close(); } catch (_) {}
+          }
+        };
+        return { proc, version, userDataDir, closeBrowser };
+      }
     } catch (_) { /* not listening yet */ }
   }
-  throw new Error(`Chrome failed to start on port ${DEBUG_PORT}`);
+  await shutdownOwnedBrowser({ proc, userDataDir });
+  if (spawnError) throw spawnError;
+  throw new Error(`Chrome failed to start on port ${port}`);
 }
 
 // Every CDP call must be able to fail: a dead browser used to leave the run hanging.
@@ -552,7 +595,7 @@ async function openOwnerFinance(cdp) {
 async function openOwnerBank(cdp, clubName, bankCode = 'VCB') {
   await home(cdp);
   // Navigate to Clubs tab
-  await cdp.clickSemantic((e) => e.role === 'tab' && (e.aria === 'Câu Lạc Bộ' || text(e).includes('Câu Lạc Bộ')), 'Clubs tab');
+  await cdp.clickSemantic((e) => e.role === 'tab' && (e.aria === 'CLB & Quỹ' || text(e).includes('CLB & Quỹ')), 'Clubs tab');
   await wait(600);
   // Select disposable club
   await cdp.clickSemantic((e) => text(e).includes(clubName), 'Select disposable test club');
@@ -678,6 +721,7 @@ async function main() {
     cleanup: {},
   };
   let chrome, server, cdp;
+  let browserCleanupOk = true;
   let envForCleanup = null;
   try {
     const env = supabaseEnv();
@@ -780,11 +824,15 @@ async function main() {
         '--expectations', expectationsPath, '--cleanup-ok', 'true', '--mode', summary.environment.build.mode,
         '--require-paths']));
       summary.cycles.push({ cycle, actor, same_document: true, time_origin: origin, epochs, verdict });
-      await cdp.close();
+      await cdp.close().catch(() => {});
+      cdp = null;
       launched.expectedExit = true;
-      try { process.kill(chrome.proc.pid); } catch (_) { /* already gone */ }
-      try { fs.rmSync(chrome.userDataDir, { recursive: true, force: true }); } catch (_) { /* best effort */ }
-      chrome = null; cdp = null;
+      const cycleShutdown = await shutdownOwnedBrowser(chrome);
+      chrome = null;
+      if (!cycleShutdown.exited || !cycleShutdown.profileRemoved) {
+        browserCleanupOk = false;
+        throw new Error(`cycle ${cycle}: browser shutdown failed: ${cycleShutdown.error || 'unknown'}`);
+      }
     }
 
     const remaining = fs.existsSync(DUMPS) ? fs.readdirSync(DUMPS).filter((f) => f.endsWith('.heapsnapshot')) : [];
@@ -807,7 +855,16 @@ async function main() {
     log(`aborted: ${error.message}`);
   } finally {
     if (cdp) await cdp.close().catch(() => {});
-    if (chrome) { try { process.kill(chrome.proc.pid); } catch (_) { /* already gone */ } }
+    if (chrome) {
+      const finallyShutdown = await shutdownOwnedBrowser(chrome);
+      if (!finallyShutdown.exited || !finallyShutdown.profileRemoved) {
+        browserCleanupOk = false;
+        if (finallyShutdown.error) {
+          summary.cleanup.chrome_shutdown_error = finallyShutdown.error;
+        }
+      }
+      chrome = null;
+    }
     if (server) { try { process.kill(server.pid); } catch (_) { /* already gone */ } }
     summary.finished_at = new Date().toISOString();
     // Browser stderr is diagnostic only; keep the interesting lines, redact endpoints.
@@ -820,13 +877,11 @@ async function main() {
     }
     // Raw heap dumps and the throw-away Chrome profile must not survive the run.
     const chromeDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
-    for (const dir of [DUMPS, chromeDir]) {
-      try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) { /* best effort */ }
-    }
+    try { fs.rmSync(DUMPS, { recursive: true, force: true }); } catch (_) { /* best effort */ }
     summary.cleanup = {
       ...summary.cleanup,
       dumps_dir_removed: !fs.existsSync(DUMPS),
-      chrome_profile_dir_removed: !fs.existsSync(chromeDir),
+      chrome_profile_dir_removed: browserCleanupOk && !fs.existsSync(chromeDir),
     };
     // The run-only expense row must be gone as well: leaving Owner-private fixture data in
     // the local stack would make the next run's baseline disagree with its own evidence, and
@@ -1137,6 +1192,7 @@ module.exports = {
   fixtureCleanupOk, EXTRA_EXPENSE, EXTRA_PAYMENT,
   claimOutputDirectory, isNestedUnderEvidence,
   restGet, restWrite, makeEnvTransport,
+  startChromeLogged, DEBUG_PORT, CHROME_PATH,
 };
 
 if (require.main === module) main().catch((e) => { console.error(redactSentinels(e.stack || e.message)); process.exitCode = 1; });
