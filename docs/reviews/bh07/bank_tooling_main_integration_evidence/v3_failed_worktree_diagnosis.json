@@ -1,0 +1,302 @@
+{
+  "working_tree_mismatches": 59,
+  "only_crlf_conversion": true,
+  "build_directory_exists": false,
+  "details": [
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/report.md",
+      "crlf_count": 48,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/run.log",
+      "crlf_count": 13,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/summary.json",
+      "crlf_count": 323,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/report.md",
+      "crlf_count": 203,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/run.log",
+      "crlf_count": 15,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/summary.json",
+      "crlf_count": 2885,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "crlf_count": 68,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/report.md",
+      "crlf_count": 188,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/run.log",
+      "crlf_count": 15,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/summary.json",
+      "crlf_count": 2397,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/report.md",
+      "crlf_count": 162,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/run.log",
+      "crlf_count": 13,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/summary.json",
+      "crlf_count": 1911,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/report.md",
+      "crlf_count": 166,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/run.log",
+      "crlf_count": 14,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/summary.json",
+      "crlf_count": 1944,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js",
+      "crlf_count": 16,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_4184faf_evidence/publication_probe.js",
+      "crlf_count": 12,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js",
+      "crlf_count": 14,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_8914b2f_evidence/build_probe.js",
+      "crlf_count": 7,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "crlf_count": 30,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js",
+      "crlf_count": 16,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "crlf_count": 49,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/report.md",
+      "crlf_count": 166,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/run.log",
+      "crlf_count": 14,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json",
+      "crlf_count": 1944,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/build_guard.js",
+      "crlf_count": 176,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/disposable_bank_fixture.js",
+      "crlf_count": 311,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/fixture_controls.js",
+      "crlf_count": 214,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/heap_oracle.py",
+      "crlf_count": 1361,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/owned_browser_cleanup.js",
+      "crlf_count": 221,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/run_app_profile_heap.js",
+      "crlf_count": 1198,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/test_disposable_fixture_scenarios.js",
+      "crlf_count": 284,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_appheap/verify_evidence.py",
+      "crlf_count": 946,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_browser/assertions.js",
+      "crlf_count": 398,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_browser/clean_and_manifest.py",
+      "crlf_count": 267,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_browser/run_browser_verification.js",
+      "crlf_count": 1284,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_browser/seed_setup.js",
+      "crlf_count": 148,
+      "only_crlf_change": true
+    },
+    {
+      "path": "scripts/bh07_http/seed.sql",
+      "crlf_count": 291,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_build_guard.py",
+      "crlf_count": 324,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_evidence.py",
+      "crlf_count": 1086,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_fixture_ownership.py",
+      "crlf_count": 72,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_oracle.py",
+      "crlf_count": 441,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_paths.py",
+      "crlf_count": 692,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_review_controls.py",
+      "crlf_count": 57,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_bank_console_redaction.py",
+      "crlf_count": 171,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_bank_heap_coverage.py",
+      "crlf_count": 625,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_bank_navigation_cleanup.py",
+      "crlf_count": 239,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_bank_owner_graph.py",
+      "crlf_count": 49,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_finance_heap_coverage.py",
+      "crlf_count": 358,
+      "only_crlf_change": true
+    },
+    {
+      "path": "tests/test_bh07_owned_browser_cleanup.py",
+      "crlf_count": 479,
+      "only_crlf_change": true
+    },
+    {
+      "path": "docs/reviews/bh07/BANK_TOOLING_INTEGRATION_NOTICE.md",
+      "crlf_count": 7,
+      "only_crlf_change": true
+    },
+    {
+      "path": ".gitattributes",
+      "crlf_count": 60,
+      "only_crlf_change": true
+    }
+  ]
+}

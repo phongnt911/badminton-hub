@@ -1,0 +1,301 @@
+{
+  "mismatched_files": 58,
+  "all_changes_are_only_crlf_conversion": true,
+  "failed_test_headers": [
+    "ERROR: setUpClass (tests.test_bh07_bank_owner_graph.TestBankOwnerGraphProbe)",
+    "FAIL: test_legacy_positive_exit0 (tests.test_bh07_bank_heap_coverage.TestBankCoverageAuditorCLI.test_legacy_positive_exit0)",
+    "FAIL: test_published_bundle_passes (tests.test_bh07_app_heap_evidence.EvidenceAuditControls.test_published_bundle_passes)"
+  ],
+  "details": [
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/report.md",
+      "crlf_count": 48,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/run.log",
+      "crlf_count": 13,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/app_profile_heap_evidence/summary.json",
+      "crlf_count": 323,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/report.md",
+      "crlf_count": 203,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/run.log",
+      "crlf_count": 15,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/summary.json",
+      "crlf_count": 2885,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "crlf_count": 68,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/report.md",
+      "crlf_count": 188,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/run.log",
+      "crlf_count": 15,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/summary.json",
+      "crlf_count": 2397,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/report.md",
+      "crlf_count": 162,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/run.log",
+      "crlf_count": 13,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_evidence/summary.json",
+      "crlf_count": 1911,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/report.md",
+      "crlf_count": 166,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/run.log",
+      "crlf_count": 14,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/summary.json",
+      "crlf_count": 1944,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js",
+      "crlf_count": 16,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_4184faf_evidence/publication_probe.js",
+      "crlf_count": 12,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js",
+      "crlf_count": 14,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_8914b2f_evidence/build_probe.js",
+      "crlf_count": 7,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "crlf_count": 30,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js",
+      "crlf_count": 16,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "crlf_count": 49,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/hashes.sha256",
+      "crlf_count": 3,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/report.md",
+      "crlf_count": 166,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/run.log",
+      "crlf_count": 14,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json",
+      "crlf_count": 1944,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/build_guard.js",
+      "crlf_count": 176,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/disposable_bank_fixture.js",
+      "crlf_count": 311,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/fixture_controls.js",
+      "crlf_count": 214,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/heap_oracle.py",
+      "crlf_count": 1361,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/owned_browser_cleanup.js",
+      "crlf_count": 221,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/run_app_profile_heap.js",
+      "crlf_count": 1198,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/test_disposable_fixture_scenarios.js",
+      "crlf_count": 284,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_appheap/verify_evidence.py",
+      "crlf_count": 946,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_browser/assertions.js",
+      "crlf_count": 398,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_browser/clean_and_manifest.py",
+      "crlf_count": 267,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_browser/run_browser_verification.js",
+      "crlf_count": 1284,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_browser/seed_setup.js",
+      "crlf_count": 148,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "scripts/bh07_http/seed.sql",
+      "crlf_count": 291,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_build_guard.py",
+      "crlf_count": 324,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_evidence.py",
+      "crlf_count": 1086,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_fixture_ownership.py",
+      "crlf_count": 72,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_oracle.py",
+      "crlf_count": 441,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_paths.py",
+      "crlf_count": 692,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_app_heap_review_controls.py",
+      "crlf_count": 57,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_bank_console_redaction.py",
+      "crlf_count": 171,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_bank_heap_coverage.py",
+      "crlf_count": 625,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_bank_navigation_cleanup.py",
+      "crlf_count": 239,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_bank_owner_graph.py",
+      "crlf_count": 49,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_finance_heap_coverage.py",
+      "crlf_count": 358,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "tests/test_bh07_owned_browser_cleanup.py",
+      "crlf_count": 479,
+      "matches_after_crlf_to_lf": true
+    },
+    {
+      "path": "docs/reviews/bh07/BANK_TOOLING_INTEGRATION_NOTICE.md",
+      "crlf_count": 7,
+      "matches_after_crlf_to_lf": true
+    }
+  ]
+}

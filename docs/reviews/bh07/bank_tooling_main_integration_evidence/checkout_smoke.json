@@ -1,0 +1,21 @@
+{
+  "base_sha": "62d2c67dc66d512cf7f6f19932e2131ae060e2e9",
+  "staged_additions": 59,
+  "ignored_fixture_logs_staged": 6,
+  "fresh_checkout_byte_mismatches": [],
+  "python_exit": 0,
+  "python_tests": 311,
+  "working_tree_byte_mismatches": [],
+  "original_clone_files_changed": [],
+  "setup_build_directory": true,
+  "apply_mode": "git apply --cached then checkout-index --all --force in a fresh clean clone",
+  "clone_core_autocrlf": "true",
+  "historical_auditor_exits": {
+    "finance": 0,
+    "legacy": 0,
+    "bank_history": 0
+  },
+  "fixture_exit": 0,
+  "original_head_unchanged": true,
+  "original_main_unchanged": true
+}

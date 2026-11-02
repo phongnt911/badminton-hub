@@ -1,0 +1,150 @@
+{
+  "source_sha": "57cd2c40e7659715ac0c6b55787d197df5ac1c6c",
+  "main_sha": "62d2c67dc66d512cf7f6f19932e2131ae060e2e9",
+  "remote_main": {
+    "exit": 0,
+    "main_sha": "62d2c67dc66d512cf7f6f19932e2131ae060e2e9",
+    "diagnostic_sha256": null,
+    "matches_local_main": true
+  },
+  "package": "build/bh07-main-integration-62d2c67-57cd2c4-v4",
+  "selected_file_count": 59,
+  "selected_bytes": 1031312,
+  "patch_sha256": "b5bf79b1f03aed56ad7e7efd0a7985f7eb5abe714a36295c28859399cee4c1f8",
+  "patch_bytes": 1070255,
+  "checks": {
+    "apply_check": {
+      "exit": 0,
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "--directory=build/bh07-main-integration-62d2c67-57cd2c4-v4/main-candidate",
+        "C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\build\\bh07-main-integration-62d2c67-57cd2c4-v4\\tooling-only.patch"
+      ],
+      "test_count": []
+    },
+    "apply": {
+      "exit": 0,
+      "command": [
+        "git",
+        "apply",
+        "--directory=build/bh07-main-integration-62d2c67-57cd2c4-v4/main-candidate",
+        "C:\\Users\\POTA\\Documents\\GitHub\\badminton-hub\\build\\bh07-main-integration-62d2c67-57cd2c4-v4\\tooling-only.patch"
+      ],
+      "test_count": []
+    },
+    "python": {
+      "exit": 0,
+      "command": [
+        "python",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "tests.test_bh07_bank_heap_coverage",
+        "tests.test_bh07_bank_console_redaction",
+        "tests.test_bh07_bank_owner_graph",
+        "tests.test_bh07_bank_navigation_cleanup",
+        "tests.test_bh07_owned_browser_cleanup",
+        "tests.test_bh07_app_heap_oracle",
+        "tests.test_bh07_app_heap_paths",
+        "tests.test_bh07_app_heap_evidence",
+        "tests.test_bh07_app_heap_build_guard",
+        "tests.test_bh07_app_heap_fixture_ownership",
+        "tests.test_bh07_app_heap_review_controls",
+        "tests.test_bh07_finance_heap_coverage"
+      ],
+      "test_count": [
+        "311"
+      ]
+    },
+    "fixture": {
+      "exit": 0,
+      "command": [
+        "node",
+        "scripts/bh07_appheap/fixture_controls.js"
+      ],
+      "test_count": []
+    },
+    "finance": {
+      "exit": 0,
+      "command": [
+        "python",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "docs/reviews/bh07/finance_heap_evidence"
+      ],
+      "test_count": []
+    },
+    "legacy": {
+      "exit": 0,
+      "command": [
+        "python",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "docs/reviews/bh07/review_runtime_b13e468_evidence"
+      ],
+      "test_count": []
+    },
+    "bank_history": {
+      "exit": 0,
+      "command": [
+        "python",
+        "scripts/bh07_appheap/verify_evidence.py",
+        "--dir",
+        "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence"
+      ],
+      "test_count": []
+    },
+    "pub_offline": {
+      "exit": 0,
+      "command": [
+        "cmd",
+        "/d",
+        "/c",
+        "flutter pub get --offline"
+      ],
+      "test_count": []
+    },
+    "flutter_analyze": {
+      "exit": 0,
+      "command": [
+        "cmd",
+        "/d",
+        "/c",
+        "flutter analyze --no-pub"
+      ],
+      "test_count": []
+    },
+    "flutter_test": {
+      "exit": 0,
+      "command": [
+        "cmd",
+        "/d",
+        "/c",
+        "flutter test --no-pub"
+      ],
+      "test_count": []
+    }
+  },
+  "baseline_file_count": 629,
+  "changed_baseline_files": [],
+  "candidate_copy_hashes_match": true,
+  "no_app_backend_test_web_files_in_patch": true,
+  "active_refs_unchanged": true,
+  "static_direct_app_contract_paths": [
+    "lib/main.dart",
+    "lib/models/club.dart",
+    "lib/models/finance.dart",
+    "lib/screens/clubs_screen.dart"
+  ],
+  "excluded_non_input_paths": [
+    "scripts/bh07_appheap/audit_retention_attribution.py",
+    "docs/reviews/bh07/browser_evidence",
+    "docs/reviews/bh07/bank_receiver_heap_evidence",
+    "docs/reviews/bh07/retention_attribution_evidence"
+  ],
+  "live_bank_runtime": "NOT RUN \u2014 main lacks BH-07 app/backend prerequisites",
+  "merge_status": "DRAFT \u2014 no merge authorization or whole-BH07 acceptance"
+}

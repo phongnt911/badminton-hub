@@ -1,0 +1,532 @@
+[
+  {
+    "path": "docs/reviews/bh07/app_profile_heap_evidence/hashes.sha256",
+    "sha256": "e1e1b8acbebdccd74fadcde0d248417a7da8c0afd1e302ef5988d460bf9077ad",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "referenced by scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by scripts/bh07_appheap/verify_evidence.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/app_profile_heap_evidence/report.md",
+    "sha256": "d23b6ce1a16cd20fa88cf9c460154053256242d852d6102fdc80d3c3c38b2cb6",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "referenced by scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by scripts/bh07_appheap/verify_evidence.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/app_profile_heap_evidence/run.log",
+    "sha256": "abd654eb894efb9064366e4d10427d220bd5f8f319e07e04a97536f338cf1ed6",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "referenced by scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by scripts/bh07_appheap/verify_evidence.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/app_profile_heap_evidence/summary.json",
+    "sha256": "2a8ee7ae15b6dc24fcb5ae7ed2c65c52fb6c2990cfb7cd9e6a434bf3be6cbe3f",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+      "referenced by scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by scripts/bh07_appheap/verify_evidence.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/hashes.sha256",
+    "sha256": "dfe8c86b0ba1615ba3988010aeaf9a1e5923beacc65833296f6c822f725d8129",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/report.md",
+    "sha256": "9add3dcf45801a8edd3c7d926f00437c51bd1a704645cc94225ad4a12631a641",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/run.log",
+    "sha256": "df873518d0bfed5156ef169eb3ccb4477faea63f513e9c0b15902032fa3decde",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/bank_receiver_heap_r4_runtime_evidence/summary.json",
+    "sha256": "5f042f3493ce46520054bcdfcf828665ad1190bccac6a5beb74abadebc1df450",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+    "sha256": "06dd946ea1f4505baeee20b556727cabbf4a7ec58a953a485c202c636f12ca26",
+    "reason": [
+      "referenced by tests/test_bh07_bank_owner_graph.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/finance_heap_evidence/hashes.sha256",
+    "sha256": "993edd2f3846c38360355a11eea293599e25835ca6b89ad2f9792c18dd5d162c",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/finance_heap_evidence/report.md",
+    "sha256": "c7508890544680ff15ce7f9e0aa88a57393fc4b3aa1d70cb78771703d1f1d833",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/finance_heap_evidence/run.log",
+    "sha256": "ba67018edec39581470b006cdbb223af91410209414e97017326a74a4d28c497",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/finance_heap_evidence/summary.json",
+    "sha256": "d1f33d9d3f76bd811a8710dab85d7863ee58421d6b8f37e2cb2d96a11b1764c2",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_evidence/hashes.sha256",
+    "sha256": "1e4ba6f88acd4245a0798d298d78a7eeff035cde9ac0c5927dd3bf331a8fe363",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_evidence/report.md",
+    "sha256": "adff5afb95a2676725e1fbfcab6e2275ff1442146e61ea2cf9d880e91a382132",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_evidence/run.log",
+    "sha256": "9c98f89adf74d593c3e2d233eabc2ee105d7eb03fedb82e36ebd15167cedf93f",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_evidence/summary.json",
+    "sha256": "e172240ac34b43b44c9b83cb1067fd0555acbd37ebd5847f148fa7da3a74f312",
+    "reason": [
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_r1_evidence/hashes.sha256",
+    "sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_r1_evidence/report.md",
+    "sha256": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_r1_evidence/run.log",
+    "sha256": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/retained_path_r1_evidence/summary.json",
+    "sha256": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_evidence.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js",
+    "sha256": "23f16c6c3b0b324f311127928a5bb6d3f572e91287139ef0debc18f69a7fa919",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_build_guard.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_4184faf_evidence/publication_probe.js",
+    "sha256": "ebe8d6916993119db58b5059a279f0b1b1dc9b285cdaca9dd68914ef814da3b5",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_build_guard.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js",
+    "sha256": "186f5c38e4f4abc4aa023ebd358efff2b00f9f00b2b54fbb3fe598a2977fcc0e",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_build_guard.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_8914b2f_evidence/build_probe.js",
+    "sha256": "60ecbdf156f82f19c8350cb5d95ef2a239d06db78a43cffd46f4837663d49ae5",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_build_guard.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_8914b2f_evidence/probes.py",
+    "sha256": "1b68780ddc21e9f41fb4ffa750077b2d598c41417219e3ef14b0b76e1797e25b",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_review_controls.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js",
+    "sha256": "635f102cda3ddc3368bcd4641e77bf2fc49398fa3860866d31055b503b94e1ea",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_fixture_ownership.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+    "sha256": "badf64d7813e0e6a1f30110aad9df19b89d2b19c3737311ff9aa66486928eed0",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_paths.py"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/hashes.sha256",
+    "sha256": "458f51ec0d613f53112b83833aa43546369244a7901b4ac17bc4c857ae917764",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/report.md",
+    "sha256": "40c6a2418e0ffdb80f6d37c6d40ed14962a2c379c3627f133e4356a79dc0e4d9",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/run.log",
+    "sha256": "4576ede97ba9bdb81e3ef182fe4ccea6220b905e2aa8fa84d91e8551ddb37c06",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/review_runtime_b13e468_evidence/summary.json",
+    "sha256": "1231dd93987aceec3d23324769533254cd1810d398fc6d832a875309d451ef4e",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/build_guard.js",
+    "sha256": "4b0d148ef2fbc2d25d487facc1d94093bdc56dd19a093e34d6a81440ffd700f8",
+    "reason": [
+      "local import from scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by tests/test_bh07_app_heap_build_guard.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/disposable_bank_fixture.js",
+    "sha256": "93ceda9ead6d565ac8573c5111106bd6163514c9b4a925090575f1483ba7f59e",
+    "reason": [
+      "local import from scripts/bh07_appheap/run_app_profile_heap.js",
+      "local import from scripts/bh07_appheap/test_disposable_fixture_scenarios.js",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/fixture_controls.js",
+    "sha256": "1277e794e9a650da7f2e6f502a7cfda328f359e3fa80f9e236b121e1c1017606",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_fixture_ownership.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/heap_oracle.py",
+    "sha256": "e1c749ef9fca885bbfe8e890dd3d4bc06f77ce09b4b33de8c9f8037d27d70384",
+    "reason": [
+      "referenced by tests/test_bh07_app_heap_oracle.py",
+      "referenced by tests/test_bh07_app_heap_paths.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "referenced by tests/test_bh07_finance_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/owned_browser_cleanup.js",
+    "sha256": "dff02e5c8edd17686bba659591b66200a9e9aa772460b99df92ea138077440c4",
+    "reason": [
+      "local import from scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by tests/test_bh07_owned_browser_cleanup.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/run_app_profile_heap.js",
+    "sha256": "de7205d5cba5ccf8a097cff010bc61944d8d626e82d6507db0106da2f3c25778",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by docs/reviews/bh07/review_04d1ea9_evidence/json_structure_probe.js",
+      "referenced by docs/reviews/bh07/review_4184faf_evidence/publication_probe.js",
+      "referenced by docs/reviews/bh07/review_4184faf_evidence/redaction_probe.js",
+      "referenced by docs/reviews/bh07/review_8914b2f_evidence/build_probe.js",
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/fixture_probe.js",
+      "referenced by tests/test_bh07_app_heap_build_guard.py",
+      "referenced by tests/test_bh07_bank_console_redaction.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "referenced by tests/test_bh07_bank_navigation_cleanup.py",
+      "referenced by tests/test_bh07_owned_browser_cleanup.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/test_disposable_fixture_scenarios.js",
+    "sha256": "25b464704e7718aa79c424e5292698869fd983f6d3e8286ecbc259e70c7f2379",
+    "reason": [
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_appheap/verify_evidence.py",
+    "sha256": "bac461b7ccdf59c5d8dc55f95e80d9a56db74f69fd5a1d38ad42c1d139cdaf03",
+    "reason": [
+      "referenced by docs/reviews/bh07/bank_receiver_heap_review_r2_evidence/owner_graph_probe.py",
+      "referenced by docs/reviews/bh07/review_9fadecc_evidence/probes.py",
+      "referenced by tests/test_bh07_app_heap_evidence.py",
+      "referenced by tests/test_bh07_bank_heap_coverage.py",
+      "referenced by tests/test_bh07_finance_heap_coverage.py",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_browser/assertions.js",
+    "sha256": "7a8e78567d0a1ac3d2c182f4e62f209a163a7d4cb4f5c72a5d9766fd94782de2",
+    "reason": [
+      "local import from scripts/bh07_browser/run_browser_verification.js",
+      "referenced by scripts/bh07_browser/run_browser_verification.js",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_browser/clean_and_manifest.py",
+    "sha256": "205876e45be4ea18085848e72d76add21fbd3107f09005843b5c955441c80773",
+    "reason": [
+      "referenced by scripts/bh07_browser/run_browser_verification.js",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_browser/run_browser_verification.js",
+    "sha256": "7781c1addf93f76725ce714e5576062dafef7da9f05994ee54624b46672cdee5",
+    "reason": [
+      "referenced by scripts/bh07_appheap/run_app_profile_heap.js",
+      "referenced by scripts/bh07_browser/run_browser_verification.js",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_browser/seed_setup.js",
+    "sha256": "a0667b77f60e22b84aa4367e9a8cbc3c4f351a6830bf31b16fe8364bc96ec949",
+    "reason": [
+      "referenced by scripts/bh07_browser/run_browser_verification.js",
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "scripts/bh07_http/seed.sql",
+    "sha256": "01af54851629982ce3e2a5d8a3de11210168b670c71157f93026345b78bdad24",
+    "reason": [
+      "tooling dependency or provenance fixture"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_build_guard.py",
+    "sha256": "0579c56bd9eddaf77df8290b5b21840946624f0c7a1111b3dc92a787f4572eb1",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_evidence.py",
+    "sha256": "dee947328ea4f7a9120784238db2d5555b5c7cba91d25445bd9ee646c89d3daa",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_fixture_ownership.py",
+    "sha256": "02aeac9cedd6617eb843ff33cf25915b90b16a8415744f3b0576a0eefb0e9642",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_oracle.py",
+    "sha256": "27d1af56986e837899b6c36d892e94aa960ec53e0bb817bd83566f05148a3eee",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_paths.py",
+    "sha256": "7e7e7d3e200c77b141f5bafd86ad12ac363b29699b1fbebf8ba100d25135eae3",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_app_heap_review_controls.py",
+    "sha256": "ca48d961c9922b1dfd0a664ec63c050cee1040909795581e7b54a56b4b035582",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_bank_console_redaction.py",
+    "sha256": "f1a3660df46b1e73e33ae728d58e734b5298ef1c0910a04a86d57a1f6ac24b76",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_bank_heap_coverage.py",
+    "sha256": "9a2dcd2e4c4c83e988848fc1347956fefd78a92988816c37dfdd51aecfabd8a0",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_bank_navigation_cleanup.py",
+    "sha256": "b9a9985047f432b3f517dd66ae946364465c6ac0d365c0879396bacae72bf714",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_bank_owner_graph.py",
+    "sha256": "45aefd44490becc0970d54117d6f5ee69c2077dc57ecb7368d0960c9214a09c9",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_finance_heap_coverage.py",
+    "sha256": "071664bba836c06eb74365fe2aa30ef1e346e776f5669cf51faff938f803ba7c",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "tests/test_bh07_owned_browser_cleanup.py",
+    "sha256": "64679bc876eb715955f6daaab5d4650dac623bcfb8897985026ae7fff31f5b33",
+    "reason": [
+      "selected offline regression suite"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": "docs/reviews/bh07/BANK_TOOLING_INTEGRATION_NOTICE.md",
+    "sha256": "95d7e0f41253cd7709037df13d3f99a1cf6ae7d5e316122c0f914d6a14eca5b6",
+    "reason": [
+      "generated scope notice"
+    ],
+    "in_main_baseline": false
+  },
+  {
+    "path": ".gitattributes",
+    "sha256": "279a67db6d83f682a3bca933f8c62873286c35ee2b5335419b07560076e8ee8c",
+    "reason": [
+      "generated exact-path line-ending policy"
+    ],
+    "in_main_baseline": false
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "bank_positive": {
+    "auditor_exit": 0,
+    "oracle_verdict": "PASS",
+    "output": "PASS: evidence bundle at build\\bank_owner_graph_awkxyzod is complete, hash-consistent, internally consistent with the oracle, free of raw heap dumps and credentials\n"
+  },
+  "rendered_owner_values_unreachable": {
+    "auditor_exit": 1,
+    "oracle_verdict": "FAIL",
+    "output": "FAIL status RUN requires verdict PASS\nFAIL cycle 1 owner_active: bank must be reachable from a GC root\nFAIL cycle 1 owner_active: receiver must be reachable from a GC root\nFAIL cycle 2 owner_active: bank must be reachable from a GC root\nFAIL cycle 2 owner_active: receiver must be reachable from a GC root\n"
+  },
+  "rendered_baseline_path_retained": {
+    "auditor_exit": 1,
+    "oracle_verdict": "FAIL",
+    "output": "FAIL status RUN requires verdict PASS\nFAIL cycle 1 baseline: bank still reachable from a GC root\nFAIL cycle 1 baseline: receiver still reachable from a GC root\nFAIL cycle 2 baseline: bank still reachable from a GC root\nFAIL cycle 2 baseline: receiver still reachable from a GC root\n"
+  }
+}
+.......................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 311 tests in 42.524s
+
+OK

@@ -1,0 +1,7 @@
+{
+  "zip_path": "build/bh07-main-integration-62d2c67-57cd2c4-v4/bank-tooling-main-62d2c67-57cd2c4.zip",
+  "zip_bytes": 207836,
+  "zip_sha256": "aa355aad1b007bbdb0f9ad6c199ea3fec3eaf931a5c0c5ac37d1edc8b3c90f4d",
+  "patch_path": "build/bh07-main-integration-62d2c67-57cd2c4-v4/tooling-only.patch",
+  "patch_sha256": "b5bf79b1f03aed56ad7e7efd0a7985f7eb5abe714a36295c28859399cee4c1f8"
+}

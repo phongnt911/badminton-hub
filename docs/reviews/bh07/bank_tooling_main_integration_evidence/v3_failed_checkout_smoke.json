@@ -1,0 +1,17 @@
+{
+  "base_sha": "62d2c67dc66d512cf7f6f19932e2131ae060e2e9",
+  "staged_additions": 59,
+  "ignored_fixture_logs_staged": 6,
+  "fresh_checkout_byte_mismatches": [],
+  "python_exit": 1,
+  "python_tests": 307,
+  "clone_core_autocrlf": "true",
+  "historical_auditor_exits": {
+    "finance": 1,
+    "legacy": 1,
+    "bank_history": 1
+  },
+  "fixture_exit": 0,
+  "original_head_unchanged": true,
+  "original_main_unchanged": true
+}

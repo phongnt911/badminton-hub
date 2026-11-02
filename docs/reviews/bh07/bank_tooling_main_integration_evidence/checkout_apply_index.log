@@ -1,0 +1,5 @@
+C:/Users/POTA/Documents/GitHub/badminton-hub/build/bh07-main-integration-62d2c67-57cd2c4-v4/tooling-only.patch:18607: trailing whitespace.
+    const backBtn = await this.findSemantic(e =>
+C:/Users/POTA/Documents/GitHub/badminton-hub/build/bh07-main-integration-62d2c67-57cd2c4-v4/tooling-only.patch:18608: trailing whitespace.
+      (e.role === 'button' || e.tag === 'BUTTON') &&
+warning: 2 lines add whitespace errors.
