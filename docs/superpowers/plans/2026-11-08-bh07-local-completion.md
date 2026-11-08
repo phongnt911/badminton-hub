@@ -53,7 +53,7 @@
 
 **Files:** Current-status sections of `AGENTS.md`, `README.md`, `docs/00_START_HERE.md`, `docs/09_IMPLEMENTATION_PLAN.md`, `docs/reviews/bh07/bh07_readiness.md`; a new completion review/decision draft under `docs/reviews/bh07/`.
 
-- [ ] Anti reconciles latest accepted finance/bank results, preserving historical sections and scope boundaries.
+- [x] Codex reconciles latest accepted finance/bank results in current-status headers and a linked status matrix; a separate reviewer verified the new links, SHAs and claims. Historical sections remain unchanged.
 - [ ] Record unavailable staging/mobile/native and other incomplete technical gates separately; draft per-gate risks/mitigations with owner approval explicitly pending.
 - [ ] Codex checks referenced paths, SHAs, statuses, diff scope and relevant test output.
 - [ ] Decide V8 using the existing rules. If owner decisions are still absent, report BH-07 unaccepted and present the exact remaining decision, without signing for the owner.
