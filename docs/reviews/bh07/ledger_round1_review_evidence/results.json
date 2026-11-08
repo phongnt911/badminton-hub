@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-08",
+  "base_sha": "5512a72bc7c5c4377916f7afb663e1fe014c7376",
+  "reviewed_tree": "uncommitted Antigravity handoff; exact file fingerprints in review_5512a72_ledger_round1.md",
+  "verdict": "NOT_ACCEPTED",
+  "new_live_db_or_browser_runtime": false,
+  "parse": {"command": "node --check scripts/bh07_appheap/run_app_profile_heap.js", "exit": 1, "error": "Missing catch or finally after try", "line": 873},
+  "oracle_probe_before_correction": {
+    "command": "python build/ledger_oracle_review_probe.py",
+    "exit": 1,
+    "positive": "PASS",
+    "missing_owner_ledger": "PASS",
+    "ledger_baseline_collision": "PASS",
+    "expected_negative_verdict": "FAIL"
+  },
+  "fixture_tests": {"command": "python -m unittest tests.test_bh07_ledger_fixture -v", "tests": 8, "exit": 0, "archive": "4503d65c96c96610"},
+  "open_findings": {"LGR1": "P1", "LGR2": "P1", "LGR3": "P1", "LGR4": "P2", "LGR5": "P2"},
+  "correction_round_authorized": "1/2",
+  "historical_results_not_retagged": true
+}

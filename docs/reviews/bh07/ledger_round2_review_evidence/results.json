@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-08",
+  "reviewed_tree": "uncommitted correction R1; fingerprints in review_5512a72_ledger_round2.md",
+  "base_sha": "5512a72bc7c5c4377916f7afb663e1fe014c7376",
+  "verdict": "NOT_ACCEPTED",
+  "original_findings_closed": ["LGR1", "LGR2", "LGR3", "LGR4", "LGR5"],
+  "open_findings": {"LGR6": "P2", "LGR7": "P2", "LGR8": "P2"},
+  "python": {"tests": 410, "failures": 2, "exit": 1, "archive": "17230924e366608c"},
+  "flutter_analyze": {"issues": 0, "exit": 0, "archive": "e617a3b9faed17f2"},
+  "flutter_test": {"passed": 247, "skipped": 1, "exit": 0, "archive": "161897fa62b27bbb"},
+  "ui_probe_before_correction_r2": {"text_cancel": true, "aria_only_cancel": false, "exit": 1},
+  "parent_receipt_probe_before_correction_r2": {"positive_exit": 0, "omitted_exit": 0, "false_exit": 0, "bank_cleanup_failure_exit": 0, "exit": 1, "archive": "60d459f76f7311e7"},
+  "new_live_db_or_browser_runtime": false,
+  "correction_round_authorized": "2/2",
+  "bh07_v8_accepted": false
+}

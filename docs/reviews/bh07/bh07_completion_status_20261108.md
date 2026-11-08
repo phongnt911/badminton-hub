@@ -10,7 +10,9 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 - **Finance tooling FH1–FH4 đã Đạt:** [review `511ce61`](review_511ce61.md) thay trạng thái Chưa đạt của review `6f59f5e`. Runtime tham chiếu vẫn `cd25e1e3557e2013e8991b2031a240818ee84c96`; không biến acceptance tooling thành runtime mới.
 - **Bank/receiver đã Đạt trong phạm vi sentinel Web local:** [review chốt](bank_receiver_heap_final_review.md), source `a095a457f2f12e8d65fe69ba5a3ca3ddb79ea110`, hai chu kỳ/tám epochs, 39 artifact profile khớp served build. ID không còn reachable sau logout/actor; bank/receiver rendered còn là rủi ro chưa quy kết. Toàn V2b chưa đóng.
 - **Gói main tooling v4:** [59 file đã chuẩn bị](bank_tooling_main_integration.md), vẫn chưa merge; chưa có runtime bank trên main. Các count 311 Python/190 Flutter của exported main candidate khác với 375 Python/247 Flutter của feature source.
-- **Ledger mới có checkpoint test đỏ, chưa triển khai:** [draft và cách tiếp tục](ledger_tdd_draft/README.md). Codex chạy 21 test đề xuất, 9 failure đúng phần chưa có contract/fixture. Draft không được kích hoạt trong suite `tests/` và không tính vào 375 PASS; không có runtime ledger mới. Cần mở quyền đọc skill Supabase trước phần fixture/backup phụ thuộc skill này.
+- **Checkpoint ledger trước triển khai (lịch sử):** [draft và cách tiếp tục](ledger_tdd_draft/README.md). Codex đã chạy 21 test đề xuất, 9 failure đúng phần khi đó chưa có contract/fixture. Ở checkpoint này draft chưa được kích hoạt trong suite `tests/` và không tính vào 375 PASS; chưa có runtime ledger mới, quyền skill Supabase còn chờ mở. Trạng thái tiếp tục mới hơn ở dòng kế tiếp.
+- **Lịch sử review ledger:** Owner mở quyền skill Supabase; [review lần đầu](review_5512a72_ledger_round1.md) và [sau sửa 1/2](review_5512a72_ledger_round2.md) ghi các phát hiện LGR1–LGR8. Các test ledger được copy vào suite active; draft gốc giữ nguyên. Count 375 PASS phía trên thuộc baseline, không phải patch ledger.
+- **Tooling ledger hiện hành Đạt tại `205dcd5`:** [review chốt](review_205dcd5.md), 420 Python PASS, fixture controls 8/8, oracle self-test 34/34; analyze 0, 247 Flutter PASS + 1 SKIP trên app không đổi. Không còn P0/P1/P2 trong phạm vi tooling. **Fixture/heap/browser runtime ledger mới NOT RUN**; chuẩn bị đo từ Git source sạch bằng reviewer wrapper có kiểm DB/provenance/auditor/cleanup độc lập.
 
 ## Ma trận quyết định hiện hành
 
@@ -25,7 +27,7 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 | R0 — readiness | Đạt docs-only kế thừa | [review `31fced4`](review_31fced4.md); cập nhật này không phải runtime mới |
 | V1 — Browser/offline/reopen/late response | Đạt local kế thừa | [chốt độc lập V1](v1_acceptance_448c50f.md) |
 | V2 — thiết bị/browser/OS/deep link ngoài Chromium đã đo | NOT RUN | Có Chrome/Edge nhưng chưa có kết quả matrix mới; thiếu Android SDK/Visual Studio và thiết bị mobile test |
-| V2b — toàn bộ private heap/cache | CHƯA ĐÓNG; một số sentinel Web Đạt | [coverage map](v2b_coverage_map.md). Ledger đang chuẩn bị test, chưa có code/runtime được nghiệm thu; instructions/listener graph/native NOT RUN; whole-model UNKNOWN |
+| V2b — toàn bộ private heap/cache | CHƯA ĐÓNG; một số sentinel Web Đạt | [coverage map](v2b_coverage_map.md). Tooling ledger Đạt `205dcd5`, runtime ledger mới NOT RUN; instructions/listener graph/native NOT RUN; whole-model UNKNOWN |
 | V3 — managed backup/PITR/offsite/encryption/retention | NOT RUN | Chưa có target managed staging/restore cô lập và policy evidence |
 | V4 — backup dưới concurrent HTTP writers | NOT RUN | Có thể chuẩn bị rehearsal Docker cô lập staging-like; phải chứng minh overlap, mốc commit, restored finance/ledger/audit invariants và cleanup trước khi nhận PASS |
 | V5 — staging/production restore/deploy | NOT RUN | Thiếu target/release/window/rollback được phê duyệt; không thực hiện production |

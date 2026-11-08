@@ -42,12 +42,16 @@
 
 ## Task 2: Determine the next valid V2b measurement
 
+**Resumed 08/11/2026:** The owner opened the Supabase skill directory; Codex successfully read it and checked current documentation. Anti CLI now owns the bounded ledger helper/runner/auditor and restored test modules. This grants no risk waiver or integration/deployment approval. Independent read-only local preflight passed for all six preserved tables, including `club_transactions` (archive `ed7688e2d8860a38`); no runtime fixture or browser measurement has run in this continuation yet.
+
 **Potential files:** Existing heap runner, oracle, evidence auditor, disposable fixture helper and focused tests; exact implementation scope must follow source inspection.
 
 - [x] Anti proposes a minimal ledger `transaction_id` measurement; Codex corrects the actual auditor path and automatic manual-dialog cancellation. Test design remains RED and unaccepted; see [checkpoint](../../reviews/bh07/ledger_tdd_draft/README.md).
 - [x] Establish which PaymentInstructions fields are exclusive and which are rendered/shared: no exclusive ID; native/whole-object release cannot be claimed from the shared IDs or rendered reference.
-- [ ] Codex reviews the proposal against actual DTO, UI and fixture contracts before delegating implementation.
+- [x] Codex reviews the proposal against actual DTO, UI and fixture contracts before delegating implementation.
 - [ ] Implement and review a feasible bounded extension, or record the concrete prerequisite/blocker. Never treat a design as runtime evidence.
+
+Tooling portion accepted at `205dcd5` after LGR1–LGR8 closure: 420 Python PASS, fixture8/8, oracle34/34; [review](../../reviews/bh07/review_205dcd5.md). Fresh real-runtime measurement is still pending, so Task 2 is not complete.
 
 ## Task 3: Reconcile current readiness and present V8 decision
 
