@@ -14,6 +14,8 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 - **Lịch sử review ledger:** Owner mở quyền skill Supabase; [review lần đầu](review_5512a72_ledger_round1.md) và [sau sửa 1/2](review_5512a72_ledger_round2.md) ghi các phát hiện LGR1–LGR8. Các test ledger được copy vào suite active; draft gốc giữ nguyên. Count 375 PASS phía trên thuộc baseline, không phải patch ledger.
 - **Tooling ledger hiện hành Đạt tại `205dcd5`:** [review chốt](review_205dcd5.md), 420 Python PASS, fixture controls 8/8, oracle self-test 34/34; analyze 0, 247 Flutter PASS + 1 SKIP trên app không đổi. Không còn P0/P1/P2 trong phạm vi tooling. **Fixture/heap/browser runtime ledger mới NOT RUN**; chuẩn bị đo từ Git source sạch bằng reviewer wrapper có kiểm DB/provenance/auditor/cleanup độc lập.
 
+**Cập nhật sau runtime:** [review `a2efc1e`](review_a2efc1e_ledger_runtime.md) **CHƯA ĐẠT**: source sạch, child/auditor exit 1, baseline scan abort, 0 chu kỳ. LGR9/LGR10 P2 diagnostic/cleanup reporting còn mở; nguyên nhân scan UNKNOWN. Sáu bảng DB và 1.961 file bảo vệ không đổi, fixture/dump/profile đã dọn. Dừng sau hai vòng sửa; chưa có ledger coverage đạt. Acceptance tooling phía trên là kết luận trước runtime.
+
 ## Ma trận quyết định hiện hành
 
 | Cổng | Trạng thái kỹ thuật | Bằng chứng/việc còn thiếu |

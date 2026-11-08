@@ -1,0 +1,8 @@
+[2026-11-08T10:32:50.478Z] building Flutter web profile bundle (dart-defines not printed)
+[2026-11-08T10:33:38.233Z] cycle 1: actor path Owner -> logout -> cohost
+[2026-11-08T10:33:44.824Z] aborted: Command failed: python -X utf8 C:\Users\POTA\Documents\GitHub\badminton-hub\scripts\bh07_appheap\heap_oracle.py scan --snapshot C:\Users\POTA\AppData\Local\Temp\bh07_appheap_dumps_73500\c1_baseline.heapsnapshot --sentinels C:\Users\POTA\AppData\Local\Temp\bh07_appheap_dumps_73500\sentinels.json --classes C:\Users\POTA\AppData\Local\Temp\bh07_appheap_dumps_73500\classes.json --paths
+[2026-11-08T10:33:45.192Z] run-only fixture expense a145b91faa4b: created=true removed=true verified_absent=true
+[2026-11-08T10:33:45.193Z] run-only fixture payment 4c9fe51ded8a: created=true removed=true verified_absent=true
+[2026-11-08T10:33:45.198Z] disposable ledger fixture 86bd907723b9: created=true removed=true verified_absent=true
+[2026-11-08T10:33:45.214Z] disposable bank fixture 1144bdadaf10: created=true removed=true verified_absent=true
+[2026-11-08T10:33:45.214Z] disposable club fixture 05a67e359e1f: created=true removed=true verified_absent=true

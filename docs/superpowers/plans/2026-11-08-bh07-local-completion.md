@@ -53,6 +53,8 @@
 
 Tooling portion accepted at `205dcd5` after LGR1–LGR8 closure: 420 Python PASS, fixture8/8, oracle34/34; [review](../../reviews/bh07/review_205dcd5.md). Fresh real-runtime measurement is still pending, so Task 2 is not complete.
 
+**Runtime attempt completed, not accepted:** clean source `a2efc1e`, child/auditor exit 1, baseline scan abort, zero cycles. Independent checks confirm six tables preserved, fixture IDs absent, dumps/profile removed and 1,961 protected files unchanged. LGR9/LGR10 P2 remain; scan root cause UNKNOWN. Stop source corrections after the exhausted two rounds under AGENTS; owner decision required before an additional correction round. See [runtime review](../../reviews/bh07/review_a2efc1e_ledger_runtime.md). Task 2 remains incomplete.
+
 ## Task 3: Reconcile current readiness and present V8 decision
 
 **Files:** Current-status sections of `AGENTS.md`, `README.md`, `docs/00_START_HERE.md`, `docs/09_IMPLEMENTATION_PLAN.md`, `docs/reviews/bh07/bh07_readiness.md`; a new completion review/decision draft under `docs/reviews/bh07/`.
