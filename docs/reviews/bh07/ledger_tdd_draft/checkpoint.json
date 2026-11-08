@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-08",
+  "status": "RED_TEST_DESIGN_ONLY",
+  "ledger_implementation_accepted": false,
+  "ledger_runtime_run": false,
+  "db_mutations_run": false,
+  "blocker": "lean-ctx refuses the required Supabase skill directory; owner allow-path request pending",
+  "red_before_packaging": {
+    "command": "python -m unittest tests.test_bh07_ledger_heap_coverage tests.test_bh07_ledger_fixture -v",
+    "tests": 21,
+    "failures": 9,
+    "exit": 1,
+    "archive": "3e5fcc74eadad534",
+    "missing_new_profile_enforcement_cases": 3,
+    "missing_new_fixture_helper_cases": 6
+  },
+  "packaged_positive_controls": {
+    "command": "python docs/reviews/bh07/ledger_tdd_draft/test_bh07_ledger_heap_coverage.py TestLedgerCoverageAuditorCLI.test_ledger_profile_positive_exit0 TestLedgerCoverageAuditorCLI.test_legacy_finance_evidence_exit0 -v",
+    "tests": 2,
+    "exit": 0,
+    "archive": "439af6685f19e8f4"
+  },
+  "accepted_active_suite_after_draft_relocation": {
+    "command": "python -m unittest discover -s tests",
+    "tests": 375,
+    "exit": 0,
+    "archive": "514dee4c37f4f232",
+    "includes_ledger_drafts": false,
+    "clean_checkout_claimed": false
+  },
+  "last_anti_call": {
+    "conversation": "bf17642e-d46b-41d5-8730-2b86ea1d88c2",
+    "status": "PRINT_TIMEOUT",
+    "archive": "d1bbdd0c1b6b3cbd",
+    "saved_changes_inspected_and_tested_by_codex": true
+  },
+  "packaging_change_by_codex": "Moved the two proposed test modules to review drafts and adjusted project-root parents[1] to parents[4]; assertions unchanged",
+  "bh07_v8_accepted": false,
+  "merge_push_deploy_pilot": false
+}

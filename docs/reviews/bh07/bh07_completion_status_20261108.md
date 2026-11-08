@@ -10,6 +10,7 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 - **Finance tooling FH1–FH4 đã Đạt:** [review `511ce61`](review_511ce61.md) thay trạng thái Chưa đạt của review `6f59f5e`. Runtime tham chiếu vẫn `cd25e1e3557e2013e8991b2031a240818ee84c96`; không biến acceptance tooling thành runtime mới.
 - **Bank/receiver đã Đạt trong phạm vi sentinel Web local:** [review chốt](bank_receiver_heap_final_review.md), source `a095a457f2f12e8d65fe69ba5a3ca3ddb79ea110`, hai chu kỳ/tám epochs, 39 artifact profile khớp served build. ID không còn reachable sau logout/actor; bank/receiver rendered còn là rủi ro chưa quy kết. Toàn V2b chưa đóng.
 - **Gói main tooling v4:** [59 file đã chuẩn bị](bank_tooling_main_integration.md), vẫn chưa merge; chưa có runtime bank trên main. Các count 311 Python/190 Flutter của exported main candidate khác với 375 Python/247 Flutter của feature source.
+- **Ledger mới có checkpoint test đỏ, chưa triển khai:** [draft và cách tiếp tục](ledger_tdd_draft/README.md). Codex chạy 21 test đề xuất, 9 failure đúng phần chưa có contract/fixture. Draft không được kích hoạt trong suite `tests/` và không tính vào 375 PASS; không có runtime ledger mới. Cần mở quyền đọc skill Supabase trước phần fixture/backup phụ thuộc skill này.
 
 ## Ma trận quyết định hiện hành
 

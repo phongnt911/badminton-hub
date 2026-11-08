@@ -44,8 +44,8 @@
 
 **Potential files:** Existing heap runner, oracle, evidence auditor, disposable fixture helper and focused tests; exact implementation scope must follow source inspection.
 
-- [ ] Anti proposes a minimal ledger `transaction_id` measurement using Owner UI loading, two same-document cycles, baseline absence, owner presence, post-logout/actor absence and ownership-verified cleanup.
-- [ ] Establish which PaymentInstructions fields are exclusive and which are rendered/shared; do not invent an instructions ID.
+- [x] Anti proposes a minimal ledger `transaction_id` measurement; Codex corrects the actual auditor path and automatic manual-dialog cancellation. Test design remains RED and unaccepted; see [checkpoint](../../reviews/bh07/ledger_tdd_draft/README.md).
+- [x] Establish which PaymentInstructions fields are exclusive and which are rendered/shared: no exclusive ID; native/whole-object release cannot be claimed from the shared IDs or rendered reference.
 - [ ] Codex reviews the proposal against actual DTO, UI and fixture contracts before delegating implementation.
 - [ ] Implement and review a feasible bounded extension, or record the concrete prerequisite/blocker. Never treat a design as runtime evidence.
 
@@ -54,7 +54,7 @@
 **Files:** Current-status sections of `AGENTS.md`, `README.md`, `docs/00_START_HERE.md`, `docs/09_IMPLEMENTATION_PLAN.md`, `docs/reviews/bh07/bh07_readiness.md`; a new completion review/decision draft under `docs/reviews/bh07/`.
 
 - [x] Codex reconciles latest accepted finance/bank results in current-status headers and a linked status matrix; a separate reviewer verified the new links, SHAs and claims. Historical sections remain unchanged.
-- [ ] Record unavailable staging/mobile/native and other incomplete technical gates separately; draft per-gate risks/mitigations with owner approval explicitly pending.
+- [x] Record unavailable staging/mobile/native and other incomplete technical gates separately; [per-gate risk draft](../../reviews/bh07/bh07_v8_risk_decision_draft.md) independently reviewed, explicitly unapproved.
 - [ ] Codex checks referenced paths, SHAs, statuses, diff scope and relevant test output.
 - [ ] Decide V8 using the existing rules. If owner decisions are still absent, report BH-07 unaccepted and present the exact remaining decision, without signing for the owner.
 
