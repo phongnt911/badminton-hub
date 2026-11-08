@@ -34,7 +34,8 @@ def surviving_private_windows(published, value):
 
 
 def run_node(script, env=None):
-    return subprocess.run(['node', '-e', script], capture_output=True, text=True, cwd=ROOT,
+    return subprocess.run(['node', '-e', script], capture_output=True, text=True,
+                          encoding='utf-8', cwd=ROOT,
                           env={**os.environ, **(env or {})})
 
 

@@ -112,6 +112,7 @@ def run_open_owner_bank_harness(payload):
         input=json.dumps(payload),
         capture_output=True,
         text=True,
+        encoding='utf-8',
         cwd=ROOT,
     )
     data = {}
