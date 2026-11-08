@@ -49,7 +49,7 @@
 - [x] Anti proposes a minimal ledger `transaction_id` measurement; Codex corrects the actual auditor path and automatic manual-dialog cancellation. Test design remains RED and unaccepted; see [checkpoint](../../reviews/bh07/ledger_tdd_draft/README.md).
 - [x] Establish which PaymentInstructions fields are exclusive and which are rendered/shared: no exclusive ID; native/whole-object release cannot be claimed from the shared IDs or rendered reference.
 - [x] Codex reviews the proposal against actual DTO, UI and fixture contracts before delegating implementation.
-- [ ] Implement and review a feasible bounded extension, or record the concrete prerequisite/blocker. Never treat a design as runtime evidence.
+- [x] Implement and review a feasible bounded extension, or record the concrete prerequisite/blocker. Never treat a design as runtime evidence. Ledger sentinel extension accepted at `b25aaef`; other V2b gaps remain open.
 
 Tooling portion accepted at `205dcd5` after LGR1–LGR8 closure: 420 Python PASS, fixture8/8, oracle34/34; [review](../../reviews/bh07/review_205dcd5.md). Fresh real-runtime measurement is still pending, so Task 2 is not complete.
 
@@ -58,6 +58,8 @@ Tooling portion accepted at `205dcd5` after LGR1–LGR8 closure: 420 Python PASS
 **Owner authorization after runtime review:** Open correction round 3/3 for LGR9/LGR10 and baseline scan diagnosis. General AGENTS limit updated from two to three correction rounds. Anti CLI owns focused tooling/test edits; Codex verifies and independently reviews. Earlier two-round stop remains historical; no runtime PASS or operational risk waiver is implied.
 
 **Round 3 outcome:** candidate `c427e27` is not accepted. LGR9 diagnostic wiring added; LGR10 remains open through LGR11 P2 (unguarded directory enumeration interrupts later DB cleanup). A fresh about:blank Chrome156/V8 15.6 probe confirms LGR12 P1 (scope tables rejected by current oracle); no app/DB runtime and no app leak conclusion. Stop after three rounds under the owner-updated AGENTS rule; no automatic round4. See [review](../../reviews/bh07/review_c427e27_ledger_round3.md).
+
+**Supplemental owner-authorized Codex repair completed:** Owner said “codex tự sửa”. LGR11/LGR12 fixed with RED2→GREEN17 targeted controls, full437Python PASS. Clean-source runtime `b25aaef` RUN/PASS, child/auditor0, two cycles/eight epochs, ledger ID loaded/reachable for Owner and absent/unreachable after logout/actor; DB/protected hashes unchanged, fixtures/dumps/profiles removed. Independent source/artifact reviewer accepts bounded local sentinel scope (not independent runtime QA); [final review](../../reviews/bh07/review_b25aaef_ledger_final.md). Task 2 bounded ledger extension is complete; whole V2b/BH-07/V8 remains open. General max3-round rule unchanged; supplemental authorization is specific.
 
 ## Task 3: Reconcile current readiness and present V8 decision
 

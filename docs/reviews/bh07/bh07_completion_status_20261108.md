@@ -20,6 +20,8 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 
 **Kết thúc vòng 3/3:** candidate `c427e27` [chưa đạt review](review_c427e27_ledger_round3.md). LGR9 diagnostic đã nối vào runner; LGR10 còn hở do LGR11 P2 (enumeration có thể ngắt DB cleanup). Probe installed Chrome156/V8 15.6 trên about:blank xác nhận LGR12 P1: parser từ chối `scopes`, exit 2; không chứng minh nguyên nhân snapshot lịch sử đã xóa và không kết luận app leak. Không có app/DB runtime mới; probe đã dọn dump/profile. Dừng theo quy tắc 3 vòng mới, không tự mở vòng 4.
 
+**Kết quả bổ sung theo “codex tự sửa”:** [review chốt `b25aaef`](review_b25aaef_ledger_final.md) Đạt trong phạm vi sửa và ledger sentinel Web local. 437Python PASS; source sạch RUN/PASS, child/auditor0, 2chu kỳ/8epochs, 39profileartifact khớp served; ledger ID reachable ở Owner và vắng/unreachable sau logout/actor. Sáu bảng DB không đổi, fixtures/dump/profile đã dọn, 1.974file bảo vệ không đổi. LGR9–LGR12 đóng trong phạm vi này; review source/artifact độc lập, runtime do implementer Codex tự chạy. V2b/BH-07/V8 vẫn chưa nghiệm thu; các điểm dừng phía trên là lịch sử.
+
 ## Ma trận quyết định hiện hành
 
 | Cổng | Trạng thái kỹ thuật | Bằng chứng/việc còn thiếu |
@@ -33,7 +35,7 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 | R0 — readiness | Đạt docs-only kế thừa | [review `31fced4`](review_31fced4.md); cập nhật này không phải runtime mới |
 | V1 — Browser/offline/reopen/late response | Đạt local kế thừa | [chốt độc lập V1](v1_acceptance_448c50f.md) |
 | V2 — thiết bị/browser/OS/deep link ngoài Chromium đã đo | NOT RUN | Có Chrome/Edge nhưng chưa có kết quả matrix mới; thiếu Android SDK/Visual Studio và thiết bị mobile test |
-| V2b — toàn bộ private heap/cache | CHƯA ĐÓNG; một số sentinel Web Đạt | [coverage map](v2b_coverage_map.md). Tooling ledger Đạt `205dcd5`, runtime ledger mới NOT RUN; instructions/listener graph/native NOT RUN; whole-model UNKNOWN |
+| V2b — toàn bộ private heap/cache | CHƯA ĐÓNG; ledger và các sentinel ID Web Đạt | [coverage map](v2b_coverage_map.md). Runtime ledger `b25aaef` RUN/PASS; instructions/listener graph/native NOT RUN, whole-model UNKNOWN; rendered retention unattributed |
 | V3 — managed backup/PITR/offsite/encryption/retention | NOT RUN | Chưa có target managed staging/restore cô lập và policy evidence |
 | V4 — backup dưới concurrent HTTP writers | NOT RUN | Có thể chuẩn bị rehearsal Docker cô lập staging-like; phải chứng minh overlap, mốc commit, restored finance/ledger/audit invariants và cleanup trước khi nhận PASS |
 | V5 — staging/production restore/deploy | NOT RUN | Thiếu target/release/window/rollback được phê duyệt; không thực hiện production |

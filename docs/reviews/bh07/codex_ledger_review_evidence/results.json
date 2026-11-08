@@ -1,0 +1,33 @@
+{
+  "scope_verdict": "ACCEPTED_LOCAL_WEB_SENTINEL_SCOPE",
+  "tested_source_sha": "b25aaef1878b42e625c93d247b246237ba5cfd9b",
+  "implementer_and_runtime_operator": "Codex",
+  "independent_source_and_artifact_review": true,
+  "independent_runtime_qa_claimed": false,
+  "closed_findings": ["LGR9", "LGR10", "LGR11", "LGR12"],
+  "open_blocking_findings_in_repair_scope": [],
+  "red_regression_methods_failed_before_fix": 2,
+  "targeted_passed": 17,
+  "python": {"passed": 437, "seconds": 173.785, "exit": 0, "archive": "846b2bb04ddf15c1"},
+  "fixture_controls": {"passed": 8, "total": 8},
+  "blank_chrome_after_fix": {"oracle_exit": 0, "browser_profile_dump_cleanup": true, "archive": "2cc0dfdf518f98a9"},
+  "runtime": {
+    "wrapper_exit": 0, "child_exit": 0, "auditor_exit": 0,
+    "archive": "7df4026c62399be2", "status": "RUN", "verdict": "PASS", "git_dirty": false,
+    "cycles": 2, "epochs": 8, "same_document_per_cycle": true,
+    "profile_artifacts": 39, "served_match": true,
+    "ledger_owner_path_lengths": [18, 18],
+    "ledger_absent_unreachable_at_baseline_logout_actor": true,
+    "six_table_full_row_fingerprints_preserved": true, "receipt_ids_absent": true,
+    "protected_file_count": 1974, "changed_protected_paths": [],
+    "dumps_removed": true, "profile_removed": true,
+    "captured_output_bytes": 15554, "captured_output_sha256": "42c7f16ce431f8bfc29db959a34fc7e2539ad597f7cc38e9a6b97cb225d4224e",
+    "auditor_output_bytes": 188, "auditor_output_sha256": "764d2f0228d371660b523194692ad553ec7c408bbadb45bea1f9d70bfd657297"
+  },
+  "rendered_retention_attribution": "unattributed",
+  "whole_model_appwide": "UNKNOWN",
+  "listener_native": "NOT RUN",
+  "bh07_v8_accepted": false,
+  "owner_risk_acceptance_recorded": false,
+  "merge_push_deploy_pilot": false
+}
