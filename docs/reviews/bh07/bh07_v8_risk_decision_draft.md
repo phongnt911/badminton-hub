@@ -1,0 +1,26 @@
+# BH-07 V8 — dự thảo quyết định rủi ro còn lại
+
+**DỰ THẢO — CHƯA ĐƯỢC CHỦ DỰ ÁN PHÊ DUYỆT. Không dùng làm evidence acceptance.**
+
+Lập ngày 08/11/2026 theo [ma trận hiện hành](bh07_completion_status_20261108.md) và [quy tắc V8](bh07_readiness.md#411-v8--nghiệm-thu-toàn-bh-07). Người dùng đã xác nhận không có Supabase staging riêng hoặc thiết bị Android/iOS test. Việc giao tiếp tục code/review không thay cho quyết định dưới đây.
+
+## Phạm vi quyết định có thể trình chủ dự án
+
+Nếu chọn chấp nhận rủi ro cho một cổng, quyết định chỉ cho phép reviewer xem xét nghiệm thu BH-07 trong phạm vi phát triển/kiểm chứng local và giữ nguyên giới hạn đó trong hồ sơ. Cổng chưa chạy vẫn mang nhãn NOT RUN hoặc UNKNOWN, không đổi thành PASS. Không miễn trừ core A/B/C/D, HTTP/Auth, HTTP concurrency, V1 hoặc R0; không che một kết quả FAIL hay lỗi P0/P1/P2 chưa đóng.
+
+| Cổng cần quyết định | Bằng chứng đang thiếu / rủi ro cụ thể | Biện pháp giới hạn và điều kiện phải kiểm lại | Quyết định chủ dự án |
+|---|---|---|---|
+| V2 — mobile/browser/OS/deep link | Chưa có matrix thực thi Android/iOS, native cold start, OS deep link, Safari/Firefox/Edge. Kết quả Chromium local không chứng minh các nền tảng này. Có thể còn lỗi điều hướng, lifecycle, offline hoặc privacy theo nền tảng. | Chỉ sử dụng phạm vi Web local đã kiểm; chưa phát hành native/công bố hỗ trợ các nền tảng chưa thử. Trước khi hỗ trợ một nền tảng, chạy và review matrix tương ứng. | **CHƯA PHÊ DUYỆT** |
+| V2b — private heap/cache ngoài sentinel đã đo | Rendered bank/receiver, expense titles và payment reference còn reachable sau logout/actor trong runtime đã chốt; nguyên nhân chưa quy kết. ID sentinel sạch không chứng minh toàn model/cache/listener sạch. Instructions, listener graph và Dart VM native chưa đo; ledger đang triển khai test, chưa có verdict mới. Rủi ro gồm tồn lưu dữ liệu tài chính trong bộ nhớ trên máy dùng chung. | Không xử lý dữ liệu thật hoặc dùng chung profile/máy cho nhiều actor trong phạm vi thử local. Giữ output heap riêng tư và xóa theo receipt. Đóng các phạm vi chưa đo hoặc có quyết định riêng trước khi mở rộng sử dụng; không mô tả là toàn app sạch. Cập nhật dòng này bằng kết quả ledger thực tế trước khi trình quyết định cuối. | **CHƯA PHÊ DUYỆT** |
+| V3 — managed backup/PITR/offsite/encryption/retention | Chỉ có rehearsal DB/Auth local; chưa chứng minh recovery của managed service, Storage/Edge/Realtime/external secrets, mốc PITR, chính sách mã hóa/retention/offsite. Có thể không phục hồi đầy đủ khi mất môi trường thật. | Chưa nhận dữ liệu vận hành thật; giữ local test tái tạo được. Trước staging/production phải có target restore cô lập, cấu hình chính sách, restore drill và kiểm tra ACL/RPC được review. | **CHƯA PHÊ DUYỆT** |
+| V4 — backup dưới concurrent HTTP writers | Chưa có phép đo overlap thực giữa backup và ít nhất hai HTTP writers, mốc commit và restored payment/ledger/audit invariants. Rehearsal dừng writer không bao phủ tải ghi đang chạy. | Có thể thực hiện rehearsal Docker staging-like cô lập mà không cần managed staging; ưu tiên hoàn tất/review bằng chứng này. Nếu chưa chạy, không tuyên bố backup an toàn dưới tải ghi và phải kiểm trước vận hành có concurrent writers. | **CHƯA PHÊ DUYỆT** |
+| V5 — staging/production restore/deploy | Chưa có target/release/window, restore/deploy/rollback thực, measured RTO/RPO hoặc smoke trên môi trường phát hành. V5b reset local đã Đạt không thay V5. | Không deploy/restore staging hay production theo quyết định local này. Trước release cần phê duyệt target/window riêng, backup/rollback, smoke Auth/ACL/RPC và đo RTO/RPO. | **CHƯA PHÊ DUYỆT** |
+| V7 — tải thật/pilot | Chưa đo SLO/tải production-like, chưa rollback drill với tải, chưa có nhóm pilot/support/on-call. Chưa chứng minh năng lực phục vụ người dùng thực. | Không mở pilot hay cam kết SLO. Trước pilot phải chốt workload/SLO/nhóm thử/người trực, chạy tải và rollback rồi review kết quả. | **CHƯA PHÊ DUYỆT** |
+
+V5b đã Đạt local theo [review `b036e9e`](review_b036e9e.md), không cần tạo waiver thay cho kết quả đó. V6 banking/webhook thật ở ngoài phạm vi BH-07, vẫn NOT RUN; dự thảo này không mở rộng phạm vi V6.
+
+## Cách hoàn tất hồ sơ quyết định
+
+Trước khi trình bản cuối, cập nhật các kết quả local đang làm và review toàn bộ lỗi còn mở. Chủ dự án phải chỉ rõ cổng nào chấp nhận, lý do, giới hạn/biện pháp giảm thiểu, phạm vi áp dụng và thời điểm quyết định; có thể từ chối hoặc yêu cầu đo thêm từng cổng. Ghi lại chính xác quyết định thực tế trong một bản đã ban hành, dẫn tới phiên bản ma trận tương ứng. Không điền tên/ngày phê duyệt hoặc đổi các ô trên thay cho chủ dự án.
+
+Reviewer chỉ chốt V8 khi đủ đồng thời các điều kiện hiện hành. Một quyết định chấp nhận rủi ro, nếu có, không tự phê duyệt gói 59 file main tooling, tích hợp toàn nhánh ứng dụng, push, deploy, pilot hoặc BH-08.
