@@ -711,9 +711,19 @@ async function takeSnapshot(cdp, label, sentinelsPath, classesPath) {
     cdp.ws.onmessage = original;
   }
   fs.writeFileSync(file, chunks.join(''));
-  const scanned = JSON.parse(run(PY, ['-X', 'utf8', ORACLE, 'scan', '--snapshot', file, '--sentinels', sentinelsPath,
-    '--classes', classesPath, '--paths'], { shell: false }));
-  fs.unlinkSync(file);
+  let scanned;
+  try {
+    const raw = run(PY, ['-X', 'utf8', ORACLE, 'scan', '--snapshot', file, '--sentinels', sentinelsPath,
+      '--classes', classesPath, '--paths'], { shell: false });
+    scanned = JSON.parse(raw);
+  } catch (err) {
+    const diag = extractScanDiagnostic(err);
+    const scanError = new Error(`Command failed: python scan nonzero (exit ${diag.exit_status}, type ${diag.error_type}): ${diag.detail}`);
+    scanError.scan_failure = diag;
+    throw scanError;
+  } finally {
+    try { if (fs.existsSync(file)) fs.unlinkSync(file); } catch (_) { /* best effort */ }
+  }
   await checked(cdp, 'Runtime.evaluate', { expression: '1' }, 15000);
   log(`${label}: snapshot ${scanned.size_bytes} bytes sha=${scanned.sha256_12} ok=${scanned.ok} `
     + `present=${JSON.stringify(Object.fromEntries(Object.entries(scanned.sentinels).map(([k, v]) => [k, v.present])))}`);
@@ -933,6 +943,11 @@ async function main() {
   } catch (error) {
     summary.status = 'NOT RUN';
     summary.error = error.message;
+    if (error.scan_failure) {
+      summary.scan_failure = error.scan_failure;
+    } else if (error.status !== undefined && (error.stdout || error.stderr)) {
+      summary.scan_failure = extractScanDiagnostic(error);
+    }
     log(`aborted: ${error.message}`);
   } finally {
     if (cdp) await cdp.close().catch(() => {});
@@ -959,9 +974,15 @@ async function main() {
     // Raw heap dumps and the throw-away Chrome profile must not survive the run.
     const chromeDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
     try { fs.rmSync(DUMPS, { recursive: true, force: true }); } catch (_) { /* best effort */ }
+    const dumpsRemoved = !fs.existsSync(DUMPS);
+    const rawSnapshotsRemaining = dumpsRemoved
+      ? 0
+      : (fs.existsSync(DUMPS) ? fs.readdirSync(DUMPS).filter((f) => f.endsWith('.heapsnapshot')).length : 0);
     summary.cleanup = {
       ...summary.cleanup,
-      dumps_dir_removed: !fs.existsSync(DUMPS),
+      dump_dir_outside_repo: !DUMPS.startsWith(ROOT),
+      raw_snapshots_remaining: rawSnapshotsRemaining,
+      dumps_dir_removed: dumpsRemoved,
       chrome_profile_dir_removed: browserCleanupOk && !fs.existsSync(chromeDir),
     };
     // The run-only expense row must be gone as well: leaving Owner-private fixture data in
@@ -1164,6 +1185,102 @@ function redactSentinels(text, values = RAW_SENTINEL_VALUES) {
   return out + haystack.slice(cursor);
 }
 
+function extractScanDiagnostic(err, values = RAW_SENTINEL_VALUES) {
+  if (!err) {
+    return { exit_status: 1, error_type: 'unknown', detail: 'unknown error' };
+  }
+  if (err.scan_failure && typeof err.scan_failure === 'object') {
+    return err.scan_failure;
+  }
+  const exitStatus = typeof err.status === 'number'
+    ? err.status
+    : (err.signal ? String(err.signal) : (err.code ? String(err.code) : 1));
+  let errorType = 'scan_execution_error';
+  let detail = '';
+
+  if (err.stdout) {
+    const stdoutStr = String(err.stdout).trim();
+    try {
+      const parsed = JSON.parse(stdoutStr);
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.ok === false) {
+          errorType = 'snapshot_unusable';
+        }
+        if (parsed.error && typeof parsed.error === 'string') {
+          detail = parsed.error;
+        }
+      }
+    } catch (_) {
+      // stdout not valid JSON
+    }
+  }
+
+  if (!detail && err.stderr) {
+    const stderrStr = String(err.stderr).trim();
+    if (stderrStr) {
+      const lines = stderrStr.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const lastLine = lines[lines.length - 1] || '';
+      const excMatch = lastLine.match(/^([A-Za-z0-9_]+(?:Error|Exception))(?::\s*(.*))?$/);
+      if (excMatch) {
+        errorType = excMatch[1];
+        detail = excMatch[2] ? excMatch[2].trim() : excMatch[1];
+      } else if (lastLine) {
+        detail = lastLine.slice(0, 200);
+      }
+    }
+  }
+
+  if (!detail) {
+    detail = err.code || (err.message ? err.message.split(/\r?\n/)[0].slice(0, 200) : 'unknown error');
+  }
+
+  detail = redactSentinels(detail, values).slice(0, 200);
+  errorType = redactSentinels(errorType, values).slice(0, 100);
+
+  return {
+    exit_status: exitStatus,
+    error_type: errorType,
+    detail,
+  };
+}
+
+function evaluateCleanupState(opts = {}) {
+  const dumpsDir = opts.dumpsDir || DUMPS;
+  const rootDir = opts.rootDir || ROOT;
+  const chromeDir = opts.chromeDir;
+  const browserCleanupOk = opts.browserCleanupOk !== false;
+  const fixture = opts.fixture;
+  const paymentFixture = opts.paymentFixture;
+  const isBankCoverageMode = opts.isBankCoverage === true;
+  const bankCleanupOk = opts.bankCleanupOk !== false;
+  const isLedgerCoverageMode = opts.isLedgerCoverage === true;
+  const ledgerCleanupOk = opts.ledgerCleanupOk !== false;
+
+  const dumpsRemoved = !fs.existsSync(dumpsDir);
+  const rawSnapshotsRemaining = dumpsRemoved
+    ? 0
+    : (fs.existsSync(dumpsDir) ? fs.readdirSync(dumpsDir).filter((f) => f.endsWith('.heapsnapshot')).length : 0);
+  const dumpDirOutsideRepo = !path.resolve(dumpsDir).startsWith(path.resolve(rootDir));
+  const chromeProfileDirRemoved = browserCleanupOk && (!chromeDir || !fs.existsSync(chromeDir));
+
+  const ok = dumpDirOutsideRepo === true
+    && rawSnapshotsRemaining === 0
+    && dumpsRemoved === true
+    && chromeProfileDirRemoved === true
+    && fixtureCleanupOk(fixture)
+    && fixtureCleanupOk(paymentFixture)
+    && (!isBankCoverageMode || bankCleanupOk)
+    && (!isLedgerCoverageMode || (ledgerCleanupOk && bankCleanupOk));
+
+  return {
+    dump_dir_outside_repo: dumpDirOutsideRepo,
+    raw_snapshots_remaining: rawSnapshotsRemaining,
+    dumps_dir_removed: dumpsRemoved,
+    chrome_profile_dir_removed: chromeProfileDirRemoved,
+    ok,
+  };
+}
+
 function renderReport(summary) {
   const build = (summary.environment || {}).build || {};
   const lines = [
@@ -1302,7 +1419,7 @@ function writeEvidence(summary) {
 
 module.exports = {
   button,
-  findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES,
+  findSentinelLeaks, redactSentinels, redactValue, renderReport, RAW_SENTINEL_VALUES,
   ensureExtraExpense, removeExtraExpense, ensureExtraPayment, removeExtraPayment,
   ensureDisposableBank, removeDisposableBank, registerDisposableBankRedactions, DisposableBankFixture,
   ensureDisposableLedger, removeDisposableLedger, registerDisposableLedgerRedactions, DisposableLedgerFixture,
@@ -1311,6 +1428,7 @@ module.exports = {
   claimOutputDirectory, isNestedUnderEvidence,
   restGet, restWrite, makeEnvTransport,
   startChromeLogged, DEBUG_PORT, CHROME_PATH,
+  extractScanDiagnostic, evaluateCleanupState,
 };
 
 if (require.main === module) main().catch((e) => { console.error(redactSentinels(e.stack || e.message)); process.exitCode = 1; });
