@@ -886,6 +886,41 @@ def decide(scans, expectations, cleanup_ok, mode, strict=False):
                     verdict_ok = False
                     findings.append(f'baseline: {req} declared for bank coverage was reachable from a GC root')
 
+        # Ledger coverage contract: when ledger coverage is declared via ledger_transaction_id
+        base_sentinels = (scans.get('baseline') or {}).get('sentinels') or {}
+        if 'ledger_transaction_id' in owner_sentinels or 'ledger_transaction_id' in base_sentinels:
+            if 'ledger_transaction_id' not in gated:
+                verdict_ok = False
+                findings.append('owner_active: ledger_transaction_id declared for ledger coverage was not gated '
+                                '(precondition not met: ledger_transaction_id not loaded in owner_active '
+                                'or already visible at baseline)')
+            lt_rec = owner_sentinels.get('ledger_transaction_id') or {}
+            if lt_rec.get('rendered') is True:
+                verdict_ok = False
+                findings.append('owner_active: ledger_transaction_id must be declared rendered: false')
+            if lt_rec.get('scope') != 'finance':
+                verdict_ok = False
+                findings.append('owner_active: ledger_transaction_id must be declared scope: finance')
+            if lt_rec.get('distinctive') is not True:
+                verdict_ok = False
+                findings.append('owner_active: ledger_transaction_id must be declared distinctive: true')
+
+            owner_paths = (scans.get('owner_active') or {}).get('paths')
+            owner_paths = owner_paths if isinstance(owner_paths, dict) else {}
+            base_paths = (scans.get('baseline') or {}).get('paths')
+            base_paths = base_paths if isinstance(base_paths, dict) else {}
+
+            lt_owner_path = owner_paths.get('ledger_transaction_id') or {}
+            if lt_owner_path.get('reachable') is not True:
+                verdict_ok = False
+                if not any('ledger_transaction_id' in f and 'reachable' in f for f in findings):
+                    findings.append('owner_active: ledger_transaction_id declared for ledger coverage was not reachable from a GC root')
+            lt_base_path = base_paths.get('ledger_transaction_id') or {}
+            if lt_base_path.get('reachable') is True:
+                verdict_ok = False
+                if not any('ledger_transaction_id' in f and 'reachable' in f for f in findings):
+                    findings.append('baseline: ledger_transaction_id declared for ledger coverage was reachable from a GC root')
+
     return {
         'verdict': 'PASS' if verdict_ok else 'FAIL',
         'findings': findings,

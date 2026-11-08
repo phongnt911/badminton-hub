@@ -18,7 +18,13 @@ const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '../..');
 const isBankCoverage = process.argv.includes('--bank-coverage');
-const DEFAULT_EVIDENCE_REL = isBankCoverage ? 'docs/reviews/bh07/bank_receiver_heap_evidence' : 'docs/reviews/bh07/app_profile_heap_evidence';
+const isLedgerCoverage = process.argv.includes('--ledger-coverage');
+let DEFAULT_EVIDENCE_REL = 'docs/reviews/bh07/app_profile_heap_evidence';
+if (isBankCoverage) {
+  DEFAULT_EVIDENCE_REL = 'docs/reviews/bh07/bank_receiver_heap_evidence';
+} else if (isLedgerCoverage) {
+  DEFAULT_EVIDENCE_REL = 'docs/reviews/bh07/ledger_heap_evidence';
+}
 const OUT = path.resolve(process.env.BH07_APPHEAP_EVIDENCE || path.join(ROOT, DEFAULT_EVIDENCE_REL));
 
 function isNestedUnderEvidence(targetPath) {
@@ -34,9 +40,9 @@ function isNestedUnderEvidence(targetPath) {
   return false;
 }
 
-function claimOutputDirectory(outDir, isBankCoverageMode) {
+function claimOutputDirectory(outDir, isProtectedMode) {
   const resolved = path.resolve(outDir);
-  if (!isBankCoverageMode) {
+  if (!isProtectedMode) {
     fs.mkdirSync(resolved, { recursive: true });
     return { claimed: true, dir: resolved };
   }
@@ -95,7 +101,7 @@ function log(msg) {
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const text = (e) => `${e.text || ''}\n${e.aria || ''}`;
-const button = (label) => (e) => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === label || e.aria === label);
+const button = (label) => (e) => (e.role === 'button' || e.tag === 'BUTTON') && ((e.text || '').trim() === label || (e.aria || '').trim() === label);
 const sha12 = (value) => crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, 12);
 
 function run(cmd, args, opts = {}) {
@@ -380,7 +386,9 @@ async function removeExtraPayment(env) {
 
 const RAW_SENTINEL_VALUES = {};
 const { DisposableBankFixture } = require('./disposable_bank_fixture');
+const { DisposableLedgerFixture } = require('./disposable_ledger_fixture');
 let disposableBankFixture = null;
+let disposableLedgerFixture = null;
 
 function registerDisposableBankRedactions(fixture) {
   if (!fixture) return;
@@ -389,6 +397,12 @@ function registerDisposableBankRedactions(fixture) {
   if (fixture.bankId) RAW_SENTINEL_VALUES['bank_account_id'] = fixture.bankId;
   if (fixture.clubId) RAW_SENTINEL_VALUES['disposable_club_id'] = fixture.clubId;
   if (fixture.memberId) RAW_SENTINEL_VALUES['disposable_member_id'] = fixture.memberId;
+}
+
+function registerDisposableLedgerRedactions(fixture) {
+  if (!fixture) return;
+  if (fixture.transactionId) RAW_SENTINEL_VALUES['ledger_transaction_id'] = fixture.transactionId;
+  if (fixture.title) RAW_SENTINEL_VALUES['ledger_title'] = fixture.title;
 }
 
 function makeEnvTransport(env) {
@@ -417,6 +431,29 @@ async function removeDisposableBank(env) {
   return await disposableBankFixture.cleanup(makeEnvTransport(env));
 }
 
+async function ensureDisposableLedger(env, parentBankFixture) {
+  assertLocalEndpoint(env);
+  if (!parentBankFixture || !parentBankFixture.clubId || !parentBankFixture.ownerUserId) {
+    throw new Error('cannot create child ledger fixture without owned parent bank/club fixture');
+  }
+  if (!disposableLedgerFixture) {
+    disposableLedgerFixture = new DisposableLedgerFixture({
+      clubId: parentBankFixture.clubId,
+      ownerUserId: parentBankFixture.ownerUserId,
+    });
+  }
+  registerDisposableLedgerRedactions(disposableLedgerFixture);
+  await disposableLedgerFixture.ensure(makeEnvTransport(env));
+  return disposableLedgerFixture;
+}
+
+async function removeDisposableLedger(env) {
+  if (!disposableLedgerFixture) {
+    disposableLedgerFixture = new DisposableLedgerFixture();
+  }
+  return await disposableLedgerFixture.cleanup(makeEnvTransport(env));
+}
+
 function fixtureCleanupOk(cleanup) {
   // A clean fixture means exactly one of: the row we created is gone (removal + absence), or
   // we created nothing and nothing carrying our id exists.
@@ -427,13 +464,16 @@ function fixtureCleanupOk(cleanup) {
 
 // Sentinels are real fixture values that only the Owner's private payloads carry. Each one
 // declares the class the gate depends on (see SENTINEL_CLASSES below).
-async function resolveSentinels(env, runId, isBankCoverageMode = false) {
+async function resolveSentinels(env, runId, isBankCoverageMode = false, isLedgerCoverageMode = false) {
   const banks = await restGet(env, `club_bank_accounts?club_id=eq.${CLUB_A}&select=account_number,account_name&status=eq.active`);
   if (!banks.length) throw new Error('no active club bank account fixture for club A');
   await ensureExtraExpense(env);
   await ensureExtraPayment(env);
-  if (isBankCoverageMode) {
+  if (isBankCoverageMode || isLedgerCoverageMode) {
     await ensureDisposableBank(env);
+  }
+  if (isLedgerCoverageMode) {
+    await ensureDisposableLedger(env, disposableBankFixture);
   }
   const expenses = await restGet(env, `session_expenses?session_id=eq.${UI_SESSION_ID}&select=id,title&status=eq.posted&order=id.asc`);
   // Identified by id, never by sort order: the run-only row is only ours when we posted it.
@@ -443,24 +483,10 @@ async function resolveSentinels(env, runId, isBankCoverageMode = false) {
   const payments = await restGet(env, `payments?id=eq.${EXTRA_PAYMENT.id}&select=id,reference`);
   if (!payments.length) throw new Error('run-only payment fixture row missing');
   const players = await restGet(env, `session_players?session_id=eq.${UI_SESSION_ID}&select=id&order=id.asc`);
-  if (isBankCoverageMode) {
-    return {
-      bank: disposableBankFixture.accountNumber,
-      receiver: disposableBankFixture.accountName,
-      bank_account_id: disposableBankFixture.bankId,
-      expense: seededExpense.title,
-      expense_id: seededExpense.id,
-      expense2: runOnly.title,
-      expense_id_2: runOnly.id,
-      payment_id: payments[0].id,
-      payment_ref: payments[0].reference,
-      players: players.map((row) => row.id),
-      probe: `BH07APPHEAPPROBE-${runId}`,
-    };
-  }
-  return {
-    bank: banks[0].account_number,
-    receiver: banks[0].account_name,
+
+  const res = {
+    bank: (isBankCoverageMode || isLedgerCoverageMode) && disposableBankFixture ? disposableBankFixture.accountNumber : banks[0].account_number,
+    receiver: (isBankCoverageMode || isLedgerCoverageMode) && disposableBankFixture ? disposableBankFixture.accountName : banks[0].account_name,
     expense: seededExpense.title,
     expense_id: seededExpense.id,
     expense2: runOnly.title,
@@ -470,6 +496,15 @@ async function resolveSentinels(env, runId, isBankCoverageMode = false) {
     players: players.map((row) => row.id),
     probe: `BH07APPHEAPPROBE-${runId}`,
   };
+
+  if (isBankCoverageMode && disposableBankFixture) {
+    res.bank_account_id = disposableBankFixture.bankId;
+  }
+  if (isLedgerCoverageMode && disposableLedgerFixture) {
+    res.ledger_transaction_id = disposableLedgerFixture.transactionId;
+    res.ledger_title = disposableLedgerFixture.title;
+  }
+  return res;
 }
 
 // Class of each sentinel, declared once so runner, oracle and auditor agree:
@@ -493,6 +528,8 @@ const SENTINEL_CLASSES = {
   payment_ref: { rendered: true, distinctive: true, scope: 'finance' },
   player_a: { rendered: false, distinctive: true, scope: 'identity' },
   player_b: { rendered: false, distinctive: true, scope: 'identity' },
+  ledger_transaction_id: { rendered: false, distinctive: true, scope: 'finance' },
+  ledger_title: { rendered: true, distinctive: true, scope: 'finance' },
   probe: { rendered: false, distinctive: true, scope: 'control' },
 };
 const SENTINEL_KINDS = {
@@ -506,6 +543,8 @@ const SENTINEL_KINDS = {
   payment_ref: 'submitted session payment reference rendered as widget text',
   player_a: 'session player id of the seeded roster (never rendered)',
   player_b: 'second session player id of the seeded roster (never rendered)',
+  ledger_transaction_id: 'disposable club ledger transaction ID from club_transactions (never rendered)',
+  ledger_title: 'disposable club ledger transaction title rendered as widget text',
   probe: 'detector sanity marker set on window',
 };
 
@@ -613,6 +652,28 @@ async function openOwnerBank(cdp, clubName, bankCode = 'VCB') {
   await home(cdp);
 }
 
+async function openOwnerLedger(cdp, clubName, fixtureTitle) {
+  await home(cdp);
+  // Navigate to Clubs tab
+  await cdp.clickSemantic((e) => e.role === 'tab' && (e.aria === 'CLB & Quỹ' || text(e).includes('CLB & Quỹ')), 'Clubs tab');
+  await wait(600);
+  // Select disposable club
+  await cdp.clickSemantic((e) => text(e).includes(clubName), 'Select disposable test club');
+  await wait(800);
+  // Look for and click THU QUỸ button
+  await cdp.clickSemantic((e) => (e.role === 'button' || e.tag === 'BUTTON') && text(e).includes('THU QUỸ'), 'Click THU QUY');
+  await wait(600);
+  // Cancel manual transaction dialog with EXACT 'Huỷ' (never 'Ghi sổ')
+  await cdp.clickSemantic(button('Huỷ'), 'Cancel manual transaction dialog');
+  await wait(600);
+  // Wait for 'Giao dịch' list and fixture title
+  await cdp.waitForSemantic((e) => text(e).includes('Giao dịch'), 'Wait for Giao dich section');
+  if (fixtureTitle) {
+    await cdp.waitForSemantic((e) => text(e).includes(fixtureTitle), 'Wait for fixture transaction title');
+  }
+  await wait(500);
+}
+
 async function openCohostSummary(cdp) {
   await cdp.clickSemantic((e) => e.role === 'tab' && e.aria === 'Buổi Chơi', 'Sessions tab');
   await cdp.clickSemantic((e) => text(e).includes('Lịch sử buổi'), 'History');
@@ -659,7 +720,7 @@ async function takeSnapshot(cdp, label, sentinelsPath, classesPath) {
   return scanned;
 }
 
-async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverageMode = false) {
+async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverageMode = false, isLedgerCoverageMode = false) {
   const epochs = {};
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
   await wait(500);
@@ -669,6 +730,9 @@ async function runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCov
   await openOwnerFinance(cdp);
   if (isBankCoverageMode && disposableBankFixture) {
     await openOwnerBank(cdp, disposableBankFixture.clubName, disposableBankFixture.bankCode);
+  }
+  if (isLedgerCoverageMode && disposableBankFixture && disposableLedgerFixture) {
+    await openOwnerLedger(cdp, disposableBankFixture.clubName, disposableLedgerFixture.title);
   }
   await cdp.evaluate(`window.__bh07heapProbe = ${JSON.stringify(PROBE_VALUE)}`);
   epochs.owner_active = await takeSnapshot(cdp, `c${cycle}_owner_active`, sentinelsPath, classesPath);
@@ -689,9 +753,11 @@ let PROBE_VALUE = '';
 async function main() {
   const argv = process.argv.slice(2);
   const isBankCoverage = argv.includes('--bank-coverage');
+  const isLedgerCoverage = argv.includes('--ledger-coverage');
+  const isProtectedOutput = isBankCoverage || isLedgerCoverage;
 
   try {
-    claimOutputDirectory(OUT, isBankCoverage);
+    claimOutputDirectory(OUT, isProtectedOutput);
   } catch (claimErr) {
     console.error(redactSentinels(`[FATAL] Output directory claim rejected: ${claimErr.message}`));
     console.log(JSON.stringify(redactValue({ status: 'NOT RUN', verdict: null, error: claimErr.message })));
@@ -728,6 +794,7 @@ async function main() {
     envForCleanup = env;
     extraFixture = null;
     disposableBankFixture = null;
+    disposableLedgerFixture = null;
     if (isBankCoverage) {
       summary.coverage_profile = 'bank';
       summary.bank_coverage_contract = {
@@ -735,7 +802,14 @@ async function main() {
         required_owner_load: ['bank_account_id', 'bank', 'receiver'],
       };
     }
-    const sentinels = await resolveSentinels(env, runId, isBankCoverage);
+    if (isLedgerCoverage) {
+      summary.coverage_profile = 'ledger';
+      summary.ledger_coverage_contract = {
+        version: '1.0',
+        required_owner_load: ['ledger_transaction_id'],
+      };
+    }
+    const sentinels = await resolveSentinels(env, runId, isBankCoverage, isLedgerCoverage);
     PROBE_VALUE = sentinels.probe;
     const values = {
       bank: sentinels.bank,
@@ -753,6 +827,9 @@ async function main() {
     if (isBankCoverage) {
       values.bank_account_id = sentinels.bank_account_id;
     }
+    if (isLedgerCoverage) {
+      values.ledger_transaction_id = sentinels.ledger_transaction_id;
+    }
     if (!values.player_b) throw new Error('the fixture session needs two players for the gated set');
     Object.assign(RAW_SENTINEL_VALUES, values);
     const activeSentinelClasses = { ...SENTINEL_CLASSES };
@@ -764,6 +841,10 @@ async function main() {
       activeSentinelKinds.bank = 'disposable club bank account number rendered as widget text';
       activeSentinelKinds.receiver = 'disposable club bank account holder name rendered as widget text';
       activeSentinelKinds.bank_account_id = 'disposable club bank account ID from club_bank_accounts (never rendered)';
+    }
+    if (isLedgerCoverage) {
+      activeSentinelClasses.ledger_transaction_id = { rendered: false, distinctive: true, scope: 'finance' };
+      activeSentinelKinds.ledger_transaction_id = 'disposable club ledger transaction ID from club_transactions (never rendered)';
     }
     summary.sentinels = Object.fromEntries(Object.entries(values).filter(([, v]) => v)
       .map(([name, value]) => [name, {
@@ -809,7 +890,7 @@ async function main() {
       summary.environment.chrome = chrome.version['Browser'] || chrome.version.Browser;
       await cdp.waitForSemantic((e) => text(e).includes('Bạn đang xem dưới dạng khách'), 'guest baseline UI', 30000);
       const origin = await cdp.evaluate('performance.timeOrigin');
-      const epochs = await runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverage);
+      const epochs = await runCycle(cycle, actor, sentinelsPath, classesPath, cdp, isBankCoverage, isLedgerCoverage);
       const originAfter = await cdp.evaluate('performance.timeOrigin');
       if (origin !== originAfter) throw new Error(`cycle ${cycle}: document reloaded between epochs (${origin} != ${originAfter})`);
       const scans = {};
@@ -911,9 +992,43 @@ async function main() {
     log(`run-only fixture payment ${sha12(paymentFixture.id)}: created=${paymentFixture.created === true} `
       + `removed=${paymentFixture.removed === true} verified_absent=${paymentFixture.verified_absent === true}`);
 
+    let ledgerReceipt = null;
+    let ledgerCleanupOk = true;
+    if (disposableLedgerFixture || isLedgerCoverage) {
+      if (disposableLedgerFixture && envForCleanup) {
+        ledgerReceipt = await disposableLedgerFixture.cleanup(makeEnvTransport(envForCleanup));
+      } else if (disposableLedgerFixture) {
+        ledgerReceipt = await disposableLedgerFixture.cleanup({ apiUrl: null, restGet: async () => [], restWrite: async () => {} });
+      } else {
+        ledgerReceipt = {
+          disposable_ledger_id_sha256_12: '000000000000',
+          disposable_ledger_created: false,
+          disposable_ledger_removed: false,
+          disposable_ledger_verified_absent: false,
+          error: 'disposable ledger fixture was never created',
+        };
+      }
+      summary.cleanup.disposable_ledger_id_sha256_12 = ledgerReceipt.disposable_ledger_id_sha256_12;
+      summary.cleanup.disposable_ledger_created = ledgerReceipt.disposable_ledger_created === true;
+      summary.cleanup.disposable_ledger_removed = ledgerReceipt.disposable_ledger_removed === true;
+      summary.cleanup.disposable_ledger_verified_absent = ledgerReceipt.disposable_ledger_verified_absent === true;
+      if (ledgerReceipt.error) {
+        summary.cleanup.disposable_ledger_error = ledgerReceipt.error;
+      }
+      log(`disposable ledger fixture ${ledgerReceipt.disposable_ledger_id_sha256_12}: created=${ledgerReceipt.disposable_ledger_created === true} `
+        + `removed=${ledgerReceipt.disposable_ledger_removed === true} verified_absent=${ledgerReceipt.disposable_ledger_verified_absent === true}`);
+
+      if (isLedgerCoverage) {
+        ledgerCleanupOk = !ledgerReceipt.error
+          && ledgerReceipt.disposable_ledger_created === true
+          && ledgerReceipt.disposable_ledger_removed === true
+          && ledgerReceipt.disposable_ledger_verified_absent === true;
+      }
+    }
+
     let bankReceipt = null;
     let bankCleanupOk = true;
-    if (disposableBankFixture || isBankCoverage) {
+    if (disposableBankFixture || isBankCoverage || isLedgerCoverage) {
       if (disposableBankFixture && envForCleanup) {
         bankReceipt = await disposableBankFixture.cleanup(makeEnvTransport(envForCleanup));
       } else if (disposableBankFixture) {
@@ -948,7 +1063,7 @@ async function main() {
       log(`disposable club fixture ${bankReceipt.disposable_club_id_sha256_12}: created=${bankReceipt.disposable_club_created === true} `
         + `removed=${bankReceipt.disposable_club_removed === true} verified_absent=${bankReceipt.disposable_club_verified_absent === true}`);
 
-      if (isBankCoverage) {
+      if (isBankCoverage || isLedgerCoverage || disposableBankFixture) {
         bankCleanupOk = !bankReceipt.error
           && bankReceipt.disposable_bank_created === true
           && bankReceipt.disposable_club_created === true
@@ -965,7 +1080,8 @@ async function main() {
       && summary.cleanup.chrome_profile_dir_removed === true
       && fixtureCleanupOk(fixture)
       && fixtureCleanupOk(paymentFixture)
-      && (!isBankCoverage || bankCleanupOk);
+      && (!isBankCoverage || bankCleanupOk)
+      && (!isLedgerCoverage || (ledgerCleanupOk && bankCleanupOk));
     if (!summary.cleanup.ok) {
       summary.findings = [...(summary.findings || []), 'heap dump, browser profile or run-only fixture cleanup not verified'];
       if (summary.status === 'RUN') summary.status = 'FAIL';
@@ -1185,10 +1301,12 @@ function writeEvidence(summary) {
 }
 
 module.exports = {
+  button,
   findSentinelLeaks, redactSentinels, renderReport, RAW_SENTINEL_VALUES,
   ensureExtraExpense, removeExtraExpense, ensureExtraPayment, removeExtraPayment,
   ensureDisposableBank, removeDisposableBank, registerDisposableBankRedactions, DisposableBankFixture,
-  openOwnerBank,
+  ensureDisposableLedger, removeDisposableLedger, registerDisposableLedgerRedactions, DisposableLedgerFixture,
+  openOwnerBank, openOwnerLedger,
   fixtureCleanupOk, EXTRA_EXPENSE, EXTRA_PAYMENT,
   claimOutputDirectory, isNestedUnderEvidence,
   restGet, restWrite, makeEnvTransport,
