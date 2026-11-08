@@ -1,4 +1,4 @@
-**Hiện hành 08/11/2026 — Runtime ledger CHƯA ĐẠT tại `a2efc1e` (source sạch):** child/auditor exit 1, baseline scan abort, 0 chu kỳ; nguyên nhân scan UNKNOWN, LGR9/LGR10 P2 về diagnostic/cleanup reporting còn mở. Sáu bảng DB không đổi, fixture/dump/profile đã dọn, 1.961 file bảo vệ không đổi. Dừng sau 2 vòng sửa theo AGENTS; chờ quyết định owner. Tooling trước runtime `205dcd5` có 420 Python PASS; không dùng thay runtime. **V2b/BH-07/V8 chưa nghiệm thu**, không merge/push/deploy/pilot. [Review runtime](docs/reviews/bh07/review_a2efc1e_ledger_runtime.md). Các entry bên dưới là lịch sử.
+**Hiện hành 08/11/2026 — Owner đã mở vòng sửa ledger 3/3**, đồng thời đổi quy tắc chung thành còn lỗi sau 3 vòng mới dừng. Anti CLI triển khai LGR9/LGR10 và chẩn đoán scan; Codex kiểm chứng/review. Runtime trước `a2efc1e` chưa đạt, không có kết quả runtime mới; V2b/BH-07/V8 chưa nghiệm thu, không merge/push/deploy/pilot. [Review runtime trước](docs/reviews/bh07/review_a2efc1e_ledger_runtime.md). Các entry bên dưới là lịch sử.
 
 **2026-11-02 — Main integration package prepared (not merged):** Final v4 has59 new tooling/test/fixture/notice/attribute files against local/remote main62d2c67, source57cd2c4. Exported candidate passes311Python,fixture8/8,analyze0,190Flutter;629 original main files unchanged; fresh Git checkout with core.autocrlf=true retains all59 hashes/6ignored logs; final review closes P2. No app/backend/migration files in patch. Bank live runtime on main NOT RUN (BH-07 UI/read RPC prerequisites absent). Owner approval required for the exact tooling-only merge; do not merge the whole inherited feature branch. [Integration review](docs/reviews/bh07/bank_tooling_main_integration.md). Earlier status below is historical.
 
@@ -143,7 +143,7 @@ Vai trò: DeepSeek/Antigravity = người triển khai. Codex (GPT-6.1 Sol) = ng
 - Mỗi ticket chia phần nhỏ (A: DB/RPC, B: model/repository/provider, C: UI), mỗi phần một nhánh `feat/bh05a-...`, commit riêng.
 - Trước khi gửi review phải xanh: `flutter analyze`, `flutter test`, và runner DB của ticket (nếu có đổi DB).
 - Review nằm ở `docs/reviews/<ticket>/review_<sha>.md`, mỗi phát hiện ghi: file:dòng, mức P0/P1/P2, cách sửa.
-- Sửa theo review: viết test tái hiện lỗi trước, sửa toàn bộ phát hiện P0/P1/P2 được nêu (kể cả P2), tối đa 2 vòng. Còn lỗi sau 2 vòng thì dừng và báo chủ dự án.
+- Sửa theo review: viết test tái hiện lỗi trước, sửa toàn bộ phát hiện P0/P1/P2 được nêu (kể cả P2), tối đa 3 vòng. Còn lỗi sau 3 vòng thì dừng và báo chủ dự án.
 - Người review không viết lại code, trừ khi chủ dự án giao rõ.
 
 Vai trò làm việc: xem docs/ai/IMPLEMENTER.md (người triển khai) và docs/ai/REVIEWER.md (người review). Chỉ làm đúng vai trò được giao trong yêu cầu.
