@@ -974,16 +974,9 @@ async function main() {
     // Raw heap dumps and the throw-away Chrome profile must not survive the run.
     const chromeDir = path.join(os.tmpdir(), `bh07_appheap_chrome_${process.pid}`);
     try { fs.rmSync(DUMPS, { recursive: true, force: true }); } catch (_) { /* best effort */ }
-    const dumpsRemoved = !fs.existsSync(DUMPS);
-    const rawSnapshotsRemaining = dumpsRemoved
-      ? 0
-      : (fs.existsSync(DUMPS) ? fs.readdirSync(DUMPS).filter((f) => f.endsWith('.heapsnapshot')).length : 0);
     summary.cleanup = {
       ...summary.cleanup,
-      dump_dir_outside_repo: !DUMPS.startsWith(ROOT),
-      raw_snapshots_remaining: rawSnapshotsRemaining,
-      dumps_dir_removed: dumpsRemoved,
-      chrome_profile_dir_removed: browserCleanupOk && !fs.existsSync(chromeDir),
+      ...evaluateCleanupState({ chromeDir, browserCleanupOk }),
     };
     // The run-only expense row must be gone as well: leaving Owner-private fixture data in
     // the local stack would make the next run's baseline disagree with its own evidence, and
@@ -1257,10 +1250,14 @@ function evaluateCleanupState(opts = {}) {
   const ledgerCleanupOk = opts.ledgerCleanupOk !== false;
 
   const dumpsRemoved = !fs.existsSync(dumpsDir);
-  const rawSnapshotsRemaining = dumpsRemoved
-    ? 0
-    : (fs.existsSync(dumpsDir) ? fs.readdirSync(dumpsDir).filter((f) => f.endsWith('.heapsnapshot')).length : 0);
-  const dumpDirOutsideRepo = !path.resolve(dumpsDir).startsWith(path.resolve(rootDir));
+  let rawSnapshotsRemaining = dumpsRemoved ? 0 : null;
+  if (!dumpsRemoved) {
+    try {
+      rawSnapshotsRemaining = fs.readdirSync(dumpsDir).filter((f) => f.endsWith('.heapsnapshot')).length;
+    } catch (_) { /* unverified: preserve null and continue all fixture cleanup */ }
+  }
+  const relative = path.relative(path.resolve(rootDir), path.resolve(dumpsDir));
+  const dumpDirOutsideRepo = relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
   const chromeProfileDirRemoved = browserCleanupOk && (!chromeDir || !fs.existsSync(chromeDir));
 
   const ok = dumpDirOutsideRepo === true

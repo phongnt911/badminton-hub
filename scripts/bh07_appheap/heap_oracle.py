@@ -36,7 +36,7 @@ from collections import deque
 # snapshot: json.loads alone would silently keep the last duplicate.
 SNAPSHOT_KEYS = ('nodes', 'edges', 'strings')
 V8_TOP_LEVEL_KEYS = ('snapshot', 'nodes', 'edges', 'traces', 'trace_function_infos', 'trace_tree',
-                     'samples', 'locations', 'strings')
+                     'samples', 'locations', 'scopes', 'scope_context_vars', 'scope_uses', 'strings')
 META_REQUIRED = ('meta', 'node_count', 'edge_count')
 META_FIELDS = ('node_fields', 'node_types', 'edge_fields', 'edge_types')
 MIN_SNAPSHOT_BYTES = 4096
@@ -155,6 +155,34 @@ def _structure(doc):
         return False, f'snapshot_node_count_mismatch: {len(nodes)} != {expected_nodes}', {}
     if len(edges) != expected_edges:
         return False, f'snapshot_edge_count_mismatch: {len(edges)} != {expected_edges}', {}
+
+    # V8 15.6.75.27 SerializeScopes/SerializeScopeContextVars/SerializeScopeUses.
+    # These are source metadata, not additional GC-root/retainer graph edges.
+    scope_layouts = {
+        'scopes': ('scope_fields', ['script_node_index', 'scope_id', 'depth',
+                                  'scope_context_vars_count', 'scope_uses_count']),
+        'scope_context_vars': ('scope_context_var_fields', ['name']),
+        'scope_uses': ('scope_use_fields', ['declaring_scope_id', 'slot_index']),
+    }
+    if any(table in doc or field in fields for table, (field, _) in scope_layouts.items()):
+        for table, (field, layout) in scope_layouts.items():
+            values = doc.get(table)
+            if fields.get(field) != layout:
+                return False, f'snapshot_{table}_layout_invalid', {}
+            if (not isinstance(values, list) or len(values) % len(layout)
+                    or any(type(value) is not int for value in values)):
+                return False, f'snapshot_{table}_table_invalid', {}
+        scopes = doc['scopes']
+        for index in range(0, len(scopes), 5):
+            node, _, depth, variables, uses = scopes[index:index + 5]
+            if (node < 0 or node >= len(nodes) or node % len(fields['node_fields'])
+                    or min(depth, variables, uses) < 0):
+                return False, 'snapshot_scope_record_invalid', {}
+        if (sum(scopes[3::5]) != len(doc['scope_context_vars'])
+                or sum(scopes[4::5]) * 2 != len(doc['scope_uses'])):
+            return False, 'snapshot_scope_counts_mismatch', {}
+        if any(value < 0 or value >= len(strings) for value in doc['scope_context_vars']):
+            return False, 'snapshot_scope_string_index_invalid', {}
 
     return True, None, {
         'node_count': meta['node_count'],

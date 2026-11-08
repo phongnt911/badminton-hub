@@ -1,2 +1,3 @@
 # Preserve the exact bytes of this new runtime bundle under any core.autocrlf setting.
 /docs/reviews/bh07/ledger_heap_20261108_r1_evidence/* -text
+/docs/reviews/bh07/ledger_heap_20261108_codex_evidence/* -text
