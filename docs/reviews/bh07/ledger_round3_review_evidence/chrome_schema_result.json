@@ -1,0 +1,18 @@
+{
+  "surface": "fresh Chrome about:blank",
+  "app_runtime": false,
+  "db_access": false,
+  "chrome": "Chrome/156.0.8078.80",
+  "v8": "15.6.75.27",
+  "snapshot_bytes": 2202231,
+  "snapshot_sha256": "3ce2bbf98b846ee22e9e0d1a8e1d03cbe73845486f74050ec99f569e90eb17b3",
+  "top_level_keys": ["snapshot", "nodes", "edges", "trace_function_infos", "trace_tree", "samples", "locations", "scopes", "scope_context_vars", "scope_uses", "strings"],
+  "oracle_exit": 2,
+  "scan_diagnostic": {"exit_status": 2, "error_type": "snapshot_unusable", "detail": "snapshot_unexpected_top_level_key: scopes"},
+  "browser_exited": true,
+  "profile_removed": true,
+  "raw_dump_directory_removed": true,
+  "probe_exit": 0,
+  "archive": "d4be8ebce263c864",
+  "original_failed_snapshot_cause_proven": false
+}

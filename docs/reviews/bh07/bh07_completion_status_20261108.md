@@ -16,6 +16,10 @@ Nhánh tiếp tục: `feat/bh07-completion-local`, từ `e994b06a1752e6301d8733a
 
 **Cập nhật sau runtime:** [review `a2efc1e`](review_a2efc1e_ledger_runtime.md) **CHƯA ĐẠT**: source sạch, child/auditor exit 1, baseline scan abort, 0 chu kỳ. LGR9/LGR10 P2 diagnostic/cleanup reporting còn mở; nguyên nhân scan UNKNOWN. Sáu bảng DB và 1.961 file bảo vệ không đổi, fixture/dump/profile đã dọn. Dừng sau hai vòng sửa; chưa có ledger coverage đạt. Acceptance tooling phía trên là kết luận trước runtime.
 
+**Ủy quyền tiếp theo của owner:** Đã mở vòng sửa ledger 3/3 và đổi quy tắc chung thành tối đa 3 vòng; chỉ dừng nếu còn lỗi sau vòng 3. Anti CLI tiếp tục LGR9/LGR10 và chẩn đoán scan, Codex kiểm chứng/review. Chưa có bản sửa hoặc runtime mới được nghiệm thu; các trạng thái lỗi và bằng chứng trước đó giữ nguyên.
+
+**Kết thúc vòng 3/3:** candidate `c427e27` [chưa đạt review](review_c427e27_ledger_round3.md). LGR9 diagnostic đã nối vào runner; LGR10 còn hở do LGR11 P2 (enumeration có thể ngắt DB cleanup). Probe installed Chrome156/V8 15.6 trên about:blank xác nhận LGR12 P1: parser từ chối `scopes`, exit 2; không chứng minh nguyên nhân snapshot lịch sử đã xóa và không kết luận app leak. Không có app/DB runtime mới; probe đã dọn dump/profile. Dừng theo quy tắc 3 vòng mới, không tự mở vòng 4.
+
 ## Ma trận quyết định hiện hành
 
 | Cổng | Trạng thái kỹ thuật | Bằng chứng/việc còn thiếu |

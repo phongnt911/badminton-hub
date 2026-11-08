@@ -57,6 +57,8 @@ Tooling portion accepted at `205dcd5` after LGR1–LGR8 closure: 420 Python PASS
 
 **Owner authorization after runtime review:** Open correction round 3/3 for LGR9/LGR10 and baseline scan diagnosis. General AGENTS limit updated from two to three correction rounds. Anti CLI owns focused tooling/test edits; Codex verifies and independently reviews. Earlier two-round stop remains historical; no runtime PASS or operational risk waiver is implied.
 
+**Round 3 outcome:** candidate `c427e27` is not accepted. LGR9 diagnostic wiring added; LGR10 remains open through LGR11 P2 (unguarded directory enumeration interrupts later DB cleanup). A fresh about:blank Chrome156/V8 15.6 probe confirms LGR12 P1 (scope tables rejected by current oracle); no app/DB runtime and no app leak conclusion. Stop after three rounds under the owner-updated AGENTS rule; no automatic round4. See [review](../../reviews/bh07/review_c427e27_ledger_round3.md).
+
 ## Task 3: Reconcile current readiness and present V8 decision
 
 **Files:** Current-status sections of `AGENTS.md`, `README.md`, `docs/00_START_HERE.md`, `docs/09_IMPLEMENTATION_PLAN.md`, `docs/reviews/bh07/bh07_readiness.md`; a new completion review/decision draft under `docs/reviews/bh07/`.

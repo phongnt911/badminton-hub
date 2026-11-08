@@ -1,0 +1,8 @@
+{
+  "injected_error": "EACCES",
+  "thrown_code": "EACCES",
+  "subsequent_db_cleanup_reached": false,
+  "executed_actual_finally_metadata_block": true,
+  "actual_db_or_browser_access": false,
+  "probe_exit": 0
+}
