@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-08",
+  "scope": "two Windows Python test helpers explicitly decode Node UTF-8 output",
+  "base_sha": "e994b06a1752e6301d8733aa084d675fde7a877c",
+  "reviewed_code_sha": "51a6edaccfdc4e0381511d499996fc2445e1ece8",
+  "implementer": "Antigravity CLI, Gemini 3.8 Flash High",
+  "implementer_conversation": "080a8fcc-c7cc-4879-b7c3-9fda9c7297dd",
+  "implementer_commands_run": false,
+  "verification_operator": "Codex",
+  "verification_before_commit": true,
+  "clean_checkout_claimed": false,
+  "checks": [
+    {"phase": "red", "command": "python -m unittest discover -s tests", "exit": 1, "tests": 375, "failures": 1, "errors": 3, "archive": "33216b2726738ee1"},
+    {"phase": "encoding_control_before_fix", "command": "python -m unittest discover -s tests", "env": {"PYTHONUTF8": "1"}, "exit": 0, "tests": 375, "archive": "dca1d55ca819597d"},
+    {"phase": "green_targeted", "command": "python -m unittest tests.test_bh07_app_heap_build_guard tests.test_bh07_bank_navigation_cleanup -v", "env_overrides": {}, "exit": 0, "tests": 20, "archive": "48ecc6e242175a0c"},
+    {"phase": "green_full", "command": "python -m unittest discover -s tests", "env_overrides": {}, "exit": 0, "tests": 375, "archive": "1471e2836a9dbef4"},
+    {"phase": "unchanged_app_baseline", "command": "flutter analyze", "exit": 0, "issues": 0, "archive": "ebe7ea3338942102"},
+    {"phase": "unchanged_app_baseline", "command": "flutter test --reporter compact", "exit": 0, "passed": 247, "skipped": 1, "archive": "cca2f894441a6acd"}
+  ],
+  "additional_reviewer_findings": [],
+  "scope_verdict": "ACCEPTED",
+  "bh07_v8_accepted": false,
+  "new_heap_browser_db_runtime": false,
+  "merge_push_deploy_pilot": false
+}
