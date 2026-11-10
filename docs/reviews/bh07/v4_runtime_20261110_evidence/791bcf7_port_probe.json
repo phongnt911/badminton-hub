@@ -1,0 +1,23 @@
+{
+  "run_id": "c5c5cfc8c8be40e1a842b97bb6f218bd",
+  "kind": "isolated Docker port metadata probe; no database initialized",
+  "observations": [
+    {
+      "case": "dynamic_internal_first",
+      "port_exit": 0,
+      "loopback_mapping": "127.0.0.1:53951"
+    },
+    {
+      "case": "static_internal_first",
+      "port_exit": 0,
+      "loopback_mapping": "127.0.0.1:53950"
+    },
+    {
+      "case": "dynamic_bridge_first",
+      "port_exit": 0,
+      "loopback_mapping": "127.0.0.1:53953"
+    }
+  ],
+  "cleanup_ok": true,
+  "cleanup_errors": []
+}

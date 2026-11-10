@@ -1,0 +1,16 @@
+{
+  "kind": "read-only diagnostic wrapper; original command error re-raised",
+  "service": "target_auth",
+  "wrapper_sha256": "915b8ab2d8a2d828cedab5d27e7448f716a2a81803b85bb54a593d250b94931c",
+  "inspect_exit": 0,
+  "status": "exited",
+  "exit_code": 1,
+  "running": false,
+  "oom_killed": false,
+  "missing_configuration_keys": [
+    "SITE_URL"
+  ],
+  "database_authentication_failed": false,
+  "configuration_load_failed": true,
+  "database_connection_failed": false
+}

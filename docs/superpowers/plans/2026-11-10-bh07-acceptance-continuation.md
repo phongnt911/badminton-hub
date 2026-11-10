@@ -46,13 +46,13 @@
 - [x] Add main-orchestration failure controls for target Auth start, PostgREST start, network connect, port discovery and replay collection boundaries.
 - [x] Record predefined stage before each boundary, preserve original error type and new safe metadata, never infer or hardcode a successful service.
 - [x] Use secret markers in mocked args/stdout/stderr to prove publication exclusion. No raw CLI argument dumping. Reviewer controls reject free-text/unlisted/non-int and unhashable metadata after two corrections.
-- [ ] Codex review/targeted/full checks; commit clean candidate and run isolated Docker once to identify the exact failure.
+- [x] Codex review/targeted/full checks; clean candidate791bcf7 ran Docker and identified port_discovery; a read-only diagnostic wrapper then verified target Auth exited1 due missing SITE_URL. [Diagnosis](../../reviews/bh07/recovery_site_url_diagnosis_20261110.md).
 
 ## Task 3: Repair actual recovery failure
 
 **Files:** Only the minimal runner/test/fixture files implicated by Task2 runtime, exact ownership assigned before edits.
 
-- [ ] Diagnose from new stage plus bounded service-health metadata; add regression before concrete fix.
+- [x] Diagnose from new stage plus bounded service-health metadata; add regression for actual target env. Missing SITE_URL fix reviewed,53targeted PASS; root retrospective baseline replay1FAIL. [Review](../../reviews/bh07/recovery_site_url_review_20261110.md).
 - [ ] Anti implements; Codex reviews and runs checks. After three corrections Codex directly repairs concrete residual findings under standing owner authorization.
 - [ ] Run clean-source Docker and independent artifact review. Require final oracle/HTTP replay and cleanup, not just overlap or row counts.
 

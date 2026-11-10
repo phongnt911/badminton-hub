@@ -10,6 +10,7 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 import urllib.error
+import urllib.parse
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.bh07_backup import run_v4_concurrent_rehearsal as runner
@@ -1085,6 +1086,40 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(receipt['execution_stage'], runner.STAGE_COMPLETED)
         self.assertNotIn('command_failure', receipt)
         self.assertTrue(receipt['cleanup']['ok'])
+
+    def test_target_auth_env_includes_valid_loopback_site_url(self):
+        """Intercepts target_auth_start boundary, reads live envfile, and verifies valid loopback GOTRUE_SITE_URL."""
+        captured_site_url = None
+        target_auth_started = False
+
+        def intercept_auth_start(args, **kwargs):
+            nonlocal captured_site_url, target_auth_started
+            if kwargs.get('op') == runner.OP_TARGET_AUTH_START:
+                target_auth_started = True
+                self.assertIn('--env-file', args)
+                env_idx = args.index('--env-file') + 1
+                env_path = Path(args[env_idx])
+                self.assertTrue(env_path.is_file(), "target auth env file must exist while container starts")
+                content = env_path.read_text(encoding='utf-8')
+                for line in content.splitlines():
+                    line = line.strip()
+                    if line.startswith('GOTRUE_SITE_URL='):
+                        captured_site_url = line.split('=', 1)[1].strip()
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=intercept_auth_start)
+        self.assertTrue(target_auth_started, "target_auth_start boundary was not intercepted")
+        self.assertIsNotNone(captured_site_url, "GOTRUE_SITE_URL is missing from target auth envfile")
+        self.assertTrue(bool(captured_site_url), "GOTRUE_SITE_URL must not be empty")
+
+        parsed = urllib.parse.urlparse(captured_site_url)
+        self.assertIn(parsed.scheme, ('http', 'https'))
+        self.assertIn(parsed.hostname, ('127.0.0.1', 'localhost', '::1'))
+        self.assertEqual(captured_site_url, 'http://127.0.0.1:3000')
+
+        self.assertEqual(code, 0, receipt.get('findings'))
+        self.assertEqual(receipt['status'], 'PASS')
+        self.assertTrue(receipt['execution_completed'])
 
 
 class ObserverCleanupFailureTests(unittest.TestCase):

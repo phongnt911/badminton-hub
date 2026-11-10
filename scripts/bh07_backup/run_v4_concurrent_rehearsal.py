@@ -1657,6 +1657,7 @@ def main():
         t_auth_env = private / 'target_auth.env'
         t_auth_env.write_text(
             f"GOTRUE_API_HOST=0.0.0.0\nGOTRUE_API_PORT=9999\nAPI_EXTERNAL_URL=http://127.0.0.1\n"
+            f"GOTRUE_SITE_URL=http://127.0.0.1:3000\n"
             f"GOTRUE_DB_DRIVER=postgres\nGOTRUE_DB_DATABASE_URL=postgres://supabase_auth_admin:{pw}@{target_db}:5432/postgres?search_path=auth\n"
             f"GOTRUE_JWT_SECRET={jwt_sec}\nGOTRUE_JWT_EXP=3600\nGOTRUE_JWT_AUD=authenticated\n"
             f"GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated\nGOTRUE_JWT_ADMIN_ROLES=service_role\n",

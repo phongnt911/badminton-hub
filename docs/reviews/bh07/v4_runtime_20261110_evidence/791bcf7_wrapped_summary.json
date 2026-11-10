@@ -1,0 +1,289 @@
+{
+  "gate": "BH-07 V4 concurrent writers backup/restore rehearsal",
+  "base_sha": "d2f6b079a7a6f7521d04b88ac6eb780db5718a56",
+  "tested_source_sha": "791bcf7c1f413877fb3c534fceb8896e5e269c83",
+  "git_dirty": false,
+  "run_id": "faf0482c",
+  "snapshot": {
+    "snapshot_id": "00000043-00000002-1",
+    "snapshot_exported_epoch": 1794306320.1640778,
+    "export_tx_held": true,
+    "pg_dump_snapshot_arg": "--snapshot=00000043-00000002-1",
+    "pg_dump_completed": true,
+    "pg_dump_exit_code": 0
+  },
+  "actors": {
+    "p0_writer": "ownera",
+    "writer_a": "ownera",
+    "writer_b": "financea"
+  },
+  "writers_concurrency": {
+    "p0_committed_epoch": 1794306316.5573745,
+    "writer_a_started_epoch": 1794306320.457162,
+    "writer_a_committed_epoch": 1794306320.47863,
+    "writer_b_started_epoch": 1794306320.459561,
+    "writer_b_committed_epoch": 1794306320.5168972,
+    "pg_dump_backend_active_start": 1794306320.254564,
+    "pg_dump_backend_active_end": 1794306328.0407355,
+    "pg_stat_activity_dump_observed": true,
+    "db_observation_receipt": {
+      "dump_pid": 398,
+      "dump_application_name": "pg_dump",
+      "dump_query": "COPY tooling_rehearsal.rehearsal_padding (id, payload) TO stdout;",
+      "observed_start": 1794306320.4600675,
+      "observed_end": 1794306320.4644868,
+      "observed_during_active_dump": true
+    },
+    "overlap_verified": true,
+    "writers_executed_during_dump": true
+  },
+  "source_operations": {
+    "p0_precommit": {
+      "actor_user_id": "cec690ac-f456-4890-b751-4cbb9356059c",
+      "request_id": "84739c05-ca72-49e3-929e-f6c21d06f4e9",
+      "payment_id": "19ce8c67-59d6-41af-b1a7-0e8af935f119",
+      "transaction_id": "c9a27268-3193-4222-97ae-bfbde0523451",
+      "audit_event_id": "bfc6b7bf-37d0-49fa-8782-7b86c8007bb3",
+      "status": 200,
+      "amount_vnd": 10000,
+      "row_evidence": {
+        "payment": {
+          "id": "19ce8c67-59d6-41af-b1a7-0e8af935f119",
+          "amount_vnd": 10000,
+          "request_id": "84739c05-ca72-49e3-929e-f6c21d06f4e9",
+          "player_id": "30000000-0000-4000-8000-000000000001"
+        },
+        "ledger": {
+          "id": "c9a27268-3193-4222-97ae-bfbde0523451",
+          "source_payment_id": "19ce8c67-59d6-41af-b1a7-0e8af935f119",
+          "amount": 10000
+        },
+        "audit": {
+          "id": "bfc6b7bf-37d0-49fa-8782-7b86c8007bb3",
+          "request_id": "84739c05-ca72-49e3-929e-f6c21d06f4e9",
+          "session_id": "10000000-0000-4000-8000-000000000001"
+        },
+        "request": {
+          "result": {
+            "method": "cash",
+            "status": "confirmed",
+            "ledger_id": "c9a27268-3193-4222-97ae-bfbde0523451",
+            "player_id": "30000000-0000-4000-8000-000000000001",
+            "reference": "BH07 V4 P0 pre-snapshot",
+            "amount_vnd": 10000,
+            "payment_id": "19ce8c67-59d6-41af-b1a7-0e8af935f119",
+            "session_id": "10000000-0000-4000-8000-000000000001",
+            "billing_state": "current",
+            "total_paid_vnd": 60000,
+            "outstanding_vnd": 90000
+          },
+          "operation": "record_cash_payment",
+          "created_at": "2026-11-10T10:25:16.54847+00:00",
+          "request_id": "84739c05-ca72-49e3-929e-f6c21d06f4e9",
+          "payload_hash": "fe5088f4efbf39377b691c490b279c38",
+          "actor_user_id": "cec690ac-f456-4890-b751-4cbb9356059c"
+        }
+      },
+      "relational_digest": "c0ce7cd3b29de22088b0f6fbd4aab4d9d8fcb66b38f22cae3b3fd72b2f2a9594"
+    },
+    "p1a_concurrent": {
+      "actor_user_id": "cec690ac-f456-4890-b751-4cbb9356059c",
+      "request_id": "25169018-ae3f-4dff-b57b-0fff049849ef",
+      "payment_id": "9a12d100-662f-4386-a60f-da615d7ee22d",
+      "transaction_id": "833cf372-07dd-4894-972d-892a39df7323",
+      "audit_event_id": "d53012c9-8b4a-43bd-a8cf-670105e4367a",
+      "status": 200,
+      "amount_vnd": 15000,
+      "row_evidence": {
+        "payment": {
+          "id": "9a12d100-662f-4386-a60f-da615d7ee22d",
+          "amount_vnd": 15000,
+          "request_id": "25169018-ae3f-4dff-b57b-0fff049849ef",
+          "player_id": "30000000-0000-4000-8000-000000000001"
+        },
+        "ledger": {
+          "id": "833cf372-07dd-4894-972d-892a39df7323",
+          "source_payment_id": "9a12d100-662f-4386-a60f-da615d7ee22d",
+          "amount": 15000
+        },
+        "audit": {
+          "id": "d53012c9-8b4a-43bd-a8cf-670105e4367a",
+          "request_id": "25169018-ae3f-4dff-b57b-0fff049849ef",
+          "session_id": "10000000-0000-4000-8000-000000000001"
+        },
+        "request": {
+          "result": {
+            "method": "cash",
+            "status": "confirmed",
+            "ledger_id": "833cf372-07dd-4894-972d-892a39df7323",
+            "player_id": "30000000-0000-4000-8000-000000000001",
+            "reference": "BH07 V4 P1A concurrent",
+            "amount_vnd": 15000,
+            "payment_id": "9a12d100-662f-4386-a60f-da615d7ee22d",
+            "session_id": "10000000-0000-4000-8000-000000000001",
+            "billing_state": "current",
+            "total_paid_vnd": 75000,
+            "outstanding_vnd": 75000
+          },
+          "operation": "record_cash_payment",
+          "created_at": "2026-11-10T10:25:20.461392+00:00",
+          "request_id": "25169018-ae3f-4dff-b57b-0fff049849ef",
+          "payload_hash": "d447dd2bbef536fde0bd95b0d1679f30",
+          "actor_user_id": "cec690ac-f456-4890-b751-4cbb9356059c"
+        }
+      },
+      "relational_digest": "2c8181e15fca3802d0c78d481ae4b140a2dd530c6e45ed085059f0a044052002"
+    },
+    "p1b_concurrent": {
+      "actor_user_id": "831751ff-f7c0-4824-9cfe-dd4e69b3b281",
+      "request_id": "2620919f-e885-4327-98c1-8d1bee358f30",
+      "payment_id": "e05f1672-9536-48bd-a9d6-ac26063c97eb",
+      "transaction_id": "3e04077a-7c2c-4516-bb86-81f2cef5b712",
+      "audit_event_id": "218c8326-f943-470b-8e27-d87e6c0581fe",
+      "status": 200,
+      "amount_vnd": 20000,
+      "row_evidence": {
+        "payment": {
+          "id": "e05f1672-9536-48bd-a9d6-ac26063c97eb",
+          "amount_vnd": 20000,
+          "request_id": "2620919f-e885-4327-98c1-8d1bee358f30",
+          "player_id": "30000000-0000-4000-8000-000000000001"
+        },
+        "ledger": {
+          "id": "3e04077a-7c2c-4516-bb86-81f2cef5b712",
+          "source_payment_id": "e05f1672-9536-48bd-a9d6-ac26063c97eb",
+          "amount": 20000
+        },
+        "audit": {
+          "id": "218c8326-f943-470b-8e27-d87e6c0581fe",
+          "request_id": "2620919f-e885-4327-98c1-8d1bee358f30",
+          "session_id": "10000000-0000-4000-8000-000000000001"
+        },
+        "request": {
+          "result": {
+            "method": "cash",
+            "status": "confirmed",
+            "ledger_id": "3e04077a-7c2c-4516-bb86-81f2cef5b712",
+            "player_id": "30000000-0000-4000-8000-000000000001",
+            "reference": "BH07 V4 P1B concurrent",
+            "amount_vnd": 20000,
+            "payment_id": "e05f1672-9536-48bd-a9d6-ac26063c97eb",
+            "session_id": "10000000-0000-4000-8000-000000000001",
+            "billing_state": "current",
+            "total_paid_vnd": 95000,
+            "outstanding_vnd": 55000
+          },
+          "operation": "record_cash_payment",
+          "created_at": "2026-11-10T10:25:20.493341+00:00",
+          "request_id": "2620919f-e885-4327-98c1-8d1bee358f30",
+          "payload_hash": "f5b67faefa60b5ea9e7654c2d390283a",
+          "actor_user_id": "831751ff-f7c0-4824-9cfe-dd4e69b3b281"
+        }
+      },
+      "relational_digest": "27ce84b5fd9b32d5db73efebf00ac1ba9f615ac89d1bb1a53681ac5e75834b93"
+    }
+  },
+  "restored_verification": {},
+  "cleanup": {
+    "ok": true,
+    "containers_verified_absent": true,
+    "networks_verified_absent": true,
+    "owned_resources_manifest": [
+      "bh07-v4-src-kong-faf0482c",
+      "bh07-v4-src-rest-faf0482c",
+      "bh07-v4-src-auth-faf0482c",
+      "bh07-v4-src-db-faf0482c",
+      "bh07-v4-target-rest-faf0482c",
+      "bh07-v4-target-auth-faf0482c",
+      "bh07-v4-target-db-faf0482c",
+      "bh07-v4-net-faf0482c"
+    ],
+    "resources_verified_absent": [
+      "bh07-v4-src-kong-faf0482c",
+      "bh07-v4-src-rest-faf0482c",
+      "bh07-v4-src-auth-faf0482c",
+      "bh07-v4-src-db-faf0482c",
+      "bh07-v4-target-rest-faf0482c",
+      "bh07-v4-target-auth-faf0482c",
+      "bh07-v4-target-db-faf0482c",
+      "bh07-v4-net-faf0482c"
+    ],
+    "private_dumps_removed": true,
+    "cleanup_errors": []
+  },
+  "padding_fixture": {
+    "schema": "tooling_rehearsal",
+    "table": "rehearsal_padding",
+    "rows": 260000,
+    "bytes": 257920000,
+    "digest": "0ba98c3dc484e3fefba82f7dd034dc06",
+    "restored_match": true
+  },
+  "diagnostics": {
+    "dump_exit_code": 0,
+    "dump_start": 1794306320.254564,
+    "dump_end": 1794306328.0407355,
+    "initial_observation": {
+      "dump_pid": 398,
+      "dump_application_name": "pg_dump",
+      "observed_start": 1794306320.4523742,
+      "observed_end": 1794306320.4558809
+    },
+    "observation": {
+      "dump_pid": 398,
+      "dump_application_name": "pg_dump",
+      "observed_start": 1794306320.4600675,
+      "observed_end": 1794306320.4644868,
+      "observed_during_active_dump": true
+    },
+    "writer_a": {
+      "status": 200,
+      "start": 1794306320.457162,
+      "end": 1794306320.47863
+    },
+    "writer_b": {
+      "status": 200,
+      "start": 1794306320.459561,
+      "end": 1794306320.5168972
+    },
+    "overlap_verified": true,
+    "exporter_returncode": null,
+    "command_failure": {
+      "operation": "target_port_discovery",
+      "exit_code": 1
+    },
+    "failed_operation": "target_port_discovery",
+    "failed_exit_code": 1,
+    "stage": "port_discovery"
+  },
+  "stage": "port_discovery",
+  "execution_stage": "port_discovery",
+  "status": "FAIL",
+  "failure_type": "RuntimeError",
+  "command_failure": {
+    "operation": "target_port_discovery",
+    "exit_code": 1
+  },
+  "failed_operation": {
+    "operation": "target_port_discovery",
+    "exit_code": 1
+  },
+  "error_message": "target_port_discovery exited 1",
+  "findings": [
+    "failed_status: summary status is 'FAIL', must be 'PASS'",
+    "strict_type_violation: restored_verification.p0_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1a_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1b_present_in_restore must be strictly bool, got NoneType",
+    "missing_precommit: pre-snapshot payment P0 absent from restored database",
+    "cardinality_mismatch: expected 1 payment and 1 request, got payments=None, requests=None",
+    "ledger_invariant_failed: expected 1 ledger row matching payments, got None",
+    "audit_invariant_failed: expected 1 audit row matching payments, got None",
+    "substituted_restored_payment_id: expected restored_payment_ids ['19ce8c67-59d6-41af-b1a7-0e8af935f119'], got None",
+    "substituted_restored_transaction_id: expected restored_transaction_ids ['c9a27268-3193-4222-97ae-bfbde0523451'], got None",
+    "substituted_restored_audit_id: expected restored_audit_ids ['bfc6b7bf-37d0-49fa-8782-7b86c8007bb3'], got None",
+    "substituted_restored_request_id: expected restored_request_ids ['84739c05-ca72-49e3-929e-f6c21d06f4e9'], got None",
+    "missing_replay_state: replay evidence is required",
+    "missing_restored_padding_fixture: restored_verification missing padding_fixture receipt"
+  ],
+  "elapsed_seconds": 88.984
+}
