@@ -1,0 +1,45 @@
+{
+  "kind": "read-only local environment preflight; not V4 runtime evidence",
+  "date": "2026-11-09",
+  "operator": "Codex",
+  "branch": "feat/bh07-completion-local",
+  "head": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+  "working_tree": "dirty/uncommitted; no clean reviewed runtime candidate",
+  "runner_sha256": "53dc32fd1e647e2f0d7252fc513f85872c7250cea9b2c7d7b463289c17f7949d",
+  "app_schema_diff": "empty for lib, test, supabase, web, pubspec.yaml and pubspec.lock",
+  "source_admission": {
+    "tool": "ctx_read",
+    "mode": "signatures",
+    "fresh": true,
+    "result": "withheld",
+    "flags": ["secret.redacted", "redaction.incomplete"],
+    "cause": "UNKNOWN; no inference of actual secret or false positive"
+  },
+  "docker_server_version": "29.9.2",
+  "existing_supabase_container_count": 11,
+  "v4_container_count": 0,
+  "unrelated_existing_state": "supabase_vector_badminton-hub restarting; other listed services running",
+  "disk_c_free_bytes": 80743747584,
+  "secret_scanners_on_path": {"gitleaks": false, "trufflehog": false},
+  "cached_candidate_images": {
+    "postgres:17": "sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe",
+    "ghcr.io/supabase/gotrue:v2.197.0": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+    "ghcr.io/supabase/postgrest:v16.4": "sha256:d155c6718ed9a9f990d159a2ab7c0a3f16944dbb6d0a0344557421042acfe0df",
+    "ghcr.io/supabase/kong:2.8.1": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+  },
+  "image_scope": "candidate images from prior handoff only; exact runner dependencies not source-reviewed",
+  "commands": [
+    "docker version --format '{{.Server.Version}}'",
+    "docker ps --format '{{.Names}} | {{.Status}}'",
+    "docker image ls --format '{{.Repository}}:{{.Tag}}'",
+    "docker image inspect postgres:17 ghcr.io/supabase/gotrue:v2.197.0 ghcr.io/supabase/postgrest:v16.4 ghcr.io/supabase/kong:2.8.1 --format '{{.Id}} {{json .RepoTags}}'",
+    "Get-PSDrive C | Select-Object Name,Free",
+    "Get-Command gitleaks,trufflehog -ErrorAction SilentlyContinue | Select-Object Name,Source",
+    "Get-FileHash scripts/bh07_backup/run_v4_concurrent_rehearsal.py -Algorithm SHA256",
+    "git rev-parse HEAD",
+    "git diff --name-only -- lib test supabase web pubspec.yaml pubspec.lock"
+  ],
+  "mutations_performed": "none to DB, Docker resources, application or runner",
+  "v4_runtime": "NOT RUN",
+  "bh07_v8_acceptance": "UNACCEPTED"
+}

@@ -1,0 +1,1130 @@
+{
+  "kind": "new synthetic request/replay controls, no DB runtime",
+  "captured_utc": "2026-11-09T05:14:01.867767+00:00",
+  "runner_sha256": "4124aafc59d783b3cf6119b87555d6acf4263b145159479ee41cca4dec2bc4ff",
+  "input_sha256": "32ba90e16f29a3fd0158af506fe31e62d85616efe1c2fcf489afaf02ca6ff7eb",
+  "source_fp": {
+    "public.payments": {
+      "rows": 3,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "public.club_transactions": {
+      "rows": 3,
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "public.audit_events": {
+      "rows": 3,
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "public.operation_requests": {
+      "rows": 3,
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+  },
+  "restored_fp": {
+    "public.payments": {
+      "rows": 1,
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "public.club_transactions": {
+      "rows": 1,
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    },
+    "public.audit_events": {
+      "rows": 1,
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "public.operation_requests": {
+      "rows": 1,
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  },
+  "cases": [
+    {
+      "name": "positive",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "db_observation_receipt": {
+            "dump_pid": 12345,
+            "dump_application_name": "pg_dump",
+            "dump_query": "COPY public.payments TO STDOUT",
+            "observed_during_active_dump": true
+          },
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-000000000001",
+                "amount_vnd": 10000,
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-000000000001",
+                "source_payment_id": "60000000-0000-4000-8000-000000000001",
+                "amount": 10000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-000000000001",
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "payment_id": "60000000-0000-4000-8000-000000000001",
+                "status": 200
+              }
+            },
+            "relational_digest": "5d5b16edba13396a7b5634edb5828bede5c4523c4da3b28e9628e4b8b7f3ef63"
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001a",
+                "amount_vnd": 15000,
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001a",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001a",
+                "amount": 15000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001a",
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "payment_id": "60000000-0000-4000-8000-00000000001a",
+                "status": 200
+              }
+            },
+            "relational_digest": "190dbc31b5de4793031f4c0fb2c372decb448d2c7feaf292ae4f0bc57bb5578b"
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001b",
+                "amount_vnd": 20000,
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001b",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001b",
+                "amount": 20000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001b",
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "payment_id": "60000000-0000-4000-8000-00000000001b",
+                "status": 200
+              }
+            },
+            "relational_digest": "237716d6bbd02913ed980231ae5eea6b6ffc9082c574331b8a2778a0067f8402"
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "restored_row_evidence": {
+            "payment": {
+              "id": "60000000-0000-4000-8000-000000000001",
+              "amount_vnd": 10000,
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "player_id": "30000000-0000-4000-8000-000000000001"
+            },
+            "ledger": {
+              "id": "70000000-0000-4000-8000-000000000001",
+              "source_payment_id": "60000000-0000-4000-8000-000000000001",
+              "amount": 10000
+            },
+            "audit": {
+              "id": "80000000-0000-4000-8000-000000000001",
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "session_id": "10000000-0000-4000-8000-000000000001"
+            },
+            "request": {
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "payment_id": "60000000-0000-4000-8000-000000000001",
+              "status": 200
+            }
+          },
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          },
+          "replay_evidence": {
+            "replay_status": 200,
+            "replay_payment_id": "60000000-0000-4000-8000-000000000001",
+            "before_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "after_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "fingerprint_unchanged": true
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "owned_resources_manifest": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    },
+    {
+      "name": "wrong_stored_request_id",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "db_observation_receipt": {
+            "dump_pid": 12345,
+            "dump_application_name": "pg_dump",
+            "dump_query": "COPY public.payments TO STDOUT",
+            "observed_during_active_dump": true
+          },
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-000000000001",
+                "amount_vnd": 10000,
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-000000000001",
+                "source_payment_id": "60000000-0000-4000-8000-000000000001",
+                "amount": 10000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-000000000001",
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-000000000099",
+                "payment_id": "60000000-0000-4000-8000-000000000001",
+                "status": 200
+              }
+            },
+            "relational_digest": "70a7caaa4722a5294125d83f6283d5cc3516f7ad30956efb70ad0de7d46bbba2"
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001a",
+                "amount_vnd": 15000,
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001a",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001a",
+                "amount": 15000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001a",
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "payment_id": "60000000-0000-4000-8000-00000000001a",
+                "status": 200
+              }
+            },
+            "relational_digest": "190dbc31b5de4793031f4c0fb2c372decb448d2c7feaf292ae4f0bc57bb5578b"
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001b",
+                "amount_vnd": 20000,
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001b",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001b",
+                "amount": 20000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001b",
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "payment_id": "60000000-0000-4000-8000-00000000001b",
+                "status": 200
+              }
+            },
+            "relational_digest": "237716d6bbd02913ed980231ae5eea6b6ffc9082c574331b8a2778a0067f8402"
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "restored_row_evidence": {
+            "payment": {
+              "id": "60000000-0000-4000-8000-000000000001",
+              "amount_vnd": 10000,
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "player_id": "30000000-0000-4000-8000-000000000001"
+            },
+            "ledger": {
+              "id": "70000000-0000-4000-8000-000000000001",
+              "source_payment_id": "60000000-0000-4000-8000-000000000001",
+              "amount": 10000
+            },
+            "audit": {
+              "id": "80000000-0000-4000-8000-000000000001",
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "session_id": "10000000-0000-4000-8000-000000000001"
+            },
+            "request": {
+              "request_id": "c0000000-0000-4000-8000-000000000099",
+              "payment_id": "60000000-0000-4000-8000-000000000001",
+              "status": 200
+            }
+          },
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          },
+          "replay_evidence": {
+            "replay_status": 200,
+            "replay_payment_id": "60000000-0000-4000-8000-000000000001",
+            "before_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "after_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "fingerprint_unchanged": true
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "owned_resources_manifest": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit request row request_id c0000000-0000-4000-8000-000000000099 != op request_id c0000000-0000-4000-8000-000000000001",
+          "restored_relational_evidence_mismatch: restored request row mismatch with precommit P0"
+        ]
+      }
+    },
+    {
+      "name": "wrong_stored_request_status",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "db_observation_receipt": {
+            "dump_pid": 12345,
+            "dump_application_name": "pg_dump",
+            "dump_query": "COPY public.payments TO STDOUT",
+            "observed_during_active_dump": true
+          },
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-000000000001",
+                "amount_vnd": 10000,
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-000000000001",
+                "source_payment_id": "60000000-0000-4000-8000-000000000001",
+                "amount": 10000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-000000000001",
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "payment_id": "60000000-0000-4000-8000-000000000001",
+                "status": 500
+              }
+            },
+            "relational_digest": "803515ae70a2b119badbd0df64a15882904962d1b2b6c29f73ef70195e1d9242"
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001a",
+                "amount_vnd": 15000,
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001a",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001a",
+                "amount": 15000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001a",
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "payment_id": "60000000-0000-4000-8000-00000000001a",
+                "status": 200
+              }
+            },
+            "relational_digest": "190dbc31b5de4793031f4c0fb2c372decb448d2c7feaf292ae4f0bc57bb5578b"
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001b",
+                "amount_vnd": 20000,
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001b",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001b",
+                "amount": 20000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001b",
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "payment_id": "60000000-0000-4000-8000-00000000001b",
+                "status": 200
+              }
+            },
+            "relational_digest": "237716d6bbd02913ed980231ae5eea6b6ffc9082c574331b8a2778a0067f8402"
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "restored_row_evidence": {
+            "payment": {
+              "id": "60000000-0000-4000-8000-000000000001",
+              "amount_vnd": 10000,
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "player_id": "30000000-0000-4000-8000-000000000001"
+            },
+            "ledger": {
+              "id": "70000000-0000-4000-8000-000000000001",
+              "source_payment_id": "60000000-0000-4000-8000-000000000001",
+              "amount": 10000
+            },
+            "audit": {
+              "id": "80000000-0000-4000-8000-000000000001",
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "session_id": "10000000-0000-4000-8000-000000000001"
+            },
+            "request": {
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "payment_id": "60000000-0000-4000-8000-000000000001",
+              "status": 500
+            }
+          },
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          },
+          "replay_evidence": {
+            "replay_status": 200,
+            "replay_payment_id": "60000000-0000-4000-8000-000000000001",
+            "before_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "after_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "fingerprint_unchanged": true
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "owned_resources_manifest": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    },
+    {
+      "name": "missing_stored_request",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "db_observation_receipt": {
+            "dump_pid": 12345,
+            "dump_application_name": "pg_dump",
+            "dump_query": "COPY public.payments TO STDOUT",
+            "observed_during_active_dump": true
+          },
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-000000000001",
+                "amount_vnd": 10000,
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-000000000001",
+                "source_payment_id": "60000000-0000-4000-8000-000000000001",
+                "amount": 10000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-000000000001",
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              }
+            },
+            "relational_digest": "5c8c1413fd46e70fe95c281bc8f44ac9d42daa0b3219df885cc0254068d9fa9b"
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001a",
+                "amount_vnd": 15000,
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001a",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001a",
+                "amount": 15000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001a",
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "payment_id": "60000000-0000-4000-8000-00000000001a",
+                "status": 200
+              }
+            },
+            "relational_digest": "190dbc31b5de4793031f4c0fb2c372decb448d2c7feaf292ae4f0bc57bb5578b"
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001b",
+                "amount_vnd": 20000,
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001b",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001b",
+                "amount": 20000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001b",
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "payment_id": "60000000-0000-4000-8000-00000000001b",
+                "status": 200
+              }
+            },
+            "relational_digest": "237716d6bbd02913ed980231ae5eea6b6ffc9082c574331b8a2778a0067f8402"
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "restored_row_evidence": {
+            "payment": {
+              "id": "60000000-0000-4000-8000-000000000001",
+              "amount_vnd": 10000,
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "player_id": "30000000-0000-4000-8000-000000000001"
+            },
+            "ledger": {
+              "id": "70000000-0000-4000-8000-000000000001",
+              "source_payment_id": "60000000-0000-4000-8000-000000000001",
+              "amount": 10000
+            },
+            "audit": {
+              "id": "80000000-0000-4000-8000-000000000001",
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "session_id": "10000000-0000-4000-8000-000000000001"
+            }
+          },
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          },
+          "replay_evidence": {
+            "replay_status": 200,
+            "replay_payment_id": "60000000-0000-4000-8000-000000000001",
+            "before_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "after_replay_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "fingerprint_unchanged": true
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "owned_resources_manifest": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit request row request_id None != op request_id c0000000-0000-4000-8000-000000000001",
+          "restored_relational_evidence_mismatch: restored request row mismatch with precommit P0"
+        ]
+      }
+    },
+    {
+      "name": "invalid_equal_replay_fingerprints",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "db_observation_receipt": {
+            "dump_pid": 12345,
+            "dump_application_name": "pg_dump",
+            "dump_query": "COPY public.payments TO STDOUT",
+            "observed_during_active_dump": true
+          },
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-000000000001",
+                "amount_vnd": 10000,
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-000000000001",
+                "source_payment_id": "60000000-0000-4000-8000-000000000001",
+                "amount": 10000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-000000000001",
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-000000000001",
+                "payment_id": "60000000-0000-4000-8000-000000000001",
+                "status": 200
+              }
+            },
+            "relational_digest": "5d5b16edba13396a7b5634edb5828bede5c4523c4da3b28e9628e4b8b7f3ef63"
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001a",
+                "amount_vnd": 15000,
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001a",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001a",
+                "amount": 15000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001a",
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001a",
+                "payment_id": "60000000-0000-4000-8000-00000000001a",
+                "status": 200
+              }
+            },
+            "relational_digest": "190dbc31b5de4793031f4c0fb2c372decb448d2c7feaf292ae4f0bc57bb5578b"
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000,
+            "row_evidence": {
+              "payment": {
+                "id": "60000000-0000-4000-8000-00000000001b",
+                "amount_vnd": 20000,
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "player_id": "30000000-0000-4000-8000-000000000001"
+              },
+              "ledger": {
+                "id": "70000000-0000-4000-8000-00000000001b",
+                "source_payment_id": "60000000-0000-4000-8000-00000000001b",
+                "amount": 20000
+              },
+              "audit": {
+                "id": "80000000-0000-4000-8000-00000000001b",
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "session_id": "10000000-0000-4000-8000-000000000001"
+              },
+              "request": {
+                "request_id": "c0000000-0000-4000-8000-00000000001b",
+                "payment_id": "60000000-0000-4000-8000-00000000001b",
+                "status": 200
+              }
+            },
+            "relational_digest": "237716d6bbd02913ed980231ae5eea6b6ffc9082c574331b8a2778a0067f8402"
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "restored_row_evidence": {
+            "payment": {
+              "id": "60000000-0000-4000-8000-000000000001",
+              "amount_vnd": 10000,
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "player_id": "30000000-0000-4000-8000-000000000001"
+            },
+            "ledger": {
+              "id": "70000000-0000-4000-8000-000000000001",
+              "source_payment_id": "60000000-0000-4000-8000-000000000001",
+              "amount": 10000
+            },
+            "audit": {
+              "id": "80000000-0000-4000-8000-000000000001",
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "session_id": "10000000-0000-4000-8000-000000000001"
+            },
+            "request": {
+              "request_id": "c0000000-0000-4000-8000-000000000001",
+              "payment_id": "60000000-0000-4000-8000-000000000001",
+              "status": 200
+            }
+          },
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          },
+          "replay_evidence": {
+            "replay_status": 200,
+            "replay_payment_id": "60000000-0000-4000-8000-000000000001",
+            "before_replay_fingerprint": "not-a-digest",
+            "after_replay_fingerprint": "not-a-digest",
+            "fingerprint_unchanged": true
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "owned_resources_manifest": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    }
+  ]
+}

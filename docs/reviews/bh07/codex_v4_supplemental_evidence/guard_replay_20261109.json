@@ -1,0 +1,144 @@
+{
+  "kind": "synthetic replay of immutable pre-repair inputs; no DB runtime",
+  "input_file": "docs\\reviews\\bh07\\v4_review_r1_evidence\\final_capture_20261109.json",
+  "input_sha256": "911b1025a925aee6398f9c41ce80956a222e0b1d4811aff4b671e23a063b99ed",
+  "runner_sha256": "53dc32fd1e647e2f0d7252fc513f85872c7250cea9b2c7d7b463289c17f7949d",
+  "results": [
+    {
+      "name": "positive",
+      "expected_ok": true,
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "stored_result_wrong_payment",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit request stored result payment_id 60000000-0000-4000-8000-000000000099 != op payment_id 60000000-0000-4000-8000-000000000001",
+          "restored_relational_evidence_mismatch: restored request result payment_id mismatch with precommit P0"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "stored_result_wrong_amount",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit request stored result amount_vnd 99999 != op amount 10000",
+          "restored_relational_evidence_mismatch: restored request result amount_vnd mismatch with precommit P0"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "stored_result_wrong_status",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit requires record_cash_payment with a confirmed stored result"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "missing_stored_result",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit requires record_cash_payment with a confirmed stored result"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "wrong_request_operation",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit requires record_cash_payment with a confirmed stored result"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "wrong_ledger_amount",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit ledger amount 99999 != op amount 10000",
+          "restored_relational_evidence_mismatch: restored ledger row mismatch with precommit P0"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "wrong_audit_request",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "relational_evidence_mismatch: p0_precommit audit row request_id c0000000-0000-4000-8000-000000000099 != op request_id c0000000-0000-4000-8000-000000000001",
+          "restored_relational_evidence_mismatch: restored audit row mismatch with precommit P0"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "invalid_equal_replay_digest",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "invalid_replay_fingerprint: before_replay_fingerprint must be 64-char hex SHA-256, got 'not-a-digest'",
+          "invalid_replay_fingerprint: after_replay_fingerprint must be 64-char hex SHA-256, got 'not-a-digest'",
+          "replay_fingerprint_mismatch: replay fingerprint not-a-digest != restored public.payments sha256 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "valid_but_wrong_equal_replay_digest",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "replay_fingerprint_mismatch: replay fingerprint bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb != restored public.payments sha256 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        ]
+      },
+      "matches_expected": true
+    },
+    {
+      "name": "wrong_replay_response_payment",
+      "expected_ok": false,
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "idempotency_replay_failed: replay evidence does not match expected P0 response"
+        ]
+      },
+      "matches_expected": true
+    }
+  ]
+}

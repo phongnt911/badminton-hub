@@ -1,0 +1,1012 @@
+{
+  "kind": "new synthetic post-correction-1 controls; not DB runtime",
+  "captured_utc": "2026-11-09T04:58:48.995401+00:00",
+  "source_sha256": {
+    "scripts\\bh07_backup\\run_v4_concurrent_rehearsal.py": "27705cd6515c414817cf41a76e558f8e5009a64e56873bdbdadc2c941a2ef5c0",
+    "tests\\test_bh07_v4_backup_concurrency.py": "a56695e137fed4e1927691ed8e82f88fe9d7b277e67d067357c8c1e3af492063",
+    "docs\\reviews\\bh07\\v4_review_r1_evidence\\post_r1_controls.py": "4d192d2dd16757bb7543aa391658e6d6a17d1e23a7531b2be32148b5ce990d61"
+  },
+  "cases": [
+    {
+      "name": "positive",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    },
+    {
+      "name": "duplicate_ledger_id",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "duplicate_source_transaction_id: p1a_concurrent reused transaction_id '70000000-0000-4000-8000-000000000001' from p0_precommit"
+        ]
+      }
+    },
+    {
+      "name": "duplicate_audit_id",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "duplicate_source_audit_id: p1a_concurrent reused audit_event_id '80000000-0000-4000-8000-000000000001' from p0_precommit"
+        ]
+      }
+    },
+    {
+      "name": "serial_writers_inside_dump",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.2,
+          "writer_b_started_epoch": 100.3,
+          "writer_b_committed_epoch": 100.4,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    },
+    {
+      "name": "unrelated_cleanup_resources",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "unrelated-src-db",
+            "unrelated-target-db",
+            "unrelated-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": true,
+        "verdict": "PASS",
+        "findings": []
+      }
+    },
+    {
+      "name": "boolean_restored_counts",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": true,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": true,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": true,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": true,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "invalid_restored_table_rows: table public.payments rows must be non-negative int",
+          "invalid_restored_table_rows: table public.club_transactions rows must be non-negative int",
+          "invalid_restored_table_rows: table public.audit_events rows must be non-negative int",
+          "invalid_restored_table_rows: table public.operation_requests rows must be non-negative int"
+        ]
+      }
+    },
+    {
+      "name": "float_restored_counts",
+      "summary": {
+        "status": "PASS",
+        "tested_source_sha": "b72c563d9e519986dbd88ec98bcc3f015a41a442",
+        "git_dirty": false,
+        "snapshot": {
+          "snapshot_id": "00000003-0000001B-1",
+          "snapshot_exported_epoch": 100.0,
+          "export_tx_held": true,
+          "pg_dump_snapshot_arg": "--snapshot=00000003-0000001B-1",
+          "pg_dump_completed": true,
+          "pg_dump_exit_code": 0
+        },
+        "actors": {
+          "p0_writer": "ownera",
+          "writer_a": "ownera",
+          "writer_b": "financea"
+        },
+        "writers_concurrency": {
+          "p0_committed_epoch": 99.8,
+          "writer_a_started_epoch": 100.1,
+          "writer_a_committed_epoch": 100.4,
+          "writer_b_started_epoch": 100.15,
+          "writer_b_committed_epoch": 100.45,
+          "pg_dump_backend_active_start": 100.05,
+          "pg_dump_backend_active_end": 100.6,
+          "pg_stat_activity_dump_observed": true,
+          "overlap_verified": true,
+          "writers_executed_during_dump": true
+        },
+        "source_operations": {
+          "p0_precommit": {
+            "request_id": "c0000000-0000-4000-8000-000000000001",
+            "payment_id": "60000000-0000-4000-8000-000000000001",
+            "transaction_id": "70000000-0000-4000-8000-000000000001",
+            "audit_event_id": "80000000-0000-4000-8000-000000000001",
+            "status": 200,
+            "amount_vnd": 10000
+          },
+          "p1a_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001a",
+            "payment_id": "60000000-0000-4000-8000-00000000001a",
+            "transaction_id": "70000000-0000-4000-8000-00000000001a",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001a",
+            "status": 200,
+            "amount_vnd": 15000
+          },
+          "p1b_concurrent": {
+            "request_id": "c0000000-0000-4000-8000-00000000001b",
+            "payment_id": "60000000-0000-4000-8000-00000000001b",
+            "transaction_id": "70000000-0000-4000-8000-00000000001b",
+            "audit_event_id": "80000000-0000-4000-8000-00000000001b",
+            "status": 200,
+            "amount_vnd": 20000
+          }
+        },
+        "restored_verification": {
+          "p0_present_in_restore": true,
+          "p1a_present_in_restore": false,
+          "p1b_present_in_restore": false,
+          "exact_cardinality_match": true,
+          "payments_count": 1,
+          "club_transactions_count": 1,
+          "audit_events_count": 1,
+          "operation_requests_count": 1,
+          "restored_payment_ids": [
+            "60000000-0000-4000-8000-000000000001"
+          ],
+          "restored_transaction_ids": [
+            "70000000-0000-4000-8000-000000000001"
+          ],
+          "restored_audit_ids": [
+            "80000000-0000-4000-8000-000000000001"
+          ],
+          "restored_request_ids": [
+            "c0000000-0000-4000-8000-000000000001"
+          ],
+          "replay_p0_idempotent": true,
+          "replay_p0_growth": {
+            "payments": 0,
+            "club_transactions": 0,
+            "audit_events": 0,
+            "operation_requests": 0
+          }
+        },
+        "cleanup": {
+          "ok": true,
+          "containers_verified_absent": true,
+          "networks_verified_absent": true,
+          "resources_verified_absent": [
+            "bh07-v4-src-db",
+            "bh07-v4-target-db",
+            "bh07-v4-net"
+          ],
+          "private_dumps_removed": true,
+          "cleanup_errors": []
+        }
+      },
+      "source_fp": {
+        "public.payments": {
+          "rows": 3,
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "public.club_transactions": {
+          "rows": 3,
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "public.audit_events": {
+          "rows": 3,
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "public.operation_requests": {
+          "rows": 3,
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      "restored_fp": {
+        "public.payments": {
+          "rows": 1.0,
+          "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "public.club_transactions": {
+          "rows": 1.0,
+          "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "public.audit_events": {
+          "rows": 1.0,
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "public.operation_requests": {
+          "rows": 1.0,
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      },
+      "result": {
+        "ok": false,
+        "verdict": "FAIL",
+        "findings": [
+          "invalid_restored_table_rows: table public.payments rows must be non-negative int",
+          "invalid_restored_table_rows: table public.club_transactions rows must be non-negative int",
+          "invalid_restored_table_rows: table public.audit_events rows must be non-negative int",
+          "invalid_restored_table_rows: table public.operation_requests rows must be non-negative int"
+        ]
+      }
+    }
+  ]
+}
