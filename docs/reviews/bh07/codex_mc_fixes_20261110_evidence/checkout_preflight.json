@@ -1,0 +1,47 @@
+{
+  "git_autocrlf": "true",
+  "restored_from_HEAD_no_content_edit": [
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/hashes.sha256",
+      "canonical_sha256": "a952889e842351dd47b981955ab3c1cd8f6d7177b7311f5993c8a5b5aecbf7bf",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/report.md",
+      "canonical_sha256": "34a37933af3437bdfed3889c9b0d11c9af34b297a43e1f0f17e9864fe3fa6032",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/run.log",
+      "canonical_sha256": "fc1f6ab3e1925ecd29f0293d9f7f0bfec018b65094f4d3d894e7dc22928d0c9a",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/retained_path_r1_evidence/summary.json",
+      "canonical_sha256": "c5f10963ff833ab65b1e5ca52af41b87d3abddfaa518ffd1db918c594ce7948e",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/hashes.sha256",
+      "canonical_sha256": "993edd2f3846c38360355a11eea293599e25835ca6b89ad2f9792c18dd5d162c",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/report.md",
+      "canonical_sha256": "c7508890544680ff15ce7f9e0aa88a57393fc4b3aa1d70cb78771703d1f1d833",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/run.log",
+      "canonical_sha256": "ba67018edec39581470b006cdbb223af91410209414e97017326a74a4d28c497",
+      "changed_checkout_line_endings": true
+    },
+    {
+      "path": "docs/reviews/bh07/finance_heap_evidence/summary.json",
+      "canonical_sha256": "d1f33d9d3f76bd811a8710dab85d7863ee58421d6b8f37e2cb2d96a11b1764c2",
+      "changed_checkout_line_endings": true
+    }
+  ],
+  "created_ignored_build_directory": true,
+  "python_PATH_for_checks": "bundled Python"
+}

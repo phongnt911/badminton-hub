@@ -245,6 +245,11 @@ class V4FailClosedValidatorTests(unittest.TestCase):
             'public.audit_events': {'rows': 1, 'sha256': '1' * 64},
             'public.operation_requests': {'rows': 1, 'sha256': '2' * 64},
         }
+        self.valid_summary['writers_concurrency']['db_observation_receipt'].update(
+            observed_start=100.20, observed_end=100.25)
+        replay = self.valid_summary['restored_verification']['replay_evidence']
+        replay['before_state'] = {**copy.deepcopy(self.valid_restored_fingerprint), '_schema': 'f' * 64}
+        replay['after_state'] = copy.deepcopy(replay['before_state'])
 
     def test_canonical_positive_receipt_passes(self):
         """A well-formed receipt with true overlap, snapshot boundary, and clean verification passes."""

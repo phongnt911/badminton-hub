@@ -1,5 +1,9 @@
 # Giao Anti CLI — phương án MC1–MC6 ngày 10/11/2026
 
+**Ủy quyền mới 10/11/2026:** chủ dự án yêu cầu “codex tự sửa”. Codex trực tiếp triển khai MC1–MC6 và test tái hiện; đây là ngoại lệ cụ thể sau mốc dừng Anti, không giao Anti vòng sửa thứ tư. Không tự coi phần tự sửa/tự kiểm là review độc lập. Phạm vi chỉ tooling V4/test và tài liệu trạng thái; không đổi app/schema hoặc chạy production.
+
+Thứ tự thực hiện: RED cho collector/snapshot/overlap/replay/trạng thái và dữ liệu seed → sửa helper/luồng main tối thiểu → regression Python/probe → kiểm source/provenance và môi trường → báo cáo Chờ review độc lập, runtime nào chưa chạy giữ NOT RUN.
+
 Base `423f354`, nhánh `feat/bh07-completion-local`. Chủ dự án giao chuyển nhánh, review và giao Anti CLI việc tiếp theo. Codex review tại [báo cáo](review_423f354_machine_continuation.md).
 
 ## Phiên Anti và trạng thái thực
@@ -34,8 +38,8 @@ File dự kiến (CHƯA được sửa): runner, probe, test V4 hiện có và m
 
 ## Cổng tiếp theo
 
-AGENTS.md:150 yêu cầu dừng sau ba vòng; V4 đã hết ba vòng. Codex đã gửi owner câu hỏi ngoại lệ cho riêng MC1–MC6; **chưa có trả lời tại lúc ghi tài liệu này**. Không dùng yêu cầu phân tích hiện tại để tự mở vòng sửa thứ tư.
+AGENTS.md:150 yêu cầu dừng sau ba vòng; V4 đã hết ba vòng. **Đã được thay bằng quyết định owner “codex tự sửa” ngày 10/11/2026:** Codex sửa trực tiếp MC1–MC6, không giao Anti vòng 4; không còn chờ owner cho phạm vi tự sửa này. Bản hỏi ngoại lệ trước đó là lịch sử.
 
-Sau ủy quyền ngoại lệ: Anti hoàn thiện thiết kế các điểm trên, viết RED tái hiện trước, Codex chạy RED, rồi mới giao sửa tooling tối thiểu và review lại. Rehearsal chỉ sau source đạt và tiền kiểm môi trường/resources/provenance được xác nhận. Không merge/deploy/pilot.
+Codex đang triển khai theo ủy quyền mới và giữ các kết luận tự kiểm tách biệt review độc lập. Rehearsal chỉ sau source đạt và tiền kiểm môi trường/resources/provenance được xác nhận. Không merge/deploy/pilot.
 
 **NOT RUN:** code fix, RED mới, full suite/Flutter mới, Docker/HTTP/DB/dump/restore/cleanup V4. Toàn BH-07/V8 chưa nghiệm thu.

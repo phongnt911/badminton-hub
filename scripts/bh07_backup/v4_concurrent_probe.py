@@ -48,6 +48,7 @@ def make_synthetic_token():
 
 
 def build_canonical_summary():
+    replay_state = {**fp(1, sha_hex='e' * 64), '_schema': 'f' * 64}
     p0_ev = {
         'payment': {'id': '6000-00', 'amount_vnd': 10000, 'request_id': 'c000-00', 'player_id': '3000-00'},
         'ledger': {'id': '7000-00', 'source_payment_id': '6000-00', 'amount': 10000},
@@ -116,6 +117,8 @@ def build_canonical_summary():
                 'dump_application_name': 'pg_dump',
                 'dump_query': 'COPY public.payments TO STDOUT',
                 'observed_during_active_dump': True,
+                'observed_start': 100.20,
+                'observed_end': 100.25,
             },
             'overlap_verified': True,
             'writers_executed_during_dump': True,
@@ -147,6 +150,8 @@ def build_canonical_summary():
                 'before_replay_fingerprint': 'e' * 64,
                 'after_replay_fingerprint': 'e' * 64,
                 'fingerprint_unchanged': True,
+                'before_state': copy.deepcopy(replay_state),
+                'after_state': copy.deepcopy(replay_state),
             },
         },
         'cleanup': {

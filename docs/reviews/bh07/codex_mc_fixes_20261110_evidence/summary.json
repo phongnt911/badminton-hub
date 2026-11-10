@@ -1,0 +1,84 @@
+{
+  "base_sha": "d2f6b079a7a6f7521d04b88ac6eb780db5718a56",
+  "candidate": "uncommitted Codex MC1-MC6 fix, source hashes pinned below",
+  "attribution": "Codex implementer self-check, not independent runtime QA",
+  "checks": [
+    {
+      "name": "targeted",
+      "command": [
+        "C:\\Users\\PHONGNT\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-m",
+        "unittest",
+        "test_bh07_v4_backup_concurrency",
+        "test_bh07_v4_codex_supplemental",
+        "test_bh07_v4_runtime_collection"
+      ],
+      "cwd": "C:\\Users\\PHONGNT\\Documents\\GitHub\\badminton-hub\\tests",
+      "exit": 0,
+      "seconds": 0.625
+    },
+    {
+      "name": "full_python",
+      "command": [
+        "C:\\Users\\PHONGNT\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests"
+      ],
+      "cwd": "C:\\Users\\PHONGNT\\Documents\\GitHub\\badminton-hub",
+      "exit": 0,
+      "seconds": 131.094
+    },
+    {
+      "name": "probe",
+      "command": [
+        "C:\\Users\\PHONGNT\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "scripts/bh07_backup/v4_concurrent_probe.py"
+      ],
+      "cwd": "C:\\Users\\PHONGNT\\Documents\\GitHub\\badminton-hub",
+      "exit": 0,
+      "seconds": 0.14
+    }
+  ],
+  "source_before": {
+    "scripts/bh07_backup/run_v4_concurrent_rehearsal.py": {
+      "sha256": "275a011335fc72b8f21fa0a29bb8d86ebbf248a4232980b7f89aaeb2dea95575",
+      "git_blob": "9541600485e5fad3acddd2a9c81126e9174d2579"
+    },
+    "scripts/bh07_backup/v4_concurrent_probe.py": {
+      "sha256": "42f25ce430240fce315a9b689b3f07afd2a596082be8af07cf560c2014e2b0e9",
+      "git_blob": "e91a49b1ff7e4af7b1b5b2b769a5f274bf60fc1b"
+    },
+    "tests/test_bh07_v4_backup_concurrency.py": {
+      "sha256": "ae86cb9a61d5ce36905ed590e6e0d3a0027c7ff4e5a3c993e656d16f1b42d68a",
+      "git_blob": "c1eb4fa526981afc67aa0313774015a598a061a5"
+    },
+    "tests/test_bh07_v4_runtime_collection.py": {
+      "sha256": "b96825d3a5ed0fe80222c9ea34a79995f6743adc3d8db37833e45453f419d352",
+      "git_blob": "c46a77a5cbc8d10f34e21184c08ccef1889f261d"
+    }
+  },
+  "source_after": {
+    "scripts/bh07_backup/run_v4_concurrent_rehearsal.py": {
+      "sha256": "275a011335fc72b8f21fa0a29bb8d86ebbf248a4232980b7f89aaeb2dea95575",
+      "git_blob": "9541600485e5fad3acddd2a9c81126e9174d2579"
+    },
+    "scripts/bh07_backup/v4_concurrent_probe.py": {
+      "sha256": "42f25ce430240fce315a9b689b3f07afd2a596082be8af07cf560c2014e2b0e9",
+      "git_blob": "e91a49b1ff7e4af7b1b5b2b769a5f274bf60fc1b"
+    },
+    "tests/test_bh07_v4_backup_concurrency.py": {
+      "sha256": "ae86cb9a61d5ce36905ed590e6e0d3a0027c7ff4e5a3c993e656d16f1b42d68a",
+      "git_blob": "c1eb4fa526981afc67aa0313774015a598a061a5"
+    },
+    "tests/test_bh07_v4_runtime_collection.py": {
+      "sha256": "b96825d3a5ed0fe80222c9ea34a79995f6743adc3d8db37833e45453f419d352",
+      "git_blob": "c46a77a5cbc8d10f34e21184c08ccef1889f261d"
+    }
+  },
+  "source_unchanged_during_checks": true,
+  "runtime_Docker_HTTP_DB_dump_restore": "NOT RUN",
+  "Flutter": "NOT RUN: no SDK on PATH"
+}

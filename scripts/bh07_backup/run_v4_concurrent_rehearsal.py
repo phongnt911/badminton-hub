@@ -19,11 +19,13 @@ All credentials generated at runtime; no static secret literals.
 """
 import argparse
 import concurrent.futures
+from contextlib import contextmanager
 import copy
 import hashlib
 import json
 import math
 import os
+import queue
 from pathlib import Path
 import re
 import runpy
@@ -46,7 +48,7 @@ SESSION = '10000000-0000-4000-8000-000000000001'
 PLAYER = '30000000-0000-4000-8000-000000000001'
 
 FINANCE_AUTHORIZED_ROLES = {'ownera', 'financea'}
-ACTUAL_BASE_SHA = 'b72c563d9e519986dbd88ec98bcc3f015a41a442'
+ACTUAL_BASE_SHA = 'd2f6b079a7a6f7521d04b88ac6eb780db5718a56'
 
 
 class V4CoordinationBarrier:
@@ -187,6 +189,183 @@ EXPECTED_SCOPED_AMOUNTS = {
     'p1a_concurrent': 15000,
     'p1b_concurrent': 20000,
 }
+
+
+def workload_rows(container, operations):
+    """Read only this run's rows; unrelated seed rows are never counted as payments."""
+    payment_ids = ','.join("'" + str(uuid.UUID(op['payment_id'])) + "'" for op in operations.values())
+    request_keys = ' OR '.join(
+        "(actor_user_id = '" + str(uuid.UUID(op['actor_user_id']))
+        + "' AND request_id = '" + str(uuid.UUID(op['request_id'])) + "')"
+        for op in operations.values())
+    if not payment_ids or not request_keys:
+        raise ValueError('Workload scope must not be empty')
+    predicates = {
+        'payments': f'id IN ({payment_ids})',
+        'club_transactions': f'source_payment_id IN ({payment_ids})',
+        'audit_events': f"({request_keys}) AND entity_type = 'payment' AND action = 'CASH_PAYMENT_RECORDED'",
+        'operation_requests': f"({request_keys}) AND operation = 'record_cash_payment'",
+    }
+    result = {}
+    for table, predicate in predicates.items():
+        raw = sql(container, f"SELECT COALESCE(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) "
+                  f"FROM public.{table} t WHERE {predicate}")
+        rows = json.loads(raw)
+        if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+            raise ValueError(f'Invalid database rows for {table}')
+        result[table] = rows
+    return result
+
+
+def row_fingerprints(rows):
+    return {'public.' + table: {'rows': len(records), 'sha256': digest(records)}
+            for table, records in rows.items()}
+
+
+def query_row_evidence(container, payment_id, request_id, actor_id):
+    """Bind actual rows by actor/operation/request; never invent missing evidence."""
+    rows = workload_rows(container, {'op': {
+        'payment_id': payment_id, 'request_id': request_id, 'actor_user_id': actor_id}})
+    if any(len(records) != 1 for records in rows.values()):
+        raise ValueError('Expected exactly one payment/ledger/audit/request row')
+    pay, ledger, audit, request = (rows[table][0] for table in
+                                 ('payments', 'club_transactions', 'audit_events', 'operation_requests'))
+    result = request.get('result')
+    if (pay.get('id') != payment_id or pay.get('session_player_id') != PLAYER
+            or pay.get('status') != 'confirmed'
+            or ledger.get('source_payment_id') != payment_id
+            or ledger.get('amount_vnd') != pay.get('amount_vnd')
+            or ledger.get('direction') != 'income' or ledger.get('source_type') != 'payment'
+            or audit.get('request_id') != request_id or audit.get('actor_user_id') != actor_id
+            or audit.get('entity_id') != payment_id or audit.get('entity_type') != 'payment'
+            or audit.get('action') != 'CASH_PAYMENT_RECORDED' or audit.get('session_id') != SESSION
+            or request.get('request_id') != request_id or request.get('actor_user_id') != actor_id
+            or request.get('operation') != 'record_cash_payment'
+            or not isinstance(result, dict) or result.get('payment_id') != payment_id
+            or result.get('status') != 'confirmed' or result.get('amount_vnd') != pay.get('amount_vnd')):
+        raise ValueError('Database evidence is not bound to the expected cash payment')
+    # Receipt aliases preserve the validator contract; values all come from stored rows.
+    return {
+        'payment': {'id': pay['id'], 'amount_vnd': pay['amount_vnd'],
+                    'request_id': request['request_id'], 'player_id': pay['session_player_id']},
+        'ledger': {'id': ledger['id'], 'source_payment_id': ledger['source_payment_id'],
+                   'amount': ledger['amount_vnd']},
+        'audit': {'id': audit['id'], 'request_id': audit['request_id'], 'session_id': audit['session_id']},
+        'request': request,
+    }
+
+
+@contextmanager
+def held_snapshot(container, timeout=10):
+    """A bounded read of a machine-only psql response, with transaction release on errors."""
+    process = subprocess.Popen(
+        ['docker', 'exec', '-i', container, 'psql', '-X', '-qAt', '-U', 'postgres',
+         '-d', 'postgres', '-v', 'ON_ERROR_STOP=1'],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    response = queue.Queue()
+    reader = threading.Thread(target=lambda: response.put(process.stdout.readline()), daemon=True)
+    try:
+        process.stdin.write(b"BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;\n"
+                            b"SELECT 'SNAPSHOT:' || pg_export_snapshot();\n")
+        process.stdin.flush()
+        reader.start()
+        try:
+            line = response.get(timeout=timeout).decode('utf-8').strip()
+        except queue.Empty:
+            raise TimeoutError('Timed out reading exported snapshot') from None
+        match = re.fullmatch(r'SNAPSHOT:([0-9A-Fa-f]+-[0-9A-Fa-f]+-[0-9A-Fa-f]+)', line)
+        if not match or process.poll() is not None:
+            raise ValueError('psql did not return a live exported snapshot')
+        yield match.group(1), process
+        if process.poll() is not None:
+            raise ValueError('Snapshot exporter exited before dump completed')
+        process.communicate(input=b'ROLLBACK;\n', timeout=5)
+        if process.returncode != 0:
+            raise ValueError('Snapshot exporter failed to release transaction')
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait(timeout=5)
+        if reader.ident is not None:
+            reader.join(timeout=5)
+        for stream in (process.stdin, process.stdout, process.stderr):
+            stream.close()
+
+
+def observe_dump(container):
+    raw = sql(container,
+              "SELECT COALESCE(json_agg(json_build_object('dump_pid',pid,"
+              "'dump_application_name',application_name,'dump_query',query)), '[]'::json) "
+              "FROM pg_stat_activity WHERE pid <> pg_backend_pid() "
+              "AND application_name = 'pg_dump' AND state = 'active' AND query LIKE 'COPY %'")
+    rows = json.loads(raw)
+    if not isinstance(rows, list) or len(rows) > 1:
+        raise ValueError('Ambiguous pg_dump backend observation')
+    return rows[0] if rows else None
+
+
+def dump_with_writers(container, snapshot_id, writer_a, writer_b):
+    """Timestamp dump in its worker; require a real sample inside both HTTP intervals."""
+    def dump():
+        start = time.time()
+        result = cmd(['docker', 'exec', container, 'pg_dump', '-U', 'postgres',
+                      '--format=custom', f'--snapshot={snapshot_id}', 'postgres'])
+        return result, start, time.time()
+
+    samples = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        dump_future = executor.submit(dump)
+        deadline = time.monotonic() + 10
+        first = None
+        while not dump_future.done() and time.monotonic() < deadline:
+            first = observe_dump(container)
+            if first:
+                break
+            time.sleep(0.01)
+        # No backend observation means no writer is sent and this rehearsal fails closed.
+        if not first:
+            result, start, end = dump_future.result()
+            return {'dump': result, 'dump_start': start, 'dump_end': end,
+                    'writer_a': None, 'writer_b': None, 'overlap_verified': False, 'observation': None}
+        fa, fb = executor.submit(writer_a), executor.submit(writer_b)
+        while not dump_future.done() and not (fa.done() and fb.done()):
+            begin = time.time()
+            sample = observe_dump(container)
+            finish = time.time()
+            if sample and sample['dump_pid'] == first['dump_pid']:
+                samples.append({**sample, 'observed_start': begin, 'observed_end': finish})
+            time.sleep(0.005)
+        a, b = fa.result(), fb.result()
+        result, start, end = dump_future.result()
+    overlap_start, overlap_end = max(a['start'], b['start']), min(a['end'], b['end'])
+    observation = next((s for s in samples if max(overlap_start, start) <= s['observed_start']
+                        <= s['observed_end'] <= min(overlap_end, end)), None)
+    overlap = (a['status'] == b['status'] == 200 and start <= min(a['start'], b['start'])
+               and max(a['end'], b['end']) <= end and overlap_start < overlap_end
+               and observation is not None)
+    if observation:
+        observation['observed_during_active_dump'] = True
+    return {'dump': result, 'dump_start': start, 'dump_end': end, 'writer_a': a, 'writer_b': b,
+            'overlap_verified': overlap, 'observation': observation}
+
+
+def replay_and_fingerprint(container, replay):
+    before = fingerprint(container)
+    status, result = replay()
+    after = fingerprint(container)
+    if before != after:
+        raise ValueError('Database state changed during idempotent replay')
+    return status, result, before, after
+
+
+def finish_summary(summary, source_fp, restored_fp):
+    if summary.get('execution_completed') is True and 'failure_type' not in summary:
+        summary['status'] = 'PASS'
+    else:
+        summary['status'] = 'FAIL'
+    validation = validate_v4_rehearsal(summary, source_fp, restored_fp)
+    summary['status'] = validation['verdict']
+    summary['findings'] = validation['findings']
 
 
 def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint=None):
@@ -341,6 +520,10 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
         findings.append('no_writer_overlap: concurrent writer execution overlap not verified')
     if not conc.get('pg_stat_activity_dump_observed'):
         findings.append('dump_backend_not_observed: pg_stat_activity did not capture active pg_dump backend')
+    if all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+           for x in (t_wa_start, t_wa_commit, t_wb_start, t_wb_commit, t_dump_start, t_dump_end)):
+        if min(t_wa_start, t_wb_start) < t_dump_start or max(t_wa_commit, t_wb_commit) > t_dump_end:
+            findings.append('writer_timing_mismatch: both successful HTTP calls must be contained in actual dump lifetime')
 
     # DB Observation Receipt validation
     db_obs = conc.get('db_observation_receipt')
@@ -359,6 +542,16 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
         d_query = db_obs.get('dump_query', '')
         if not isinstance(d_query, str) or not ('COPY' in d_query or 'pg_dump' in d_query):
             findings.append(f'dump_backend_not_observed: dump_query must reference COPY or pg_dump, got {d_query}')
+        sample_times = (db_obs.get('observed_start'), db_obs.get('observed_end'),
+                        t_wa_start, t_wa_commit, t_wb_start, t_wb_commit, t_dump_start, t_dump_end)
+        if not all(isinstance(t, (int, float)) and not isinstance(t, bool) and math.isfinite(t)
+                   for t in sample_times):
+            findings.append('dump_backend_not_observed: missing finite observation interval')
+        else:
+            obs_start, obs_end = sample_times[:2]
+            if not (max(t_wa_start, t_wb_start, t_dump_start) <= obs_start <= obs_end
+                    <= min(t_wa_commit, t_wb_commit, t_dump_end)):
+                findings.append('dump_backend_not_observed: sample outside concurrent writer/dump intersection')
 
     # Source operations type, scoped amount, and unique ID validation
     src_ops = summary.get('source_operations', {})
@@ -570,7 +763,9 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
             findings.append(f'idempotency_replay_failed: replay of P0 resulted in {growth} rows in {table_name}')
 
     replay_ev = rest.get('replay_evidence')
-    if replay_ev is not None:
+    if replay_ev is None:
+        findings.append('missing_replay_state: replay evidence is required')
+    else:
         if not isinstance(replay_ev, dict):
             findings.append('malformed_restored: replay_evidence must be dict')
         else:
@@ -584,11 +779,27 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
                 findings.append(f'invalid_replay_fingerprint: after_replay_fingerprint must be 64-char hex SHA-256, got {a_fp!r}')
             if b_fp is not None and a_fp is not None and b_fp != a_fp:
                 findings.append('replay_data_mutation: restored table fingerprint changed across idempotent replay')
-            if restored_fingerprint and isinstance(restored_fingerprint, dict):
-                rest_tbl_fp = restored_fingerprint.get('public.payments', {})
-                expected_fp = rest_tbl_fp.get('sha256') if isinstance(rest_tbl_fp, dict) else None
-                if expected_fp and b_fp and b_fp != expected_fp:
-                    findings.append(f'replay_fingerprint_mismatch: replay fingerprint {b_fp} != restored public.payments sha256 {expected_fp}')
+            before, after = replay_ev.get('before_state'), replay_ev.get('after_state')
+            if not isinstance(before, dict) or not isinstance(after, dict):
+                findings.append('missing_replay_state: actual before/after database fingerprints required')
+            else:
+                for label, state in (('before', before), ('after', after)):
+                    if not set(REQUIRED_TABLES).issubset(state) or not re.fullmatch(r'[0-9a-f]{64}', str(state.get('_schema', ''))):
+                        findings.append(f'invalid_replay_state: {label} missing tables/schema digest')
+                    for table, info in state.items():
+                        if table == '_schema':
+                            continue
+                        if (not isinstance(info, dict) or type(info.get('rows')) is not int
+                                or info['rows'] < 0 or not re.fullmatch(r'[0-9a-f]{64}', str(info.get('sha256', '')))):
+                            findings.append(f'invalid_replay_state: {label} malformed table fingerprint')
+                if before != after:
+                    findings.append('replay_data_mutation: actual database rows/schema changed across replay')
+                for state, value in ((before, b_fp), (after, a_fp)):
+                    table_fp = state.get('public.payments')
+                    if not isinstance(table_fp, dict) or table_fp.get('sha256') != value:
+                        findings.append('replay_fingerprint_mismatch: payment digest does not match actual replay state')
+            if replay_ev.get('fingerprint_unchanged') is not True:
+                findings.append('replay_data_mutation: replay did not preserve full database state')
 
     # Mandatory Validated Fingerprints
     if source_fingerprint is None:
@@ -687,10 +898,11 @@ def main():
     out = args.out.resolve()
     if out.exists():
         raise ValueError(f"Output path already exists: {out}")
-    out.mkdir(parents=True)
-
     source_sha = cmd(['git', 'rev-parse', 'HEAD']).stdout.decode('utf-8').strip()
     dirty = cmd(['git', 'status', '--porcelain']).stdout.decode('utf-8').strip()
+    if dirty:
+        raise ValueError('V4 rehearsal requires a clean source checkout')
+    out.mkdir(parents=True)
 
     run_id = uuid.uuid4().hex[:8]
     runtime_user_pw = secrets.token_urlsafe(24)
@@ -769,34 +981,12 @@ def main():
         p0_pay_id = p0_res['payment_id']
         t_p0_committed = time.time()
 
-        p0_tx_id = sql(src_db, f"SELECT id FROM club_transactions WHERE source_payment_id = '{p0_pay_id}' LIMIT 1")
-        p0_audit_id = sql(src_db, f"SELECT id FROM audit_events WHERE session_id = '{SESSION}' ORDER BY created_at DESC LIMIT 1")
-
-        def query_row_evidence(db_c, pay_id, req_id, tx_id, audit_id, amt, player_id):
-            p_json = sql(db_c, f"SELECT json_build_object('id', id, 'amount_vnd', amount_vnd, 'request_id', request_id, 'player_id', player_id)::text FROM payments WHERE id = '{pay_id}'")
-            l_json = sql(db_c, f"SELECT json_build_object('id', id, 'source_payment_id', source_payment_id, 'amount', amount)::text FROM club_transactions WHERE id = '{tx_id}'")
-            a_json = sql(db_c, f"SELECT json_build_object('id', id, 'request_id', request_id, 'session_id', session_id)::text FROM audit_events WHERE id = '{audit_id}'")
-            r_json = sql(db_c, f"SELECT json_build_object('actor_user_id', actor_user_id, 'operation', operation, 'request_id', request_id, 'payload_hash', payload_hash, 'payment_id', result->>'payment_id', 'status', 'confirmed', 'result', result)::text FROM operation_requests WHERE request_id = '{req_id}'")
-            return {
-                'payment': json.loads(p_json) if p_json else {'id': pay_id, 'amount_vnd': amt, 'request_id': req_id, 'player_id': player_id},
-                'ledger': json.loads(l_json) if l_json else {'id': tx_id, 'source_payment_id': pay_id, 'amount': amt},
-                'audit': json.loads(a_json) if a_json else {'id': audit_id, 'request_id': req_id, 'session_id': SESSION},
-                'request': json.loads(r_json) if r_json else {
-                    'request_id': req_id,
-                    'payment_id': pay_id,
-                    'operation': 'record_cash_payment',
-                    'status': 'confirmed',
-                    'result': {
-                        'payment_id': pay_id,
-                        'amount_vnd': amt,
-                        'status': 'confirmed',
-                        'player_id': player_id,
-                    },
-                },
-            }
-
-        p0_ev = query_row_evidence(src_db, p0_pay_id, p0_req_id, p0_tx_id, p0_audit_id, 10000, PLAYER)
+        owner_id = str(uuid.UUID(sql(src_db, "SELECT id FROM auth.users WHERE email = 'ownera@example.test'")))
+        finance_id = str(uuid.UUID(sql(src_db, "SELECT id FROM auth.users WHERE email = 'financea@example.test'")))
+        p0_ev = query_row_evidence(src_db, p0_pay_id, p0_req_id, owner_id)
+        p0_tx_id, p0_audit_id = p0_ev['ledger']['id'], p0_ev['audit']['id']
         summary['source_operations']['p0_precommit'] = {
+            'actor_user_id': owner_id,
             'request_id': p0_req_id,
             'payment_id': p0_pay_id,
             'transaction_id': p0_tx_id,
@@ -807,124 +997,47 @@ def main():
             'relational_digest': digest(p0_ev),
         }
 
-        # Step 3: Open held REPEATABLE READ transaction and export PostgreSQL snapshot
-        p_snapshot = subprocess.Popen(
-            ['docker', 'exec', '-i', src_db, 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1'],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        p_snapshot.stdin.write(b"BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSELECT pg_export_snapshot();\n")
-        p_snapshot.stdin.flush()
-
-        raw_snap = p_snapshot.stdout.readline().decode('utf-8').strip()
-        snapshot_id = raw_snap.split()[-1] if raw_snap else ''
-        t_snap_exported = time.time()
-        assert snapshot_id, "Failed to export PostgreSQL snapshot"
-
-        summary['snapshot'] = {
-            'snapshot_id': snapshot_id,
-            'snapshot_exported_epoch': t_snap_exported,
-            'export_tx_held': True,
-            'pg_dump_snapshot_arg': f'--snapshot={snapshot_id}',
-        }
-
-        # Step 4: Background pg_dump with --snapshot and concurrent HTTP writers
+        # Snapshot remains live until the dump worker has really completed.
         dump_file = private / 'database.dump'
-        roles_file = private / 'roles.sql'
-
-        # Dump globals separately
         roles_raw = cmd(['docker', 'exec', src_db, 'pg_dumpall', '-U', 'postgres', '--globals-only']).stdout
-        roles_file.write_bytes(roles_raw)
+        (private / 'roles.sql').write_bytes(roles_raw)
 
-        barrier = V4CoordinationBarrier()
-        dump_observed_activity = False
+        def write_payment(token, amount, reference):
+            req_id = str(uuid.uuid4())
+            payload = {'p_player_id': PLAYER, 'p_amount_vnd': amount,
+                       'p_reference': reference, 'p_request_id': req_id}
+            start = time.time()
+            st, res = rpc(rest_url, token, 'record_cash_payment', payload, headers)
+            return {'status': st, 'res': res, 'req_id': req_id, 'amount': amount,
+                    'start': start, 'end': time.time()}
 
-        def run_pg_dump():
-            dump_res = cmd([
-                'docker', 'exec', src_db, 'pg_dump', '-U', 'postgres',
-                '--format=custom', f'--snapshot={snapshot_id}', 'postgres'
-            ])
-            return dump_res
+        with held_snapshot(src_db) as (snapshot_id, exporter):
+            t_snap_exported = time.time()
+            summary['snapshot'] = {
+                'snapshot_id': snapshot_id, 'snapshot_exported_epoch': t_snap_exported,
+                'export_tx_held': True, 'pg_dump_snapshot_arg': f'--snapshot={snapshot_id}',
+            }
+            measured = dump_with_writers(
+                src_db, snapshot_id,
+                lambda: write_payment(owner_token, 15000, 'BH07 V4 P1A concurrent'),
+                lambda: write_payment(finance_token, 20000, 'BH07 V4 P1B concurrent'))
+            if not measured['overlap_verified'] or exporter.poll() is not None:
+                raise ValueError('No verified concurrent HTTP commits during active snapshot dump')
 
-        t_dump_start = time.time()
-        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            dump_future = executor.submit(run_pg_dump)
-
-            # Observe pg_dump backend active in pg_stat_activity
-            db_obs_receipt = None
-            for _ in range(50):
-                stat = sql(src_db, "SELECT count(*) FROM pg_stat_activity WHERE application_name = 'pg_dump' OR query LIKE '%COPY %'")
-                if stat and int(stat) > 0:
-                    dump_observed_activity = True
-                    obs_json = sql(
-                        src_db,
-                        "SELECT json_build_object('dump_pid', pid, 'dump_application_name', application_name, 'dump_query', query, 'observed_during_active_dump', true)::text "
-                        "FROM pg_stat_activity WHERE application_name = 'pg_dump' OR query LIKE '%COPY %' LIMIT 1"
-                    )
-                    if obs_json:
-                        try:
-                            db_obs_receipt = json.loads(obs_json)
-                        except Exception:
-                            db_obs_receipt = None
-                    break
-                time.sleep(0.05)
-
-            # Signal barrier that dump is active
-            barrier.notify_dump_started(snapshot_id)
-
-            def writer_a_task():
-                barrier.wait_until_dump_active(5.0)
-                t_start = time.time()
-                req_id = str(uuid.uuid4())
-                payload = {'p_player_id': PLAYER, 'p_amount_vnd': 15000, 'p_reference': 'BH07 V4 P1A concurrent', 'p_request_id': req_id}
-                st, res = rpc(rest_url, owner_token, 'record_cash_payment', payload, headers)
-                t_end = time.time()
-                return {'actor': 'ownera', 'status': st, 'res': res, 'req_id': req_id, 'amount': 15000, 'start': t_start, 'end': t_end}
-
-            def writer_b_task():
-                barrier.wait_until_dump_active(5.0)
-                t_start = time.time()
-                req_id = str(uuid.uuid4())
-                payload = {'p_player_id': PLAYER, 'p_amount_vnd': 20000, 'p_reference': 'BH07 V4 P1B concurrent', 'p_request_id': req_id}
-                st, res = rpc(rest_url, finance_token, 'record_cash_payment', payload, headers)
-                t_end = time.time()
-                return {'actor': 'financea', 'status': st, 'res': res, 'req_id': req_id, 'amount': 20000, 'start': t_start, 'end': t_end}
-
-            fa = executor.submit(writer_a_task)
-            fb = executor.submit(writer_b_task)
-
-            res_a = fa.result()
-            res_b = fb.result()
-            dump_proc_res = dump_future.result()
-            t_dump_end = time.time()
-            barrier.notify_dump_finished()
-
-        # Close held snapshot transaction
-        try:
-            p_snapshot.stdin.write(b"COMMIT;\n")
-            p_snapshot.stdin.flush()
-            p_snapshot.communicate(timeout=5)
-        except Exception:
-            p_snapshot.kill()
-
+        res_a, res_b = measured['writer_a'], measured['writer_b']
+        dump_proc_res = measured['dump']
         dump_bytes = dump_proc_res.stdout
         dump_file.write_bytes(dump_bytes)
-
         summary['snapshot']['pg_dump_completed'] = (dump_proc_res.returncode == 0)
         summary['snapshot']['pg_dump_exit_code'] = dump_proc_res.returncode
-
-        p1a_pay_id = res_a['res'].get('payment_id')
-        p1b_pay_id = res_b['res'].get('payment_id')
-        p1a_tx_id = sql(src_db, f"SELECT id FROM club_transactions WHERE source_payment_id = '{p1a_pay_id}' LIMIT 1")
-        p1b_tx_id = sql(src_db, f"SELECT id FROM club_transactions WHERE source_payment_id = '{p1b_pay_id}' LIMIT 1")
-        p1a_audit_id = sql(src_db, f"SELECT id FROM audit_events WHERE session_id = '{SESSION}' ORDER BY created_at DESC LIMIT 1")
-        p1b_audit_id = sql(src_db, f"SELECT id FROM audit_events WHERE session_id = '{SESSION}' ORDER BY created_at DESC OFFSET 1 LIMIT 1")
-
-        p1a_ev = query_row_evidence(src_db, p1a_pay_id, res_a['req_id'], p1a_tx_id, p1a_audit_id, res_a['amount'], PLAYER)
-        p1b_ev = query_row_evidence(src_db, p1b_pay_id, res_b['req_id'], p1b_tx_id, p1b_audit_id, res_b['amount'], PLAYER)
+        p1a_pay_id, p1b_pay_id = res_a['res']['payment_id'], res_b['res']['payment_id']
+        p1a_ev = query_row_evidence(src_db, p1a_pay_id, res_a['req_id'], owner_id)
+        p1b_ev = query_row_evidence(src_db, p1b_pay_id, res_b['req_id'], finance_id)
+        p1a_tx_id, p1a_audit_id = p1a_ev['ledger']['id'], p1a_ev['audit']['id']
+        p1b_tx_id, p1b_audit_id = p1b_ev['ledger']['id'], p1b_ev['audit']['id']
 
         summary['source_operations']['p1a_concurrent'] = {
+            'actor_user_id': owner_id,
             'request_id': res_a['req_id'],
             'payment_id': p1a_pay_id,
             'transaction_id': p1a_tx_id,
@@ -935,6 +1048,7 @@ def main():
             'relational_digest': digest(p1a_ev),
         }
         summary['source_operations']['p1b_concurrent'] = {
+            'actor_user_id': finance_id,
             'request_id': res_b['req_id'],
             'payment_id': p1b_pay_id,
             'transaction_id': p1b_tx_id,
@@ -945,30 +1059,21 @@ def main():
             'relational_digest': digest(p1b_ev),
         }
 
-        # Concurrency timing evidence
-        writers_intersect = (max(res_a['start'], res_b['start']) < min(res_a['end'], res_b['end']))
-        overlap_verified = writers_intersect and (res_a['end'] <= t_dump_end) and (res_b['end'] <= t_dump_end) and (res_a['start'] >= t_dump_start)
         summary['writers_concurrency'] = {
             'p0_committed_epoch': t_p0_committed,
-            'writer_a_started_epoch': res_a['start'],
-            'writer_a_committed_epoch': res_a['end'],
-            'writer_b_started_epoch': res_b['start'],
-            'writer_b_committed_epoch': res_b['end'],
-            'pg_dump_backend_active_start': t_dump_start,
-            'pg_dump_backend_active_end': t_dump_end,
-            'pg_stat_activity_dump_observed': dump_observed_activity,
-            'db_observation_receipt': db_obs_receipt or {
-                'dump_pid': 1,
-                'dump_application_name': 'pg_dump',
-                'dump_query': 'COPY public.payments TO STDOUT',
-                'observed_during_active_dump': bool(dump_observed_activity),
-            },
-            'overlap_verified': bool(overlap_verified),
-            'writers_executed_during_dump': bool(dump_observed_activity and overlap_verified),
+            'writer_a_started_epoch': res_a['start'], 'writer_a_committed_epoch': res_a['end'],
+            'writer_b_started_epoch': res_b['start'], 'writer_b_committed_epoch': res_b['end'],
+            'pg_dump_backend_active_start': measured['dump_start'],
+            'pg_dump_backend_active_end': measured['dump_end'],
+            'pg_stat_activity_dump_observed': measured['observation'] is not None,
+            'db_observation_receipt': measured['observation'],
+            'overlap_verified': measured['overlap_verified'],
+            'writers_executed_during_dump': measured['overlap_verified'],
         }
 
-        # Fingerprint source database before teardown
-        source_fp = fingerprint(src_db)
+        # Scope only this run's intents; seed financial history remains untouched.
+        operations = summary['source_operations']
+        source_fp = row_fingerprints(workload_rows(src_db, operations))
         (out / 'source_fingerprints.json').write_text(json.dumps(source_fp, indent=2) + '\n', encoding='utf-8')
 
         # Step 5: Start isolated target database and restore
@@ -994,18 +1099,16 @@ def main():
         cmd(['docker', 'exec', '-i', target_db, 'pg_restore', '-U', 'postgres', '--clean', '--if-exists', '--create', '--exit-on-error', '-d', 'template1'], data=dump_bytes)
 
         # Fingerprint restored database
-        restored_fp = fingerprint(target_db)
+        restored_rows = workload_rows(target_db, operations)
+        restored_fp = row_fingerprints(restored_rows)
         (out / 'restored_fingerprints.json').write_text(json.dumps(restored_fp, indent=2) + '\n', encoding='utf-8')
 
-        # Step 6: Verify restored invariants directly via SQL
-        p0_in_target = (sql(target_db, f"SELECT count(*) FROM payments WHERE id = '{p0_pay_id}'") == '1')
-        p1a_in_target = (sql(target_db, f"SELECT count(*) FROM payments WHERE id = '{p1a_pay_id}'") == '1')
-        p1b_in_target = (sql(target_db, f"SELECT count(*) FROM payments WHERE id = '{p1b_pay_id}'") == '1')
-
-        pay_cnt = int(sql(target_db, "SELECT count(*) FROM payments"))
-        tx_cnt = int(sql(target_db, "SELECT count(*) FROM club_transactions"))
-        audit_cnt = int(sql(target_db, "SELECT count(*) FROM audit_events"))
-        req_cnt = int(sql(target_db, "SELECT count(*) FROM operation_requests"))
+        restored_pay_ids = [row['id'] for row in restored_rows['payments']]
+        p0_in_target = p0_pay_id in restored_pay_ids
+        p1a_in_target = p1a_pay_id in restored_pay_ids
+        p1b_in_target = p1b_pay_id in restored_pay_ids
+        pay_cnt, tx_cnt, audit_cnt, req_cnt = (len(restored_rows[table]) for table in
+            ('payments', 'club_transactions', 'audit_events', 'operation_requests'))
 
         # Spin up target GoTrue and PostgREST to test HTTP RPC idempotency replay
         t_auth_env = private / 'target_auth.env'
@@ -1047,22 +1150,12 @@ def main():
         assert target_owner_token, "Target Auth failed recovery smoke"
 
         # Replay P0 request against target PostgREST HTTP RPC
-        st_rep, res_rep = rpc(new_rest_url, target_owner_token, 'record_cash_payment', p0_payload)
+        st_rep, res_rep, before_replay, after_replay = replay_and_fingerprint(
+            target_db, lambda: rpc(new_rest_url, target_owner_token, 'record_cash_payment', p0_payload))
         replay_idempotent = (st_rep == 200 and res_rep.get('payment_id') == p0_pay_id)
-
-        pay_cnt_after = int(sql(target_db, "SELECT count(*) FROM payments"))
-        tx_cnt_after = int(sql(target_db, "SELECT count(*) FROM club_transactions"))
-        audit_cnt_after = int(sql(target_db, "SELECT count(*) FROM audit_events"))
-        req_cnt_after = int(sql(target_db, "SELECT count(*) FROM operation_requests"))
-
-        growth = {
-            'payments': pay_cnt_after - pay_cnt,
-            'club_transactions': tx_cnt_after - tx_cnt,
-            'audit_events': audit_cnt_after - audit_cnt,
-            'operation_requests': req_cnt_after - req_cnt,
-        }
-
-        p0_rest_ev = query_row_evidence(target_db, p0_pay_id, p0_req_id, p0_tx_id, p0_audit_id, 10000, PLAYER)
+        growth = {table: after_replay['public.' + table]['rows'] - before_replay['public.' + table]['rows']
+                  for table in restored_rows}
+        p0_rest_ev = query_row_evidence(target_db, p0_pay_id, p0_req_id, owner_id)
         summary['restored_verification'] = {
             'p0_present_in_restore': bool(p0_in_target),
             'p1a_present_in_restore': bool(p1a_in_target),
@@ -1072,21 +1165,24 @@ def main():
             'club_transactions_count': tx_cnt,
             'audit_events_count': audit_cnt,
             'operation_requests_count': req_cnt,
-            'restored_payment_ids': [p0_pay_id] if p0_in_target else [],
-            'restored_transaction_ids': [p0_tx_id] if p0_in_target else [],
-            'restored_audit_ids': [p0_audit_id] if p0_in_target else [],
-            'restored_request_ids': [p0_req_id] if p0_in_target else [],
+            'restored_payment_ids': restored_pay_ids,
+            'restored_transaction_ids': [row['id'] for row in restored_rows['club_transactions']],
+            'restored_audit_ids': [row['id'] for row in restored_rows['audit_events']],
+            'restored_request_ids': [row['request_id'] for row in restored_rows['operation_requests']],
             'restored_row_evidence': p0_rest_ev,
             'replay_p0_idempotent': bool(replay_idempotent),
             'replay_p0_growth': growth,
             'replay_evidence': {
                 'replay_status': st_rep,
                 'replay_payment_id': res_rep.get('payment_id'),
-                'before_replay_fingerprint': restored_fp.get('public.payments', {}).get('sha256'),
-                'after_replay_fingerprint': restored_fp.get('public.payments', {}).get('sha256'),
-                'fingerprint_unchanged': True,
+                'before_replay_fingerprint': before_replay['public.payments']['sha256'],
+                'after_replay_fingerprint': after_replay['public.payments']['sha256'],
+                'fingerprint_unchanged': before_replay == after_replay,
+                'before_state': before_replay, 'after_state': after_replay,
             },
         }
+
+        summary['execution_completed'] = True
 
     except Exception as err:
         summary['status'] = 'FAIL'
@@ -1141,9 +1237,7 @@ def main():
         }
 
         # Step 8: Validate summary with fail-closed validator
-        validation = validate_v4_rehearsal(summary, source_fingerprint=locals().get('source_fp'), restored_fingerprint=locals().get('restored_fp'))
-        summary['status'] = validation['verdict']
-        summary['findings'] = validation['findings']
+        finish_summary(summary, locals().get('source_fp'), locals().get('restored_fp'))
         summary['elapsed_seconds'] = round(time.monotonic() - started_epoch, 3)
 
         (out / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
