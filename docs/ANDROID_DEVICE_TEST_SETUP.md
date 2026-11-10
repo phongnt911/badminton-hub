@@ -2,7 +2,7 @@
 
 SDK được cài trên máy Windows hiện tại tại `D:\Development`: Flutter ở `flutter`, Android SDK ở `Android\Sdk`, Java ở `Java`. Mở terminal mới sau khi cài để nhận PATH người dùng.
 
-Đã xác minh ngày10/11/2026: Flutter3.47.9, Dart3.13.7, Java21, Android platform36/build-tools36.0.0, NDK28.2.13676358 và CMake3.22.1. `flutter doctor` Android toolchain PASS, licenses accepted; `flutter pub get` thành công, `flutter analyze`0issues. Samsung SM-S926B Android17/API37 được ADB và Flutter nhận trạng thái `device` sau chủ máy chấp thuận USB debugging. Chưa build/cài/chạy app hoặc nghiệm thu V2/V2b trong lượt setup này. Thiếu Visual Studio chỉ ảnh hưởng build Windows desktop, không cản kiểm thử Android.
+Đã xác minh ngày10/11/2026: Flutter3.47.9, Dart3.13.7, Java21, Android platform36/build-tools36.0.0, NDK28.2.13676358 và CMake3.22.1. `flutter doctor` Android toolchain PASS, licenses accepted; `flutter pub get` thành công, `flutter analyze`0issues. Samsung SM-S926B Android17/API37 được ADB và Flutter nhận trạng thái `device` sau chủ máy chấp thuận USB debugging. Mốc setup ban đầu chưa build/cài app; lượt tiếp theo đã build/install/launch debug trên Samsung với backend thử local, xem [biên bản](reviews/bh07/android_local_device_setup_20261110.md). Chưa nghiệm thu V2/V2b. Thiếu Visual Studio chỉ ảnh hưởng build Windows desktop, không cản kiểm thử Android.
 
 ## Kết nối USB
 
