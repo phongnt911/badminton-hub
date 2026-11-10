@@ -596,8 +596,13 @@ class RuntimeCollectionTests(unittest.TestCase):
 
     def test_resource_budget_preflight(self):
         """Verifies disk resource preflight check rejects insufficient disk space."""
-        with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=1024 * 1024 * 1024)):
+        with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=4 * 1024 * 1024 * 1024)):
             runner.check_resource_budget(Path('.'))  # Should not raise
+
+        # A bounded ~246MiB fixture also needs room for source, target, dump and WAL.
+        with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=1024 * 1024 * 1024)):
+            with self.assertRaises(RuntimeError):
+                runner.check_resource_budget(Path('.'))
 
         with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=100 * 1024 * 1024)):
             with self.assertRaises(RuntimeError) as ctx:

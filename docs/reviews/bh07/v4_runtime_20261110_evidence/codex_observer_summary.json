@@ -1,0 +1,167 @@
+{
+  "gate": "BH-07 V4 concurrent writers backup/restore rehearsal",
+  "base_sha": "d2f6b079a7a6f7521d04b88ac6eb780db5718a56",
+  "tested_source_sha": "2bc90b27bf9fd9d8ae039aa0191b94b78f4cc899",
+  "git_dirty": false,
+  "run_id": "831e2039",
+  "snapshot": {
+    "snapshot_id": "00000043-00000002-1",
+    "snapshot_exported_epoch": 1794299508.9942791,
+    "export_tx_held": true,
+    "pg_dump_snapshot_arg": "--snapshot=00000043-00000002-1"
+  },
+  "actors": {
+    "p0_writer": "ownera",
+    "writer_a": "ownera",
+    "writer_b": "financea"
+  },
+  "writers_concurrency": {},
+  "source_operations": {
+    "p0_precommit": {
+      "actor_user_id": "2e0f3a04-4e7f-40e2-8762-2e0afe1a78bc",
+      "request_id": "39be636a-c0ea-4d89-ae84-199732609b16",
+      "payment_id": "d4c17b6a-c9c9-4653-a36d-bfa3dda8dcb5",
+      "transaction_id": "d3b106bb-a55d-4965-97d4-11d66e005b8b",
+      "audit_event_id": "44175c8f-2254-4429-b137-e29c7d701bda",
+      "status": 200,
+      "amount_vnd": 10000,
+      "row_evidence": {
+        "payment": {
+          "id": "d4c17b6a-c9c9-4653-a36d-bfa3dda8dcb5",
+          "amount_vnd": 10000,
+          "request_id": "39be636a-c0ea-4d89-ae84-199732609b16",
+          "player_id": "30000000-0000-4000-8000-000000000001"
+        },
+        "ledger": {
+          "id": "d3b106bb-a55d-4965-97d4-11d66e005b8b",
+          "source_payment_id": "d4c17b6a-c9c9-4653-a36d-bfa3dda8dcb5",
+          "amount": 10000
+        },
+        "audit": {
+          "id": "44175c8f-2254-4429-b137-e29c7d701bda",
+          "request_id": "39be636a-c0ea-4d89-ae84-199732609b16",
+          "session_id": "10000000-0000-4000-8000-000000000001"
+        },
+        "request": {
+          "result": {
+            "method": "cash",
+            "status": "confirmed",
+            "ledger_id": "d3b106bb-a55d-4965-97d4-11d66e005b8b",
+            "player_id": "30000000-0000-4000-8000-000000000001",
+            "reference": "BH07 V4 P0 pre-snapshot",
+            "amount_vnd": 10000,
+            "payment_id": "d4c17b6a-c9c9-4653-a36d-bfa3dda8dcb5",
+            "session_id": "10000000-0000-4000-8000-000000000001",
+            "billing_state": "current",
+            "total_paid_vnd": 60000,
+            "outstanding_vnd": 90000
+          },
+          "operation": "record_cash_payment",
+          "created_at": "2026-11-10T08:31:47.216564+00:00",
+          "request_id": "39be636a-c0ea-4d89-ae84-199732609b16",
+          "payload_hash": "fe5088f4efbf39377b691c490b279c38",
+          "actor_user_id": "2e0f3a04-4e7f-40e2-8762-2e0afe1a78bc"
+        }
+      },
+      "relational_digest": "6a77ed78f3c5f2795fc8eb01a3786df1661ea5ad72923b4c13cee31b05427db6"
+    }
+  },
+  "restored_verification": {},
+  "cleanup": {
+    "ok": true,
+    "containers_verified_absent": true,
+    "networks_verified_absent": true,
+    "owned_resources_manifest": [
+      "bh07-v4-src-kong-831e2039",
+      "bh07-v4-src-rest-831e2039",
+      "bh07-v4-src-auth-831e2039",
+      "bh07-v4-src-db-831e2039",
+      "bh07-v4-target-rest-831e2039",
+      "bh07-v4-target-auth-831e2039",
+      "bh07-v4-target-db-831e2039",
+      "bh07-v4-net-831e2039"
+    ],
+    "resources_verified_absent": [
+      "bh07-v4-src-kong-831e2039",
+      "bh07-v4-src-rest-831e2039",
+      "bh07-v4-src-auth-831e2039",
+      "bh07-v4-src-db-831e2039",
+      "bh07-v4-target-rest-831e2039",
+      "bh07-v4-target-auth-831e2039",
+      "bh07-v4-target-db-831e2039",
+      "bh07-v4-net-831e2039"
+    ],
+    "private_dumps_removed": true,
+    "cleanup_errors": []
+  },
+  "padding_fixture": {
+    "schema": "tooling_rehearsal",
+    "table": "rehearsal_padding",
+    "rows": 40000,
+    "bytes": 39680000,
+    "digest": "ba818c38a576623314f70b7db59e4d9c",
+    "restored_match": false
+  },
+  "diagnostics": {
+    "dump_exit_code": 0,
+    "dump_start": 1794299509.0713844,
+    "dump_end": 1794299509.7845545,
+    "initial_observation": {
+      "dump_pid": 490,
+      "dump_application_name": "pg_dump",
+      "observed_start": 1794299509.2417955,
+      "observed_end": 1794299509.24577
+    },
+    "observation": {
+      "dump_pid": 490,
+      "dump_application_name": "pg_dump",
+      "observed_start": 1794299509.2499084,
+      "observed_end": 1794299509.2546868,
+      "observed_during_active_dump": true
+    },
+    "writer_a": {
+      "status": 200,
+      "start": 1794299509.2482605,
+      "end": 1794299509.2665606
+    },
+    "writer_b": {
+      "status": 200,
+      "start": 1794299509.2499084,
+      "end": 1794299511.9866486
+    },
+    "overlap_verified": false,
+    "exporter_returncode": null
+  },
+  "status": "FAIL",
+  "failure_type": "ValueError",
+  "error_message": "No verified concurrent HTTP commits during active snapshot dump",
+  "findings": [
+    "failed_status: summary status is 'FAIL', must be 'PASS'",
+    "strict_type_violation: snapshot.pg_dump_completed must be strictly bool, got NoneType",
+    "dump_failed: pg_dump exit code is None",
+    "strict_type_violation: writers_concurrency.overlap_verified must be strictly bool, got NoneType",
+    "strict_type_violation: writers_concurrency.writers_executed_during_dump must be strictly bool, got NoneType",
+    "strict_type_violation: writers_concurrency.pg_stat_activity_dump_observed must be strictly bool, got NoneType",
+    "no_writer_overlap: concurrent writer execution overlap not verified",
+    "dump_backend_not_observed: pg_stat_activity did not capture active pg_dump backend",
+    "dump_backend_not_observed: writers_concurrency must include db_observation_receipt dict",
+    "missing_operation: p1a_concurrent missing from source_operations",
+    "missing_operation: p1b_concurrent missing from source_operations",
+    "strict_type_violation: restored_verification.p0_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1a_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1b_present_in_restore must be strictly bool, got NoneType",
+    "missing_precommit: pre-snapshot payment P0 absent from restored database",
+    "cardinality_mismatch: expected 1 payment and 1 request, got payments=None, requests=None",
+    "ledger_invariant_failed: expected 1 ledger row matching payments, got None",
+    "audit_invariant_failed: expected 1 audit row matching payments, got None",
+    "substituted_restored_payment_id: expected restored_payment_ids ['d4c17b6a-c9c9-4653-a36d-bfa3dda8dcb5'], got None",
+    "substituted_restored_transaction_id: expected restored_transaction_ids ['d3b106bb-a55d-4965-97d4-11d66e005b8b'], got None",
+    "substituted_restored_audit_id: expected restored_audit_ids ['44175c8f-2254-4429-b137-e29c7d701bda'], got None",
+    "substituted_restored_request_id: expected restored_request_ids ['39be636a-c0ea-4d89-ae84-199732609b16'], got None",
+    "missing_replay_state: replay evidence is required",
+    "missing_source_fingerprint: source_fingerprint dictionary is mandatory",
+    "missing_restored_fingerprint: restored_fingerprint dictionary is mandatory",
+    "missing_restored_padding_fixture: restored_verification missing padding_fixture receipt"
+  ],
+  "elapsed_seconds": 89.953
+}
