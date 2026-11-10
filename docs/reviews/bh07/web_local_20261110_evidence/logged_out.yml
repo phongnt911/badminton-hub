@@ -1,0 +1,17 @@
+- generic [ref=f1e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - heading "Tài Khoản Của Tôi" [level=2] [ref=f1e38]
+            - group:
+              - generic [ref=f1e39]: Bạn đang xem dưới dạng khách
+              - generic [ref=f1e40]: Bạn có thể tự do xem danh sách sân và các kèo công khai. Đăng nhập để tạo buổi chơi, quản lý CLB hoặc đăng ký slot nhanh chóng.
+              - button "Đăng Nhập / Đăng Ký" [ref=f1e41]
+            - tablist:
+              - tab "Buổi Chơi" [ref=f1e42]
+              - tab "Sân Nha Trang" [ref=f1e43]
+              - tab "CLB & Quỹ" [ref=f1e44]
+              - tab "Tiện Ích" [ref=f1e45]
+              - tab "Tài Khoản" [active] [selected] [ref=f1e46]

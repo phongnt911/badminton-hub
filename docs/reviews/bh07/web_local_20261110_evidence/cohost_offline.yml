@@ -1,0 +1,23 @@
+- generic [ref=f1e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "Back" [ref=f1e100]
+              - heading "Tổng kết buổi" [level=2] [ref=f1e101]
+              - button [ref=f1e110]:
+                - text: Tải lại tổng kết
+                - generic: Tải lại tổng kết
+            - generic:
+              - group:
+                - generic:
+                  - group "UI Flow Session published to complete 🏸 HTTP Club A 📍 HTTP Venue A ⏰ 19:22 - 21:22 10/11/2026":
+                    - checkbox "Đã kết thúc" [ref=f1e112]
+                - generic: Số lượng người Có mặt 2 Vắng 0 Đã xác nhận 2
+                - generic: Chỉ xem số lượng Tài khoản của bạn không có quyền xem tài chính. Nội dung sao chép cũng không gồm số tiền.
+                - generic:
+                  - group "Chưa làm mới được tổng kết Đã xảy ra lỗi. Vui lòng thử lại sau. Dữ liệu đang hiển thị là lần tải trước.":
+                    - button "Thử lại" [ref=f1e115]
+                - button "Sao chép tổng kết" [active] [ref=f1e109]

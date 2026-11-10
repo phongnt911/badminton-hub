@@ -1,0 +1,22 @@
+- generic [ref=e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "Back" [active] [ref=e45]
+              - heading "Lịch sử buổi" [level=2] [ref=e46]
+              - button "Tải lại lịch sử" [ref=e47]
+            - generic:
+              - group:
+                - button "Bộ lọc Tất cả CLB" [ref=e48]:
+                  - button "Chọn khoảng ngày" [ref=e49]
+                - group "UI Flow Session published to complete ⏰ 19:22 - 21:22 10/11/2026 📍 HTTP Venue A · HTTP Club A 👥 2/8 người đã xác nhận Xem chi tiết" [ref=e50]:
+                  - checkbox "Đã kết thúc" [ref=e51]
+                - group "HTTP cancelled history ⏰ 17:00 - 19:00 18/10/2026 📍 HTTP Venue A · HTTP Club A 👥 0/8 người đã xác nhận Xem chi tiết" [ref=e52]:
+                  - checkbox "Đã huỷ" [ref=e53]
+                - group "HTTP finance after complete ⏰ 17:00 - 19:00 17/10/2026 📍 HTTP Venue A · HTTP Club A 👥 1/8 người đã xác nhận Xem chi tiết" [ref=e54]:
+                  - checkbox "Đã kết thúc" [ref=e55]
+                - group "HTTP private history ⏰ 17:00 - 19:00 16/10/2026 📍 HTTP Venue A · HTTP Club A 👥 0/8 người đã xác nhận Xem chi tiết" [ref=e56]:
+                  - checkbox "Đã kết thúc" [ref=e57]

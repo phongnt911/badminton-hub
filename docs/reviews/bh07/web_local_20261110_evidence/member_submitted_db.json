@@ -1,0 +1,16 @@
+{
+  "lifecycle": "completed",
+  "version": 3,
+  "billing_input_version": 3,
+  "active_revisions": 1,
+  "charges_vnd": 200000,
+  "payments": [
+    {
+      "player": "Member A",
+      "status": "submitted",
+      "amount_vnd": 100000
+    }
+  ],
+  "confirmed_paid_vnd": 0,
+  "payment_ledger_entries": 0
+}

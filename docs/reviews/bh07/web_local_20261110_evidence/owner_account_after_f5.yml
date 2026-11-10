@@ -1,0 +1,19 @@
+- generic [ref=f1e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - heading "Tài Khoản Của Tôi" [level=2] [ref=f1e26]
+            - group:
+              - generic [ref=f1e27]: ownera ownera@example.test Đã xác thực
+              - generic [ref=f1e28]: Cài đặt & Bảo mật
+              - generic:
+                - button "Đổi mật khẩu" [ref=f1e29]
+                - button "Đăng xuất" [ref=f1e30]
+            - tablist:
+              - tab "Buổi Chơi" [ref=f1e21]
+              - tab "Sân Nha Trang" [ref=f1e22]
+              - tab "CLB & Quỹ" [ref=f1e23]
+              - tab "Tiện Ích" [ref=f1e24]
+              - tab "Tài Khoản" [active] [selected] [ref=f1e25]

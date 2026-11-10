@@ -1,0 +1,20 @@
+- generic [ref=e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - button "Back" [active] [ref=e75]
+              - heading "Tổng kết buổi" [level=2] [ref=e76]
+              - button "Tải lại tổng kết" [ref=e77]
+            - generic:
+              - group:
+                - generic:
+                  - group "UI Flow Session published to complete 🏸 HTTP Club A 📍 HTTP Venue A ⏰ 19:22 - 21:22 10/11/2026":
+                    - checkbox "Đã kết thúc" [ref=e78]
+                - generic: Số lượng người Có mặt 2 Vắng 0 Đã xác nhận 2
+                - generic:
+                  - group "Tài chính tổng hợp Tổng chi phí 200,000 VNĐ Tổng phải thu 200,000 VNĐ Đã thu 0 VNĐ Còn phải thu 200,000 VNĐ Số liệu do máy chủ tổng hợp; màn hình không tự tính công nợ.":
+                    - checkbox "Đang hiệu lực" [ref=e82]
+                - button "Sao chép tổng kết" [ref=e84]

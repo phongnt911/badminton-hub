@@ -14,7 +14,7 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | Concurrency HTTP/Auth | Đạt local kế thừa | [cbcc46c vòng2](review_cbcc46c_r2.md) |
 | R0 readiness | Đạt docs-only kế thừa | [31fced4](review_31fced4.md); chưa phải nghiệm thu V8 mới |
 | V1 browser/offline/reopen/late response | Đạt local kế thừa | [448c50f](v1_acceptance_448c50f.md) |
-| V2 đa thiết bị/browser/OS/deep link | NOT RUN cho phần ngoài matrix đã chốt | Flutter/Android SDK đã cài, Samsung SM-S926B Android17 đã kết nối; APK debug build/install/launch thành công với backend thử local. Chưa hoàn tất matrix/nghiệp vụ; [biên bản setup](android_local_device_setup_20261110.md) |
+| V2 đa thiết bị/browser/OS/deep link | NOT RUN cho phần ngoài matrix đã chốt | Flutter/Android SDK đã cài, Samsung SM-S926B Android17 đã kết nối; APK debug build/install/launch thành công với backend thử local; owner xác nhận UI login thành công. Chưa hoàn tất matrix/nghiệp vụ; [biên bản setup](android_local_device_setup_20261110.md) |
 | V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web đã Đạt | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md); rendered retention unattributed, whole-model UNKNOWN, instructions/listener/native chưa có bằng chứng đầy đủ |
 | V3 managed backup/PITR/retention/offsite | NOT RUN | Connected listing chỉ thấy1project badminton-hub INACTIVE, không thấy staging riêng trong account/connection này; không chứng minh các account khác không có môi trường |
 | V4 concurrent backup/recovery | **PASS local/staging-like** | [Runtime sạch7589179 và review độc lập](recovery_site_url_runtime_final_20261110.md): authenticated HTTP overlap, restore P0, replay/fingerprint48bảng+schema khớp, cleanup8/8 |
@@ -25,6 +25,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | V8 nghiệm thu toàn BH-07 | Chưa đủ điều kiện | Phải đóng mọi P0/P1/P2/FAIL và có bằng chứng hoặc owner decision hợp lệ cho các phần vận hành còn trống |
 
 ## Bằng chứng kiểm chứng gần nhất
+
+- Owner dừng Android, chuyển Web. [Lượt Chrome local mới](web_local_runtime_20261110.md): history/summary/F5/Owner→Cohost→Member, clipboard count-only, offline read refresh/retry, deep link có auth; Member submitted rồi Owner confirmed một payment100000 và một ledger entry. Tổng kết cuối phải thu200000/đã thu100000/còn100000. Reviewer source/artifact chốt không P0/P1/P2 trong smoke scope,15/15hash; không có runtime độc lập thứ hai. Không thay full V1 matrix, write-retry suite hoặc V2b heap.
 
 - Source7589179:553test/549PASS+4SKIP,53targeted và49probe controls PASS; runtime V4 thường RUN/PASS, reviewer riêng chốt source/artifact/auditor. [Review cuối](recovery_site_url_runtime_final_20261110.md).
 

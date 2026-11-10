@@ -1,0 +1,20 @@
+- generic [ref=f1e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - heading "Tài Khoản Của Tôi" [level=2] [ref=f1e60]
+            - group:
+              - generic [ref=f1e61]: cohosta cohosta@example.test Đã xác thực
+              - generic [ref=f1e62]: Cài đặt & Bảo mật
+              - generic:
+                - button "Đổi mật khẩu" [ref=f1e63]
+                - button "Đăng xuất" [ref=f1e64]
+            - generic [ref=f1e65]: Đăng nhập thành công!
+            - tablist:
+              - tab "Buổi Chơi" [ref=f1e66]
+              - tab "Sân Nha Trang" [ref=f1e67]
+              - tab "CLB & Quỹ" [ref=f1e68]
+              - tab "Tiện Ích" [ref=f1e69]
+              - tab "Tài Khoản" [active] [selected] [ref=f1e70]

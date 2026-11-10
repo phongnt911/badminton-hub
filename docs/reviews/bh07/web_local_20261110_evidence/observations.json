@@ -1,0 +1,22 @@
+{
+  "attribution": "Codex browser execution and SQL collection; independent reviewer has not rerun browser",
+  "source_head": "e0fd485f9681cd7599dc8bcabbdef543e6658196",
+  "source_clean": false,
+  "source_dirty_scope": "pending docs and Flutter-generated line endings; no app/backend/migration source diff",
+  "web_main_dart_js_sha256": "b565c4242d26bcc43a3847df9181369c99a8e2ee3995513b3ede1cc3e16ef2bd",
+  "same_document_time_origin_owner_cohost_member": 1794317947066.6,
+  "owner_logout_auth_storage_entries": 0,
+  "cohost_clipboard": {
+    "length": 150,
+    "finance_amounts_absent": true,
+    "attendance_count_present": true
+  },
+  "limitations": [
+    "single Chrome web profile only",
+    "offline refresh test is read-only; no write retry/idempotency test in this run",
+    "deep-link navigation tested with existing auth, not pre-login/cold-start matrix",
+    "no heap snapshot or native test after owner switched to web",
+    "one expected offline browser resource error and two QR CORS/resource errors; Noto font warning observed",
+    "automation Back and field/identity locator attempts timed out; corrected interaction and snapshots used, not counted as passing automation"
+  ]
+}

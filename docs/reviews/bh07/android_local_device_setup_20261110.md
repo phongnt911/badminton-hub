@@ -13,9 +13,17 @@
 - Sau đó Flutter báo Lost connection to device; ADB vẫn device và PID app còn. Explicit launch MainActivity trả Status:ok (intent delivered to existing instance). Không coi debugger ổn định đã PASS.
 - Owner báo đã mở app; lúc kiểm giao diện sau đó điện thoại tự khóa. Chưa xác nhận màn hình login/nghiệp vụ/HTTP từ app. Không lưu screenshot màn hình khóa vào hồ sơ.
 
-## Trạng thái để tiếp tục
+**Cập nhật sau setup:** Owner xác nhận trong hội thoại “đã đăng nhập thành công” trên điện thoại đang thử. Ghi nhận Android UI login thành công do owner báo; không đổi thành quan sát trực tiếp hoặc QA độc lập của Codex. Các kịch bản lifecycle/điểm danh/chốt phí/complete/history, offline/retry, reopen, deep link, logout/đổi actor và profile heap vẫn chưa hoàn tất.
 
-Backend giữ chạy và USB reverse giữ nguyên có chủ đích để owner dùng dữ liệu thử. Mật khẩu fixture có sẵn trong recipe local; tài khoản Owner/Cohost/Member đã cấp trong hội thoại. Anon JWT của recipe có hạn2giờ từ lúc khởi động; không coi đây là cấu hình vận hành lâu dài. Private env/config chỉ ở ignored `.build/android-local-private` và `.build/android-local-runtime`; không commit vào evidence.
+**Android manual flow, bước bắt đầu/điểm danh:** Owner tiếp tục báo “đã thao tác tới màn hình tài chính buổi”. Codex đọc DB local chỉ trên fixture session `10000000-0000-4000-8000-000000000099`: `lifecycle=in_progress`, `version=2`, `billing_input_version=3`; Member A và Guest A đều `attendance_status=present`; posted expenses tổng200000VND; charge revisions0. Kết quả backend xác nhận start và hai attendance đã lưu, chưa chốt phí. UI do owner thao tác/báo cáo; phép đọc SQL không phải quan sát trực tiếp màn hình hoặc chứng minh toàn bộ V2 PASS.
+
+**Android manual flow, bước chốt phí:** Owner xác nhận số tiền trên UI đúng100000VND/người. Codex đọc lại fixture local: một revision số1 active, source_version3 khớp billing_input_version3, fee_mode=split_actual, allocation_total_vnd200000; active charges Member A100000 và Guest A100000, tổng confirmed payment0. Session vẫn in_progress/version2. Chưa thử complete/history hoặc thu tiền; không kết luận idempotency/offline/privacy từ việc hai khoản phí đúng.
+
+**Owner chuyển sang Web:** Theo yêu cầu “không kiểm thử trên máy android nữa, chuyển qua kiểm thử webapp”, dừng kiểm thử Android. Khi chuyển, SQL local cho session completed/version3, billing_input_version3, một active revision và tổng charges200000; không có xác nhận UI Android history/summary nên không tự ghi đạt phần đó. Điện thoại đã ngắt USB; các lệnh force-stop/remove reverse trả device-not-found, không nhận là đã dừng app trên máy. Backend giữ để [kiểm thử Web tiếp nối](web_local_runtime_20261110.md); các thanh toán phát sinh trong lượt Web được ghi riêng, không gán ngược thành kết quả Android.
+
+## Trạng thái sau setup Android (lịch sử trước chuyển Web)
+
+Ở mốc setup Android, backend giữ chạy và USB reverse giữ nguyên để owner dùng dữ liệu thử. Hiện đã chuyển Web và điện thoại ngắt USB như cập nhật phía trên; không coi reverse còn hoạt động. Mật khẩu fixture có sẵn trong recipe local; tài khoản Owner/Cohost/Member đã cấp trong hội thoại. Anon JWT ban đầu có hạn2giờ; lượt Web đã làm mới public anon key local24h. Private env/config chỉ ở ignored `.build/android-local-private` và `.build/android-local-runtime`; không commit vào evidence.
 
 Log local: `.build/android-first-build.log`, `.build/android-device-run.log`, `.build/android-local-start.log`; HTTP status/count `.build/android-local-runtime/http-smoke.json`. Thử tiếp UI đăng nhập rồi kịch bản V2; đo heap cần profile mode và receipt/review riêng. Chưa tự động mở pilot/deploy hoặc ký risk acceptance.
 
