@@ -50,6 +50,112 @@ PLAYER = '30000000-0000-4000-8000-000000000001'
 FINANCE_AUTHORIZED_ROLES = {'ownera', 'financea'}
 ACTUAL_BASE_SHA = 'd2f6b079a7a6f7521d04b88ac6eb780db5718a56'
 
+TOOLING_SCHEMA = 'tooling_rehearsal'
+PADDING_TABLE = 'rehearsal_padding'
+DEFAULT_PADDING_ROWS = 40000
+MAX_PADDING_BUDGET_BYTES = 256 * 1024 * 1024
+MIN_DISK_PREFLIGHT_BYTES = 512 * 1024 * 1024
+
+
+def check_resource_budget(path, min_free_bytes=MIN_DISK_PREFLIGHT_BYTES):
+    """Preflight check to ensure finite disk resources before allocating padding."""
+    usage = shutil.disk_usage(path)
+    if usage.free < min_free_bytes:
+        raise RuntimeError(
+            f"Insufficient disk space for rehearsal padding: {usage.free} bytes free, "
+            f"required at least {min_free_bytes} bytes"
+        )
+
+
+def _parse_and_validate_padding_stats(raw_json, expected_rows=None):
+    if not isinstance(raw_json, str) or not raw_json.strip():
+        raise ValueError(f"Padding stats query returned empty or non-string response: {raw_json!r}")
+    try:
+        data = json.loads(raw_json)
+    except Exception as err:
+        raise ValueError(f"Failed to parse padding stats JSON: {err}") from None
+    if not isinstance(data, dict):
+        raise ValueError(f"Padding stats must be a JSON object, got {type(data).__name__}")
+    for field in ('rows', 'bytes', 'digest'):
+        if field not in data:
+            raise ValueError(f"Padding stats missing required field: {field!r}")
+    rows = data['rows']
+    if not isinstance(rows, int) or isinstance(rows, bool) or rows <= 0:
+        raise ValueError(f"Padding stats 'rows' must be positive integer, got {rows!r}")
+    if expected_rows is not None and rows != expected_rows:
+        raise ValueError(f"Padding stats 'rows' mismatch: expected {expected_rows}, got {rows}")
+    b_bytes = data['bytes']
+    if not isinstance(b_bytes, int) or isinstance(b_bytes, bool) or b_bytes <= 0:
+        raise ValueError(f"Padding stats 'bytes' must be positive integer, got {b_bytes!r}")
+    if b_bytes > MAX_PADDING_BUDGET_BYTES:
+        raise ValueError(f"Padding stats 'bytes' ({b_bytes}) exceeds budget ({MAX_PADDING_BUDGET_BYTES})")
+    digest_val = data['digest']
+    if not isinstance(digest_val, str) or not re.fullmatch(r'^([0-9a-f]{32}|[0-9a-f]{64})$', digest_val):
+        raise ValueError(f"Padding stats 'digest' must be valid 32- or 64-char hex string, got {digest_val!r}")
+    return {
+        'schema': TOOLING_SCHEMA,
+        'table': PADDING_TABLE,
+        'rows': rows,
+        'bytes': b_bytes,
+        'digest': digest_val,
+    }
+
+
+def setup_padding_fixture(container, rows=DEFAULT_PADDING_ROWS):
+    """Sets up a bounded padding table in a dedicated tooling-only schema.
+
+    Extends the pg_dump COPY observation window for concurrent HTTP writers without
+    mutating public/auth schemas or app financial workload tables.
+    """
+    if not isinstance(rows, int) or isinstance(rows, bool) or rows <= 0:
+        raise ValueError(f"Padding rows must be positive int, got {rows!r}")
+    if rows * 992 > MAX_PADDING_BUDGET_BYTES:
+        raise ValueError(
+            f"Requested padding rows ({rows}) exceeds finite budget of {MAX_PADDING_BUDGET_BYTES} bytes"
+        )
+    create_sql = (
+        f"CREATE SCHEMA IF NOT EXISTS {TOOLING_SCHEMA};\n"
+        f"CREATE TABLE {TOOLING_SCHEMA}.{PADDING_TABLE} (\n"
+        f"    id integer PRIMARY KEY,\n"
+        f"    payload text NOT NULL\n"
+        f");\n"
+        f"INSERT INTO {TOOLING_SCHEMA}.{PADDING_TABLE} (id, payload)\n"
+        f"SELECT i, repeat(md5(i::text), 31)\n"
+        f"FROM generate_series(1, {rows}) AS s(i);\n"
+    )
+    sql(container, create_sql)
+    stats_raw = sql(
+        container,
+        f"SELECT json_build_object("
+        f"'rows', count(*), "
+        f"'bytes', COALESCE(sum(octet_length(payload)), 0), "
+        f"'digest', md5(COALESCE(string_agg(id::text || ':' || md5(payload), ',' ORDER BY id), ''))"
+        f") FROM {TOOLING_SCHEMA}.{PADDING_TABLE}"
+    )
+    return _parse_and_validate_padding_stats(stats_raw, expected_rows=rows)
+
+
+def verify_restored_padding_fixture(container, expected_stats):
+    """Verifies that the tooling padding fixture was faithfully restored in target DB."""
+    if not isinstance(expected_stats, dict):
+        raise ValueError("expected_stats must be a dict")
+    stats_raw = sql(
+        container,
+        f"SELECT json_build_object("
+        f"'rows', count(*), "
+        f"'bytes', COALESCE(sum(octet_length(payload)), 0), "
+        f"'digest', md5(COALESCE(string_agg(id::text || ':' || md5(payload), ',' ORDER BY id), ''))"
+        f") FROM {TOOLING_SCHEMA}.{PADDING_TABLE}"
+    )
+    restored_stats = _parse_and_validate_padding_stats(stats_raw, expected_rows=expected_stats.get('rows'))
+    if (restored_stats['rows'] != expected_stats.get('rows')
+            or restored_stats['bytes'] != expected_stats.get('bytes')
+            or restored_stats['digest'] != expected_stats.get('digest')):
+        raise ValueError(
+            f"Restored padding fixture mismatch: expected {expected_stats}, got {restored_stats}"
+        )
+    return restored_stats
+
 
 class V4CoordinationBarrier:
     """Thread-safe barrier for coordinating pg_dump backend and concurrent HTTP writers."""
@@ -309,7 +415,7 @@ def dump_with_writers(container, snapshot_id, writer_a, writer_b):
     def dump():
         start = time.time()
         result = cmd(['docker', 'exec', container, 'pg_dump', '-U', 'postgres',
-                      '--format=custom', f'--snapshot={snapshot_id}', 'postgres'])
+                      '--format=custom', '--compress=0', f'--snapshot={snapshot_id}', 'postgres'])
         return result, start, time.time()
 
     samples = []
@@ -318,15 +424,19 @@ def dump_with_writers(container, snapshot_id, writer_a, writer_b):
         deadline = time.monotonic() + 10
         first = None
         while not dump_future.done() and time.monotonic() < deadline:
-            first = observe_dump(container)
-            if first:
+            t0 = time.time()
+            sample = observe_dump(container)
+            t1 = time.time()
+            if sample:
+                first = {**sample, 'observed_start': t0, 'observed_end': t1}
                 break
             time.sleep(0.01)
         # No backend observation means no writer is sent and this rehearsal fails closed.
         if not first:
             result, start, end = dump_future.result()
             return {'dump': result, 'dump_start': start, 'dump_end': end,
-                    'writer_a': None, 'writer_b': None, 'overlap_verified': False, 'observation': None}
+                    'writer_a': None, 'writer_b': None, 'overlap_verified': False,
+                    'observation': None, 'initial_observation': None}
         fa, fb = executor.submit(writer_a), executor.submit(writer_b)
         while not dump_future.done() and not (fa.done() and fb.done()):
             begin = time.time()
@@ -346,21 +456,26 @@ def dump_with_writers(container, snapshot_id, writer_a, writer_b):
     if observation:
         observation['observed_during_active_dump'] = True
     return {'dump': result, 'dump_start': start, 'dump_end': end, 'writer_a': a, 'writer_b': b,
-            'overlap_verified': overlap, 'observation': observation}
+            'overlap_verified': overlap, 'observation': observation,
+            'initial_observation': first}
 
 
 def _safe_diagnostics(measured, exporter_rc):
     dump_proc = measured.get('dump')
     dump_rc = dump_proc.returncode if dump_proc is not None else None
-    obs = measured.get('observation')
-    safe_obs = None
-    if isinstance(obs, dict):
-        safe_obs = {
+
+    def _safe_obs(obs):
+        if not isinstance(obs, dict):
+            return None
+        return {
             k: obs[k] for k in ('dump_pid', 'dump_application_name',
                                 'observed_start', 'observed_end',
                                 'observed_during_active_dump')
             if k in obs
         }
+
+    safe_initial = _safe_obs(measured.get('initial_observation'))
+    safe_obs = _safe_obs(measured.get('observation'))
 
     def _safe_writer(w):
         if w is None:
@@ -371,6 +486,7 @@ def _safe_diagnostics(measured, exporter_rc):
         'dump_exit_code': dump_rc,
         'dump_start': measured.get('dump_start'),
         'dump_end': measured.get('dump_end'),
+        'initial_observation': safe_initial,
         'observation': safe_obs,
         'writer_a': _safe_writer(measured.get('writer_a')),
         'writer_b': _safe_writer(measured.get('writer_b')),
@@ -913,6 +1029,48 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
         if not has_db:
             findings.append('unverified_cleanup_resources: resources_verified_absent must include verified DB container')
 
+    # Padding Fixture validation (CW2: full source/restored receipts and matching content digest)
+    src_pad = summary.get('padding_fixture')
+    rest_pad = None
+    if isinstance(summary.get('restored_verification'), dict):
+        rest_pad = summary['restored_verification'].get('padding_fixture')
+
+    if src_pad is not None or rest_pad is not None:
+        if src_pad is None:
+            findings.append('missing_padding_fixture: summary missing source padding_fixture receipt')
+        elif not isinstance(src_pad, dict):
+            findings.append('malformed_padding_fixture: source padding_fixture must be dict')
+
+        if rest_pad is None:
+            findings.append('missing_restored_padding_fixture: restored_verification missing padding_fixture receipt')
+        elif not isinstance(rest_pad, dict):
+            findings.append('malformed_padding_fixture: restored padding_fixture must be dict')
+
+        if isinstance(src_pad, dict) and isinstance(rest_pad, dict):
+            for label, p_dict in (('source', src_pad), ('restored', rest_pad)):
+                if p_dict.get('schema') != TOOLING_SCHEMA or p_dict.get('table') != PADDING_TABLE:
+                    findings.append(f'invalid_padding_fixture: {label} schema and table must be {TOOLING_SCHEMA}.{PADDING_TABLE}')
+                p_rows = p_dict.get('rows')
+                if not isinstance(p_rows, int) or isinstance(p_rows, bool) or p_rows <= 0:
+                    findings.append(f'invalid_padding_fixture: {label} rows must be positive int')
+                p_bytes = p_dict.get('bytes')
+                if not isinstance(p_bytes, int) or isinstance(p_bytes, bool) or p_bytes <= 0:
+                    findings.append(f'invalid_padding_fixture: {label} bytes must be positive int')
+                elif p_bytes > MAX_PADDING_BUDGET_BYTES:
+                    findings.append(f'invalid_padding_fixture: {label} bytes exceeds 256MiB finite budget')
+                p_dig = p_dict.get('digest')
+                if not isinstance(p_dig, str) or not re.fullmatch(r'^([0-9a-f]{32}|[0-9a-f]{64})$', p_dig):
+                    findings.append(f'invalid_padding_fixture: {label} digest must be valid hex digest, got {p_dig!r}')
+                if p_dict.get('restored_match') is not True:
+                    findings.append(f'invalid_padding_fixture: {label} restored_match must be True')
+
+            if src_pad.get('rows') != rest_pad.get('rows'):
+                findings.append('padding_fixture_mismatch: source rows != restored rows')
+            if src_pad.get('bytes') != rest_pad.get('bytes'):
+                findings.append('padding_fixture_mismatch: source bytes != restored bytes')
+            if src_pad.get('digest') != rest_pad.get('digest'):
+                findings.append('padding_fixture_mismatch: source digest != restored digest')
+
     ok = len(findings) == 0
     return {
         'ok': ok,
@@ -933,6 +1091,7 @@ def main():
     if dirty:
         raise ValueError('V4 rehearsal requires a clean source checkout')
     out.mkdir(parents=True)
+    check_resource_budget(out)
 
     run_id = uuid.uuid4().hex[:8]
     runtime_user_pw = secrets.token_urlsafe(24)
@@ -1025,6 +1184,17 @@ def main():
             'amount_vnd': 10000,
             'row_evidence': p0_ev,
             'relational_digest': digest(p0_ev),
+        }
+
+        # Install bounded padding fixture in dedicated tooling schema to obtain COPY observation window
+        padding_stats = setup_padding_fixture(src_db, DEFAULT_PADDING_ROWS)
+        summary['padding_fixture'] = {
+            'schema': TOOLING_SCHEMA,
+            'table': PADDING_TABLE,
+            'rows': padding_stats['rows'],
+            'bytes': padding_stats['bytes'],
+            'digest': padding_stats['digest'],
+            'restored_match': False,
         }
 
         # Snapshot remains live until the dump worker has really completed.
@@ -1135,6 +1305,10 @@ def main():
         restored_fp = row_fingerprints(restored_rows)
         (out / 'restored_fingerprints.json').write_text(json.dumps(restored_fp, indent=2) + '\n', encoding='utf-8')
 
+        # Verify padding fixture was faithfully restored in target database
+        restored_padding_stats = verify_restored_padding_fixture(target_db, padding_stats)
+        summary['padding_fixture']['restored_match'] = True
+
         restored_pay_ids = [row['id'] for row in restored_rows['payments']]
         p0_in_target = p0_pay_id in restored_pay_ids
         p1a_in_target = p1a_pay_id in restored_pay_ids
@@ -1192,6 +1366,14 @@ def main():
             'p0_present_in_restore': bool(p0_in_target),
             'p1a_present_in_restore': bool(p1a_in_target),
             'p1b_present_in_restore': bool(p1b_in_target),
+            'padding_fixture': {
+                'schema': TOOLING_SCHEMA,
+                'table': PADDING_TABLE,
+                'rows': restored_padding_stats['rows'],
+                'bytes': restored_padding_stats['bytes'],
+                'digest': restored_padding_stats['digest'],
+                'restored_match': True,
+            },
             'exact_cardinality_match': bool(pay_cnt == 1 and tx_cnt == 1 and audit_cnt == 1 and req_cnt == 1),
             'payments_count': pay_cnt,
             'club_transactions_count': tx_cnt,

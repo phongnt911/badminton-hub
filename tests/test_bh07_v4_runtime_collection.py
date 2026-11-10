@@ -236,6 +236,9 @@ class RuntimeCollectionTests(unittest.TestCase):
             return {'dump': subprocess.CompletedProcess([], 0, b'dump', b''),
                     'dump_start': base, 'dump_end': base + 1,
                     'writer_a': a, 'writer_b': b, 'overlap_verified': True,
+                    'initial_observation': {'dump_pid': 12, 'dump_application_name': 'pg_dump',
+                                            'dump_query': 'COPY tooling_rehearsal.rehearsal_padding',
+                                            'observed_start': base + .05, 'observed_end': base + .08},
                     'observation': {'dump_pid': 12, 'dump_application_name': 'pg_dump',
                                     'dump_query': 'COPY public.payments', 'observed_during_active_dump': True,
                                     'observed_start': base + .3, 'observed_end': base + .35}}
@@ -256,12 +259,25 @@ class RuntimeCollectionTests(unittest.TestCase):
         process = Mock()
         process.poll.return_value = exporter_poll
 
+        canonical_padding_stats = json.dumps({
+            'rows': runner.DEFAULT_PADDING_ROWS,
+            'bytes': runner.DEFAULT_PADDING_ROWS * 992,
+            'digest': 'a' * 32,
+        })
+
+        def fake_orchestration_sql(container, statement):
+            if 'tooling_rehearsal' in statement:
+                if 'SELECT json_build_object' in statement:
+                    return canonical_padding_stats
+                return ''
+            return ACTOR
+
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory) / 'evidence'
             with patch.object(sys, 'argv', ['runner', '--out', str(out)]), \
                  patch.object(runner, 'cmd', side_effect=command), \
                  patch.object(runner.runpy, 'run_path', return_value={'anon': 'fake', 'password': 'fake', 'secret': 'fake'}), \
-                 patch.object(runner, 'sql', return_value=ACTOR), \
+                 patch.object(runner, 'sql', side_effect=fake_orchestration_sql), \
                  patch.object(runner, 'login', return_value='fake'), \
                  patch.object(runner, 'rpc', side_effect=rpc), \
                  patch.object(runner, 'query_row_evidence', side_effect=evidence), \
@@ -474,6 +490,320 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertIsNone(diag['exporter_returncode'])
         self.assertEqual(diag['writer_a']['status'], 200)
         self.assertEqual(diag['writer_b']['status'], 200)
+        self.assertIsNotNone(diag.get('initial_observation'))
+        self.assertIsNotNone(diag.get('observation'))
+        self.assertEqual(diag['initial_observation']['dump_pid'], 12)
+        self.assertEqual(diag['observation']['dump_pid'], 12)
+
+    def test_padding_fixture_wiring_and_bounds(self):
+        """Verifies tooling padding fixture schema, bounded rows, and restore digest verification."""
+        executed_sqls = []
+        def fake_sql(container, statement):
+            executed_sqls.append((container, statement))
+            if 'SELECT json_build_object' in statement:
+                return json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': '0123456789abcdef' * 2})
+            return ''
+
+        with patch.object(runner, 'sql', side_effect=fake_sql):
+            stats = runner.setup_padding_fixture('src-db', rows=40000)
+            self.assertEqual(stats['rows'], 40000)
+            self.assertEqual(stats['bytes'], 39680000)
+            self.assertLessEqual(stats['bytes'], runner.MAX_PADDING_BUDGET_BYTES)
+
+            # Assert SQL targets dedicated tooling schema and not public/auth
+            setup_sql = executed_sqls[0][1]
+            self.assertIn('CREATE SCHEMA IF NOT EXISTS tooling_rehearsal', setup_sql)
+            self.assertIn('CREATE TABLE tooling_rehearsal.rehearsal_padding', setup_sql)
+            self.assertNotIn('public.', setup_sql)
+            self.assertNotIn('auth.', setup_sql)
+
+            # Assert digest SQL query hashes payload content
+            stats_sql = executed_sqls[1][1]
+            self.assertIn('md5(payload)', stats_sql)
+
+            # Faithful restore verification
+            restored = runner.verify_restored_padding_fixture('target-db', stats)
+            self.assertEqual(restored['digest'], stats['digest'])
+
+            # Mismatch detection
+            with self.assertRaises(ValueError):
+                runner.verify_restored_padding_fixture('target-db', {**stats, 'rows': 39999})
+            with self.assertRaises(ValueError):
+                runner.verify_restored_padding_fixture('target-db', {**stats, 'digest': '0' * 32})
+
+    def test_padding_fixture_rejects_malformed_empty_wrong_type_missing_field(self):
+        """CW1 regression: rejects non-JSON, empty, wrong type, or missing fields without fake fallback."""
+        valid_expected = {
+            'schema': runner.TOOLING_SCHEMA,
+            'table': runner.PADDING_TABLE,
+            'rows': 40000,
+            'bytes': 39680000,
+            'digest': 'a' * 32,
+        }
+        invalid_payloads = [
+            '',
+            'not-json',
+            '[]',
+            '123',
+            'null',
+            json.dumps({'bytes': 39680000, 'digest': 'a' * 32}),  # missing rows
+            json.dumps({'rows': 40000, 'digest': 'a' * 32}),  # missing bytes
+            json.dumps({'rows': 40000, 'bytes': 39680000}),  # missing digest
+            json.dumps({'rows': '40000', 'bytes': 39680000, 'digest': 'a' * 32}),  # rows str
+            json.dumps({'rows': True, 'bytes': 39680000, 'digest': 'a' * 32}),  # rows bool
+            json.dumps({'rows': -1, 'bytes': 39680000, 'digest': 'a' * 32}),  # rows negative
+            json.dumps({'rows': 0, 'bytes': 39680000, 'digest': 'a' * 32}),  # rows zero
+            json.dumps({'rows': 40000, 'bytes': 'not-int', 'digest': 'a' * 32}),  # bytes str
+            json.dumps({'rows': 40000, 'bytes': True, 'digest': 'a' * 32}),  # bytes bool
+            json.dumps({'rows': 40000, 'bytes': -1, 'digest': 'a' * 32}),  # bytes negative
+            json.dumps({'rows': 40000, 'bytes': 300 * 1024 * 1024, 'digest': 'a' * 32}),  # exceeds budget
+            json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': 'invalid-digest'}),  # malformed digest
+            json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': 12345}),  # wrong type digest
+            json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': 'a' * 33}),  # CW2 P2: non-exact 33 chars
+            json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': 'a' * 40}),  # CW2 P2: non-exact 40 chars (e.g. git sha)
+            json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': 'a' * 63}),  # CW2 P2: non-exact 63 chars
+        ]
+        for bad_raw in invalid_payloads:
+            with self.subTest(bad_raw=bad_raw):
+                with patch.object(runner, 'sql', return_value=bad_raw):
+                    with self.assertRaises(ValueError):
+                        runner.setup_padding_fixture('src-db', rows=40000)
+                    with self.assertRaises(ValueError):
+                        runner.verify_restored_padding_fixture('target-db', valid_expected)
+
+    def test_padding_fixture_accepts_exact_32_and_64_hex_digest(self):
+        """CW2 P2: verifies parser accepts exactly 32 and 64-character hex digests."""
+        for length in (32, 64):
+            with self.subTest(length=length):
+                digest_val = 'c' * length
+                valid_raw = json.dumps({'rows': 40000, 'bytes': 39680000, 'digest': digest_val})
+                with patch.object(runner, 'sql', return_value=valid_raw):
+                    stats = runner.setup_padding_fixture('src-db', rows=40000)
+                    self.assertEqual(stats['digest'], digest_val)
+                    restored = runner.verify_restored_padding_fixture('target-db', stats)
+                    self.assertEqual(restored['digest'], digest_val)
+
+    def test_resource_budget_preflight(self):
+        """Verifies disk resource preflight check rejects insufficient disk space."""
+        with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=1024 * 1024 * 1024)):
+            runner.check_resource_budget(Path('.'))  # Should not raise
+
+        with patch.object(runner.shutil, 'disk_usage', return_value=Mock(free=100 * 1024 * 1024)):
+            with self.assertRaises(RuntimeError) as ctx:
+                runner.check_resource_budget(Path('.'))
+            self.assertIn('Insufficient disk space', str(ctx.exception))
+
+    def test_main_orchestration_includes_padding_fixture_and_verification(self):
+        """Proves full main run records padding fixture metadata and verifies it upon restore."""
+        code, receipt = self._run_orchestration_scenario()
+        self.assertEqual(code, 0, receipt.get('findings'))
+        self.assertEqual(receipt['status'], 'PASS')
+        self.assertIn('padding_fixture', receipt)
+        pad = receipt['padding_fixture']
+        self.assertEqual(pad['schema'], runner.TOOLING_SCHEMA)
+        self.assertEqual(pad['table'], runner.PADDING_TABLE)
+        self.assertEqual(pad['rows'], runner.DEFAULT_PADDING_ROWS)
+        self.assertTrue(pad['restored_match'])
+
+        # Restored verification section also captures matching fixture
+        self.assertIn('padding_fixture', receipt['restored_verification'])
+        self.assertTrue(receipt['restored_verification']['padding_fixture']['restored_match'])
+
+        # Financial invariants strictly preserved
+        self.assertEqual(receipt['restored_verification']['payments_count'], 1)
+        self.assertEqual(receipt['restored_verification']['club_transactions_count'], 1)
+        self.assertEqual(receipt['restored_verification']['audit_events_count'], 1)
+        self.assertEqual(receipt['restored_verification']['operation_requests_count'], 1)
+
+    def test_main_diagnostics_distinguishes_initial_from_overlap_sample(self):
+        """Proves safe diagnostics distinguishes initial COPY observation from absent overlap observation."""
+        def measured_initial_only(db, snapshot, wa, wb):
+            base = 5000.0
+            a, b = wa(), wb()
+            a.update(start=base + 0.1, end=base + 0.3)
+            b.update(start=base + 0.15, end=base + 0.35)
+            return {
+                'dump': subprocess.CompletedProcess([], 0, b'dump', b''),
+                'dump_start': base,
+                'dump_end': base + 1.0,
+                'writer_a': a,
+                'writer_b': b,
+                'overlap_verified': False,
+                'initial_observation': {
+                    'dump_pid': 77,
+                    'dump_application_name': 'pg_dump',
+                    'dump_query': 'COPY tooling_rehearsal.rehearsal_padding TO stdout; -- SECRET_QUERY',
+                    'observed_start': base + 0.05,
+                    'observed_end': base + 0.08,
+                },
+                'observation': None,
+            }
+
+        code, receipt = self._run_orchestration_scenario(measured_fn=measured_initial_only, exporter_poll=None)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertIn('diagnostics', receipt)
+        diag = receipt['diagnostics']
+        self.assertFalse(diag['overlap_verified'])
+
+        # Initial observation is retained with safe fields
+        init_obs = diag.get('initial_observation')
+        self.assertIsNotNone(init_obs)
+        self.assertEqual(init_obs['dump_pid'], 77)
+        self.assertEqual(init_obs['dump_application_name'], 'pg_dump')
+        self.assertEqual(init_obs['observed_start'], 5000.05)
+        self.assertEqual(init_obs['observed_end'], 5000.08)
+
+        # Overlap observation is None
+        self.assertIsNone(diag.get('observation'))
+
+        # Writers were sent and have safe timing
+        self.assertEqual(diag['writer_a']['status'], 200)
+        self.assertEqual(diag['writer_b']['status'], 200)
+
+        # No secret markers or query text in diagnostics
+        diag_str = json.dumps(diag)
+        self.assertNotIn('SECRET_QUERY', diag_str)
+        self.assertNotIn('dump_query', diag_str)
+
+    def test_old_short_dump_behavior_rejected_without_padding(self):
+        """Proves old short dump behavior (0.4s seed dump, no COPY captured) is rejected fail-closed."""
+        def measured_short_seed_dump(db, snapshot, wa, wb):
+            base = 6000.0
+            return {
+                'dump': subprocess.CompletedProcess([], 0, b'small_seed_dump', b''),
+                'dump_start': base,
+                'dump_end': base + 0.402,
+                'writer_a': None,
+                'writer_b': None,
+                'overlap_verified': False,
+                'initial_observation': None,
+                'observation': None,
+            }
+
+        code, receipt = self._run_orchestration_scenario(measured_fn=measured_short_seed_dump, exporter_poll=None)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['failure_type'], 'ValueError')
+        self.assertEqual(receipt['error_message'], 'No verified concurrent HTTP commits during active snapshot dump')
+        diag = receipt.get('diagnostics')
+        self.assertIsNotNone(diag)
+        self.assertIsNone(diag['initial_observation'])
+        self.assertIsNone(diag['observation'])
+        self.assertIsNone(diag['writer_a'])
+        self.assertIsNone(diag['writer_b'])
+        self.assertFalse(diag['overlap_verified'])
+
+    def test_validator_rejects_malformed_or_overbudget_padding_fixture(self):
+        """Verifies validator fail-closed enforcement of padding fixture constraints."""
+        fixture = fixtures.V4FailClosedValidatorTests()
+        fixture.setUp()
+
+        # Legacy control without padding passes
+        res_legacy = runner.validate_v4_rehearsal(
+            fixture.valid_summary, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint
+        )
+        self.assertTrue(res_legacy['ok'], res_legacy.get('findings'))
+
+        # Valid with padding fixture in both source and restored receipts
+        pad_stat = {
+            'schema': runner.TOOLING_SCHEMA,
+            'table': runner.PADDING_TABLE,
+            'rows': 40000,
+            'bytes': 39680000,
+            'digest': '0123456789abcdef' * 2,
+            'restored_match': True,
+        }
+        valid = copy.deepcopy(fixture.valid_summary)
+        valid['padding_fixture'] = copy.deepcopy(pad_stat)
+        valid['restored_verification']['padding_fixture'] = copy.deepcopy(pad_stat)
+
+        res = runner.validate_v4_rehearsal(valid, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertTrue(res['ok'], res.get('findings'))
+
+        # CW2 P2: Valid with 64-char hex digest (accepts exact 64)
+        valid_64 = copy.deepcopy(valid)
+        valid_64['padding_fixture']['digest'] = '0123456789abcdef' * 4
+        valid_64['restored_verification']['padding_fixture']['digest'] = '0123456789abcdef' * 4
+        res_64 = runner.validate_v4_rehearsal(valid_64, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertTrue(res_64['ok'], res_64.get('findings'))
+
+        # Missing restored receipt (CW2 reviewer control reproduction)
+        missing_rest = copy.deepcopy(valid)
+        del missing_rest['restored_verification']['padding_fixture']
+        res = runner.validate_v4_rehearsal(missing_rest, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('missing_restored_padding_fixture' in f for f in res.get('findings', [])))
+
+        # Missing source receipt
+        missing_src = copy.deepcopy(valid)
+        del missing_src['padding_fixture']
+        res = runner.validate_v4_rehearsal(missing_src, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('missing_padding_fixture' in f for f in res.get('findings', [])))
+
+        # Invalid digest string (CW2 reviewer control reproduction: 'invalid-digest')
+        invalid_dig = copy.deepcopy(valid)
+        invalid_dig['padding_fixture']['digest'] = 'invalid-digest'
+        invalid_dig['restored_verification']['padding_fixture']['digest'] = 'invalid-digest'
+        res = runner.validate_v4_rehearsal(invalid_dig, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('invalid_padding_fixture' in f for f in res.get('findings', [])))
+
+        # CW2 P2: Reject matching source/target receipts with non-exact 32/64 digest lengths (33, 40, 63)
+        for bad_len in (33, 40, 63):
+            with self.subTest(bad_len=bad_len):
+                non_exact = copy.deepcopy(valid)
+                non_exact['padding_fixture']['digest'] = 'a' * bad_len
+                non_exact['restored_verification']['padding_fixture']['digest'] = 'a' * bad_len
+                res_ne = runner.validate_v4_rehearsal(non_exact, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+                self.assertFalse(res_ne['ok'])
+                self.assertTrue(any('invalid_padding_fixture' in f for f in res_ne.get('findings', [])))
+
+        # Digest mismatch between source and restored
+        mismatch_dig = copy.deepcopy(valid)
+        mismatch_dig['restored_verification']['padding_fixture']['digest'] = 'b' * 32
+        res = runner.validate_v4_rehearsal(mismatch_dig, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('padding_fixture_mismatch' in f for f in res.get('findings', [])))
+
+        # Rows mismatch between source and restored
+        mismatch_rows = copy.deepcopy(valid)
+        mismatch_rows['restored_verification']['padding_fixture']['rows'] = 39999
+        res = runner.validate_v4_rehearsal(mismatch_rows, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('padding_fixture_mismatch' in f for f in res.get('findings', [])))
+
+        # Bytes mismatch between source and restored
+        mismatch_bytes = copy.deepcopy(valid)
+        mismatch_bytes['restored_verification']['padding_fixture']['bytes'] = 12345
+        res = runner.validate_v4_rehearsal(mismatch_bytes, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('padding_fixture_mismatch' in f for f in res.get('findings', [])))
+
+        # Over budget (>256 MiB)
+        overbudget = copy.deepcopy(valid)
+        overbudget['padding_fixture']['bytes'] = 300 * 1024 * 1024
+        overbudget['restored_verification']['padding_fixture']['bytes'] = 300 * 1024 * 1024
+        res = runner.validate_v4_rehearsal(overbudget, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('exceeds 256MiB' in f for f in res.get('findings', [])))
+
+        # Wrong schema (e.g. attempting to put padding in public)
+        wrong_schema = copy.deepcopy(valid)
+        wrong_schema['padding_fixture']['schema'] = 'public'
+        wrong_schema['restored_verification']['padding_fixture']['schema'] = 'public'
+        res = runner.validate_v4_rehearsal(wrong_schema, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('invalid_padding_fixture' in f for f in res.get('findings', [])))
+
+        # restored_match False
+        unmatched = copy.deepcopy(valid)
+        unmatched['padding_fixture']['restored_match'] = False
+        unmatched['restored_verification']['padding_fixture']['restored_match'] = False
+        res = runner.validate_v4_rehearsal(unmatched, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
+        self.assertFalse(res['ok'])
+        self.assertTrue(any('restored_match must be True' in f for f in res.get('findings', [])))
 
 
 if __name__ == '__main__':
