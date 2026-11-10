@@ -53,14 +53,14 @@
 **Files:** Only the minimal runner/test/fixture files implicated by Task2 runtime, exact ownership assigned before edits.
 
 - [x] Diagnose from new stage plus bounded service-health metadata; add regression for actual target env. Missing SITE_URL fix reviewed,53targeted PASS; root retrospective baseline replay1FAIL. [Review](../../reviews/bh07/recovery_site_url_review_20261110.md).
-- [ ] Anti implements; Codex reviews and runs checks. After three corrections Codex directly repairs concrete residual findings under standing owner authorization.
-- [ ] Run clean-source Docker and independent artifact review. Require final oracle/HTTP replay and cleanup, not just overlap or row counts.
+- [x] Anti implements; Codex reviews and runs checks. After three corrections Codex directly repairs concrete residual findings under standing owner authorization.
+- [x] Run clean-source Docker and independent artifact review. Require final oracle/HTTP replay and cleanup, not just overlap or row counts.
 
 ## Task 4: Acceptance matrix and owner decision packet
 
 **Files:** new current completion status/review and per-gate decision packet under `docs/reviews/bh07/`; current headers in AGENTS/docs00/docs09 and relevant entry points.
 
-- [ ] Inventory available connected staging/mobile/browser/native tools without changing remote projects.
-- [ ] Check accepted core links/SHAs and scope; preserve inherited counts rather than rerunning unrelated evidence.
-- [ ] Execute feasible missing local checks. For unavailable operational gates, prepare concrete per-gate risk/mitigation/remaining-work entries for owner decision.
+- [x] Inventory available connected staging/mobile/browser/native tools without changing remote projects.
+- [x] Check accepted core links/SHAs and scope; preserve inherited counts rather than rerunning unrelated evidence.
+- [x] Execute feasible missing local checks. For unavailable operational gates, prepare concrete per-gate risk/mitigation/remaining-work entries for owner decision.
 - [ ] Independently review V8 prerequisites. Mark complete only when every required acceptance condition is actually met; otherwise record exact outstanding environment/decision blockers, never sign for owner.
