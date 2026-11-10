@@ -1,0 +1,138 @@
+{
+  "gate": "BH-07 V4 concurrent writers backup/restore rehearsal",
+  "base_sha": "d2f6b079a7a6f7521d04b88ac6eb780db5718a56",
+  "tested_source_sha": "55834ee0f9b12b6eed7d8a91a0a6d017c189a890",
+  "git_dirty": false,
+  "run_id": "72e1c969",
+  "snapshot": {
+    "snapshot_id": "00000041-00000002-1",
+    "snapshot_exported_epoch": 1794285799.605224,
+    "export_tx_held": true,
+    "pg_dump_snapshot_arg": "--snapshot=00000041-00000002-1"
+  },
+  "actors": {
+    "p0_writer": "ownera",
+    "writer_a": "ownera",
+    "writer_b": "financea"
+  },
+  "writers_concurrency": {},
+  "source_operations": {
+    "p0_precommit": {
+      "actor_user_id": "f6222c96-4296-4b21-99c9-eed6cb43aca7",
+      "request_id": "7af6f250-a0df-4a24-9494-ff7fe1e3ba1f",
+      "payment_id": "aba07e24-2ef8-4eb9-a754-ad8fedee74cc",
+      "transaction_id": "77220830-6852-4259-a874-9e8936056ad1",
+      "audit_event_id": "2b2f9ded-5d8e-40eb-94f5-3c8dde93fdee",
+      "status": 200,
+      "amount_vnd": 10000,
+      "row_evidence": {
+        "payment": {
+          "id": "aba07e24-2ef8-4eb9-a754-ad8fedee74cc",
+          "amount_vnd": 10000,
+          "request_id": "7af6f250-a0df-4a24-9494-ff7fe1e3ba1f",
+          "player_id": "30000000-0000-4000-8000-000000000001"
+        },
+        "ledger": {
+          "id": "77220830-6852-4259-a874-9e8936056ad1",
+          "source_payment_id": "aba07e24-2ef8-4eb9-a754-ad8fedee74cc",
+          "amount": 10000
+        },
+        "audit": {
+          "id": "2b2f9ded-5d8e-40eb-94f5-3c8dde93fdee",
+          "request_id": "7af6f250-a0df-4a24-9494-ff7fe1e3ba1f",
+          "session_id": "10000000-0000-4000-8000-000000000001"
+        },
+        "request": {
+          "result": {
+            "method": "cash",
+            "status": "confirmed",
+            "ledger_id": "77220830-6852-4259-a874-9e8936056ad1",
+            "player_id": "30000000-0000-4000-8000-000000000001",
+            "reference": "BH07 V4 P0 pre-snapshot",
+            "amount_vnd": 10000,
+            "payment_id": "aba07e24-2ef8-4eb9-a754-ad8fedee74cc",
+            "session_id": "10000000-0000-4000-8000-000000000001",
+            "billing_state": "current",
+            "total_paid_vnd": 60000,
+            "outstanding_vnd": 90000
+          },
+          "operation": "record_cash_payment",
+          "created_at": "2026-11-10T04:43:18.480386+00:00",
+          "request_id": "7af6f250-a0df-4a24-9494-ff7fe1e3ba1f",
+          "payload_hash": "fe5088f4efbf39377b691c490b279c38",
+          "actor_user_id": "f6222c96-4296-4b21-99c9-eed6cb43aca7"
+        }
+      },
+      "relational_digest": "6356aebac9c5d965d939684dc490402fb4f2f9125a430a8e8ecaa7b6f05ca351"
+    }
+  },
+  "restored_verification": {},
+  "cleanup": {
+    "ok": true,
+    "containers_verified_absent": true,
+    "networks_verified_absent": true,
+    "owned_resources_manifest": [
+      "bh07-v4-src-kong-72e1c969",
+      "bh07-v4-src-rest-72e1c969",
+      "bh07-v4-src-auth-72e1c969",
+      "bh07-v4-src-db-72e1c969",
+      "bh07-v4-target-rest-72e1c969",
+      "bh07-v4-target-auth-72e1c969",
+      "bh07-v4-target-db-72e1c969",
+      "bh07-v4-net-72e1c969"
+    ],
+    "resources_verified_absent": [
+      "bh07-v4-src-kong-72e1c969",
+      "bh07-v4-src-rest-72e1c969",
+      "bh07-v4-src-auth-72e1c969",
+      "bh07-v4-src-db-72e1c969",
+      "bh07-v4-target-rest-72e1c969",
+      "bh07-v4-target-auth-72e1c969",
+      "bh07-v4-target-db-72e1c969",
+      "bh07-v4-net-72e1c969"
+    ],
+    "private_dumps_removed": true,
+    "cleanup_errors": []
+  },
+  "diagnostics": {
+    "dump_exit_code": 0,
+    "dump_start": 1794285799.6068027,
+    "dump_end": 1794285800.0093772,
+    "observation": null,
+    "writer_a": null,
+    "writer_b": null,
+    "overlap_verified": false,
+    "exporter_returncode": null
+  },
+  "status": "FAIL",
+  "failure_type": "ValueError",
+  "error_message": "No verified concurrent HTTP commits during active snapshot dump",
+  "findings": [
+    "failed_status: summary status is 'FAIL', must be 'PASS'",
+    "strict_type_violation: snapshot.pg_dump_completed must be strictly bool, got NoneType",
+    "dump_failed: pg_dump exit code is None",
+    "strict_type_violation: writers_concurrency.overlap_verified must be strictly bool, got NoneType",
+    "strict_type_violation: writers_concurrency.writers_executed_during_dump must be strictly bool, got NoneType",
+    "strict_type_violation: writers_concurrency.pg_stat_activity_dump_observed must be strictly bool, got NoneType",
+    "no_writer_overlap: concurrent writer execution overlap not verified",
+    "dump_backend_not_observed: pg_stat_activity did not capture active pg_dump backend",
+    "dump_backend_not_observed: writers_concurrency must include db_observation_receipt dict",
+    "missing_operation: p1a_concurrent missing from source_operations",
+    "missing_operation: p1b_concurrent missing from source_operations",
+    "strict_type_violation: restored_verification.p0_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1a_present_in_restore must be strictly bool, got NoneType",
+    "strict_type_violation: restored_verification.p1b_present_in_restore must be strictly bool, got NoneType",
+    "missing_precommit: pre-snapshot payment P0 absent from restored database",
+    "cardinality_mismatch: expected 1 payment and 1 request, got payments=None, requests=None",
+    "ledger_invariant_failed: expected 1 ledger row matching payments, got None",
+    "audit_invariant_failed: expected 1 audit row matching payments, got None",
+    "substituted_restored_payment_id: expected restored_payment_ids ['aba07e24-2ef8-4eb9-a754-ad8fedee74cc'], got None",
+    "substituted_restored_transaction_id: expected restored_transaction_ids ['77220830-6852-4259-a874-9e8936056ad1'], got None",
+    "substituted_restored_audit_id: expected restored_audit_ids ['2b2f9ded-5d8e-40eb-94f5-3c8dde93fdee'], got None",
+    "substituted_restored_request_id: expected restored_request_ids ['7af6f250-a0df-4a24-9494-ff7fe1e3ba1f'], got None",
+    "missing_replay_state: replay evidence is required",
+    "missing_source_fingerprint: source_fingerprint dictionary is mandatory",
+    "missing_restored_fingerprint: restored_fingerprint dictionary is mandatory"
+  ],
+  "elapsed_seconds": 63.469
+}

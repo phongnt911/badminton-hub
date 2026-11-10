@@ -15,3 +15,13 @@ Nếu `dump_with_writers()` raise trước khi trả về thì helper diagnostic
 Dump nonzero trong test là CompletedProcess do mock trả về; không chứng minh đường command exception thật đã có diagnostics. Synthetic success control không chứng minh overlap runtime. Full Python/Flutter mới NOT RUN; app/schema không đổi. Runtime đầu trước sửa vẫn FAIL theo [báo cáo](v4_runtime_review_20261110.md), không retag source mới.
 
 Bước kế tiếp: chạy cùng rehearsal trên candidate sạch, output mới trong `.build/`, giữ summary và kiểm cleanup; phân tích nhánh thất bại từ số đo rồi mới giao Anti sửa điều phối/workload. Không merge/deploy/pilot/BH-08.
+
+## Runtime trên candidate sạch `55834ee`
+
+Codex chạy rehearsal mới bằng Docker local, output `.build/v4-runtime-20261110-diagnostics`, run ID `72e1c969`, `git_dirty: false`, elapsed 63.469s, exit 1. [Summary nguyên byte](v4_runtime_20261110_evidence/diagnostics_summary.json), SHA-256 `c4ebc0226073213bfbd4662dff693aff0ae64bec5540b69f8555c94c6de669af`.
+
+Diagnostics đã được giữ trên nhánh FAIL: dump exit 0, start `1794285799.6068027`, end `1794285800.0093772` (khoảng 0.402575s), observation null, cả hai writer null, overlap false, exporter returncode null. Đối chiếu nhánh `dump_with_writers`: không bắt được COPY ban đầu nên không gửi writer. Không phải bằng chứng HTTP writer trả lỗi hay exporter đã chết. Chưa chứng minh cấu hình workload mới sẽ tạo cửa sổ đủ dài.
+
+P0/snapshot đã qua; restore/replay NOT RUN. Receipt cleanup ok true, 8/8 tài nguyên trong manifest verified absent và private dumps removed true. Đã giao Anti cùng conversation **plan-only** phương án padding hữu hạn trong DB rehearsal dùng một lần, không sửa migration/app/schema nghiệp vụ, giữ quan sát COPY thật và HTTP writer thật; chờ review thiết kế trước triển khai.
+
+Lượt plan-only tiếp theo trả exit 1 `DEADLINE_EXCEEDED/print_timeout` sau giới hạn 2 phút, response rỗng; không có thiết kế hoặc edit mới, không nhận là bàn giao hoặc vòng sửa thất bại. Không cho triển khai điều phối/workload từ suy đoán. Kiểm Docker riêng sau runtime: `docker ps -a` rỗng, networks chỉ bridge/host/none. Điểm tiếp tục: giao Anti thiết kế fixture tải hữu hạn bằng phiên ngắn, rồi review thiết kế, test RED và rehearsal mới; không chạy lặp cùng workload 0.4s để tìm PASS ngẫu nhiên.
