@@ -518,34 +518,62 @@ class PersistentDumpObserver:
         return {**rows[0], 'observed_start': t0, 'observed_end': t1}
 
     def close(self):
+        errors = []
         proc = self.process
         if proc is not None:
-            if proc.poll() is None:
-                try:
-                    proc.stdin.write(b"\\q\n")
-                    proc.stdin.flush()
-                except Exception:
-                    pass
-                try:
-                    proc.wait(timeout=1.0)
-                except (subprocess.TimeoutExpired, Exception):
+            try:
+                if proc.poll() is None:
                     try:
-                        proc.kill()
-                    except Exception:
+                        proc.stdin.write(b"\\q\n")
+                        proc.stdin.flush()
+                    except (BrokenPipeError, OSError, ValueError):
+                        # A closed input is harmless only if termination is verified below.
                         pass
                     try:
-                        proc.wait(timeout=2.0)
+                        proc.wait(timeout=1.0)
                     except Exception:
-                        pass
-            for stream in (proc.stdin, proc.stdout, proc.stderr):
-                try:
-                    if stream:
-                        stream.close()
-                except Exception:
-                    pass
+                        try:
+                            proc.kill()
+                        except Exception as err:
+                            errors.append('kill:' + type(err).__name__)
+                        try:
+                            proc.wait(timeout=2.0)
+                        except Exception as err:
+                            errors.append('wait:' + type(err).__name__)
+                if proc.poll() is None:
+                    errors.append('process_still_running')
+            except Exception as err:
+                errors.append('process_status:' + type(err).__name__)
+
+        # Join before closing stdout: close() can block on a live readline's stream lock.
         reader = self.reader
-        if reader is not None and reader.ident is not None:
-            reader.join(timeout=2.0)
+        reader_alive = False
+        if reader is not None:
+            try:
+                if reader.ident is not None:
+                    reader.join(timeout=2.0)
+                reader_alive = reader.is_alive()
+            except Exception as err:
+                reader_alive = True
+                errors.append('reader_status:' + type(err).__name__)
+            if reader_alive:
+                errors.append('reader_still_running')
+        if proc is not None:
+            for name in ('stdin', 'stdout', 'stderr'):
+                if name == 'stdout' and reader_alive:
+                    continue
+                stream = None
+                try:
+                    stream = getattr(proc, name)
+                    if stream is not None:
+                        stream.close()
+                except Exception as err:
+                    # Buffered stdin can raise while flushing to an exited child yet close
+                    # its handle successfully. Require an explicitly verified closed handle.
+                    if getattr(stream, 'closed', False) is not True:
+                        errors.append(name + '_close:' + type(err).__name__)
+        if errors:
+            raise RuntimeError('psql observer cleanup unverified: ' + ', '.join(errors))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()

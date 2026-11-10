@@ -817,6 +817,64 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertTrue(any('restored_match must be True' in f for f in res.get('findings', [])))
 
 
+class ObserverCleanupFailureTests(unittest.TestCase):
+    def observer(self, running=False, reader_alive=False):
+        observer = runner.PersistentDumpObserver('fake-owned-container')
+        observer.process = Mock()
+        observer.process.poll.return_value = None if running else 0
+        observer.reader = Mock(ident=1)
+        observer.reader.is_alive.return_value = reader_alive
+        return observer
+
+    def test_cleanup_rejects_kill_denial_and_live_process(self):
+        observer = self.observer(running=True)
+        observer.process.wait.side_effect = subprocess.TimeoutExpired('observer', 1)
+        observer.process.kill.side_effect = PermissionError('synthetic denial')
+        with self.assertRaisesRegex(RuntimeError, 'cleanup unverified'):
+            observer.close()
+        self.assertEqual(observer.process.wait.call_count, 2)
+        observer.process.kill.assert_called_once()
+
+    def test_cleanup_rejects_final_wait_timeout_even_after_kill(self):
+        observer = self.observer(running=True)
+        observer.process.wait.side_effect = subprocess.TimeoutExpired('observer', 1)
+        with self.assertRaisesRegex(RuntimeError, 'cleanup unverified'):
+            observer.close()
+
+    def test_cleanup_rejects_live_reader_without_closing_its_stdout(self):
+        observer = self.observer(reader_alive=True)
+        with self.assertRaisesRegex(RuntimeError, 'cleanup unverified'):
+            observer.close()
+        observer.reader.join.assert_called_once_with(timeout=2.0)
+        # Closing a buffered stream held by blocked readline can itself block.
+        observer.process.stdout.close.assert_not_called()
+
+    def test_cleanup_rejects_stream_close_failure(self):
+        observer = self.observer()
+        observer.process.stderr.close.side_effect = OSError('synthetic close error')
+        with self.assertRaisesRegex(RuntimeError, 'cleanup unverified'):
+            observer.close()
+
+    def test_context_does_not_hide_cleanup_failure_after_body_error(self):
+        observer = self.observer(running=True)
+        observer.process.wait.side_effect = subprocess.TimeoutExpired('observer', 1)
+        original = ValueError('original workload failure')
+        with self.assertRaisesRegex(RuntimeError, 'cleanup unverified') as caught:
+            try:
+                raise original
+            except ValueError:
+                observer.__exit__(ValueError, original, original.__traceback__)
+        self.assertIs(caught.exception.__context__, original)
+
+    def test_verified_cleanup_closes_all_streams_and_is_repeatable(self):
+        observer = self.observer()
+        observer.close()
+        observer.close()
+        for stream in (observer.process.stdin, observer.process.stdout, observer.process.stderr):
+            self.assertEqual(stream.close.call_count, 2)
+        observer.process.kill.assert_not_called()
+
+
 class PersistentDumpObserverTests(unittest.TestCase):
     """Exercises the PersistentDumpObserver protocol over real subprocess pipes without Docker."""
 

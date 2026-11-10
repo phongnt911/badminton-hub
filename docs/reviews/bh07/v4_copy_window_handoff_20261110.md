@@ -1,7 +1,7 @@
 # Bàn giao V4 Tooling: Bounded COPY Observation Window (Sửa Cuối Vòng 3/3 — Persistent Observer) — 10/11/2026
 
 **Trạng thái: Chờ review (NOT Done, NOT runtime PASS). Toàn V4/BH-07/V8 chưa nghiệm thu.**
-Base HEAD `4093608` (sau khi commit sạch candidate R2) trên nhánh `feat/bh07-completion-local`. Implementer: Anti CLI (Gemini 3.8 Flash High); Reviewer: Codex.
+Base HEAD `4093608` (sau khi commit sạch candidate R2) trên nhánh `feat/bh07-completion-local`. Implementer bản vòng3: Anti CLI (Gemini 3.8 Flash High); Reviewer: Codex. Sau điểm dừng vòng3, owner giao “codex tự sửa”; CW5/CW4 được Codex sửa theo [handoff mới](codex_observer_cleanup_handoff_20261110.md), không nhận là Anti vòng4.
 
 ---
 
@@ -25,7 +25,7 @@ Theo báo cáo kiểm chứng runtime Docker thực tế tại [`docs/reviews/bh
 1. **Persistent Warmed-up Connection (`PersistentDumpObserver`):**
    - Khởi tạo một tiến trình `psql` duy nhất qua `docker exec -i` với các cờ `-X -qAt -U postgres -d postgres -v ON_ERROR_STOP=1` **trước khi** `pg_dump` bắt đầu.
    - Gửi truy vấn làm nóng `SELECT 'WARMED_UP:0:READY';` và kiểm tra phản hồi để xác nhận kết nối đã sẵn sàng.
-   - Các truy vấn quan sát tiếp theo được gửi trực tiếp qua pipe `stdin/stdout` đã kết nối, giảm thời gian roundtrip từ ~190ms xuống chỉ còn ~1–2ms.
+   - Các truy vấn quan sát tiếp theo được gửi trực tiếp qua pipe `stdin/stdout` đã kết nối nhằm giảm chi phí spawn. Độ trễ mới chưa được đo trên Docker; không khẳng định mức 1–2ms từ test pipe/mock.
 2. **Giao thức Phân định Rõ ràng với Sequence Marker:**
    - Mỗi truy vấn mang marker tuần tự duy nhất: `SELECT 'OBSERVATION:' || {seq} || ':' || COALESCE(json_agg(...), '[]'::json) ...`.
    - Phản hồi từ pipe bắt buộc phải có tiền tố `OBSERVATION:{seq}:[...]`. Mọi trường hợp lệch sequence, phản hồi rỗng, EOF bất ngờ, hoặc JSON sai định dạng đều kích hoạt lỗi fail-closed ngay lập tức.
@@ -33,9 +33,9 @@ Theo báo cáo kiểm chứng runtime Docker thực tế tại [`docs/reviews/bh
    - Luồng nền đọc stdout đưa từng dòng vào `queue.Queue`.
    - Hàm `observe()` đọc từ queue với timeout giới hạn (mặc định 5.0s, có thể chỉ định ngắn hơn).
    - `observed_start` và `observed_end` ghi nhận chính xác mốc thời gian host thực tế ngay trước khi ghi `stdin` và ngay sau khi nhận từ queue. Tuyệt đối không thay thế bằng đồng hồ DB hay dữ liệu giả lập.
-4. **Quản lý Vòng đời An toàn (Context Manager — No Leaked Processes):**
+4. **Quản lý Vòng đời và Xác minh Cleanup (Context Manager):**
    - Context manager quản lý chặt chẽ tiến trình: gửi `\q` thoát êm, fallback `kill()` nếu quá hạn, đóng toàn bộ streams (`stdin`, `stdout`, `stderr`) và `join()` luồng đọc.
-   - Đảm bảo dọn dẹp sạch sẽ trong mọi kịch bản thành công, exception, hoặc timeout.
+   - Theo bản sửa Codex sau review vòng3: kiểm trạng thái process và reader thread; lỗi kill/wait/đóng stream hoặc trạng thái chưa xác minh gây lỗi cleanup. Test pipe/mock không chứng minh cleanup thành công trong mọi môi trường Docker.
 5. **Giữ Nguyên Workload & Cổng Kiểm tra Nghiêm ngặt:**
    - Không chèn thêm `sleep` hay độ trễ giả tạo vào HTTP writers; giữ nguyên tải công việc và padding.
    - Giữ nguyên điều kiện kiểm tra giao thoa: mẫu quan sát bắt buộc phải nằm trọn vẹn bên trong cả hai khoảng HTTP writer thành công và thời gian dump thực tế.
