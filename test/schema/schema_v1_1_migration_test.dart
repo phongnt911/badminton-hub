@@ -8,7 +8,7 @@ void main() {
     setUpAll(() {
       final migrationFile = File('supabase/migrations/20261015051808_init_schema_v1_1.sql');
       expect(migrationFile.existsSync(), isTrue, reason: 'File migration v1.1 phải tồn tại');
-      sqlContent = migrationFile.readAsStringSync();
+      sqlContent = migrationFile.readAsStringSync().replaceAll('\r\n', '\n');
       expect(sqlContent.isNotEmpty, isTrue, reason: 'File migration không được rỗng');
     });
 

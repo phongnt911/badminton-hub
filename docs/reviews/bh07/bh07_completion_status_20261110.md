@@ -26,6 +26,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 
 ## Bằng chứng kiểm chứng gần nhất
 
+- Fresh SDK Windows phát hiện2schema test fail do CRLF; [sửa test-loader một dòng](schema_crlf_portability_review_20261110.md) đã review độc lập source/log:11targeted/22LF-CRLFcontrols/247Flutter+1SKIP PASS. Không sửa app/migration và không thay verdict runtime. Browser matrix Edge/Firefox đang triển khai/review riêng.
+
 - Owner dừng Android, chuyển Web. [Lượt Chrome local mới](web_local_runtime_20261110.md): history/summary/F5/Owner→Cohost→Member, clipboard count-only, offline read refresh/retry, deep link có auth; Member submitted rồi Owner confirmed một payment100000 và một ledger entry. Tổng kết cuối phải thu200000/đã thu100000/còn100000. Reviewer source/artifact chốt không P0/P1/P2 trong smoke scope,15/15hash; không có runtime độc lập thứ hai. Không thay full V1 matrix, write-retry suite hoặc V2b heap.
 
 - Source7589179:553test/549PASS+4SKIP,53targeted và49probe controls PASS; runtime V4 thường RUN/PASS, reviewer riêng chốt source/artifact/auditor. [Review cuối](recovery_site_url_runtime_final_20261110.md).
