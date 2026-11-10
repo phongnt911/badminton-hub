@@ -410,7 +410,153 @@ def observe_dump(container):
     return rows[0] if rows else None
 
 
-def dump_with_writers(container, snapshot_id, writer_a, writer_b):
+class PersistentDumpObserver:
+    """Persistent psql connection over stdin/stdout for low-latency pg_dump observation.
+
+    Avoids subprocess spawn roundtrips by keeping one warmed-up psql connection active
+    before and throughout pg_dump execution.
+    """
+
+    def __init__(self, container, timeout=5.0):
+        self.container = container
+        self.timeout = timeout
+        self.process = None
+        self.reader = None
+        self.response_queue = queue.Queue()
+        self.seq = 0
+
+    def __enter__(self):
+        try:
+            self.process = subprocess.Popen(
+                ['docker', 'exec', '-i', self.container, 'psql', '-X', '-qAt', '-U', 'postgres',
+                 '-d', 'postgres', '-v', 'ON_ERROR_STOP=1'],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            self.reader = threading.Thread(target=self._reader_loop, daemon=True)
+            self.reader.start()
+            self._warmup()
+            return self
+        except Exception:
+            self.close()
+            raise
+
+    def _reader_loop(self):
+        try:
+            while True:
+                line = self.process.stdout.readline()
+                if not line:
+                    break
+                self.response_queue.put(line)
+        except Exception as exc:
+            self.response_queue.put(exc)
+        finally:
+            self.response_queue.put(None)
+
+    def _warmup(self):
+        warmup_marker = "WARMED_UP:0:READY"
+        query = f"SELECT '{warmup_marker}';\n".encode('utf-8')
+        try:
+            self.process.stdin.write(query)
+            self.process.stdin.flush()
+        except (BrokenPipeError, OSError) as err:
+            raise RuntimeError(f"Failed to write warmup query to psql observer: {err}") from None
+        try:
+            item = self.response_queue.get(timeout=self.timeout)
+        except queue.Empty:
+            raise TimeoutError(f"psql observer warmup timed out after {self.timeout}s") from None
+        if item is None:
+            rc = self.process.poll()
+            raise RuntimeError(f"psql observer exited during warmup (exit code {rc})")
+        if isinstance(item, Exception):
+            raise RuntimeError(f"psql observer warmup error: {item}") from item
+        line = item.decode('utf-8', 'replace').strip()
+        if line != warmup_marker:
+            raise ValueError(f"Observer warmup protocol violation: expected {warmup_marker!r}, got {line!r}")
+
+    def observe(self, timeout=None):
+        """Query pg_stat_activity with sequence marker, returning sample dict or None, with call bounds."""
+        to = timeout or self.timeout
+        self.seq += 1
+        marker_prefix = f"OBSERVATION:{self.seq}:"
+        query = (
+            f"SELECT '{marker_prefix}' || COALESCE(json_agg(json_build_object("
+            f"'dump_pid',pid,'dump_application_name',application_name,'dump_query',query"
+            f")), '[]'::json) "
+            f"FROM pg_stat_activity WHERE pid <> pg_backend_pid() "
+            f"AND application_name = 'pg_dump' AND state = 'active' AND query LIKE 'COPY %';\n"
+        )
+        if self.process.poll() is not None:
+            raise RuntimeError(f"psql observer exited prematurely with returncode {self.process.poll()}")
+        t0 = time.time()
+        try:
+            self.process.stdin.write(query.encode('utf-8'))
+            self.process.stdin.flush()
+        except (BrokenPipeError, OSError) as err:
+            raise RuntimeError(f"Failed to write to psql observer stdin: {err}") from None
+        try:
+            item = self.response_queue.get(timeout=to)
+        except queue.Empty:
+            raise TimeoutError(f"psql observer query timed out after {to}s") from None
+        t1 = time.time()
+        if item is None:
+            rc = self.process.poll()
+            raise RuntimeError(f"psql observer closed stdout unexpectedly (EOF, exit code {rc})")
+        if isinstance(item, Exception):
+            raise RuntimeError(f"psql observer read error: {item}") from item
+        line = item.decode('utf-8', 'replace').strip()
+        if not line.startswith(marker_prefix):
+            raise ValueError(f"Observer protocol violation: expected prefix {marker_prefix!r}, got {line!r}")
+        payload = line[len(marker_prefix):]
+        try:
+            rows = json.loads(payload)
+        except Exception as err:
+            raise ValueError(f"Malformed JSON from observer: {err} (raw: {payload!r})") from None
+        if not isinstance(rows, list) or len(rows) > 1:
+            raise ValueError(f"Ambiguous pg_dump backend observation: {rows!r}")
+        if not rows:
+            return None
+        return {**rows[0], 'observed_start': t0, 'observed_end': t1}
+
+    def close(self):
+        proc = self.process
+        if proc is not None:
+            if proc.poll() is None:
+                try:
+                    proc.stdin.write(b"\\q\n")
+                    proc.stdin.flush()
+                except Exception:
+                    pass
+                try:
+                    proc.wait(timeout=1.0)
+                except (subprocess.TimeoutExpired, Exception):
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                    try:
+                        proc.wait(timeout=2.0)
+                    except Exception:
+                        pass
+            for stream in (proc.stdin, proc.stdout, proc.stderr):
+                try:
+                    if stream:
+                        stream.close()
+                except Exception:
+                    pass
+        reader = self.reader
+        if reader is not None and reader.ident is not None:
+            reader.join(timeout=2.0)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
+
+def open_dump_observer(container, timeout=5.0):
+    return PersistentDumpObserver(container, timeout=timeout)
+
+
+def dump_with_writers(container, snapshot_id, writer_a, writer_b, observer_factory=None):
     """Timestamp dump in its worker; require a real sample inside both HTTP intervals."""
     def dump():
         start = time.time()
@@ -419,34 +565,32 @@ def dump_with_writers(container, snapshot_id, writer_a, writer_b):
         return result, start, time.time()
 
     samples = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        dump_future = executor.submit(dump)
-        deadline = time.monotonic() + 10
-        first = None
-        while not dump_future.done() and time.monotonic() < deadline:
-            t0 = time.time()
-            sample = observe_dump(container)
-            t1 = time.time()
-            if sample:
-                first = {**sample, 'observed_start': t0, 'observed_end': t1}
-                break
-            time.sleep(0.01)
-        # No backend observation means no writer is sent and this rehearsal fails closed.
-        if not first:
+    factory = observer_factory or open_dump_observer
+    with factory(container) as observer:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            dump_future = executor.submit(dump)
+            deadline = time.monotonic() + 10
+            first = None
+            while not dump_future.done() and time.monotonic() < deadline:
+                sample = observer.observe()
+                if sample:
+                    first = sample
+                    break
+                time.sleep(0.005)
+            # No backend observation means no writer is sent and this rehearsal fails closed.
+            if not first:
+                result, start, end = dump_future.result()
+                return {'dump': result, 'dump_start': start, 'dump_end': end,
+                        'writer_a': None, 'writer_b': None, 'overlap_verified': False,
+                        'observation': None, 'initial_observation': None}
+            fa, fb = executor.submit(writer_a), executor.submit(writer_b)
+            while not dump_future.done() and not (fa.done() and fb.done()):
+                sample = observer.observe()
+                if sample and sample['dump_pid'] == first['dump_pid']:
+                    samples.append(sample)
+                time.sleep(0.002)
+            a, b = fa.result(), fb.result()
             result, start, end = dump_future.result()
-            return {'dump': result, 'dump_start': start, 'dump_end': end,
-                    'writer_a': None, 'writer_b': None, 'overlap_verified': False,
-                    'observation': None, 'initial_observation': None}
-        fa, fb = executor.submit(writer_a), executor.submit(writer_b)
-        while not dump_future.done() and not (fa.done() and fb.done()):
-            begin = time.time()
-            sample = observe_dump(container)
-            finish = time.time()
-            if sample and sample['dump_pid'] == first['dump_pid']:
-                samples.append({**sample, 'observed_start': begin, 'observed_end': finish})
-            time.sleep(0.005)
-        a, b = fa.result(), fb.result()
-        result, start, end = dump_future.result()
     overlap_start, overlap_end = max(a['start'], b['start']), min(a['end'], b['end'])
     observation = next((s for s in samples if max(overlap_start, start) <= s['observed_start']
                         <= s['observed_end'] <= min(overlap_end, end)), None)

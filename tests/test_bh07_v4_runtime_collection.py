@@ -135,9 +135,20 @@ class RuntimeCollectionTests(unittest.TestCase):
             start = time.time()
             time.sleep(0.12)
             return {'start': start, 'end': time.time(), 'status': 200}
+
+        class MockObserver:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+            def observe(self):
+                now = time.time()
+                return {'dump_pid': 12, 'dump_application_name': 'pg_dump',
+                        'dump_query': 'COPY public.payments',
+                        'observed_start': now, 'observed_end': now + 0.001}
+
         with patch.object(runner, 'cmd', side_effect=dump_cmd), \
-             patch.object(runner, 'sql', return_value=json.dumps([{
-                 'dump_pid': 12, 'dump_application_name': 'pg_dump', 'dump_query': 'COPY public.payments'}])):
+             patch.object(runner, 'open_dump_observer', return_value=MockObserver()):
             result = runner.dump_with_writers('owned-db', 'snapshot', writer, writer)
         self.assertLess(result['dump_end'], result['writer_a']['end'])
         self.assertFalse(result['overlap_verified'])
@@ -804,6 +815,292 @@ class RuntimeCollectionTests(unittest.TestCase):
         res = runner.validate_v4_rehearsal(unmatched, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
         self.assertFalse(res['ok'])
         self.assertTrue(any('restored_match must be True' in f for f in res.get('findings', [])))
+
+
+class PersistentDumpObserverTests(unittest.TestCase):
+    """Exercises the PersistentDumpObserver protocol over real subprocess pipes without Docker."""
+
+    def test_observer_protocol_happy_path_and_timing(self):
+        popen = subprocess.Popen
+        children = []
+
+        # Simulated psql responder supporting WARMED_UP and sequence markers
+        responder_code = (
+            "import sys, re\n"
+            "line = sys.stdin.readline()\n"
+            "if 'WARMED_UP' in line:\n"
+            "    sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "    sys.stdout.flush()\n"
+            "while True:\n"
+            "    q = sys.stdin.readline()\n"
+            "    if not q:\n"
+            "        break\n"
+            "    m = re.search(r'OBSERVATION:(\\d+):', q)\n"
+            "    if m:\n"
+            "        seq = m.group(1)\n"
+            "        if seq == '1':\n"
+            "            sys.stdout.write(f'OBSERVATION:{seq}:[{{\"dump_pid\":409,\"dump_application_name\":\"pg_dump\",\"dump_query\":\"COPY tooling_rehearsal.rehearsal_padding\"}}]\\n')\n"
+            "        else:\n"
+            "            sys.stdout.write(f'OBSERVATION:{seq}:[]\\n')\n"
+            "        sys.stdout.flush()\n"
+        )
+
+        def start(args, **kwargs):
+            self.assertIn('-X', args)
+            self.assertIn('-qAt', args)
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with runner.open_dump_observer('test-db', timeout=2.0) as obs:
+                t_before = time.time()
+                sample1 = obs.observe()
+                t_after = time.time()
+                self.assertIsNotNone(sample1)
+                self.assertEqual(sample1['dump_pid'], 409)
+                self.assertEqual(sample1['dump_application_name'], 'pg_dump')
+                self.assertGreaterEqual(sample1['observed_start'], t_before)
+                self.assertLessEqual(sample1['observed_end'], t_after)
+
+                sample2 = obs.observe()
+                self.assertIsNone(sample2)
+
+        self.assertEqual(len(children), 1)
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_eof_detected_fail_closed(self):
+        popen = subprocess.Popen
+        children = []
+
+        # Responder warms up and then immediately exits, causing EOF on first query
+        responder_code = (
+            "import sys\n"
+            "line = sys.stdin.readline()\n"
+            "if 'WARMED_UP' in line:\n"
+            "    sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "    sys.stdout.flush()\n"
+            "sys.exit(0)\n"
+        )
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(RuntimeError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=2.0) as obs:
+                    obs.observe()
+            self.assertIn('closed stdout unexpectedly', str(ctx.exception))
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_malformed_marker_rejected(self):
+        popen = subprocess.Popen
+        children = []
+
+        responder_code = (
+            "import sys\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "sys.stdout.flush()\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('MALFORMED_NO_MARKER\\n')\n"
+            "sys.stdout.flush()\n"
+        )
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(ValueError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=2.0) as obs:
+                    obs.observe()
+            self.assertIn('Observer protocol violation', str(ctx.exception))
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_malformed_json_rejected(self):
+        popen = subprocess.Popen
+        children = []
+
+        responder_code = (
+            "import sys\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "sys.stdout.flush()\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('OBSERVATION:1:not-a-json-payload\\n')\n"
+            "sys.stdout.flush()\n"
+        )
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(ValueError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=2.0) as obs:
+                    obs.observe()
+            self.assertIn('Malformed JSON from observer', str(ctx.exception))
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_ambiguous_rows_rejected(self):
+        popen = subprocess.Popen
+        children = []
+
+        responder_code = (
+            "import sys\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "sys.stdout.flush()\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('OBSERVATION:1:[{\"dump_pid\":1},{\"dump_pid\":2}]\\n')\n"
+            "sys.stdout.flush()\n"
+        )
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(ValueError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=2.0) as obs:
+                    obs.observe()
+            self.assertIn('Ambiguous pg_dump backend observation', str(ctx.exception))
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_warmup_timeout_and_no_child_leak(self):
+        popen = subprocess.Popen
+        children = []
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', 'import time; time.sleep(30)'], **kwargs)
+            children.append(child)
+            return child
+
+        t0 = time.monotonic()
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(TimeoutError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=0.1):
+                    self.fail('must not warm up')
+            self.assertIn('warmup timed out', str(ctx.exception))
+        self.assertLess(time.monotonic() - t0, 5.0)
+        self.assertEqual(len(children), 1)
+        self.assertIsNotNone(children[0].poll())
+
+    def test_observer_protocol_query_timeout_and_no_child_leak(self):
+        popen = subprocess.Popen
+        children = []
+
+        responder_code = (
+            "import sys, time\n"
+            "sys.stdin.readline()\n"
+            "sys.stdout.write('WARMED_UP:0:READY\\n')\n"
+            "sys.stdout.flush()\n"
+            "sys.stdin.readline()\n"
+            "time.sleep(30)\n"
+        )
+
+        def start(args, **kwargs):
+            child = popen([sys.executable, '-u', '-c', responder_code], **kwargs)
+            children.append(child)
+            return child
+
+        t0 = time.monotonic()
+        with patch.object(runner.subprocess, 'Popen', side_effect=start):
+            with self.assertRaises(TimeoutError) as ctx:
+                with runner.open_dump_observer('test-db', timeout=0.1) as obs:
+                    obs.observe(timeout=0.1)
+            self.assertIn('query timed out', str(ctx.exception))
+        self.assertLess(time.monotonic() - t0, 5.0)
+        self.assertEqual(len(children), 1)
+        self.assertIsNotNone(children[0].poll())
+
+    def test_dump_with_writers_wiring_with_mock_observer(self):
+        """Verifies dump_with_writers correctly synchronizes with observer and captures overlap."""
+        def dump_cmd(*args, **kwargs):
+            time.sleep(0.08)
+            return subprocess.CompletedProcess([], 0, b'fake-dump', b'')
+
+        base = time.time()
+        def writer_a():
+            return {'status': 200, 'res': {'payment_id': 'pa'}, 'req_id': 'ra', 'amount': 15000,
+                    'start': base + 0.02, 'end': base + 0.06}
+        def writer_b():
+            return {'status': 200, 'res': {'payment_id': 'pb'}, 'req_id': 'rb', 'amount': 20000,
+                    'start': base + 0.03, 'end': base + 0.05}
+
+        call_count = 0
+        class MockObserver:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+            def observe(self):
+                nonlocal call_count
+                call_count += 1
+                if call_count == 1:
+                    # Initial observation before writers launched
+                    return {'dump_pid': 500, 'dump_application_name': 'pg_dump',
+                            'dump_query': 'COPY tooling_rehearsal.rehearsal_padding',
+                            'observed_start': base + 0.005, 'observed_end': base + 0.008}
+                # Observation during concurrent writer execution
+                return {'dump_pid': 500, 'dump_application_name': 'pg_dump',
+                        'dump_query': 'COPY public.payments',
+                        'observed_start': base + 0.035, 'observed_end': base + 0.038}
+
+        with patch.object(runner, 'cmd', side_effect=dump_cmd), \
+             patch.object(runner, 'open_dump_observer', return_value=MockObserver()):
+            result = runner.dump_with_writers('test-db', 'snap-1', writer_a, writer_b)
+
+        self.assertTrue(result['overlap_verified'])
+        self.assertIsNotNone(result['initial_observation'])
+        self.assertEqual(result['initial_observation']['dump_pid'], 500)
+        self.assertIsNotNone(result['observation'])
+        self.assertEqual(result['observation']['dump_pid'], 500)
+        self.assertTrue(result['observation']['observed_during_active_dump'])
+        self.assertEqual(result['writer_a']['status'], 200)
+        self.assertEqual(result['writer_b']['status'], 200)
+
+    def test_dump_with_writers_no_initial_observation_aborts_without_writers(self):
+        """Verifies that if observer never sees COPY, writers are never sent and fails closed."""
+        def dump_cmd(*args, **kwargs):
+            return subprocess.CompletedProcess([], 0, b'fake-dump', b'')
+
+        wa_called = False
+        wb_called = False
+        def writer_a():
+            nonlocal wa_called
+            wa_called = True
+            return {'status': 200, 'start': 1, 'end': 2}
+        def writer_b():
+            nonlocal wb_called
+            wb_called = True
+            return {'status': 200, 'start': 1, 'end': 2}
+
+        class MockEmptyObserver:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+            def observe(self):
+                return None
+
+        with patch.object(runner, 'cmd', side_effect=dump_cmd), \
+             patch.object(runner, 'open_dump_observer', return_value=MockEmptyObserver()):
+            result = runner.dump_with_writers('test-db', 'snap-1', writer_a, writer_b)
+
+        self.assertFalse(result['overlap_verified'])
+        self.assertIsNone(result['initial_observation'])
+        self.assertIsNone(result['observation'])
+        self.assertIsNone(result['writer_a'])
+        self.assertIsNone(result['writer_b'])
+        self.assertFalse(wa_called)
+        self.assertFalse(wb_called)
 
 
 if __name__ == '__main__':
