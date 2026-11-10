@@ -1,4 +1,4 @@
-**10/11/2026 ? Ch? d? ?n giao ?codex t? s?a? MC1?MC6:** Codex tr?c ti?p s?a tooling V4 theo [b?n giao](docs/reviews/bh07/codex_mc_fixes_20261110_handoff.md), kh?ng t? giao Anti v?ng 4. Ch? review source/test; to?n V4/BH-07/V8 ch?a nghi?m thu, runtime m?i NOT RUN. ??y l? ngo?i l? c? th?, kh?ng b? gi?i h?n v?ng s?a chung ho?c c?p quy?n merge/deploy/pilot.
+**10/11/2026 — Chủ dự án giao “codex tự sửa” MC1–MC6:** Codex trực tiếp sửa tooling V4 theo [bàn giao](docs/reviews/bh07/codex_mc_fixes_20261110_handoff.md), không giao Anti vòng 4. Candidate `704a326` Đạt phạm vi source/test MC1–MC6 theo [review độc lập](docs/reviews/bh07/review_704a326_mc_fixes.md); toàn V4/BH-07/V8 chưa nghiệm thu, runtime mới NOT RUN. Đây là ngoại lệ cụ thể, không bỏ giới hạn vòng sửa chung hoặc cấp quyền merge/deploy/pilot.
 
 **10/11/2026 — Chủ dự án ủy quyền commit/push tiến độ để tiếp tục trên máy khác.** Nhánh `feat/bh07-completion-local`; đọc [bàn giao](docs/reviews/bh07/machine_handoff_20261110.md). Ủy quyền này thay hạn chế push lịch sử cho việc đồng bộ; không cho phép merge/deploy/pilot/BH-08. BH-07/V8 vẫn chưa nghiệm thu.
 

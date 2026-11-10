@@ -2,6 +2,8 @@
 
 Owner yêu cầu “codex tự sửa”, ngoại lệ cụ thể sau mốc dừng Anti ba vòng. Base `d2f6b079a7a6f7521d04b88ac6eb780db5718a56`, nhánh `feat/bh07-completion-local`. Đây là implementation/self-check của Codex, không tự nhận review độc lập hoặc V4 runtime PASS.
 
+Candidate code/test được pin tại **`704a32658353a2148b1f94619db1e991b5562713`**. Bốn Git blob nguồn ở commit này khớp `source_after` trong summary của lượt chạy trước commit; không diễn giải thành lượt chạy full suite mới trên checkout sạch. Đối chiếu với base xác nhận lib/test/supabase và hai bundle lịch sử không có diff. Bundle bằng chứng mới giữ raw Windows log bytes bằng `-text`; thuộc tính whitespace chỉ chấp nhận CR cuối dòng, không chuẩn hóa lại log.
+
 ## Thay đổi
 
 - MC1/MC6: collector đọc row thật theo schema migration, khóa actor/operation/request và payment; thiếu/trùng row hoặc sai quan hệ bị chặn. Receipt giữ alias cũ nhưng lấy `session_player_id`, `amount_vnd` và request liên kết từ dữ liệu persisted. Audit không lấy theo thứ tự hoàn tất. Fingerprint/count restore có scope workload để không đếm nhầm seed sẵn có.
@@ -23,6 +25,6 @@ Test mới nằm `tests/test_bh07_v4_runtime_collection.py`: DB/HTTP giả, subp
 
 ## Review và giới hạn
 
-Reviewer subagent độc lập đã đọc delta/schema và tự chạy 14/14 test mới, không nêu P0/P1/P2 trong phạm vi source/test đã xem. Báo cáo chốt theo tested SHA sẽ được ghi riêng sau khi pin candidate. Đây không phải reviewer chạy Docker/HTTP/DB thật; full-suite là Codex implementer self-check.
+Reviewer subagent độc lập đã đọc delta/schema và tự chạy 14/14 test mới, không nêu P0/P1/P2 trong phạm vi source/test đã xem. [Review chốt `704a326`](review_704a326_mc_fixes.md) xác nhận Đạt phần sửa MC1–MC6 trong phạm vi source/test. Đây không phải reviewer chạy Docker/HTTP/DB thật; full-suite là Codex implementer self-check.
 
-**Chờ review source/test sau tự sửa; toàn V4/BH-07/V8 chưa nghiệm thu.** Flutter analyze/test mới NOT RUN (SDK không có trên PATH); Docker cũng không có trên PATH hoặc đường cài chuẩn đã kiểm tra. Docker/DB/HTTP/Auth/dump/restore/cleanup rehearsal V4 mới, staging/production, thiết bị/mobile/native và pilot đều NOT RUN. Giữ bằng chứng cũ theo SHA, không retag runtime cũ thành source sửa mới. Không merge/deploy hoặc chấp nhận rủi ro thay owner.
+**Đạt phần sửa MC1–MC6 trong phạm vi source/test theo review độc lập; toàn V4/BH-07/V8 chưa nghiệm thu.** Flutter analyze/test mới NOT RUN (SDK không có trên PATH); Docker cũng không có trên PATH hoặc đường cài chuẩn đã kiểm tra. Docker/DB/HTTP/Auth/dump/restore/cleanup rehearsal V4 mới, staging/production, thiết bị/mobile/native và pilot đều NOT RUN. Giữ bằng chứng cũ theo SHA, không retag runtime cũ thành source sửa mới. Không merge/deploy hoặc chấp nhận rủi ro thay owner.

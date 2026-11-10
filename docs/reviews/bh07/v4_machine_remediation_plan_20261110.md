@@ -40,6 +40,6 @@ File dự kiến (CHƯA được sửa): runner, probe, test V4 hiện có và m
 
 AGENTS.md:150 yêu cầu dừng sau ba vòng; V4 đã hết ba vòng. **Đã được thay bằng quyết định owner “codex tự sửa” ngày 10/11/2026:** Codex sửa trực tiếp MC1–MC6, không giao Anti vòng 4; không còn chờ owner cho phạm vi tự sửa này. Bản hỏi ngoại lệ trước đó là lịch sử.
 
-Codex đang triển khai theo ủy quyền mới và giữ các kết luận tự kiểm tách biệt review độc lập. Rehearsal chỉ sau source đạt và tiền kiểm môi trường/resources/provenance được xác nhận. Không merge/deploy/pilot.
+Codex đã sửa tại `704a326`; [review độc lập](review_704a326_mc_fixes.md) Đạt phần source/test MC1–MC6. Kết luận tự kiểm được tách biệt với reviewer và runtime chưa chạy. Rehearsal chỉ sau source đạt và tiền kiểm môi trường/resources/provenance được xác nhận. Không merge/deploy/pilot.
 
-**NOT RUN:** code fix, RED mới, full suite/Flutter mới, Docker/HTTP/DB/dump/restore/cleanup V4. Toàn BH-07/V8 chưa nghiệm thu.
+**Cập nhật sau tự sửa:** code/test tại `704a326`, 76 targeted PASS; full Python 509 PASS +4 SKIP; probe 49/49 PASS. **NOT RUN:** Flutter mới, Docker/HTTP/DB/dump/restore/cleanup V4. Toàn BH-07/V8 chưa nghiệm thu.
