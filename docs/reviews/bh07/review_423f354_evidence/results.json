@@ -1,0 +1,18 @@
+{
+  "scope": "synthetic reviewer control only; not DB or runtime rehearsal",
+  "tested_head": "423f3546aec671f1f345d0bd4af26334c2b1c5ea",
+  "runner_worktree_sha256": "5b4dfe05b8e7891638998bad72dd64854c72ab2ac0223adc6d72155c51bb95c7",
+  "canonical_positive": {
+    "ok": true,
+    "verdict": "PASS",
+    "findings": []
+  },
+  "main_success_receipt_without_status": {
+    "ok": false,
+    "verdict": "FAIL",
+    "findings": [
+      "failed_status: summary status is None, must be 'PASS'"
+    ]
+  },
+  "runtime": "NOT RUN"
+}
