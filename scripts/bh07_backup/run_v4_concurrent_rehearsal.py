@@ -206,11 +206,121 @@ def free_port():
         return sock.getsockname()[1]
 
 
-def cmd(args, data=None, accept_error=False):
+STAGE_TARGET_AUTH_START = 'target_auth_start'
+STAGE_TARGET_REST_START = 'target_rest_start'
+STAGE_NETWORK_ATTACHMENT = 'network_attachment'
+STAGE_PORT_DISCOVERY = 'port_discovery'
+STAGE_AUTH_HEALTH_LOGIN = 'auth_health_login'
+STAGE_REPLAY_FINGERPRINT_COLLECTION = 'replay_fingerprint_collection'
+STAGE_COMPLETED = 'completed'
+
+PREDEFINED_STAGES = frozenset({
+    STAGE_TARGET_AUTH_START,
+    STAGE_TARGET_REST_START,
+    STAGE_NETWORK_ATTACHMENT,
+    STAGE_PORT_DISCOVERY,
+    STAGE_AUTH_HEALTH_LOGIN,
+    STAGE_REPLAY_FINGERPRINT_COLLECTION,
+    STAGE_COMPLETED,
+})
+
+OP_TARGET_DB_START = 'target_db_start'
+OP_TARGET_DB_READY = 'target_db_ready'
+OP_TARGET_RESTORE_GLOBALS = 'target_restore_globals'
+OP_TARGET_RESTORE_DUMP = 'target_restore_dump'
+OP_TARGET_AUTH_START = 'target_auth_start'
+OP_TARGET_REST_START = 'target_rest_start'
+OP_TARGET_NETWORK_ATTACH = 'target_network_attach'
+OP_TARGET_PORT_DISCOVERY = 'target_port_discovery'
+OP_TARGET_AUTH_LOGIN = 'target_auth_login'
+OP_TARGET_REPLAY = 'target_replay'
+OP_DOCKER_GENERIC = 'docker'
+
+SAFE_OPERATIONS_WHITELIST = frozenset({
+    OP_TARGET_DB_START,
+    OP_TARGET_DB_READY,
+    OP_TARGET_RESTORE_GLOBALS,
+    OP_TARGET_RESTORE_DUMP,
+    OP_TARGET_AUTH_START,
+    OP_TARGET_REST_START,
+    OP_TARGET_NETWORK_ATTACH,
+    OP_TARGET_PORT_DISCOVERY,
+    OP_TARGET_AUTH_LOGIN,
+    OP_TARGET_REPLAY,
+    OP_DOCKER_GENERIC,
+})
+
+STAGE_TO_DEFAULT_OP = {
+    STAGE_TARGET_AUTH_START: OP_TARGET_AUTH_START,
+    STAGE_TARGET_REST_START: OP_TARGET_REST_START,
+    STAGE_NETWORK_ATTACHMENT: OP_TARGET_NETWORK_ATTACH,
+    STAGE_PORT_DISCOVERY: OP_TARGET_PORT_DISCOVERY,
+    STAGE_AUTH_HEALTH_LOGIN: OP_TARGET_AUTH_LOGIN,
+    STAGE_REPLAY_FINGERPRINT_COLLECTION: OP_TARGET_REPLAY,
+}
+
+STAGE_DEFAULT_ERROR_LABELS = {
+    STAGE_TARGET_AUTH_START: "target auth service failed to start",
+    STAGE_TARGET_REST_START: "target rest service failed to start",
+    STAGE_NETWORK_ATTACHMENT: "target network attachment failed",
+    STAGE_PORT_DISCOVERY: "target port discovery failed",
+    STAGE_AUTH_HEALTH_LOGIN: "target auth health check failed",
+    STAGE_REPLAY_FINGERPRINT_COLLECTION: "target replay verification failed",
+}
+
+
+def resolve_safe_operation(op=None, args=None):
+    """Restricts operation identity to predefined constants / whitelist, never user text or arbitrary args."""
+    if isinstance(op, str) and op in SAFE_OPERATIONS_WHITELIST:
+        return op
+    if isinstance(args, (list, tuple)) and args:
+        cmd_token = str(args[0]).lower()
+        if 'docker' in cmd_token:
+            if len(args) > 1:
+                sub = str(args[1]).lower()
+                if sub == 'port':
+                    return OP_TARGET_PORT_DISCOVERY
+                if sub == 'network' and len(args) > 2 and str(args[2]).lower() == 'connect':
+                    return OP_TARGET_NETWORK_ATTACH
+            return OP_DOCKER_GENERIC
+    return OP_DOCKER_GENERIC
+
+
+def command_error(operation, returncode):
+    """Constructs a RuntimeError with safe operation identity and exit code without raw args or stderr."""
+    safe_op = resolve_safe_operation(operation)
+    rc = returncode if (type(returncode) is int and not isinstance(returncode, bool)) else 1
+    err = RuntimeError(f"{safe_op} exited {rc}")
+    err.operation = safe_op
+    err.exit_code = rc
+    return err
+
+
+def sanitize_error_message(text):
+    """Removes any potential credentials, JWTs, or multi-line command dumps from error messages."""
+    if not isinstance(text, str):
+        return ''
+    safe = re.sub(r'ey[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]*', '<redacted-jwt>', text)
+    safe = re.sub(r'(?i)password[=:]\s*\S+', 'password=<redacted>', safe)
+    safe = re.sub(r'sb_secret_\S+', '<redacted-key>', safe)
+    lines = safe.strip().splitlines()
+    return lines[0] if lines else ''
+
+
+def set_stage(summary: dict, stage: str):
+    """Sets predefined execution stage in summary, enforcing predefined constants."""
+    if not isinstance(stage, str) or stage not in PREDEFINED_STAGES:
+        raise ValueError(f"Invalid execution stage: {stage!r}")
+    summary['stage'] = stage
+    summary['execution_stage'] = stage
+
+
+def cmd(args, data=None, accept_error=False, op=None):
     """Executes a subprocess command, capturing output safely."""
     p = subprocess.run(args, input=data, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if p.returncode != 0 and not accept_error:
-        raise RuntimeError(f"{args[0]} exited {p.returncode}")
+        safe_op = resolve_safe_operation(op, args)
+        raise command_error(safe_op, p.returncode)
     return p
 
 
@@ -732,6 +842,59 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
     if 'sb_secret' in summary_raw or 'service_role' in summary_raw:
         findings.append('exposed_secret: service credential found in summary')
 
+    # Diagnostic command failure & stage validation
+    cmd_fail = summary.get('command_failure')
+    if cmd_fail is not None:
+        if not isinstance(cmd_fail, dict):
+            findings.append('invalid_command_failure: command_failure must be dict')
+        else:
+            op = cmd_fail.get('operation')
+            rc = cmd_fail.get('exit_code')
+            if not isinstance(op, str) or op not in SAFE_OPERATIONS_WHITELIST:
+                findings.append(f'unwhitelisted_operation: command_failure operation {op!r} not in SAFE_OPERATIONS_WHITELIST')
+            if type(rc) is not int or isinstance(rc, bool):
+                findings.append(f'invalid_exit_code: command_failure exit_code must be int, got {type(rc).__name__}')
+
+    failed_op = summary.get('failed_operation')
+    if failed_op is not None:
+        if not isinstance(failed_op, dict):
+            findings.append('invalid_failed_operation: failed_operation must be dict')
+        else:
+            op = failed_op.get('operation')
+            rc = failed_op.get('exit_code')
+            if not isinstance(op, str) or op not in SAFE_OPERATIONS_WHITELIST:
+                findings.append(f'unwhitelisted_operation: failed_operation operation {op!r} not in SAFE_OPERATIONS_WHITELIST')
+            if type(rc) is not int or isinstance(rc, bool):
+                findings.append(f'invalid_exit_code: failed_operation exit_code must be int, got {type(rc).__name__}')
+
+    stg = summary.get('stage')
+    if stg is not None and (not isinstance(stg, str) or stg not in PREDEFINED_STAGES):
+        findings.append(f'unrecognized_stage: stage {stg!r} not in PREDEFINED_STAGES')
+
+    diag = summary.get('diagnostics')
+    if isinstance(diag, dict):
+        d_cmd_fail = diag.get('command_failure')
+        if d_cmd_fail is not None:
+            if not isinstance(d_cmd_fail, dict):
+                findings.append('invalid_command_failure: diagnostics.command_failure must be dict')
+            else:
+                op = d_cmd_fail.get('operation')
+                rc = d_cmd_fail.get('exit_code')
+                if not isinstance(op, str) or op not in SAFE_OPERATIONS_WHITELIST:
+                    findings.append(f'unwhitelisted_operation: diagnostics.command_failure operation {op!r} not in SAFE_OPERATIONS_WHITELIST')
+                if type(rc) is not int or isinstance(rc, bool):
+                    findings.append(f'invalid_exit_code: diagnostics.command_failure exit_code must be int, got {type(rc).__name__}')
+        d_f_op = diag.get('failed_operation')
+        if d_f_op is not None:
+            if not isinstance(d_f_op, str) or d_f_op not in SAFE_OPERATIONS_WHITELIST:
+                findings.append(f'unwhitelisted_operation: diagnostics.failed_operation {d_f_op!r} not in SAFE_OPERATIONS_WHITELIST')
+        d_f_rc = diag.get('failed_exit_code')
+        if d_f_rc is not None and (type(d_f_rc) is not int or isinstance(d_f_rc, bool)):
+            findings.append(f'invalid_exit_code: diagnostics.failed_exit_code must be int, got {type(d_f_rc).__name__}')
+        d_stg = diag.get('stage')
+        if d_stg is not None and (not isinstance(d_stg, str) or d_stg not in PREDEFINED_STAGES):
+            findings.append(f'unrecognized_stage: diagnostics.stage {d_stg!r} not in PREDEFINED_STAGES')
+
     # 2. Strict Type Checks on Top-level and Nested Flags
     def assert_strict_bool(val, path_name):
         if not isinstance(val, bool):
@@ -774,8 +937,8 @@ def validate_v4_rehearsal(summary, source_fingerprint=None, restored_fingerprint
     # Actors authorization validation
     actors = summary.get('actors', {})
     for role_key in ['p0_writer', 'writer_a', 'writer_b']:
-        actor_name = actors.get(role_key)
-        if actor_name not in FINANCE_AUTHORIZED_ROLES:
+        actor_name = actors.get(role_key) if isinstance(actors, dict) else None
+        if not isinstance(actor_name, str) or actor_name not in FINANCE_AUTHORIZED_ROLES:
             findings.append(f'unauthorized_finance_actor: {role_key} is {actor_name}, must be in {FINANCE_AUTHORIZED_ROLES}')
 
     # Writers Concurrency and Overlap Timing
@@ -1489,6 +1652,8 @@ def main():
             ('payments', 'club_transactions', 'audit_events', 'operation_requests'))
 
         # Spin up target GoTrue and PostgREST to test HTTP RPC idempotency replay
+        # Boundary 1: target auth start
+        set_stage(summary, STAGE_TARGET_AUTH_START)
         t_auth_env = private / 'target_auth.env'
         t_auth_env.write_text(
             f"GOTRUE_API_HOST=0.0.0.0\nGOTRUE_API_PORT=9999\nAPI_EXTERNAL_URL=http://127.0.0.1\n"
@@ -1497,27 +1662,34 @@ def main():
             f"GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated\nGOTRUE_JWT_ADMIN_ROLES=service_role\n",
             encoding='utf-8'
         )
-        cmd(['docker', 'run', '-d', '--name', target_auth, '--network', net_name, '--env-file', str(t_auth_env), '-p', '127.0.0.1::9999', 'ghcr.io/supabase/gotrue:v2.197.0'])
+        cmd(['docker', 'run', '-d', '--name', target_auth, '--network', net_name, '--env-file', str(t_auth_env), '-p', '127.0.0.1::9999', 'ghcr.io/supabase/gotrue:v2.197.0'], op=OP_TARGET_AUTH_START)
 
+        # Boundary 2: target REST start
+        set_stage(summary, STAGE_TARGET_REST_START)
         t_rest_env = private / 'target_rest.env'
         t_rest_env.write_text(
             f"PGRST_DB_URI=postgres://authenticator:{pw}@{target_db}:5432/postgres\n"
             f"PGRST_DB_SCHEMAS=public\nPGRST_DB_ANON_ROLE=anon\nPGRST_JWT_SECRET={jwt_sec}\nPGRST_SERVER_PORT=3000\n",
             encoding='utf-8'
         )
-        cmd(['docker', 'run', '-d', '--name', target_rest, '--network', net_name, '--env-file', str(t_rest_env), '-p', '127.0.0.1::3000', 'ghcr.io/supabase/postgrest:v16.4'])
+        cmd(['docker', 'run', '-d', '--name', target_rest, '--network', net_name, '--env-file', str(t_rest_env), '-p', '127.0.0.1::3000', 'ghcr.io/supabase/postgrest:v16.4'], op=OP_TARGET_REST_START)
 
+        # Boundary 3: network attachment
+        set_stage(summary, STAGE_NETWORK_ATTACHMENT)
         for c_suffix in [target_auth, target_rest]:
-            cmd(['docker', 'network', 'connect', 'bridge', c_suffix])
+            cmd(['docker', 'network', 'connect', 'bridge', c_suffix], op=OP_TARGET_NETWORK_ATTACH)
 
+        # Boundary 4: port discovery
+        set_stage(summary, STAGE_PORT_DISCOVERY)
         def get_host_port(name, internal_port):
-            addr = cmd(['docker', 'port', name, f'{internal_port}/tcp']).stdout.decode('utf-8').strip()
+            addr = cmd(['docker', 'port', name, f'{internal_port}/tcp'], op=OP_TARGET_PORT_DISCOVERY).stdout.decode('utf-8').strip()
             return f"http://{addr}"
 
         new_auth_url = get_host_port(target_auth, 9999)
         new_rest_url = get_host_port(target_rest, 3000) + '/rpc'
 
-        # Wait for target services to become healthy
+        # Boundary 5: auth health/login
+        set_stage(summary, STAGE_AUTH_HEALTH_LOGIN)
         target_owner_token = None
         for _ in range(40):
             try:
@@ -1527,7 +1699,8 @@ def main():
                 time.sleep(0.5)
         assert target_owner_token, "Target Auth failed recovery smoke"
 
-        # Replay P0 request against target PostgREST HTTP RPC
+        # Boundary 6: replay/fingerprint collection
+        set_stage(summary, STAGE_REPLAY_FINGERPRINT_COLLECTION)
         st_rep, res_rep, before_replay, after_replay = replay_and_fingerprint(
             target_db, lambda: rpc(new_rest_url, target_owner_token, 'record_cash_payment', p0_payload))
         replay_idempotent = (st_rep == 200 and res_rep.get('payment_id') == p0_pay_id)
@@ -1569,11 +1742,47 @@ def main():
         }
 
         summary['execution_completed'] = True
+        set_stage(summary, STAGE_COMPLETED)
 
     except Exception as err:
         summary['status'] = 'FAIL'
         summary['failure_type'] = type(err).__name__
-        summary['error_message'] = str(err)
+        current_stage = summary.get('stage')
+
+        # RD3: Validate whitelist and type(exit_code) is int at publication sink
+        raw_op = getattr(err, 'operation', None)
+        raw_exit = getattr(err, 'exit_code', None)
+
+        safe_op = raw_op if (isinstance(raw_op, str) and raw_op in SAFE_OPERATIONS_WHITELIST) else None
+        safe_exit = raw_exit if (type(raw_exit) is int and not isinstance(raw_exit, bool)) else None
+
+        if safe_op is not None and safe_exit is not None:
+            cmd_fail = {
+                'operation': safe_op,
+                'exit_code': safe_exit,
+            }
+            summary['command_failure'] = cmd_fail
+            summary['failed_operation'] = cmd_fail
+            if 'diagnostics' not in summary or not isinstance(summary['diagnostics'], dict):
+                summary['diagnostics'] = {}
+            summary['diagnostics']['command_failure'] = cmd_fail
+            summary['diagnostics']['failed_operation'] = safe_op
+            summary['diagnostics']['failed_exit_code'] = safe_exit
+            summary['diagnostics']['stage'] = current_stage
+
+        # RD2: At new stages, publish predefined safe error labels, never free-text exception messages
+        if isinstance(current_stage, str) and current_stage in PREDEFINED_STAGES:
+            if safe_op is not None and safe_exit is not None:
+                summary['error_message'] = f"{safe_op} exited {safe_exit}"
+            else:
+                summary['error_message'] = STAGE_DEFAULT_ERROR_LABELS.get(
+                    current_stage, "post-restore verification failed"
+                )
+            if 'diagnostics' in summary and isinstance(summary['diagnostics'], dict):
+                summary['diagnostics']['stage'] = current_stage
+        else:
+            # Pre-stage: keep existing guard messages compatible
+            summary['error_message'] = sanitize_error_message(str(err))
     finally:
         # Step 7: Fail-closed verified cleanup
         cleanup_errors = []

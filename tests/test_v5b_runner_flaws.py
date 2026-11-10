@@ -31,6 +31,13 @@ ROOT = Path(__file__).resolve().parents[1]
 RUNNER_SRC = ROOT / 'scripts/bh07_reset/run_full_reset.py'
 
 
+def is_db_reset_cmd(cmd_args):
+    """Detects exact adjacent ['db', 'reset'] argument tokens in command call."""
+    if not isinstance(cmd_args, (list, tuple)) or len(cmd_args) < 2:
+        return False
+    return any(cmd_args[i] == 'db' and cmd_args[i + 1] == 'reset' for i in range(len(cmd_args) - 1))
+
+
 class SockStub:
     def __init__(self, occupied=False):
         self.occupied = occupied
@@ -267,61 +274,75 @@ class TestV5bRunnerBehavior(unittest.TestCase):
             pass
 
         main_node = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
-        for exit_code, inventory, expected_reset in (
+        path_prefixes = ('neutral-', 'v5b-db-', 'v5b-reset-', 'v5b-db-reset-')
+        inventory_cases = (
             (0, 'owned-id', True),
             (1, '', False),
             (1, 'partial-owned-id', False),
             (0, '', False),
-        ):
-            with self.subTest(exit_code=exit_code, inventory=inventory), tempfile.TemporaryDirectory() as td:
-                calls = []
+        )
+        for prefix in path_prefixes:
+            for exit_code, inventory, expected_reset in inventory_cases:
+                with self.subTest(prefix=prefix, exit_code=exit_code, inventory=inventory), tempfile.TemporaryDirectory(prefix=prefix) as td:
+                    calls = []
 
-                def command(args, **kwargs):
-                    calls.append(args)
-                    if any('--version' in str(a) for a in args):
-                        return SimpleNamespace(returncode=0, stdout='2.122.0\n', stderr='')
-                    if any('db' in str(a) for a in args) and any('reset' in str(a) for a in args):
-                        raise ResetBoundary('No actual reset is performed')
-                    if any('status' in str(a) for a in args):
-                        return SimpleNamespace(returncode=0, stdout=json.dumps({
-                            'API_URL': 'http://127.0.0.1:56421',
-                            'ANON_KEY': 'synthetic', 'SERVICE_ROLE_KEY': 'synthetic',
-                        }), stderr='')
-                    if args[:2] == ['docker', 'ps']:
-                        if '{{.ID}}' in args:
-                            return SimpleNamespace(returncode=exit_code, stdout=inventory, stderr='synthetic failure')
+                    def command(args, **kwargs):
+                        calls.append(args)
+                        if any('--version' in str(a) for a in args):
+                            return SimpleNamespace(returncode=0, stdout='2.122.0\n', stderr='')
+                        if is_db_reset_cmd(args):
+                            raise ResetBoundary('No actual reset is performed')
+                        if any('status' in str(a) for a in args):
+                            return SimpleNamespace(returncode=0, stdout=json.dumps({
+                                'API_URL': 'http://127.0.0.1:56421',
+                                'ANON_KEY': 'synthetic', 'SERVICE_ROLE_KEY': 'synthetic',
+                            }), stderr='')
+                        if args[:2] == ['docker', 'ps']:
+                            if '{{.ID}}' in args:
+                                return SimpleNamespace(returncode=exit_code, stdout=inventory, stderr='synthetic failure')
+                            return SimpleNamespace(returncode=0, stdout='', stderr='')
                         return SimpleNamespace(returncode=0, stdout='', stderr='')
-                    return SimpleNamespace(returncode=0, stdout='', stderr='')
 
-                env = make_preflight_env()
-                env.update({
-                    'run_cmd': command, 'STAMP': 'synthetic', 'BASE_SHA': 'synthetic',
-                    'BASELINE_ORIGIN_SHA': 'synthetic',
-                    'Path': Path, 'tempfile': SimpleNamespace(gettempdir=lambda: td),
-                    'os': os, 'json': json, 'urllib': urllib, 'shutil': shutil,
-                    'sys': sys,
-                    'prepare_project_dir': lambda p: p.mkdir(parents=True),
-                    'write_evidence': lambda *a: None, 'log_cmd': lambda *a: None,
-                    'exits': {}, 'audit_results': {},
-                    'resolve_base_review': lambda *a: 'e00db30d018da86f8fa94250a000f0bf825fc139',
-                    'SUPABASE_CLI_PIN': 'supabase@2.122.0',
-                    'inspect_container_images': lambda *a: [],
-                    'compare_oracle_snapshots': lambda *a: {
-                        'oracle_scope': 'schema_sha256_and_row_counts',
-                        'oracle_schema_match': True,
-                        'oracle_counts_match': True,
-                        'total_tables': 48,
-                        'different_data_tables': []
-                    },
-                })
-                exec(compile(ast.Module(body=[main_node], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
-                raised = None
-                try:
-                    env['main']()
-                except Exception as error:
-                    raised = error
-                self.assertEqual(any(any('db' in str(a) for a in call) and any('reset' in str(a) for a in call) for call in calls), expected_reset)
-                self.assertIsInstance(raised, ResetBoundary if expected_reset else RuntimeError)
+                    env = make_preflight_env()
+                    env.update({
+                        'run_cmd': command, 'STAMP': 'synthetic', 'BASE_SHA': 'synthetic',
+                        'BASELINE_ORIGIN_SHA': 'synthetic',
+                        'Path': Path, 'tempfile': SimpleNamespace(gettempdir=lambda: td),
+                        'os': os, 'json': json, 'urllib': urllib, 'shutil': shutil,
+                        'sys': sys,
+                        'prepare_project_dir': lambda p: p.mkdir(parents=True),
+                        'write_evidence': lambda *a: None, 'log_cmd': lambda *a: None,
+                        'exits': {}, 'audit_results': {},
+                        'resolve_base_review': lambda *a: 'e00db30d018da86f8fa94250a000f0bf825fc139',
+                        'SUPABASE_CLI_PIN': 'supabase@2.122.0',
+                        'inspect_container_images': lambda *a: [],
+                        'compare_oracle_snapshots': lambda *a: {
+                            'oracle_scope': 'schema_sha256_and_row_counts',
+                            'oracle_schema_match': True,
+                            'oracle_counts_match': True,
+                            'total_tables': 48,
+                            'different_data_tables': []
+                        },
+                    })
+                    exec(compile(ast.Module(body=[main_node], type_ignores=[]), str(RUNNER_SRC), 'exec'), env)
+                    raised = None
+                    try:
+                        env['main']()
+                    except Exception as error:
+                        raised = error
+                    self.assertEqual(any(is_db_reset_cmd(call) for call in calls), expected_reset)
+                    self.assertIsInstance(raised, ResetBoundary if expected_reset else RuntimeError)
+
+    def test_r1_is_db_reset_cmd_discriminates_exact_tokens(self):
+        """Discriminates exact adjacent tokens ['db', 'reset'] from paths or flags containing substrings."""
+        self.assertTrue(is_db_reset_cmd(['npx', 'supabase', 'db', 'reset']))
+        self.assertTrue(is_db_reset_cmd(['npx', '--yes', 'supabase@2.122.0', 'db', 'reset', '--workdir', '/tmp/foo']))
+        self.assertFalse(is_db_reset_cmd(['npx', 'supabase', 'start', '--workdir', '/tmp/v5b-db-test/bh07-reset-verify-123']))
+        self.assertFalse(is_db_reset_cmd(['docker', 'ps', '-a', '--filter', 'name=bh07-reset-verify-db']))
+        self.assertFalse(is_db_reset_cmd(['db-reset']))
+        self.assertFalse(is_db_reset_cmd([]))
+        self.assertFalse(is_db_reset_cmd(['db']))
+        self.assertFalse(is_db_reset_cmd(['reset', 'db']))
 
     def test_r2_gateway_tuple_rejects_every_unmapped_code(self):
         helper = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef)

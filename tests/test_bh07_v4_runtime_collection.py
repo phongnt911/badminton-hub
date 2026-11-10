@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from unittest.mock import Mock, patch
+import urllib.error
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.bh07_backup import run_v4_concurrent_rehearsal as runner
@@ -212,7 +213,8 @@ class RuntimeCollectionTests(unittest.TestCase):
                                                fixture.valid_restored_fingerprint)
         self.assertFalse(result['ok'])
 
-    def _run_orchestration_scenario(self, *, measured_fn=None, exporter_poll=None):
+    def _run_orchestration_scenario(self, *, measured_fn=None, exporter_poll=None,
+                                    command_fn=None, login_fn=None, replay_fn=None):
         """Runs runner.main with mock harness, parameterized for negative/positive diagnostics tests."""
         ids = iter('60000000-0000-4000-8000-00000000000' + str(i) for i in (1, 2, 3))
         p0 = None
@@ -256,6 +258,16 @@ class RuntimeCollectionTests(unittest.TestCase):
         measured = measured_fn or default_measured
 
         def command(args, **kwargs):
+            if command_fn is not None:
+                custom_res = command_fn(args, **kwargs)
+                if custom_res is not None:
+                    if isinstance(custom_res, Exception):
+                        raise custom_res
+                    if hasattr(custom_res, 'returncode') and custom_res.returncode != 0:
+                        op = kwargs.get('op')
+                        safe_op = runner.resolve_safe_operation(op, args)
+                        raise runner.command_error(safe_op, custom_res.returncode)
+                    return custom_res
             if args[:2] == ['git', 'rev-parse']:
                 return subprocess.CompletedProcess(args, 0, b'a' * 40, b'')
             if 'inspect' in args:
@@ -283,19 +295,20 @@ class RuntimeCollectionTests(unittest.TestCase):
                 return ''
             return ACTOR
 
+        default_replay_result = (200, {'payment_id': PAY}, full_state, full_state)
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory) / 'evidence'
             with patch.object(sys, 'argv', ['runner', '--out', str(out)]), \
                  patch.object(runner, 'cmd', side_effect=command), \
                  patch.object(runner.runpy, 'run_path', return_value={'anon': 'fake', 'password': 'fake', 'secret': 'fake'}), \
                  patch.object(runner, 'sql', side_effect=fake_orchestration_sql), \
-                 patch.object(runner, 'login', return_value='fake'), \
+                 patch.object(runner, 'login', side_effect=login_fn if login_fn is not None else (lambda *a, **kw: 'fake')), \
                  patch.object(runner, 'rpc', side_effect=rpc), \
                  patch.object(runner, 'query_row_evidence', side_effect=evidence), \
                  patch.object(runner, 'held_snapshot', return_value=nullcontext(('00000003-00000018-1', process))), \
                  patch.object(runner, 'dump_with_writers', side_effect=measured), \
                  patch.object(runner, 'workload_rows', side_effect=collect), \
-                 patch.object(runner, 'replay_and_fingerprint', return_value=(200, {'payment_id': PAY}, full_state, full_state)):
+                 patch.object(runner, 'replay_and_fingerprint', side_effect=replay_fn if replay_fn is not None else (lambda *a, **kw: default_replay_result)):
                 code = runner.main()
             receipt = json.loads((out / 'summary.json').read_text(encoding='utf-8'))
         return code, receipt
@@ -820,6 +833,258 @@ class RuntimeCollectionTests(unittest.TestCase):
         res = runner.validate_v4_rehearsal(unmatched, fixture.valid_source_fingerprint, fixture.valid_restored_fingerprint)
         self.assertFalse(res['ok'])
         self.assertTrue(any('restored_match must be True' in f for f in res.get('findings', [])))
+
+    def test_post_restore_failure_target_auth_start(self):
+        """Proves summary retains target_auth_start stage and command identity without secret markers."""
+        def bad_auth_cmd(args, **kwargs):
+            if args[:3] == ['docker', 'run', '-d'] and any('target-auth' in str(a) for a in args):
+                return subprocess.CompletedProcess(
+                    args, 1,
+                    stdout=b'SECRET_GOTRUE_STDOUT_PAYLOAD_123',
+                    stderr=b'SECRET_GOTRUE_STDERR_FATAL_456')
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=bad_auth_cmd)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['failure_type'], 'RuntimeError')
+        self.assertEqual(receipt['stage'], runner.STAGE_TARGET_AUTH_START)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_TARGET_AUTH_START)
+        self.assertIn('command_failure', receipt)
+        self.assertEqual(receipt['command_failure']['operation'], runner.OP_TARGET_AUTH_START)
+        self.assertEqual(receipt['command_failure']['exit_code'], 1)
+        self.assertEqual(receipt['failed_operation']['operation'], runner.OP_TARGET_AUTH_START)
+        self.assertEqual(receipt['failed_operation']['exit_code'], 1)
+        self.assertEqual(receipt['error_message'], 'target_auth_start exited 1')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        # Exclusion of secrets and raw args
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_GOTRUE_STDOUT_PAYLOAD_123', raw_receipt)
+        self.assertNotIn('SECRET_GOTRUE_STDERR_FATAL_456', raw_receipt)
+        self.assertNotIn('ghcr.io/supabase/gotrue', receipt.get('error_message', ''))
+
+    def test_post_restore_failure_target_rest_start(self):
+        """Proves summary retains target_rest_start stage and command identity without secret markers."""
+        def bad_rest_cmd(args, **kwargs):
+            if args[:3] == ['docker', 'run', '-d'] and any('target-rest' in str(a) for a in args):
+                return subprocess.CompletedProcess(
+                    args, 1,
+                    stdout=b'SECRET_POSTGREST_STDOUT_789',
+                    stderr=b'SECRET_POSTGREST_STDERR_012')
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=bad_rest_cmd)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['failure_type'], 'RuntimeError')
+        self.assertEqual(receipt['stage'], runner.STAGE_TARGET_REST_START)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_TARGET_REST_START)
+        self.assertIn('command_failure', receipt)
+        self.assertEqual(receipt['command_failure']['operation'], runner.OP_TARGET_REST_START)
+        self.assertEqual(receipt['command_failure']['exit_code'], 1)
+        self.assertEqual(receipt['error_message'], 'target_rest_start exited 1')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_POSTGREST_STDOUT_789', raw_receipt)
+        self.assertNotIn('SECRET_POSTGREST_STDERR_012', raw_receipt)
+        self.assertNotIn('ghcr.io/supabase/postgrest', receipt.get('error_message', ''))
+
+    def test_post_restore_failure_network_attachment(self):
+        """Proves summary retains network_attachment stage and command identity upon network connect failure."""
+        def bad_net_cmd(args, **kwargs):
+            if args[:3] == ['docker', 'network', 'connect']:
+                return subprocess.CompletedProcess(
+                    args, 1,
+                    stdout=b'SECRET_NET_CONNECT_OUT',
+                    stderr=b'SECRET_NET_CONNECT_ERR')
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=bad_net_cmd)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['failure_type'], 'RuntimeError')
+        self.assertEqual(receipt['stage'], runner.STAGE_NETWORK_ATTACHMENT)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_NETWORK_ATTACHMENT)
+        self.assertIn('command_failure', receipt)
+        self.assertEqual(receipt['command_failure']['operation'], runner.OP_TARGET_NETWORK_ATTACH)
+        self.assertEqual(receipt['command_failure']['exit_code'], 1)
+        self.assertEqual(receipt['error_message'], 'target_network_attach exited 1')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_NET_CONNECT_OUT', raw_receipt)
+        self.assertNotIn('SECRET_NET_CONNECT_ERR', raw_receipt)
+
+    def test_post_restore_failure_port_discovery(self):
+        """Proves summary retains port_discovery stage and command identity upon docker port failure."""
+        def bad_port_cmd(args, **kwargs):
+            if args[:2] == ['docker', 'port']:
+                return subprocess.CompletedProcess(
+                    args, 1,
+                    stdout=b'SECRET_PORT_OUT',
+                    stderr=b'SECRET_PORT_ERR: container not running')
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=bad_port_cmd)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['failure_type'], 'RuntimeError')
+        self.assertEqual(receipt['stage'], runner.STAGE_PORT_DISCOVERY)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_PORT_DISCOVERY)
+        self.assertIn('command_failure', receipt)
+        self.assertEqual(receipt['command_failure']['operation'], runner.OP_TARGET_PORT_DISCOVERY)
+        self.assertEqual(receipt['command_failure']['exit_code'], 1)
+        self.assertEqual(receipt['error_message'], 'target_port_discovery exited 1')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_PORT_OUT', raw_receipt)
+        self.assertNotIn('SECRET_PORT_ERR', raw_receipt)
+
+    def test_post_restore_failure_auth_health_login(self):
+        """Proves summary retains auth_health_login stage and safe metadata when target Auth smoke check fails."""
+        source_calls = [0]
+        def fail_target_login(url, *args, **kwargs):
+            if source_calls[0] < 2:
+                source_calls[0] += 1
+                return 'fake-source-token'
+            raise urllib.error.URLError('SECRET_AUTH_SMOKE_CONNECTION_REFUSED')
+
+        with patch.object(runner.time, 'sleep', return_value=None):
+            code, receipt = self._run_orchestration_scenario(login_fn=fail_target_login)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['stage'], runner.STAGE_AUTH_HEALTH_LOGIN)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_AUTH_HEALTH_LOGIN)
+        self.assertEqual(receipt['failure_type'], 'AssertionError')
+        self.assertEqual(receipt['error_message'], 'target auth health check failed')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_AUTH_SMOKE_CONNECTION_REFUSED', raw_receipt)
+
+    def test_post_restore_failure_replay_collection(self):
+        """Proves summary retains replay_fingerprint_collection stage when replay detects data mutation."""
+        def mutating_replay(*args, **kwargs):
+            raise ValueError('SECRET_REPLAY_MUTATION: state changed during replay')
+
+        code, receipt = self._run_orchestration_scenario(replay_fn=mutating_replay)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['stage'], runner.STAGE_REPLAY_FINGERPRINT_COLLECTION)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_REPLAY_FINGERPRINT_COLLECTION)
+        self.assertEqual(receipt['failure_type'], 'ValueError')
+        self.assertEqual(receipt['error_message'], 'target replay verification failed')
+        self.assertTrue(receipt['cleanup']['ok'])
+        self.assertNotIn('execution_completed', receipt)
+
+        raw_receipt = json.dumps(receipt)
+        self.assertNotIn('SECRET_REPLAY_MUTATION', raw_receipt)
+
+    def test_safe_operation_whitelist_rejects_arbitrary_user_text(self):
+        """Proves operation resolution rejects untrusted input and restricts to whitelist constants."""
+        self.assertEqual(runner.resolve_safe_operation('DROP TABLE users; --'), runner.OP_DOCKER_GENERIC)
+        self.assertEqual(runner.resolve_safe_operation('untrusted_user_text'), runner.OP_DOCKER_GENERIC)
+        self.assertEqual(runner.resolve_safe_operation(runner.OP_TARGET_AUTH_START), runner.OP_TARGET_AUTH_START)
+        self.assertEqual(runner.resolve_safe_operation(runner.OP_TARGET_REST_START), runner.OP_TARGET_REST_START)
+        self.assertEqual(runner.resolve_safe_operation(runner.OP_TARGET_NETWORK_ATTACH), runner.OP_TARGET_NETWORK_ATTACH)
+        self.assertEqual(runner.resolve_safe_operation(runner.OP_TARGET_PORT_DISCOVERY), runner.OP_TARGET_PORT_DISCOVERY)
+        self.assertEqual(runner.resolve_safe_operation(None, ['docker', 'port', 'c', '123']), runner.OP_TARGET_PORT_DISCOVERY)
+        self.assertEqual(runner.resolve_safe_operation(None, ['docker', 'network', 'connect', 'b', 'c']), runner.OP_TARGET_NETWORK_ATTACH)
+
+        for unhashable in ([], {}, set(), [1, 2], {'op': 'val'}):
+            self.assertEqual(runner.resolve_safe_operation(unhashable), runner.OP_DOCKER_GENERIC)
+
+        for unhashable in ([], {}, set(), [1, 2], 123, None):
+            with self.assertRaises(ValueError):
+                runner.set_stage({}, unhashable)
+
+        err = runner.command_error('INJECTED_CMD_STRING_SECRET', 127)
+        self.assertEqual(err.operation, runner.OP_DOCKER_GENERIC)
+        self.assertEqual(err.exit_code, 127)
+        self.assertEqual(str(err), 'docker exited 127')
+        self.assertNotIn('INJECTED_CMD_STRING_SECRET', str(err))
+
+        err_bad_exit = runner.command_error(runner.OP_TARGET_AUTH_START, 'not_an_int')
+        self.assertEqual(err_bad_exit.exit_code, 1)
+        self.assertIs(type(err_bad_exit.exit_code), int)
+
+    def test_publication_sink_rejects_unhashable_and_malformed_metadata_vectors(self):
+        """Proves publication sink rejects unhashable operations/exits without TypeError, falling back to safe labels."""
+        def unhashable_failure(args, **kwargs):
+            if kwargs.get('op') == runner.OP_TARGET_AUTH_START:
+                err = RuntimeError('internal command failure')
+                err.operation = ['unhashable', 'list']
+                err.exit_code = {'unhashable': 'dict'}
+                return err
+            return None
+
+        code, receipt = self._run_orchestration_scenario(command_fn=unhashable_failure)
+        self.assertEqual(code, 1)
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertEqual(receipt['stage'], runner.STAGE_TARGET_AUTH_START)
+        self.assertEqual(receipt['error_message'], runner.STAGE_DEFAULT_ERROR_LABELS[runner.STAGE_TARGET_AUTH_START])
+        self.assertNotIn('command_failure', receipt)
+        self.assertNotIn('failed_operation', receipt)
+        self.assertTrue(receipt['cleanup']['ok'])
+
+    def test_validator_rejects_unhashable_and_malformed_metadata_vectors(self):
+        """Proves validator handles unhashable/non-dict metadata without TypeError, producing specific findings."""
+        base_summary = {'status': 'PASS', 'git_dirty': False, 'tested_source_sha': '0' * 40}
+
+        # Case 1: unhashable operation and non-int exit_code in command_failure
+        s1 = copy.deepcopy(base_summary)
+        s1['command_failure'] = {'operation': ['unhashable'], 'exit_code': {'code': 1}}
+        res1 = runner.validate_v4_rehearsal(s1, None, None)
+        self.assertFalse(res1['ok'])
+        self.assertTrue(any('unwhitelisted_operation' in f for f in res1['findings']))
+        self.assertTrue(any('invalid_exit_code' in f for f in res1['findings']))
+
+        # Case 2: non-dict failed_operation alias must not silently pass
+        s2 = copy.deepcopy(base_summary)
+        s2['failed_operation'] = ['not', 'a', 'dict']
+        res2 = runner.validate_v4_rehearsal(s2, None, None)
+        self.assertFalse(res2['ok'])
+        self.assertTrue(any('invalid_failed_operation' in f for f in res2['findings']))
+
+        # Case 3: unhashable stage
+        s3 = copy.deepcopy(base_summary)
+        s3['stage'] = ['unhashable_stage_list']
+        res3 = runner.validate_v4_rehearsal(s3, None, None)
+        self.assertFalse(res3['ok'])
+        self.assertTrue(any('unrecognized_stage' in f for f in res3['findings']))
+
+        # Case 4: unhashable diagnostics nested metadata
+        s4 = copy.deepcopy(base_summary)
+        s4['diagnostics'] = {
+            'command_failure': {'operation': {}, 'exit_code': 'str'},
+            'failed_operation': [],
+            'failed_exit_code': [],
+            'stage': {},
+        }
+        res4 = runner.validate_v4_rehearsal(s4, None, None)
+        self.assertFalse(res4['ok'])
+        self.assertTrue(any('unwhitelisted_operation' in f for f in res4['findings']))
+        self.assertTrue(any('invalid_exit_code' in f for f in res4['findings']))
+        self.assertTrue(any('unrecognized_stage' in f for f in res4['findings']))
+
+    def test_main_successful_run_records_completed_stage(self):
+        """Proves successful main run transitions to completed stage while passing all checks."""
+        code, receipt = self._run_orchestration_scenario()
+        self.assertEqual(code, 0, receipt.get('findings'))
+        self.assertEqual(receipt['status'], 'PASS')
+        self.assertTrue(receipt['execution_completed'])
+        self.assertEqual(receipt['stage'], runner.STAGE_COMPLETED)
+        self.assertEqual(receipt['execution_stage'], runner.STAGE_COMPLETED)
+        self.assertNotIn('command_failure', receipt)
+        self.assertTrue(receipt['cleanup']['ok'])
 
 
 class ObserverCleanupFailureTests(unittest.TestCase):
