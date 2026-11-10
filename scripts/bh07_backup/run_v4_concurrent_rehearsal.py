@@ -349,6 +349,36 @@ def dump_with_writers(container, snapshot_id, writer_a, writer_b):
             'overlap_verified': overlap, 'observation': observation}
 
 
+def _safe_diagnostics(measured, exporter_rc):
+    dump_proc = measured.get('dump')
+    dump_rc = dump_proc.returncode if dump_proc is not None else None
+    obs = measured.get('observation')
+    safe_obs = None
+    if isinstance(obs, dict):
+        safe_obs = {
+            k: obs[k] for k in ('dump_pid', 'dump_application_name',
+                                'observed_start', 'observed_end',
+                                'observed_during_active_dump')
+            if k in obs
+        }
+
+    def _safe_writer(w):
+        if w is None:
+            return None
+        return {'status': w.get('status'), 'start': w.get('start'), 'end': w.get('end')}
+
+    return {
+        'dump_exit_code': dump_rc,
+        'dump_start': measured.get('dump_start'),
+        'dump_end': measured.get('dump_end'),
+        'observation': safe_obs,
+        'writer_a': _safe_writer(measured.get('writer_a')),
+        'writer_b': _safe_writer(measured.get('writer_b')),
+        'overlap_verified': bool(measured.get('overlap_verified')),
+        'exporter_returncode': exporter_rc,
+    }
+
+
 def replay_and_fingerprint(container, replay):
     before = fingerprint(container)
     status, result = replay()
@@ -1021,7 +1051,9 @@ def main():
                 src_db, snapshot_id,
                 lambda: write_payment(owner_token, 15000, 'BH07 V4 P1A concurrent'),
                 lambda: write_payment(finance_token, 20000, 'BH07 V4 P1B concurrent'))
-            if not measured['overlap_verified'] or exporter.poll() is not None:
+            exporter_rc = exporter.poll()
+            summary['diagnostics'] = _safe_diagnostics(measured, exporter_rc)
+            if not measured['overlap_verified'] or exporter_rc is not None:
                 raise ValueError('No verified concurrent HTTP commits during active snapshot dump')
 
         res_a, res_b = measured['writer_a'], measured['writer_b']
