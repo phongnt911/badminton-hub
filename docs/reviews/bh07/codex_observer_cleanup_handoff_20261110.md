@@ -17,4 +17,4 @@ Codex chạy thêm56 concurrency,6 supplemental,49 probe controls PASS. Reviewer
 
 Full Python mới đã kết thúc: **541 test =537 PASS+4 SKIP**, exit0,140.614s; log `.build/v4-codex-cleanup-full-python.log`. Tổng targeted104PASS và49controls PASS. Replay control reviewer cũ không đổi source nay trả `close_outcome: RuntimeError` khi fake process không dừng; không tạo tiến trình thật. [Review delta](codex_observer_cleanup_review_20261110.md).
 
-Flutter mới NOT RUN; app không đổi. Docker candidate mới NOT RUN; full V4/BH-07/V8 chưa nghiệm thu. Commit/push tiến độ được ủy quyền riêng, không merge/deploy/pilot/BH-08.
+Flutter mới NOT RUN; app không đổi. [Runtime tiếp theo](codex_bounded_runtime_review_20261110.md) trên source46c9d98 có overlap thật và fingerprint sau restore, nhưng toàn lượt vẫn FAIL ở Docker command sau đó; final oracle/replay chưa hoàn tất. Full suite trên46c9d98 có1FAIL V5b harness được ghi riêng, không retag count xanh source2bc90b2 sang source mới. Full V4/BH-07/V8 chưa nghiệm thu. Commit/push tiến độ được ủy quyền riêng, không merge/deploy/pilot/BH-08.

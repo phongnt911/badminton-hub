@@ -1,0 +1,18 @@
+{
+  "public.payments": {
+    "rows": 3,
+    "sha256": "5591f4b02577f93d228d08f093eb61524f23ae454156394a16f19beed634c925"
+  },
+  "public.club_transactions": {
+    "rows": 3,
+    "sha256": "b3b1e4941ac1afd4157f1543b97136ef198e52f6c89bb5bb2d406c68c3ffbd26"
+  },
+  "public.audit_events": {
+    "rows": 3,
+    "sha256": "96050fbae40238626f9975d80e9d76b55b8c3636c17b4e894c6667ffd9134dc9"
+  },
+  "public.operation_requests": {
+    "rows": 3,
+    "sha256": "3b497dc8f3734e38832917a1a15d67b010ad67cd477fd57bbbd3e1d6953d3e91"
+  }
+}
