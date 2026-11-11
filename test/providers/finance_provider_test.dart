@@ -896,6 +896,37 @@ void main() {
 
   // --- BH-07B: tổng kết + complete --------------------------------------- //
 
+  testWidgets('summary: pending read expires, retry works and late reply is ignored', (tester) async {
+    stubSummary('s1', sessionSummary);
+    final provider = buildProvider();
+    auth.changeUser('user-a');
+    await provider.fetchSessionSummary('s1');
+    final pending = Completer<SessionSummary>();
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_) => pending.future);
+    final refresh = provider.fetchSessionSummary('s1');
+    try {
+      await tester.pump(const Duration(seconds: 16));
+      expect(provider.isLoadingSummary, isFalse);
+      expect(provider.summaryErrorMessage, isNotNull);
+      expect(provider.sessionSummary, same(sessionSummary));
+      const recovered = SessionSummary(
+        sessionId: 's1', sessionVersion: 8, canManage: true,
+        canViewFinance: true, outstandingTotalVnd: 12345,
+      );
+      stubSummary('s1', recovered);
+      await provider.fetchSessionSummary('s1');
+      expect(provider.summaryErrorMessage, isNull);
+      expect(provider.sessionSummary, same(recovered));
+      pending.complete(sessionSummary);
+      await tester.pump();
+      expect(provider.sessionSummary, same(recovered));
+    } finally {
+      if (!pending.isCompleted) pending.complete(sessionSummary);
+      await refresh;
+      provider.dispose();
+    }
+  });
+
   test(
     'summary: transport giữ aggregate, FORBIDDEN xoá quyền cũ và retry phục hồi',
     () async {

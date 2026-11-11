@@ -1,0 +1,21 @@
+{
+  "base_commit": "171745145b2d181a18be5702cb907173e43208c8",
+  "git_dirty_during_runtime": true,
+  "app_source_sha256": "bcbc1d386392f67af33e8ee15f4363b8bc796cd5eeae7a5239dd449cc239d68e",
+  "app_source_git_blob": "7693b5d628aeca4391bdee66de98e2a59e2f728f",
+  "scenario_sha256": "e8b2e096ebbf1aacda5539ba671f4118af56dfd2bc753e0dcaf78a1ff50f4e3d",
+  "built_and_served_main_dart_js_sha256": "e90c4f6d3f2a22e72460298655b0b6991a2ffb3b0479e25d43b034d46c205215",
+  "database_fingerprints": {
+    "before_sha256": "cc18e6b711e34fb18489e5a3c49aded8ccd00bd57b8b35562a46bf1c53e27e97",
+    "after_sha256": "c98e64826993c34b3e8ab3c49a6d460a33b6de202d25a3441f849fbd10fa8a14",
+    "public_tables": 21,
+    "public_rows": 94,
+    "public_schema_and_roles_equal": true,
+    "auth_rows_excluded": true,
+    "only_sequence_delta": {
+      "name": "auth.refresh_tokens_id_seq",
+      "before": 8,
+      "after": 44
+    }
+  }
+}

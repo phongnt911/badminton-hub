@@ -177,4 +177,56 @@ void main() {
     expect(find.text('Buổi tối'), findsOneWidget);
     expect(find.byKey(const Key('bh07c-copy-summary')), findsOneWidget);
   });
+
+  testWidgets('pending initial summary shows error and can retry', (tester) async {
+    final pending = Completer<SessionSummary>();
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_) => pending.future);
+    final instance = provider();
+    try {
+      await pumpScreen(tester, instance);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pump();
+      expect(instance.isLoadingSummary, isFalse);
+      expect(find.byKey(const Key('bh07c-summary-error')), findsOneWidget);
+      expect(find.byKey(const Key('bh07c-summary-empty')), findsNothing);
+      when(() => repo.getSessionSummary('s1')).thenAnswer((_) async => financeSummary);
+      await tester.tap(find.text('Thử lại'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('bh07c-summary-error')), findsNothing);
+      expect(find.text('300,000 VNĐ'), findsOneWidget);
+    } finally {
+      if (!pending.isCompleted) pending.complete(financeSummary);
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('pending refresh keeps money and exposes stale error with retry', (tester) async {
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_) async => financeSummary);
+    final instance = provider();
+    await pumpScreen(tester, instance);
+    await tester.pumpAndSettle();
+    final pending = Completer<SessionSummary>();
+    when(() => repo.getSessionSummary('s1')).thenAnswer((_) => pending.future);
+    try {
+      await tester.tap(find.byTooltip('Tải lại tổng kết'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await tester.pump();
+      expect(instance.isLoadingSummary, isFalse);
+      expect(find.text('Chưa làm mới được tổng kết'), findsOneWidget);
+      expect(find.textContaining('Dữ liệu đang hiển thị là lần tải trước.'), findsOneWidget);
+      expect(find.text('300,000 VNĐ'), findsOneWidget);
+      expect(find.text('—'), findsOneWidget);
+      expect(find.text('0 VNĐ'), findsNothing);
+      when(() => repo.getSessionSummary('s1')).thenAnswer((_) async => financeSummary);
+      await tester.tap(find.text('Thử lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa làm mới được tổng kết'), findsNothing);
+      expect(instance.isLoadingSummary, isFalse);
+    } finally {
+      if (!pending.isCompleted) pending.complete(financeSummary);
+      await tester.pumpAndSettle();
+    }
+  });
 }

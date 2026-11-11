@@ -1,0 +1,74 @@
+{
+  "ok": true,
+  "url_origin": "http://127.0.0.1:8088",
+  "session_id": "10000000-0000-4000-8000-000000000099",
+  "expected_aggregate": {
+    "expense": 200000,
+    "due": 200000,
+    "paid": 100000,
+    "outstanding": 100000,
+    "present": 2,
+    "absent": 0,
+    "confirmed": 2
+  },
+  "time_origins": {
+    "post_reload": 1794355696401,
+    "cohost_session": 1794355696401,
+    "member_session": 1794355696401,
+    "continuity_verified": true
+  },
+  "step_results": {
+    "stage_1_guest": {
+      "verified": true,
+      "has_login_cta": true,
+      "management_absent": true,
+      "summary_absent": true,
+      "private_money_absent": true
+    },
+    "stage_2_owner_initial": {
+      "verified": true,
+      "identity": "ownera@example.test"
+    },
+    "stage_3_owner_post_f5": {
+      "verified": true,
+      "auth_restored": true
+    },
+    "stage_4_cohost_actor_switch": {
+      "verified": true,
+      "identity": "cohosta@example.test",
+      "logout_auth_storage_key_count": 0,
+      "count_only_verified": true,
+      "finance_aggregate_absent": true,
+      "amounts_and_currency_absent": true
+    },
+    "stage_5_offline_refresh_recovery": {
+      "verified": true,
+      "offline_error_detected": true,
+      "online_recovery_detected": true,
+      "rpc_status": 200
+    },
+    "stage_6_clipboard": {
+      "status": "NOT_RUN",
+      "reason": "Optional clipboard step omitted in matrix run; covered by Chrome baseline"
+    },
+    "stage_7_member_actor_switch": {
+      "verified": true,
+      "identity": "membera@example.test",
+      "navigation_method": "direct_hash_link",
+      "management_and_summary_absent": true,
+      "own_fees": {
+        "due": 100000,
+        "paid": 100000,
+        "outstanding": 0,
+        "verified": true
+      }
+    }
+  },
+  "recorded_console_summary": {
+    "error_count": 1,
+    "warning_count": 1,
+    "pageerror_count": 0,
+    "offline_resource_errors": 1,
+    "qr_cors_errors": 0
+  }
+}

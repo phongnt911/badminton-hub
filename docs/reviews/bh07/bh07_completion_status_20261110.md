@@ -26,6 +26,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 
 ## Bằng chứng kiểm chứng gần nhất
 
+- 11/11/2026: Edge và Firefox headless qua kịch bản Web local gồm Guest, Owner, F5, đổi sang Cohost và Member, đọc ngoại tuyến và thử lại HTTP 200. Bản sửa thời hạn đọc tổng kết qua 250 Flutter test, 1 SKIP, analyze sạch. Firefox có cửa sổ giữ UNKNOWN. Toàn BH-07/V8 chưa nghiệm thu. [Báo cáo kiểm thử](web_matrix_runtime_20261111.md).
+
 - Fresh SDK Windows phát hiện2schema test fail do CRLF; [sửa test-loader một dòng](schema_crlf_portability_review_20261110.md) đã review độc lập source/log:11targeted/22LF-CRLFcontrols/247Flutter+1SKIP PASS. Không sửa app/migration và không thay verdict runtime. Browser matrix Edge/Firefox đang triển khai/review riêng.
 
 - Owner dừng Android, chuyển Web. [Lượt Chrome local mới](web_local_runtime_20261110.md): history/summary/F5/Owner→Cohost→Member, clipboard count-only, offline read refresh/retry, deep link có auth; Member submitted rồi Owner confirmed một payment100000 và một ledger entry. Tổng kết cuối phải thu200000/đã thu100000/còn100000. Reviewer source/artifact chốt không P0/P1/P2 trong smoke scope,15/15hash; không có runtime độc lập thứ hai. Không thay full V1 matrix, write-retry suite hoặc V2b heap.

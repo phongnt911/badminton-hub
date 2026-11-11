@@ -283,7 +283,11 @@ class FinanceProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final summary = await _repository.getSessionSummary(sessionId);
+      // Không để lần đọc treo khoá tải lại vô hạn; giữ cache kèm lỗi để retry.
+      // Future.timeout không huỷ HTTP gốc, nhưng không áp dụng phản hồi muộn.
+      final summary = await _repository
+          .getSessionSummary(sessionId)
+          .timeout(const Duration(seconds: 15));
       if (_generation == generation &&
           serial == _summarySerial &&
           _summarySessionId == sessionId) {

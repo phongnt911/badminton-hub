@@ -4,3 +4,5 @@
 /docs/reviews/bh07/codex_mc_fixes_20261110_evidence/* -text whitespace=cr-at-eol
 /docs/reviews/bh07/v4_runtime_20261110_evidence/* -text whitespace=cr-at-eol
 /docs/reviews/bh07/web_local_20261110_evidence/* -text whitespace=cr-at-eol
+/scripts/bh07_browser/web_matrix_scenario.js text eol=lf
+/docs/reviews/bh07/web_matrix_20261111_evidence/* -text whitespace=cr-at-eol
