@@ -14,7 +14,7 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | Concurrency HTTP/Auth | Đạt local kế thừa | [cbcc46c vòng2](review_cbcc46c_r2.md) |
 | R0 readiness | Đạt docs-only kế thừa | [31fced4](review_31fced4.md); chưa phải nghiệm thu V8 mới |
 | V1 browser/offline/reopen/late response | Đạt local kế thừa | [448c50f](v1_acceptance_448c50f.md) |
-| V2 đa thiết bị/browser/OS/deep link | NOT RUN cho phần ngoài matrix đã chốt | Flutter/Android SDK đã cài, Samsung SM-S926B Android17 đã kết nối; APK debug build/install/launch thành công với backend thử local; owner xác nhận UI login thành công. Chưa hoàn tất matrix/nghiệp vụ; [biên bản setup](android_local_device_setup_20261110.md) |
+| V2 đa thiết bị/browser/OS/deep link | Chưa đóng ngoài phạm vi đã đo | Android debug/manual đã có, sau đó owner dừng Android; [biên bản](android_local_device_setup_20261110.md). Chrome local và [Edge/Firefox headless](web_matrix_runtime_20261111.md) đã qua luồng đọc được review; Firefox có cửa sổ UNKNOWN, clipboard Edge/Firefox NOT RUN, device/OS/deep-link matrix còn thiếu |
 | V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web đã Đạt | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md); rendered retention unattributed, whole-model UNKNOWN, instructions/listener/native chưa có bằng chứng đầy đủ |
 | V3 managed backup/PITR/retention/offsite | NOT RUN | Connected listing chỉ thấy1project badminton-hub INACTIVE, không thấy staging riêng trong account/connection này; không chứng minh các account khác không có môi trường |
 | V4 concurrent backup/recovery | **PASS local/staging-like** | [Runtime sạch7589179 và review độc lập](recovery_site_url_runtime_final_20261110.md): authenticated HTTP overlap, restore P0, replay/fingerprint48bảng+schema khớp, cleanup8/8 |
@@ -25,6 +25,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | V8 nghiệm thu toàn BH-07 | Chưa đủ điều kiện | Phải đóng mọi P0/P1/P2/FAIL và có bằng chứng hoặc owner decision hợp lệ cho các phần vận hành còn trống |
 
 ## Bằng chứng kiểm chứng gần nhất
+
+- 12/11/2026: đã đồng bộ checkout từ423f354 tới aa755b5 bằng fast-forward, bảo toàn tuyến producer local cũ trên nhánh archive tại fdf1fd8. Codex chạy mới53runtime-collection PASS/49probe controls PASS, validator chấp nhận nguyên receipt V4 source7589179, manifest Web3/3hash khớp. Không có runtime/DB mới; [audit đồng bộ và V8](sync_v8_audit_20261112.md). Connected Supabase listing vẫn chỉ thấy1project INACTIVE; năm hàng quyết định owner giữ CHƯA PHÊ DUYỆT.
 
 - 11/11/2026: Edge và Firefox headless qua kịch bản Web local gồm Guest, Owner, F5, đổi sang Cohost và Member, đọc ngoại tuyến và thử lại HTTP 200. Bản sửa thời hạn đọc tổng kết qua 250 Flutter test, 1 SKIP, analyze sạch. Firefox có cửa sổ giữ UNKNOWN. Toàn BH-07/V8 chưa nghiệm thu. [Báo cáo kiểm thử](web_matrix_runtime_20261111.md).
 

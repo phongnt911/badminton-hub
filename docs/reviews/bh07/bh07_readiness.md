@@ -98,19 +98,20 @@ Cập nhật24/10/2026: V1 đã Đạt local, được đưa khỏi danh sách N
 - **Concurrency HTTP:** đã có replay/competition/drop-response trên stack HTTP local.
 - **Browser:** đã có Flutter Web + Chromium + Supabase local, thao tác UI thật và control âm; kết luận tự kiểm lịch sử không độc lập; V1 mới đã có review độc lập và chốt local ngày24/10/2026.
 - **Backup/restore:** đã có rehearsal local cô lập, restore DB/Auth, smoke ACL/replay và cleanup fail-closed.
-- **Full Supabase reset local:** đã chạy lặp lại 2 chu kỳ từ 18 migrations + seed, xác minh schema, HTTP Auth/RPC, 23 DB invariants và Oracle match trên project test CLI cô lập; đang Chờ review độc lập.
+- **Full Supabase reset local:** đã Đạt trong phạm vi runtime local theo [review b036e9e](review_b036e9e.md); harness classifier mới được review riêng theo [review vòng2](recovery_diagnostics_review_after_r2_20261110.md). Không suy sang restore/deploy managed.
 
 ### 3.2. Những gì vẫn NOT RUN
 
+Phạm vi còn thiếu dưới đây theo [ma trận hiện hành](bh07_completion_status_20261110.md). V4 concurrent backup đã [PASS local tại7589179](recovery_site_url_runtime_final_20261110.md); V3 managed vẫn là cổng riêng chưa đo.
+
 | Cổng còn thiếu | Vì sao chưa thể coi là Đạt | Bằng chứng cần có trước khi đóng | Kế hoạch kiểm chứng tương ứng |
 |---|---|---|---|
-| Mobile iOS/Android thật | Chưa có thiết bị/emulator được nghiệm thu | Build thật, thao tác start→complete→history, offline/reopen, deep link, không rò dữ liệu | V2 (mục 4.3) |
-| Browser khác/OS khác | Chỉ có Chromium/SPA cụ thể | Chrome/Firefox/Safari/Edge trên desktop/mobile, tối thiểu matrix đã chốt | V2 (mục 4.3) |
+| Mobile iOS/Android thật | Android debug và thao tác manual đã ghi nhận; owner đã dừng Android, full matrix/native lifecycle chưa nghiệm thu | Phần device/OS/deep-link còn thiếu và review tương ứng trước hỗ trợ native | V2 (mục 4.3); [Android local](android_local_device_setup_20261110.md) |
+| Browser khác/OS khác | Chrome local, Edge và Firefox headless đã có bằng chứng; Firefox có cửa sổ UNKNOWN, clipboard Edge/Firefox NOT RUN, các nền tảng khác chưa phủ | Hoàn tất matrix đã chốt hoặc owner quyết định rõ giới hạn Web local | V2 (mục 4.3); [Web matrix](web_matrix_runtime_20261111.md) |
 | Offline/reopen/deep link ngoài phạm vi browser đã chạy | Chưa kiểm OS-level, cold start, link trước/sau login | Kịch bản mất mạng, retry cùng intent, F5/cold start, deep link và logout | V2 (mục 4.3) |
-| Đo private Dart heap/cache của app profile | QA runtime Web profile hai expense-ID Đạt theo [chốt](review_3b393d3.md);full coverage/Dart VM NOT RUN | Điều tra attribution title retained,coverage map và phép đo bổ sung riêng;không suy từ hai ID sang toàn cache/model | V2b (mục 4.4) |
+| Đo private Dart heap/cache của app profile | Sentinel ID Web đã Đạt trong các phạm vi expense/payment/bank/ledger được chốt;whole-model UNKNOWN, instructions/listener/native chưa đủ | Attribution rendered retention và coverage bổ sung hoặc owner quyết định giới hạn;không suy sentinel sang toàn cache/model | V2b (mục 4.4); [ma trận](bh07_completion_status_20261110.md) |
 | Managed Supabase backup | Chỉ rehearsal PostgreSQL/Auth local | Backup project managed, Storage/Edge/Realtime/external secrets, restore sang project cô lập | V3 (mục 4.5) |
 | PITR/offsite/encryption/retention | Chưa cấu hình/chứng minh trên managed service | Bằng chứng PITR, offsite copy, encryption at rest/in transit, retention/rotation và test restore | V3 (mục 4.5) |
-| Backup với concurrent writers | Rehearsal dừng writer trước snapshot | Backup dưới tải ghi đồng thời, kiểm tính nhất quán và committed data | V4 (mục 4.6) |
 | Staging/production restore thật | Chưa chạy restore/deploy ngoài local | Restore staging trước, sau đó production chỉ khi có phê duyệt riêng; smoke HTTP/ACL/app | V5 (mục 4.7) |
 | Banking/VietQR/webhook thật | Ngoài phạm vi BH-07 hiện hành và chưa có sandbox evidence | Sandbox bank/webhook, idempotency, signature, reconciliation; không dùng tiền thật | V6 (mục 4.9) — Ngoài phạm vi |
 | Rehearsal tải thật/pilot | Chưa có tải production-like hoặc người dùng pilot | SLO/RTO/RPO, kịch bản lỗi, rollback drill, dữ liệu ẩn danh và sign-off | V7 (mục 4.10) |
@@ -153,7 +154,9 @@ Nguyên tắc phân định quyền hạn:
 
 ### 4.4. V2b — Đo private Dart heap/cache sau đổi actor
 
-**Trạng thái hiện hành V2b: tooling AT1–AT6 vàQA2expense-ID giữ Đạt;finance heap expansion Chưa đạt**,theo [review](review_6f59f5e.md),còn FH1 P1/FH2–FH4 P2,giao sửa vòng1/2. Payment observations giữ nguyên nhưngprofile gate chưa đủ;full coverage/Dart VM/toàn V2b/BH-07 chưa nghiệm thu.
+**Trạng thái hiện hành V2b:** các phạm vi sentinel ID Web đã chốt được giữ theo [ma trận](bh07_completion_status_20261110.md), gồm finance tooling [511ce61](review_511ce61.md), bank/receiver và ledger [b25aaef](review_b25aaef_ledger_final.md). Whole-model UNKNOWN; instructions/listener/native chưa đủ coverage, rendered retention còn unattributed. Toàn V2b/BH-07 chưa nghiệm thu.
+
+**(Lịch sử review finance 28/10/2026)** Tooling AT1–AT6 vàQA2expense-ID giữ Đạt;finance heap expansion khi đó Chưa đạt theo [review](review_6f59f5e.md),còn FH1 P1/FH2–FH4 P2,giao sửa vòng1/2. Phần chỉ dẫn sửa này đã được supersede bởi review511ce61; không giao lại các finding đã đóng.
 
 **(Lịch sử bàn giao trước review41c1ea1)** **Trạng thái V2b khi đó: QA runtime hai expense-ID giữ Đạt;AT1 Chờ reviewer độc lập sau Codex sửa trực tiếp vòng3 được chủ dự án ủy quyền**,source f11d20f6,theo [bàn giao](codex_retention_attribution_r3_handoff.md). Tự sửa/tự kiểm KHÔNG độc lập;AT2–AT6 giữ đóng. Full coverage/Dart VM/toàn V2b/BH-07 chưa nghiệm thu,residual title unattributed.
 
@@ -283,8 +286,8 @@ Nguyên tắc phân định quyền hạn:
 ## 5. Thứ tự thực hiện đề xuất
 
 1. **R0:** review hồ sơ này, chốt các trạng thái và điểm tiếp tục.
-2. **V1 và V5b giữ Đạt local**. Tooling AT1–AT6/QA2expense-ID giữ Đạt;finance heap cd25e1e Chưa đạt theo [review](review_6f59f5e.md),giao FH1–FH4 vòng1/2,không mở gate khác.
-3. **V3/V4:** managed backup/PITR/retention và concurrent writers — cổng vận hành còn trống lớn nhất.
+2. **V1 và V5b giữ Đạt local**. Giữ các phạm vi tooling/sentinel đã chốt; không mở lại FH1–FH4 theo review lịch sử đã được thay thế. Dùng [ma trận hiện hành](bh07_completion_status_20261110.md) làm điểm tiếp tục.
+3. **V4 giữ PASS local tại7589179; V3 còn thiếu** managed backup/PITR/retention/offsite và môi trường được phê duyệt.
 4. **V5:** staging restore/deploy cần môi trường và phê duyệt riêng; production không được thử tự động. **V5b full CLI reset đã đóng local**, không đồng nghĩa V5 đã chạy.
 5. **V2/V2b:** mobile/browser khác/offline/deep link và đo heap/cache — có thể chạy song song V3/V4 nếu đủ thiết bị/công cụ.
 6. **V6:** banking/webhook chỉ khi mở rộng phạm vi.
