@@ -16,15 +16,17 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | V1 browser/offline/reopen/late response | Đạt local kế thừa | [448c50f](v1_acceptance_448c50f.md) |
 | V2 đa thiết bị/browser/OS/deep link | Chưa đóng ngoài phạm vi đã đo | Android debug/manual đã có, sau đó owner dừng Android; [biên bản](android_local_device_setup_20261110.md). Chrome local và [Edge/Firefox headless](web_matrix_runtime_20261111.md) đã qua luồng đọc được review; Firefox có cửa sổ UNKNOWN, clipboard Edge/Firefox NOT RUN, device/OS/deep-link matrix còn thiếu |
 | V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web đã Đạt | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md); rendered retention unattributed, whole-model UNKNOWN, instructions/listener/native chưa có bằng chứng đầy đủ |
-| V3 managed backup/PITR/retention/offsite | NOT RUN | Connected listing chỉ thấy1project badminton-hub INACTIVE, không thấy staging riêng trong account/connection này; không chứng minh các account khác không có môi trường |
+| V3 managed backup/PITR/retention/offsite | NOT RUN | Đã tạo staging riêng giá0USD/tháng trong phongnt911's Org, Singapore;18migration/21bảng RLS, chưa bật PITR hoặc đo backup/retention/offsite. [Thiết lập](staging_setup_20261112.md) |
 | V4 concurrent backup/recovery | **PASS local/staging-like** | [Runtime sạch7589179 và review độc lập](recovery_site_url_runtime_final_20261110.md): authenticated HTTP overlap, restore P0, replay/fingerprint48bảng+schema khớp, cleanup8/8 |
-| V5 release staging/production restore/deploy | NOT RUN | Chưa có target/release/window/rollback được phê duyệt; không tác động remote release |
+| V5 release staging/production restore/deploy | NOT RUN | Staging mxqpukhfiugdwsjsbihj đã được owner duyệt tạo/chuẩn bị; chưa có release/window/rollback và chưa chạy restore/deploy. [Thiết lập](staging_setup_20261112.md) |
 | V5b full reset local | Đạt runtime local kế thừa; harness classifier đã sửa/review delta | [b036e9e](review_b036e9e.md); [review harness mới](recovery_diagnostics_review_after_r2_20261110.md):22targetedPASS/16path-inventory controls, production V5b không đổi. Probe lịch sử duplicate-prefix không tương thích harness mới, không retag là replay PASS |
 | V6 banking/webhook thật | NOT RUN, ngoài phạm vi BH-07 | Không thêm tích hợp để đóng BH-07 |
-| V7 tải thật/pilot | NOT RUN | Chưa có workload/SLO/target/pilot/support được phê duyệt |
+| V7 tải thật/pilot | NOT RUN | Đã có staging riêng; workload/SLO/pilot/support chưa được phê duyệt, chưa chạy tải/pilot |
 | V8 nghiệm thu toàn BH-07 | Chưa đủ điều kiện | Phải đóng mọi P0/P1/P2/FAIL và có bằng chứng hoặc owner decision hợp lệ cho các phần vận hành còn trống |
 
 ## Bằng chứng kiểm chứng gần nhất
+
+- 12/11/2026 (sau audit đồng bộ): owner chọn phongnt911's Org và duyệt tạo staging0USD/tháng. Project riêng ACTIVE_HEALTHY,18migration/21bảng RLS rỗng,health advisor không có notice;security advisor đang triage. Không bật dịch vụ trả phí hoặc tác động project cũ. [Hồ sơ](staging_setup_20261112.md). Các quan sát listing bên dưới là lịch sử trước khi tạo staging.
 
 - 12/11/2026: đã đồng bộ checkout từ423f354 tới aa755b5 bằng fast-forward, bảo toàn tuyến producer local cũ trên nhánh archive tại fdf1fd8. Codex chạy mới53runtime-collection PASS/49probe controls PASS, validator chấp nhận nguyên receipt V4 source7589179, manifest Web3/3hash khớp. Không có runtime/DB mới; [audit đồng bộ và V8](sync_v8_audit_20261112.md). Connected Supabase listing vẫn chỉ thấy1project INACTIVE; năm hàng quyết định owner giữ CHƯA PHÊ DUYỆT.
 
