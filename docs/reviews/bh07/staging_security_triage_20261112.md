@@ -29,3 +29,7 @@ These are empty-project permission controls, not proof of populated-row isolatio
 - Re-run HTTP baseline, guest RPC controls, role grants, and advisor after a reviewed change. Any migration is restricted to the approved test staging, not the older project or production.
 
 No security finding is closed by this reconnaissance. V3/V5/V7 and full BH-07/V8 remain unaccepted.
+
+## Subsequent local candidate review
+
+[Final review](staging_hardening_review_final_20261112.md) closes local candidate/test/handoff findings after Anti correction2/3. [Runtime report](staging_hardening_local_runtime_20261112.md) records Codex42focused+21DB PASS and verified isolated cleanup, with two earlier verifier failures preserved. This supplements the reconnaissance; hosted helper grants have not changed, other advisor notices remain open, and full BH-07/V8 remains unaccepted.

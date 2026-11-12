@@ -26,3 +26,9 @@ Direct grant inspection: both views have `security_barrier=true`, without `secur
 - 19 anon-callable and 62 authenticated-callable SECURITY DEFINER functions. These are advisor findings, not proof of exploitable access; public RPCs, authorization helpers, and trigger functions require individual review. [Anon remediation](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable), [authenticated remediation](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable).
 
 No real users/data, paid features, application deployment, restore, load, or pilot performed. Project creation and schema setup do **not** close V3/V5/V7 or BH-07/V8. Managed PITR is not enabled; bank sandbox remains outside the existing manual-payment scope.
+
+## Reviewed local candidate; hosted application pending
+
+Anti CLI completed the helper-grant/search-path candidate after two correction rounds. [Independent delta review](staging_hardening_review_final_20261112.md) closes candidate P2 findings;6static tests PASS. [Codex local SQL runtime](staging_hardening_local_runtime_20261112.md):42focused checks +21existing DB cases PASS, owned-container cleanup verified. This is PostgreSQL/auth.uid-stub verification, not hosted Auth or independent runtime QA.
+
+Hosted schema remains at18migrations with the original grants. The canonical migration-new step is blocked by the environment's permanent `npx.cmd` shell allowlist denial. Owner was asked to run `lean-ctx allow npx.cmd`; no retry through another launcher or policy bypass was used. Until that command is permitted and a canonical migration is created/reviewed/applied, anonymous-helper exposure remains open on staging. No fixture provisioning yet.
