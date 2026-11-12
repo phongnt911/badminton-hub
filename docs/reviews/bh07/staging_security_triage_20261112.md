@@ -32,4 +32,6 @@ No security finding is closed by this reconnaissance. V3/V5/V7 and full BH-07/V8
 
 ## Subsequent local candidate review
 
+**Current hosted update:**[Canonical migration and hosted verification](staging_hardening_hosted_runtime_20261112.md) supersede the pending-apply statements in this historical reconnaissance. The10helpers now deny anonymous calls on the approved target;15HTTP controls passed. Remaining notices and actual Auth/populated hosted isolation remain separate.
+
 [Final review](staging_hardening_review_final_20261112.md) closes local candidate/test/handoff findings after Anti correction2/3. [Runtime report](staging_hardening_local_runtime_20261112.md) records Codex42focused+21DB PASS and verified isolated cleanup, with two earlier verifier failures preserved. This supplements the reconnaissance; hosted helper grants have not changed, other advisor notices remain open, and full BH-07/V8 remains unaccepted.

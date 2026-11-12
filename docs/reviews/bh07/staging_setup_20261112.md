@@ -2,6 +2,8 @@
 
 Owner explicitly selected `phongnt911's Org` and approved creation at **0 USD/month**, test data only, without paid PITR/add-ons.
 
+**Current after hardening:**19hosted migrations. [Canonical hardening and hosted checks](staging_hardening_hosted_runtime_20261112.md):10helpers now deny anon, both legacy paths pinned,15anonymous HTTP controls PASS. Remaining advisor/Auth/operational gates are not closed. Initial18-migration setup and the former CLI blocker below are historical.
+
 [Sanitized setup receipts and migration mapping](staging_setup_receipts_20261112.json), [security triage and anonymous HTTP baseline](staging_security_triage_20261112.md), [independent documentation review](staging_setup_review_20261112.md). Documentation review does not close security findings.
 
 - Organization: `ddttmuoowqhiuayjlfnw`.
@@ -27,8 +29,10 @@ Direct grant inspection: both views have `security_barrier=true`, without `secur
 
 No real users/data, paid features, application deployment, restore, load, or pilot performed. Project creation and schema setup do **not** close V3/V5/V7 or BH-07/V8. Managed PITR is not enabled; bank sandbox remains outside the existing manual-payment scope.
 
-## Reviewed local candidate; hosted application pending
+## Reviewed local candidate; hosted application pending (historical)
 
 Anti CLI completed the helper-grant/search-path candidate after two correction rounds. [Independent delta review](staging_hardening_review_final_20261112.md) closes candidate P2 findings;6static tests PASS. [Codex local SQL runtime](staging_hardening_local_runtime_20261112.md):42focused checks +21existing DB cases PASS, owned-container cleanup verified. This is PostgreSQL/auth.uid-stub verification, not hosted Auth or independent runtime QA.
 
 Hosted schema remains at18migrations with the original grants. The canonical migration-new step is blocked by the environment's permanent `npx.cmd` shell allowlist denial. Owner was asked to run `lean-ctx allow npx.cmd`; no retry through another launcher or policy bypass was used. Until that command is permitted and a canonical migration is created/reviewed/applied, anonymous-helper exposure remains open on staging. No fixture provisioning yet.
+
+Owner subsequently confirmed the allowlist command was run. CLI3.1.0 generated the canonical migration, independent packaging review passed, and the migration was applied/verified on the same approved staging. See the current hosted report above; no paid features or real data were introduced.
