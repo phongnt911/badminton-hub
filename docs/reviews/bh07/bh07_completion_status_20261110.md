@@ -1,3 +1,5 @@
+**14/11/2026:** [Finance Auth listener finite subgraph](finance_auth_listener_runtime_20261114.md) PASS local source70a71ba,2cycles/8epochs, hybrid snapshot/CDP. Chỉ một Finance registration và hai field; full auth_listeners/V2b/BH-07/V8 chưa nghiệm thu.
+
 # BH-07 — ma trận tiếp tục và điều kiện nghiệm thu 10/11/2026
 
 **Toàn BH-07/V8 CHƯA NGHIỆM THU.** Owner giao Anti CLI triển khai, Codex review tối đa3 vòng rồi tự sửa lỗi còn lại cho đến khi đủ điều kiện nghiệm thu. Lệnh local cần thiết được ủy quyền trong giới hạn môi trường; không bypass quyền, merge/deploy/pilot/BH-08 hoặc ký risk acceptance thay owner.

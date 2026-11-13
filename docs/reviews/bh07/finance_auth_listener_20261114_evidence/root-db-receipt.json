@@ -1,0 +1,13 @@
+{
+  "scope": "root preflight through R1 FAIL, R2 FAIL and R3 PASS; Auth rows excluded",
+  "public_equal": true,
+  "schema_equal": true,
+  "roles_equal": true,
+  "other_sequences_equal": true,
+  "auth_refresh_sequence": [
+    83,
+    88
+  ],
+  "public_tables": 21,
+  "public_rows": 94
+}

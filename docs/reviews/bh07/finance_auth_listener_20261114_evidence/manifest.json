@@ -1,5 +1,6 @@
 {
   "files": {
+    "root-db-receipt.json": "8cd39cce715bc7dd3d9ca65a280216d38882a24652f2de98ce8c041326e9bb9d",
     "root-r1-db-receipt.json": "96a6c9012b1d46211b1bf1ec1ad5eb299118b0045bdf817b62cd237e1984b7ad",
     "failed-r1/hashes.sha256": "288d0084bbb03d81de2f4fefd6a7210b84e21912abbe62999a30b41d7d7117ba",
     "failed-r1/report.md": "64f832bc7ea67cb730e7b0262b5a9291118bebe5e81bca58045f28012d84f407",
@@ -14,6 +15,11 @@
     "prototype-calibration/layout.json": "2120ded53a2558a49ce2271f3412306bdf594c576047752cc9556f8bb73338ef",
     "prototype-calibration/listener_proto_probe.js": "a08a25aaa4b2f54e846d25fa91be45f40c2fb1bccccd8eafb35afe859ed503f2",
     "prototype-calibration/listener_proto_scan.py": "2a1ebd0883aa4e376b029e291811ab941956b0cd3d13fd0ce8e79582d8351288",
-    "prototype-calibration/provenance.json": "eb348bbf62e93a76d1bdf8f6ed3bb3a4179698dadaea4d65561968a9de6fd60b"
+    "prototype-calibration/provenance.json": "eb348bbf62e93a76d1bdf8f6ed3bb3a4179698dadaea4d65561968a9de6fd60b",
+    "run/hashes.sha256": "26e1a6829f2c7e1f5a28d34392d16d06411662adcf5b359333dd47732a11d9ef",
+    "run/report.md": "b074abbc2bdcc08f2962dd0abd888568d886b935fda9c2692a9b572c4c375f0c",
+    "run/run.log": "8436a860bc2d06a8b2bdb88a58b1df4e47963132209c8afb615f4511f155a18b",
+    "run/source_binding.json": "2d68680d217525b5e627ad569ca58e730fc03a3e9404b71146af9ee0f46fc2be",
+    "run/summary.json": "3441c3f61e6d292abded25c2bca381e0814751347730dc485d0e9668505e7d97"
   }
 }
