@@ -8,3 +8,7 @@
 /docs/reviews/bh07/web_matrix_20261111_evidence/* -text whitespace=cr-at-eol
 /docs/reviews/bh07/web_v2_20261113_evidence/* -text whitespace=cr-at-eol
 /scripts/bh07_browser/web_reopen_scenario.js text eol=lf
+/docs/reviews/bh07/web_lifecycle_copy_20261113_evidence/* -text whitespace=cr-at-eol
+/docs/reviews/bh07/web_lifecycle_copy_20261113_evidence/db-gate-*.txt -text whitespace=-blank-at-eol,cr-at-eol
+/scripts/bh07_browser/web_lifecycle_scenario.js text eol=lf
+/scripts/bh07_browser/web_copy_qr_scenario.js text eol=lf

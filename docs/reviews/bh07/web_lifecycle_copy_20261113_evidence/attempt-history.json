@@ -1,0 +1,44 @@
+{
+  "lifecycle_anti_corrections": 3,
+  "copy_qr_anti_corrections": 2,
+  "historical_attempts": [
+    {
+      "scope": "Edge initial lifecycle",
+      "status": "FAIL",
+      "stage": "player standalone-name selector; before start"
+    },
+    {
+      "scope": "Edge lifecycle r1",
+      "status": "FAIL",
+      "stage": "charge header text selector after finalize"
+    },
+    {
+      "scope": "Edge lifecycle r2",
+      "status": "PASS",
+      "note": "separate earlier owned fixture, cleaned; not retagged as r3"
+    },
+    {
+      "scope": "Firefox software headed r2",
+      "status": "FAIL",
+      "stage": "home bootstrap before login"
+    },
+    {
+      "scope": "Firefox software headed r3",
+      "status": "FAIL",
+      "stage": "physical Account tab click timeout; no workflow write; root cause not established"
+    },
+    {
+      "scope": "Edge Guest QR r1 cold first load",
+      "status": "FAIL",
+      "stage": "home bootstrap semantics"
+    },
+    {
+      "scope": "Edge Guest QR r1 warm Guest state",
+      "status": "PASS",
+      "note": "retained only as history; final r2 measured again in fresh profiles"
+    }
+  ],
+  "final_lifecycle": "Edge headless and Firefox headless PASS on canonical r3 source",
+  "final_copy_qr": "fresh Edge and Firefox headless profiles on canonical r2 source; Firefox clipboard NOT_RUN",
+  "full_v2_bh07_v8": "NOT_ACCEPTED"
+}

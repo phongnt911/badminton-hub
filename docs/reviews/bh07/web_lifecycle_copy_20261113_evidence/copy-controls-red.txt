@@ -1,0 +1,12 @@
+exact_counts PASS
+reject_confirmed_20 FAIL
+reject_confirmed_23 FAIL
+reject_confirmed_200 FAIL
+unsupported_skip PASS
+attempted_grants_cleanup FAIL
+unsupported_skip PASS
+attempted_grants_cleanup FAIL
+unexpected_grant_error FAIL
+unexpected_grant_error FAIL
+unexpected_grant_error FAIL
+{"failed_controls":8}

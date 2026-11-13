@@ -1,0 +1,71 @@
+python.exe : FFF.FFF
+At line:2 char:1
++ & 'C:/Users/PHONGNT/.cache/codex-runtimes/codex-primary-runtime/depen ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (FFF.FFF:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+======================================================================
+FAIL: test_completion_wrong_request (__main__.Gate.test_completion_wrong_request) (k='exact_request_operations')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 19, in 
+test_completion_wrong_request
+    with self.subTest(k=k),self.assertRaises(AssertionError):gate(r,'completed')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_completion_wrong_request (__main__.Gate.test_completion_wrong_request) (k='exact_request_audits')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 19, in 
+test_completion_wrong_request
+    with self.subTest(k=k),self.assertRaises(AssertionError):gate(r,'completed')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_offline_orphan_operation (__main__.Gate.test_offline_orphan_operation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 15, in 
+test_offline_orphan_operation
+    with self.assertRaises(AssertionError):gate(r,'offline')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_stale_billing (__main__.Gate.test_stale_billing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 28, in 
+test_stale_billing
+    with self.assertRaises(AssertionError):gate(r,'offline')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_unequal_charges (__main__.Gate.test_unequal_charges)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 22, in 
+test_unequal_charges
+    with self.assertRaises(AssertionError):gate(r,'offline')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_unexpected_payment (__main__.Gate.test_unexpected_payment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_lifecycle_db_gate.py", line 25, in 
+test_unexpected_payment
+    with self.assertRaises(AssertionError):gate(r,'offline')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+FAILED (failures=6)

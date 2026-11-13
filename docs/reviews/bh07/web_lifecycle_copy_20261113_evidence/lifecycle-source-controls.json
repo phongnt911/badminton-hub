@@ -1,0 +1,8 @@
+{
+  "expression": "PASS",
+  "payload_rejections": 8,
+  "canonical_order": "PASS",
+  "json_rejections": 4,
+  "request_filter_controls": 4,
+  "external_origin": "PASS"
+}

@@ -1,0 +1,11 @@
+python.exe : ......
+At line:2 char:1
++ & 'C:/Users/PHONGNT/.cache/codex-runtimes/codex-primary-runtime/depen ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (......:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

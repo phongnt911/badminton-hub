@@ -1,0 +1,62 @@
+{
+  "edge": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "aea6905e1683",
+    "remaining": {
+      "sessions": 0,
+      "players": 0,
+      "expenses": 0,
+      "revisions": 0,
+      "charges": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  },
+  "edge-r2": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "a70d5f4b6045",
+    "remaining": {
+      "sessions": 0,
+      "players": 0,
+      "expenses": 0,
+      "revisions": 0,
+      "charges": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  },
+  "edge-r3": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "588755477ffe",
+    "remaining": {
+      "sessions": 0,
+      "players": 0,
+      "expenses": 0,
+      "revisions": 0,
+      "charges": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  },
+  "firefox": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "b830df1478c1",
+    "remaining": {
+      "sessions": 0,
+      "players": 0,
+      "expenses": 0,
+      "revisions": 0,
+      "charges": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  }
+}

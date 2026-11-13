@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "mode": "guest_qr",
+  "url_origin": "http://127.0.0.1:8088",
+  "session_id": "10000000-0000-4000-8000-000000000099",
+  "qr": {
+    "fallback_verified": true,
+    "expected_info_matched": true,
+    "manual_notice_verified": true,
+    "payment_not_submitted": true,
+    "abort_count": 1
+  },
+  "fee": {
+    "verified": true,
+    "due": 100000,
+    "paid": 0,
+    "outstanding": 100000,
+    "management_summary_absent": true
+  },
+  "clipboard": {
+    "status": "NOT_RUN",
+    "reason": "Browser context does not support clipboard-read/clipboard-write permission grants",
+    "account_number_verified": false,
+    "reference_verified": false
+  },
+  "recorded_console_summary": {
+    "error_count": 1,
+    "warning_count": 5,
+    "pageerror_count": 0,
+    "offline_resource_errors": 0,
+    "qr_cors_errors": 1
+  }
+}

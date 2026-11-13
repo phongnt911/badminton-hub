@@ -1,0 +1,20 @@
+{
+  "lifecycle": "completed",
+  "version": 3,
+  "billing_input_version": 3,
+  "players_present": 2,
+  "revision_count": 1,
+  "charge_count": 2,
+  "charge_total": 200000,
+  "completed_audits": 1,
+  "complete_operations": 1,
+  "exact_request_operations": 1,
+  "exact_request_audits": 1,
+  "charges": [
+    100000,
+    100000
+  ],
+  "payments": 0,
+  "billing_current": true,
+  "request_id_sha256": "fba750a65bbb438b63c976e2de98a56dadb79be2c0ffb5cd90afe559357cd94d"
+}

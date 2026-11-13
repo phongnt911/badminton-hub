@@ -1,0 +1,42 @@
+{
+  "prepare": {
+    "ok": true,
+    "phase": "prepare_offline",
+    "session_started": true,
+    "attendance_checked_in": true,
+    "charges_finalized": true,
+    "offline_error": true,
+    "complete_attempt_count": 1,
+    "document_time_origin": 1794553309060,
+    "recorded_console_summary": {
+      "error_count": 2,
+      "warning_count": 6,
+      "pageerror_count": 0,
+      "offline_resource_errors": 0,
+      "qr_cors_errors": 2
+    },
+    "session_sha12": "b830df1478c1",
+    "request_id_sha256": "dbd2121062b8b82de23be93e3a569f8af865a2766a7fe12a9cf9bfae2a2792a3"
+  },
+  "retry": {
+    "ok": true,
+    "phase": "retry_online",
+    "request_id_same": true,
+    "full_payload_same": true,
+    "retry_attempt_count": 1,
+    "rpc_status": 200,
+    "complete_ui_verified": true,
+    "summary_verified": true,
+    "document_time_origin": 1794553309060,
+    "recorded_console_summary": {
+      "error_count": 0,
+      "warning_count": 0,
+      "pageerror_count": 0,
+      "offline_resource_errors": 0,
+      "qr_cors_errors": 0
+    },
+    "session_sha12": "b830df1478c1",
+    "request_id_sha256": "dbd2121062b8b82de23be93e3a569f8af865a2766a7fe12a9cf9bfae2a2792a3"
+  },
+  "cross_phase_same_document": true
+}

@@ -1,0 +1,30 @@
+{
+  "base_commit": "835ed7230d3f2b0bd619dacd6a750b9989dce4af",
+  "git_dirty_during_runtime": true,
+  "dirty_scope": "new testing tooling and docs; app/backend/migrations unchanged",
+  "lifecycle_source_sha256": "9bfbfb66bf6b5e57c0c221be65fdede0a0c35dbf211fc95b517715f801a3fe15",
+  "copy_qr_source_sha256": "ad96d51505f86e17d57da113b51265a8c37f1fade6d9459585eaaf78d0f5020e",
+  "finance_provider_sha256": "bcbc1d386392f67af33e8ee15f4363b8bc796cd5eeae7a5239dd449cc239d68e",
+  "built_and_served_main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+  "lifecycle_exact_drivers": {
+    "edge-r3": {
+      "prepare": "133cfd321370d3ebb59330f6cdb0d21c1d25cdf46c68dbcba1cce98e2fced02a",
+      "retry": "e1440c9bfe6e383f3ade57b4d9209713b12f8d680186e9d3b7345a96183ca2a1"
+    },
+    "firefox": {
+      "prepare": "0263a99b893453b6b2b40541b24324bdd82e1610acd2cbe91b137ef1fc9ab8eb",
+      "retry": "927a8e586d7f41722017fc2446c2ddcfe8328d0f6d9434103941aed82e7296bb"
+    }
+  },
+  "guest_qr_driver_matches_canonical_template": true,
+  "private_expected_receiver_published": false,
+  "browsers": {
+    "Edge": "157.0.4341.46 headless",
+    "Firefox": "156.0 Playwright headless"
+  },
+  "build": "existing Flutter profile from aa755b5 application source; no new product build or Flutter suite",
+  "runtime_operator": "Codex",
+  "independent_runtime": "NOT_RUN; source/control/artifact review only",
+  "implementation": "Anti CLI gemini-4-hydrogen-high --print-timeout 0",
+  "remaining": "Firefox headed default/this headed write attempt; Firefox clipboard; native/Safari; payment submission/confirmation on Edge/Firefox; operational gates unchanged"
+}
