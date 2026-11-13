@@ -1,0 +1,1 @@
+{"browser":{"browserName":"firefox","launchOptions":{"headless":false,"firefoxUserPrefs":{"gfx.webrender.software":true}}}}

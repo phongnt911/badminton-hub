@@ -26,6 +26,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 
 ## Bằng chứng kiểm chứng gần nhất
 
+- 13/11/2026: Edge headless và Firefox headed **software WebRender** PASS matrix đọc + tab reopen/logout/guest deep link; Edge cold process restart PASS (8 PID cũ vắng trước mở lại). Firefox headed mặc định vẫn UNKNOWN về hiển thị; workflow ghi/retry/copy/QR trên từng browser và native/Safari chưa đủ. 21 bảng/94 dòng public + schema/roles giữ nguyên; riêng Auth refresh-token sequence45→55. [Báo cáo bổ sung](web_v2_extension_runtime_20261113.md). Full V2/BH-07/V8 chưa nghiệm thu.
+
 - 11/11/2026: Edge và Firefox headless qua kịch bản Web local gồm Guest, Owner, F5, đổi sang Cohost và Member, đọc ngoại tuyến và thử lại HTTP 200. Bản sửa thời hạn đọc tổng kết qua 250 Flutter test, 1 SKIP, analyze sạch. Firefox có cửa sổ giữ UNKNOWN. Toàn BH-07/V8 chưa nghiệm thu. [Báo cáo kiểm thử](web_matrix_runtime_20261111.md).
 
 - Fresh SDK Windows phát hiện2schema test fail do CRLF; [sửa test-loader một dòng](schema_crlf_portability_review_20261110.md) đã review độc lập source/log:11targeted/22LF-CRLFcontrols/247Flutter+1SKIP PASS. Không sửa app/migration và không thay verdict runtime. Browser matrix Edge/Firefox đang triển khai/review riêng.

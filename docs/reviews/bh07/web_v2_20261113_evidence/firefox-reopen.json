@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "url_origin": "http://127.0.0.1:8088",
+  "session_id": "10000000-0000-4000-8000-000000000099",
+  "tab_reopen": {
+    "status": "PASS",
+    "original_tab_closed": true,
+    "destination_loaded_after_original_closed": true,
+    "new_tab_open": true,
+    "pages_before_close": 2,
+    "pages_after_close": 1
+  },
+  "browser_cold_restart": {
+    "status": "NOT_RUN",
+    "reason": "Same-profile tab close/reopen only; full browser process cold restart not executed"
+  },
+  "clipboard": {
+    "status": "NOT_RUN",
+    "reason": "No clipboard or QR verification claimed by this scenario"
+  },
+  "qr": {
+    "status": "NOT_RUN",
+    "reason": "No clipboard or QR verification claimed by this scenario"
+  },
+  "checks": {
+    "initial_member_identity_verified": true,
+    "new_tab_member_session_verified": true,
+    "new_tab_management_summary_finance_absent": true,
+    "new_tab_own_fee_verified": true,
+    "expected_own_fee": {
+      "due": 100000,
+      "paid": 100000,
+      "outstanding": 0
+    },
+    "restored_member_identity_verified": true,
+    "logout_guest_state_verified": true,
+    "logout_auth_storage_key_count": 0,
+    "guest_direct_session_public_cta_verified": true,
+    "guest_private_fee_summary_finance_absent": true
+  },
+  "recorded_console_summary": {
+    "error_count": 0,
+    "warning_count": 5,
+    "pageerror_count": 0,
+    "offline_resource_errors": 0,
+    "qr_cors_errors": 0
+  }
+}

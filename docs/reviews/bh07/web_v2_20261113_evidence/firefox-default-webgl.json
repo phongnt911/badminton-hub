@@ -1,0 +1,21 @@
+{
+  "diagnosticOnly": true,
+  "webgl1": true,
+  "webgl2": true,
+  "lost1": false,
+  "lost2": false,
+  "pixel1": [
+    0,
+    204,
+    0,
+    255
+  ],
+  "pixel2": [
+    178,
+    0,
+    204,
+    255
+  ],
+  "error1": 0,
+  "error2": 0
+}

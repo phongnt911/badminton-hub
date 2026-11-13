@@ -1,0 +1,11 @@
+{
+  "new_process_count": 8,
+  "tab_scenario": "edge-cold-restored-reopen.json",
+  "profile": "dedicated local test profile",
+  "browser": "Edge",
+  "new_processes_disjoint": true,
+  "old_processes_absent_before_reopen": true,
+  "status": "PASS",
+  "old_process_count": 8,
+  "restored_member_and_fee_then_logout_guest": true
+}

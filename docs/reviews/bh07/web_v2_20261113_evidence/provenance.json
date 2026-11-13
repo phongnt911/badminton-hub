@@ -1,0 +1,25 @@
+{
+  "base_commit": "aa755b5153fc16804171dbccf4f5c0971221e7ce",
+  "git_dirty_during_runtime": true,
+  "dirty_scope": "new reopen scenario and handoff; product/backend/migration source unchanged",
+  "scenario_sha256": "e8b2e096ebbf1aacda5539ba671f4118af56dfd2bc753e0dcaf78a1ff50f4e3d",
+  "reopen_scenario_sha256": "c1831a609df69a48f8724623d7397db4e5a77f98a0cc22b976ce78c35610da05",
+  "finance_provider_sha256": "bcbc1d386392f67af33e8ee15f4363b8bc796cd5eeae7a5239dd449cc239d68e",
+  "built_and_served_main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+  "build_mode": "Flutter Web profile",
+  "build_seconds": 46.7,
+  "edge": {
+    "browser": "157.0.4341.46",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0"
+  },
+  "firefox": {
+    "browser": "156.0",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:156.0) Gecko/20100101 Firefox/156.0"
+  },
+  "firefox_headed_default": "UNKNOWN: blank Flutter screenshot; WebGL control readPixels colored but screenshot canvas blank",
+  "firefox_headed_software": "PASS in measured read-only matrix/reopen, gfx.webrender.software=true, foreground requested",
+  "native_safari_other_os_write_retry": "NOT_RUN in this extension",
+  "implementer": "Anti CLI gemini-4-hydrogen-high; one correction round",
+  "runtime_operator": "Codex",
+  "independent_runtime": "NOT_RUN; reviewer source/artifact only"
+}

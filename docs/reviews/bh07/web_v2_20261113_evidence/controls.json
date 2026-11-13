@@ -1,0 +1,26 @@
+{
+  "wrong_due_100001": {
+    "expected": "rejection",
+    "observed": "New tab Member own-fee mismatch",
+    "passed": true
+  },
+  "correct_due_100000": {
+    "expected": "PASS",
+    "observed": "PASS on Edge and Firefox software headed",
+    "passed": true
+  },
+  "external_origin_guard": {
+    "expected": "reject before interactions",
+    "observed": "Guard failed: initial page origin",
+    "passed": true
+  },
+  "expression_compilation": "PASS",
+  "initial_firefox_software_matrix": {
+    "status": "FAIL",
+    "stage": "Login input frame commit timed out"
+  },
+  "foreground_firefox_software_matrix": {
+    "status": "PASS",
+    "note": "new clean session, bringToFront before scenario; this does not establish root cause of first timeout"
+  }
+}

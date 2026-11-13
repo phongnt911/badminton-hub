@@ -1,0 +1,16 @@
+{
+  "public_tables": 21,
+  "public_rows": 94,
+  "public_rows_schema_roles_equal": true,
+  "all_other_sequences_equal": true,
+  "strict_comparator_exit": 1,
+  "strict_comparator_reason": "auth.refresh_tokens_id_seq.last_value changed through logins",
+  "auth_rows_excluded": true,
+  "only_sequence_delta": {
+    "name": "auth.refresh_tokens_id_seq",
+    "before": 45,
+    "after": 55
+  },
+  "before_sha256": "217fa0498c1f9bf71babbb861d446a4c0d60e29383e096520aa04bf62b28cea9",
+  "after_sha256": "3354e242c9443a8a4be13bd867109bf336e78a4fc8f7b9adf4d167237c3dad23"
+}

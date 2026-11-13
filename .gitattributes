@@ -6,3 +6,5 @@
 /docs/reviews/bh07/web_local_20261110_evidence/* -text whitespace=cr-at-eol
 /scripts/bh07_browser/web_matrix_scenario.js text eol=lf
 /docs/reviews/bh07/web_matrix_20261111_evidence/* -text whitespace=cr-at-eol
+/docs/reviews/bh07/web_v2_20261113_evidence/* -text whitespace=cr-at-eol
+/scripts/bh07_browser/web_reopen_scenario.js text eol=lf
