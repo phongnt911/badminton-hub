@@ -824,6 +824,17 @@ class TestFinanceAuthListenerGraphScanner(unittest.TestCase):
                                          cdp_observations=obs, time_origin=1234.5)
         self.assertEqual(result['verdict'], 'PASS', result['findings'])
 
+    def test_calibrated_other_provider_methods_are_structural_metadata(self):
+        raw = build_tiny_listener_snapshot(listener_slots=[
+            {'kind': 'session', 'method': '_session_provider$_onAuthChanged$0', 'receiver_class': 'SessionProvider'},
+            {'kind': 'club', 'method': '_club_provider$_onAuthChanged$0', 'receiver_class': 'ClubProvider'},
+            {'kind': 'finance', 'method': '_onAuthChanged$0', 'receiver_idx': 0},
+        ])
+        result = graph_mod.scan_snapshot(raw, binding=self.binding, epoch='owner_active',
+            cdp_observations=make_cdp_obs(count=3, current_user_null=False, instructions_null=False, finance_null=False),
+            time_origin=1234.5)
+        self.assertEqual(result['verdict'], 'PASS', result['findings'])
+
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.build_dir = Path(self._tmp.name) / 'web'

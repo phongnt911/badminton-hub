@@ -69,6 +69,8 @@ STRUCTURAL_SLOT_NODE_CLASSES = frozenset({
 })
 STRUCTURAL_METHOD_ALLOWLIST = frozenset({
     'markNeedsNotifyDependents$0',
+    '_session_provider$_onAuthChanged$0',
+    '_club_provider$_onAuthChanged$0',
 })
 KNOWN_CDP_ERROR_RE = re.compile(
     r'^(?:'

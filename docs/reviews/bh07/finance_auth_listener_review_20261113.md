@@ -28,3 +28,5 @@ Actual build binding R3 PASS trên main.dart.js a20b3d22…; root/reviewer11Pyth
 ## 14/11 — Runtime R1 và sửa scanner
 
 Source c83764d sạch RUN/FAIL tại Owner listener method; Auth1/Finance1, hai DTO populated nhưng method null. Cleanup PASS, public21/94 khớp, Auth83→84. Fresh Guest calibration xác nhận generated prototype tên BoundClosure tự mang $_name; scanner break trước khi đọc. Root thêm control RED tái hiện và chuyển đọc own method trước terminal BoundClosure. Không sửa artifact FAIL hoặc claim runtime PASS.
+
+R2 source de00926 sạch dừng FAIL ở baseline: Session tearoff method đã đọc đúng nhưng allowlist chỉ UI/Finance, tên Session bị redact rồi auditor reject. Root RED control cho hai method Session/Club đã được calibration xác định, thêm hai structural labels vào allowlist; không thay Finance exact method/receiver gate hoặc claim kiểm hai provider đó. Cleanup R2 PASS, Auth84→84.

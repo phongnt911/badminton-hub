@@ -1,0 +1,2 @@
+[2026-11-13T22:32:47.553Z] starting cycle 1 (Owner -> logout -> cohost)
+[2026-11-13T22:32:52.403Z] aborted at stage=baseline_scan epoch=baseline: cycle 1 baseline listener_graph FAIL: slot_1_invalid_prototype_method_flags

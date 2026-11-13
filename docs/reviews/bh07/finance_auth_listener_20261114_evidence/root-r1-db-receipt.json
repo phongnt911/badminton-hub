@@ -1,0 +1,13 @@
+{
+  "scope": "root preflight to failed runtime R1; Auth rows excluded",
+  "public_equal": true,
+  "schema_equal": true,
+  "roles_equal": true,
+  "other_sequences_equal": true,
+  "auth_refresh_sequence": [
+    83,
+    84
+  ],
+  "public_tables": 21,
+  "public_rows": 94
+}
