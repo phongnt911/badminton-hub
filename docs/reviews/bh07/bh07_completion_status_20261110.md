@@ -26,6 +26,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 
 ## Bằng chứng kiểm chứng gần nhất
 
+- 13/11/2026 instructions canary runtime source39302fe sạch: hai chu kỳ/tám epochs Web profile cùng document, canary Owner reachable và vắng sau logout/actor, zero mutation; fixture/dump/profile/state dọn, baseline21/94 khớp, Auth75→79. Original verdict PASS_NARROW_RPC_PAYLOAD_ONLY, instructions attribution UNKNOWN/NOT RUN do matcher chưa có binding tên field artifact. Reviewer verify parent5hashes/original auditor0; không independent runtime. [Báo cáo](payment_instructions_heap_runtime_20261113.md). Không đóng toàn V2b/BH-07/V8.
+
 - 13/11/2026 khảo sát V2b: [PaymentInstructions feasibility](payment_instructions_heap_feasibility_20261113.md) đề xuất hai canary tổng hợp trong receiverSnapshot trên fixture local riêng; review sửa contract billing và giới hạn kết luận. Chưa triển khai/chạy heap, không đóng instructions hoặc whole-model/listener/native.
 
 - 13/11/2026 kiểm kê remote chỉ đọc: staging `mxqpukhfiugdwsjsbihj` ACTIVE_HEALTHY; project gốc INACTIVE. Security Advisor có2ERROR view,9WARN anon và62WARN authenticated function cần đối chiếu thiết kế, chưa kết luận exploit hoặc đóng cảnh báo. Không restore/deploy/thay cấu hình; V3/V5 vẫn NOT RUN. [Kiểm kê](staging_readonly_inventory_20261113.md).

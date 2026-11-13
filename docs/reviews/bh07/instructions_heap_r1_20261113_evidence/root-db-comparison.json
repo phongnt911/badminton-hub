@@ -1,0 +1,10 @@
+{
+  "public_tables": 21,
+  "public_rows": 94,
+  "public_schema_roles_and_other_sequences_equal": true,
+  "auth_rows_excluded": true,
+  "auth_refresh_sequence": [
+    75,
+    79
+  ]
+}

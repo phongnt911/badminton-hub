@@ -15,3 +15,4 @@
 /docs/reviews/bh07/web_payment_20261113_evidence/* -text whitespace=cr-at-eol
 /docs/reviews/bh07/web_payment_20261113_evidence/db-gate-*.txt -text whitespace=-blank-at-eol,cr-at-eol
 /scripts/bh07_browser/web_payment_scenario.js text eol=lf
+/docs/reviews/bh07/instructions_heap_r1_20261113_evidence/** -text whitespace=cr-at-eol
