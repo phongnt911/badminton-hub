@@ -302,7 +302,110 @@ class TestFixtureLifecycle(unittest.TestCase):
             self.assertTrue(state_path.exists())
 
 
-def _make_path(reachable, frames=None):
+def _make_synthetic_main_js(*, instructions_field='_instructions', receiver_snapshot_field='receiverSnapshot',
+                            include_provider_value=True, include_field_use=True):
+    fp_ctor = (
+        f'FinanceProvider: function FinanceProvider(t0, t1) {{\n'
+        f'  var _ = this;\n'
+        f'  _._finance_provider$_repository = t0;\n'
+        f'  _.auth = t1;\n'
+        f'  _.{instructions_field} = _._instructionsPlayerId = _._instructionsSessionId = null;\n'
+        f'}}'
+    )
+    pi_ctor = (
+        f'PaymentInstructions: function PaymentInstructions(t0, t1, t2, t3, t4, t5, t6) {{\n'
+        f'  var _ = this;\n'
+        f'  _.sessionId = t0;\n'
+        f'  _.playerId = t1;\n'
+        f'  _.{receiver_snapshot_field} = t6;\n'
+        f'}}'
+    )
+    field_use = ''
+    if include_field_use:
+        field_use = (
+            f'A.FinanceProvider.prototype = {{\n'
+            f'  _resetInstructions$0: function() {{ this.{instructions_field} = null; }},\n'
+            f'  fetchPaymentInstructions$1: function(s) {{\n'
+            f'    var x = A.PaymentInstructions_fromJson(s);\n'
+            f'    this.{instructions_field} = x;\n'
+            f'    return this.{instructions_field};\n'
+            f'  }},\n'
+            f'  get$paymentInstructions: function() {{ return this.{instructions_field}; }}\n'
+            f'}};\n'
+            f'A.PaymentInstructions.prototype = {{\n'
+            f'  get$bankCode: function() {{ return this.{receiver_snapshot_field}.$index(0, "bank_code"); }}\n'
+            f'}};\n'
+            f'A.PaymentInstructions_fromJson = function(j) {{\n'
+            f'  return new A.PaymentInstructions(j["session_id"], j["player_id"], null, null, null, null, j["receiver_snapshot"]);\n'
+            f'}};\n'
+            f'var rpc = "get_payment_instructions";\n'
+        )
+    provider_use = ''
+    if include_provider_value:
+        provider_use = (
+            'A._CreateInheritedProviderState = function() { this._provider$_value = null; };\n'
+            'A._CreateInheritedProviderState.prototype = { getValue: function() { return this._provider$_value; } };\n'
+        )
+    js_text = f'var A = {{\n  {fp_ctor},\n  {pi_ctor}\n}};\n{field_use}{provider_use}'
+    return js_text, fp_ctor, pi_ctor
+
+
+def _make_binding_payload(main_js_text, fp_ctor, pi_ctor, *,
+                          instructions_field='_instructions',
+                          receiver_snapshot_field='receiverSnapshot'):
+    main_sha = hashlib.sha256(main_js_text.encode('utf-8')).hexdigest()
+    fp_sha = hashlib.sha256(fp_ctor.encode('utf-8')).hexdigest()
+    pi_sha = hashlib.sha256(pi_ctor.encode('utf-8')).hexdigest()
+    core = {
+        'finance_provider': {
+            'constructor_name': 'FinanceProvider',
+            'constructor_sha256': fp_sha,
+            'field_use_verified': True,
+            'instructions_field': instructions_field,
+            'repository_field': '_finance_provider$_repository',
+        },
+        'main_dart_js_sha256': main_sha,
+        'payment_instructions': {
+            'constructor_name': 'PaymentInstructions',
+            'constructor_sha256': pi_sha,
+            'field_use_verified': True,
+            'receiver_snapshot_field': receiver_snapshot_field,
+        },
+        'provider_holder_edge': '_provider$_value',
+    }
+    binding_sha = hashlib.sha256(json.dumps(core, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()
+    sanitized = {'ok': True, **core, 'binding_sha256': binding_sha}
+    companion = {
+        'ok': True,
+        'version': '1.0',
+        'main_dart_js_sha256': main_sha,
+        'provider_holder_edge': '_provider$_value',
+        'provider_holder_snippets': [
+            'this._provider$_value = null;',
+            'return this._provider$_value;',
+        ],
+        'finance_provider': {
+            **core['finance_provider'],
+            'constructor_snippet': fp_ctor,
+            'field_use_snippets': [
+                f'this.{instructions_field} = x;',
+                f'this.{instructions_field} = null;',
+                f'return this.{instructions_field};',
+            ],
+        },
+        'payment_instructions': {
+            **core['payment_instructions'],
+            'constructor_snippet': pi_ctor,
+            'field_use_snippets': [
+                f'return this.{receiver_snapshot_field}.$index(0, "bank_code");',
+            ],
+        },
+        'binding_sha256': binding_sha,
+    }
+    return sanitized, companion
+
+
+def _make_path(reachable, frames=None, *, exact=True, path_sha_override=None):
     if not reachable:
         return {'reachable': False, 'string_nodes': 0, 'exact': False}
     use_frames = frames or [
@@ -311,7 +414,7 @@ def _make_path(reachable, frames=None):
         'property:a -> object',
         'property:canary_instr_a -> string',
     ]
-    digest = hashlib.sha256('\n'.join(use_frames).encode('utf-8')).hexdigest()[:12]
+    digest = path_sha_override or hashlib.sha256('\n'.join(use_frames).encode('utf-8')).hexdigest()[:12]
     return {
         'reachable': True,
         'root_kind': 'global_handles',
@@ -319,11 +422,11 @@ def _make_path(reachable, frames=None):
         'frames': use_frames,
         'path_sha256_12': digest,
         'string_nodes': 1,
-        'exact': True,
+        'exact': exact,
     }
 
 
-def _make_scan(present_map, frames_override=None, time_origin=12345.6):
+def _make_scan(present_map, frames_override=None, time_origin=12345.6, exact_override=None, path_sha_override=None):
     classes = {
         'probe': {'rendered': False, 'distinctive': True, 'scope': 'control'},
         'canary_instr_a': {'rendered': False, 'distinctive': True, 'scope': 'finance'},
@@ -335,7 +438,9 @@ def _make_scan(present_map, frames_override=None, time_origin=12345.6):
         pres = bool(present_map.get(name, False))
         sentinels[name] = {'present': pres, 'occurrences': 1 if pres else 0, **cls}
         frames = (frames_override or {}).get(name) if pres else None
-        paths[name] = _make_path(pres, frames=frames)
+        ex = (exact_override or {}).get(name, True)
+        sha_ov = (path_sha_override or {}).get(name)
+        paths[name] = _make_path(pres, frames=frames, exact=ex, path_sha_override=sha_ov)
     return {
         'ok': True,
         'time_origin': time_origin,
@@ -351,16 +456,25 @@ def _build_valid_bundle(bundle_dir: Path, *, sentinels_raw=None, frames_override
                         owner_b_present=True, owner_b_reachable=True,
                         cohost_a_present=False, cleanup_ok=True,
                         zero_mut=True, baseline_eq=True,
-                        extra_log_line=None, claim_entire_model=False):
+                        extra_log_line=None, claim_entire_model=False,
+                        main_js_sha=None, source_binding=None,
+                        companion_binding=None, exact_override=None,
+                        path_sha_override=None):
     raw = sentinels_raw or {
         'canary_instr_a': str(uuid.uuid4()),
         'canary_instr_b': str(uuid.uuid4()),
         'probe': 'BH07INSTRPROBE-12345678',
     }
-    c1_owner = _make_scan({'probe': True, 'canary_instr_a': True, 'canary_instr_b': owner_b_present}, frames_override)
+    c1_owner = _make_scan(
+        {'probe': True, 'canary_instr_a': True, 'canary_instr_b': owner_b_present},
+        frames_override, exact_override=exact_override, path_sha_override=path_sha_override,
+    )
     if not owner_b_reachable:
         c1_owner['paths']['canary_instr_b'] = _make_path(False)
-    c2_owner = _make_scan({'probe': True, 'canary_instr_a': True, 'canary_instr_b': True}, frames_override)
+    c2_owner = _make_scan(
+        {'probe': True, 'canary_instr_a': True, 'canary_instr_b': True},
+        frames_override, exact_override=exact_override, path_sha_override=path_sha_override,
+    )
 
     summary = {
         'gate': 'V2b — PaymentInstructions synthetic receiverSnapshot heap retention',
@@ -385,10 +499,16 @@ def _build_valid_bundle(bundle_dir: Path, *, sentinels_raw=None, frames_override
         'attribution_assessment': {
             'root_reachability_measured': True,
             'dto_attribution_proven': dto_proven,
-            'attribution_status': 'proven' if dto_proven else 'unproven_under_minification',
-            'claim_scope': 'narrow_rpc_payload_retention_only' if not claim_entire_model else 'entire_model_clean',
+            'attribution_status': 'proven_artifact_bound' if dto_proven else 'unproven_under_minification',
+            'claim_scope': (
+                'entire_model_clean'
+                if claim_entire_model
+                else ('payment_instructions_receiver_snapshot_only' if dto_proven else 'narrow_rpc_payload_retention_only')
+            ),
             'scoped_verdict': scoped_verdict,
+            'payment_instructions_coverage_gate': 'PASS' if dto_proven else 'UNKNOWN/NOT_RUN',
             'proven_frames': (frames_override or {}).get('canary_instr_a') if dto_proven else [],
+            **({'source_binding': source_binding} if source_binding is not None else {}),
         },
         'environment': {
             'build': {
@@ -396,7 +516,7 @@ def _build_valid_bundle(bundle_dir: Path, *, sentinels_raw=None, frames_override
                 'reused': True,
                 'explicit_provenance_verified': True,
                 'started_at': '2026-11-13T08:00:00.000Z',
-                'artifacts': {'index.html': '1' * 64, 'main.dart.js': '2' * 64},
+                'artifacts': {'index.html': '1' * 64, 'main.dart.js': main_js_sha or ('2' * 64)},
                 'served_match': True,
             },
             'chrome': 'Chrome/155.0.0.0',
@@ -483,9 +603,13 @@ def _build_valid_bundle(bundle_dir: Path, *, sentinels_raw=None, frames_override
     (bundle_dir / 'summary.json').write_bytes((json.dumps(summary, indent=2) + '\n').encode('utf-8'))
     (bundle_dir / 'report.md').write_bytes(('\n'.join(report_lines) + '\n').encode('utf-8'))
     (bundle_dir / 'run.log').write_bytes(('\n'.join(log_lines) + '\n').encode('utf-8'))
+    manifest_files = ['summary.json', 'report.md', 'run.log']
+    if companion_binding is not None:
+        (bundle_dir / 'source_binding.json').write_bytes((json.dumps(companion_binding, indent=2) + '\n').encode('utf-8'))
+        manifest_files.append('source_binding.json')
 
     manifest = []
-    for name in ('summary.json', 'report.md', 'run.log'):
+    for name in sorted(manifest_files):
         digest = hashlib.sha256((bundle_dir / name).read_bytes()).hexdigest()
         manifest.append(f'{digest}  {name}')
     (bundle_dir / 'hashes.sha256').write_bytes(('\n'.join(manifest) + '\n').encode('utf-8'))
@@ -555,50 +679,206 @@ class TestInstructionsVerifier(unittest.TestCase):
             p2, _ = verifier.verify(b2)
             self.assertTrue(any('claim_scope' in p or 'entire_model' in p for p in p2))
 
-    def test_positive_dto_attributed_with_unminified_frames(self):
-        frames = [
+    def _real_safe_frames(self, instructions_field='_instructions'):
+        frames_a = [
             'root',
-            'internal:(Global handles) -> synthetic',
-            'property:closure -> object',
-            'property:_finance_provider$_instructions -> object',
+            'element -> synthetic',
+            'property:___InheritedProviderScopeElement__delega -> object',
+            'property:_provider$_value -> object',
+            f'property:{instructions_field} -> object',
             'property:receiverSnapshot -> object',
-            'property:_map -> object',
-            'property:canary_instr_a -> string',
+            'property:_strings -> object',
+            'property:canary_instr_a -> object',
+            'property:hashMapCellValue -> string',
         ]
+        frames_b = [
+            'root',
+            'element -> synthetic',
+            'property:___InheritedProviderScopeElement__delega -> object',
+            'property:_provider$_value -> object',
+            f'property:{instructions_field} -> object',
+            'property:receiverSnapshot -> object',
+            'property:_last -> object',
+            'property:hashMapCellValue -> string',
+        ]
+        return {'canary_instr_a': frames_a, 'canary_instr_b': frames_b}
+
+    def test_positive_dto_attributed_with_exact_source_binding(self):
+        js_text, fp_ctor, pi_ctor = _make_synthetic_main_js(instructions_field='_instructions')
+        sanitized, companion = _make_binding_payload(js_text, fp_ctor, pi_ctor, instructions_field='_instructions')
+        frames = self._real_safe_frames('_instructions')
         with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp) / 'build_web'
+            build_dir.mkdir()
+            (build_dir / 'main.dart.js').write_bytes(js_text.encode('utf-8'))
             b = Path(tmp) / 'bundle'
             _build_valid_bundle(
                 b,
-                frames_override={'canary_instr_a': frames, 'canary_instr_b': frames},
+                frames_override=frames,
                 dto_proven=True,
                 scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=sanitized,
+                companion_binding=companion,
             )
-            problems, assessment = verifier.verify(b, require_dto_attribution=True)
+            problems, assessment = verifier.verify(b, require_dto_attribution=True, build_dir=build_dir)
             self.assertEqual(problems, [])
             self.assertEqual(assessment['payment_instructions_coverage_gate'], 'PASS')
+            self.assertEqual(assessment['scoped_verdict'], 'PASS_DTO_ATTRIBUTED')
 
-    def test_mutant_xhr_script_reverse_fragment_dto_chains_rejected(self):
-        # IH4: individual marker, XHR buffer, script/string intermediate, reverse order, fragment
+            # Without --build-dir, snippets alone cannot prove DTO attribution (leaves UNKNOWN/NOT_RUN)
+            no_dir_problems, no_dir_assessment = verifier.verify(b, require_dto_attribution=True)
+            self.assertTrue(any('build' in p.lower() or 'main.dart.js' in p.lower() for p in no_dir_problems))
+            self.assertEqual(no_dir_assessment['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+    def test_mutant_absent_binding_and_hash_mismatch_rejected(self):
+        js_text, fp_ctor, pi_ctor = _make_synthetic_main_js(instructions_field='_instructions')
+        sanitized, companion = _make_binding_payload(js_text, fp_ctor, pi_ctor, instructions_field='_instructions')
+        frames = self._real_safe_frames('_instructions')
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp) / 'build_web'
+            build_dir.mkdir()
+            (build_dir / 'main.dart.js').write_bytes(js_text.encode('utf-8'))
+
+            # Absent binding in summary / companion even with real paths
+            b_absent = Path(tmp) / 'b_absent'
+            _build_valid_bundle(
+                b_absent,
+                frames_override=frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+            )
+            p_abs, a_abs = verifier.verify(b_absent, require_dto_attribution=True, build_dir=build_dir)
+            self.assertTrue(len(p_abs) > 0)
+            self.assertEqual(a_abs['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+            # Hash mismatch: build_dir/main.dart.js modified
+            bad_build = Path(tmp) / 'bad_build_web'
+            bad_build.mkdir()
+            (bad_build / 'main.dart.js').write_bytes((js_text + '\n// tampered\n').encode('utf-8'))
+            b_hash = Path(tmp) / 'b_hash'
+            _build_valid_bundle(
+                b_hash,
+                frames_override=frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=sanitized,
+                companion_binding=companion,
+            )
+            p_hash, a_hash = verifier.verify(b_hash, require_dto_attribution=True, build_dir=bad_build)
+            self.assertTrue(any('sha' in p.lower() or 'hash' in p.lower() or 'mismatch' in p.lower() for p in p_hash))
+            self.assertEqual(a_hash['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+            # Constructor SHA mismatch in source_binding
+            bad_ctor_binding = json.loads(json.dumps(sanitized))
+            bad_ctor_binding['finance_provider']['constructor_sha256'] = '0' * 64
+            b_ctor = Path(tmp) / 'b_ctor'
+            _build_valid_bundle(
+                b_ctor,
+                frames_override=frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=bad_ctor_binding,
+                companion_binding=companion,
+            )
+            p_ctor, a_ctor = verifier.verify(b_ctor, require_dto_attribution=True, build_dir=build_dir)
+            self.assertTrue(len(p_ctor) > 0)
+            self.assertEqual(a_ctor['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+    def test_mutant_xhr_script_reverse_fragment_wrongfield_mismatchpayload_rejected(self):
+        js_text, fp_ctor, pi_ctor = _make_synthetic_main_js(instructions_field='_instructions')
+        sanitized, companion = _make_binding_payload(js_text, fp_ctor, pi_ctor, instructions_field='_instructions')
         bad_chains = [
             ['root', 'property:XMLHttpRequest -> object', 'property:responseText receiverSnapshot -> string'],
-            ['root', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-            ['root', 'internal:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-            ['root', 'property:receiverSnapshot -> object', 'property:_finance_provider$_instructions -> object', 'property:canary_instr_a -> string'],
-            ['root', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-            ['root', 'property:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> string'],
-            ['root', '...', 'property:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
+            ['root', 'property:receiverSnapshot -> object', 'property:_strings -> object', 'property:canary_instr_a -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:_provider$_value -> object', 'internal:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:_provider$_value -> object', 'property:receiverSnapshot -> object', 'property:_instructions -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:___InheritedProviderScopeElement__delega -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:_provider$_value -> object', 'property:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:_provider$_value -> object', 'property:_instructionsPlayerId -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+            ['root', 'property:_provider$_value -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:arbitrary -> string'],
+            ['root', '...', 'property:_provider$_value -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
         ]
-        for idx, frames in enumerate(bad_chains):
-            with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp) / 'build_web'
+            build_dir.mkdir()
+            (build_dir / 'main.dart.js').write_bytes(js_text.encode('utf-8'))
+            for idx, bad_frames in enumerate(bad_chains):
                 b = Path(tmp) / f'bad_{idx}'
                 _build_valid_bundle(
                     b,
-                    frames_override={'canary_instr_a': frames, 'canary_instr_b': frames},
+                    frames_override={'canary_instr_a': bad_frames, 'canary_instr_b': bad_frames},
                     dto_proven=True,
                     scoped_verdict='PASS_DTO_ATTRIBUTED',
+                    main_js_sha=sanitized['main_dart_js_sha256'],
+                    source_binding=sanitized,
+                    companion_binding=companion,
                 )
-                problems, _ = verifier.verify(b, require_dto_attribution=True)
-                self.assertTrue(len(problems) > 0, f'should reject {frames}')
+                problems, assessment = verifier.verify(b, require_dto_attribution=True, build_dir=build_dir)
+                self.assertTrue(len(problems) > 0, f'should reject {bad_frames}')
+                self.assertEqual(assessment['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+            # Mismatch payload: exact=False, path_sha256_12 mismatch, wrong canary key under _strings
+            good_frames = self._real_safe_frames('_instructions')
+            b_exact = Path(tmp) / 'b_exact'
+            _build_valid_bundle(
+                b_exact,
+                frames_override=good_frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=sanitized,
+                companion_binding=companion,
+                exact_override={'canary_instr_a': False},
+            )
+            p_exact, a_exact = verifier.verify(b_exact, require_dto_attribution=True, build_dir=build_dir)
+            self.assertTrue(len(p_exact) > 0)
+            self.assertEqual(a_exact['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+            b_psha = Path(tmp) / 'b_psha'
+            _build_valid_bundle(
+                b_psha,
+                frames_override=good_frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=sanitized,
+                companion_binding=companion,
+                path_sha_override={'canary_instr_a': 'deadbeef1234'},
+            )
+            p_psha, a_psha = verifier.verify(b_psha, require_dto_attribution=True, build_dir=build_dir)
+            self.assertTrue(len(p_psha) > 0)
+            self.assertEqual(a_psha['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
+
+            # Mismatch payload: wrong canary key under _strings
+            wrong_key_frames = {
+                'canary_instr_a': [
+                    'root',
+                    'property:_provider$_value -> object',
+                    'property:_instructions -> object',
+                    'property:receiverSnapshot -> object',
+                    'property:_strings -> object',
+                    'property:canary_instr_b -> object',
+                    'property:hashMapCellValue -> string',
+                ],
+                'canary_instr_b': good_frames['canary_instr_b'],
+            }
+            b_wkey = Path(tmp) / 'b_wkey'
+            _build_valid_bundle(
+                b_wkey,
+                frames_override=wrong_key_frames,
+                dto_proven=True,
+                scoped_verdict='PASS_DTO_ATTRIBUTED',
+                main_js_sha=sanitized['main_dart_js_sha256'],
+                source_binding=sanitized,
+                companion_binding=companion,
+            )
+            p_wkey, a_wkey = verifier.verify(b_wkey, require_dto_attribution=True, build_dir=build_dir)
+            self.assertTrue(len(p_wkey) > 0)
+            self.assertEqual(a_wkey['payment_instructions_coverage_gate'], 'UNKNOWN/NOT_RUN')
 
     def _rewrite_summary(self, b: Path, mutator):
         s_path = b / 'summary.json'
@@ -709,6 +989,24 @@ class TestInstructionsVerifier(unittest.TestCase):
             self.assertFalse(receipt2['disposable_instructions_cleanup_verified'])
             self.assertTrue(receipt2['recovery_state_retained'])
             self.assertTrue(state_fail.exists())
+
+
+class TestExecutableSourceBinding(unittest.TestCase):
+    def test_comments_and_literals_cannot_establish_binding(self):
+        js, fp, _ = _make_synthetic_main_js()
+        use_start = js.index('A.FinanceProvider.prototype')
+        variants = {
+            'block_comment_program': '/*\n' + js + '\n*/',
+            'template_literal_program': 'const example = `\n' + js + '\n`;',
+            'quoted_program': 'const example = ' + json.dumps(js) + ';',
+            'commented_field_uses': js[:use_start] + '/*\n' + js[use_start:] + '\n*/',
+            'commented_assignments': js.replace(fp, fp.replace('var _ = this;', '/* var _ = this;').replace('\n}', '\n*/ }')),
+        }
+        for label, source in variants.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as tmp:
+                (Path(tmp) / 'main.dart.js').write_text(source, encoding='utf-8')
+                result = verifier.extract_and_validate_source_binding(tmp)
+                self.assertIs(result.get('ok'), False, label)
 
 
 if __name__ == '__main__':

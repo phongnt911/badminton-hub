@@ -34,6 +34,18 @@ const FRAME_RE = /^([a-z_]+)(?::(.*))? -> (.+)$/;
 const STRING_CHILD_TYPES = new Set(['string', 'concatenated string', 'sliced string']);
 const CONTAINER_CHILD_TYPES = new Set(['object', 'array']);
 const FORBIDDEN_DTO_LABEL_WORDS = ['xmlhttprequest', 'responsetext', 'script', 'xhr'];
+const PROVIDER_HOLDER_EDGE = '_provider$_value';
+const VALID_MAP_ROOT_PROPS = new Set(['_strings', '_nums', '_rest', '_first', '_last']);
+const VALID_MAP_LINK_PROPS = new Set(['_next', '_previous']);
+const MAX_CONSTRUCTOR_SNIPPET_BYTES = 32768;
+const MAX_SOURCE_BINDING_BYTES = 65536;
+const HEX64_RE = /^[0-9a-f]{64}$/;
+const SOURCE_SECRET_PATTERNS = [
+  /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/,
+  /bh07-http-pass/,
+  /SERVICE_ROLE_KEY|SUPABASE_ANON_KEY\s*=/,
+  /postgresql:\/\/[^\s"]+:[^\s"]+@/,
+];
 
 const { CdpClient } = require(DRIVER);
 const { hashArtifacts, snapshotArtifacts, assertArtifactsFresh, assertPortFree } = require('./build_guard');
@@ -609,6 +621,313 @@ function checkOwnerPrecondition(scanResult, requiredSentinels = REQUIRED_CANARIE
   return { ok: missing.length === 0 && unreachable.length === 0, missing, unreachable };
 }
 
+function escapeRegExp(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function sha256Hex(val) {
+  return crypto.createHash('sha256').update(val).digest('hex');
+}
+
+function canonicalJson(obj) {
+  if (Array.isArray(obj)) {
+    return `[${obj.map((v) => canonicalJson(v)).join(',')}]`;
+  }
+  if (obj && typeof obj === 'object') {
+    const keys = Object.keys(obj).sort();
+    return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(obj[k])}`).join(',')}}`;
+  }
+  return JSON.stringify(obj);
+}
+
+function findClosingBrace(text, openIdx, maxLen = MAX_CONSTRUCTOR_SNIPPET_BYTES) {
+  let depth = 0;
+  const limit = Math.min(text.length, openIdx + maxLen + 1);
+  let i = openIdx;
+  while (i < limit) {
+    const ch = text[i];
+    if (ch === '{') {
+      depth += 1;
+    } else if (ch === '}') {
+      depth -= 1;
+      if (depth === 0) return i;
+    } else if (ch === "'" || ch === '"' || ch === '`') {
+      const quote = ch;
+      i += 1;
+      while (i < limit) {
+        if (text[i] === '\\') {
+          i += 2;
+          continue;
+        }
+        if (text[i] === quote) break;
+        i += 1;
+      }
+    } else if (ch === '/' && i + 1 < limit) {
+      if (text[i + 1] === '/') {
+        i += 2;
+        while (i < limit && text[i] !== '\n') i += 1;
+      } else if (text[i + 1] === '*') {
+        i += 2;
+        while (i + 1 < limit && !(text[i] === '*' && text[i + 1] === '/')) i += 1;
+        i += 1;
+      }
+    }
+    i += 1;
+  }
+  return -1;
+}
+
+function executableSource(jsText) {
+  // Conservative lexical masking, preserving offsets for the original snippets.
+  // Templates/regex tokens are opaque; uncertain slash syntax can only remove proof.
+  const tokens = /\/\/[^\r\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*(?:"|$)|'(?:\\[\s\S]|[^'\\])*(?:'|$)|`(?:\\[\s\S]|[^`\\])*(?:`|$)|\/(?:\\[^\r\n]|\[(?:\\[^\r\n]|[^\]\\\r\n])*\]|[^/\\[\r\n])+\/[a-z]*/g;
+  const strings = new Set();
+  const code = jsText.replace(tokens, (token) => {
+    if ((token[0] === '"' || token[0] === "'") && token.at(-1) === token[0]) {
+      strings.add(token.slice(1, -1));
+    }
+    return token.replace(/[^\r\n]/g, ' ');
+  });
+  return { code, strings };
+}
+
+function extractJsConstructor(jsText, className, code = executableSource(jsText).code) {
+  const esc = escapeRegExp(className);
+  const re = new RegExp(`(?:^|[,{\\n\\r]\\s*)(${esc}\\s*:\\s*function(?:\\s+${esc})?\\s*\\(([^)]*)\\)\\s*\\{)`, 'g');
+  const matches = [];
+  let m;
+  while ((m = re.exec(code)) !== null) {
+    const fullHeader = m[1];
+    const headerStart = m.index + m[0].indexOf(fullHeader);
+    const openBraceIdx = headerStart + fullHeader.length - 1;
+    const closeBraceIdx = findClosingBrace(code, openBraceIdx);
+    if (closeBraceIdx < 0) continue;
+    const snippet = jsText.slice(headerStart, closeBraceIdx + 1);
+    const body = code.slice(openBraceIdx + 1, closeBraceIdx);
+    const params = String(m[2] || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    matches.push({
+      name: className,
+      params,
+      body,
+      snippet,
+      start: headerStart,
+      end: closeBraceIdx + 1,
+      sha256: sha256Hex(Buffer.from(snippet, 'utf8')),
+    });
+    if (matches.length > 1) {
+      return { ok: false, error: `ambiguous ${className} constructor definition` };
+    }
+  }
+  if (matches.length !== 1) {
+    return { ok: false, error: `missing ${className} constructor definition` };
+  }
+  return { ok: true, ...matches[0] };
+}
+
+function parseConstructorAssignments(body) {
+  const receivers = new Set(['this']);
+  const aliasRe = /\b(?:var|let|const)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*this\b/g;
+  let am;
+  while ((am = aliasRe.exec(body)) !== null) {
+    receivers.add(am[1]);
+  }
+  const recvPat = [...receivers].map(escapeRegExp).join('|');
+  const chainRe = new RegExp(`((?:(?:${recvPat})\\.[A-Za-z_$][A-Za-z0-9_$]*\\s*=\\s*)+)([^;\\n}]+)`, 'g');
+  const propRe = new RegExp(`(?:${recvPat})\\.([A-Za-z_$][A-Za-z0-9_$]*)`, 'g');
+  const assignments = [];
+  let cm;
+  while ((cm = chainRe.exec(body)) !== null) {
+    const rhs = cm[2].trim();
+    const lhsGroup = cm[1];
+    let pm;
+    propRe.lastIndex = 0;
+    while ((pm = propRe.exec(lhsGroup)) !== null) {
+      assignments.push({ prop: pm[1], rhs });
+    }
+  }
+  return { receivers: [...receivers], assignments };
+}
+
+function hasSecretInSnippets(snippets, secretValues = {}) {
+  if (findSentinelLeaks(snippets, secretValues).length > 0) return true;
+  return snippets.some((s) => SOURCE_SECRET_PATTERNS.some((pat) => pat.test(s)));
+}
+
+function extractCompactMatches(text, regex, maxItems = 3) {
+  const out = [];
+  const flags = regex.flags.includes('g') ? regex.flags : `${regex.flags}g`;
+  const r = new RegExp(regex.source, flags);
+  let m;
+  while ((m = r.exec(text)) !== null) {
+    const start = Math.max(0, text.lastIndexOf('\n', m.index) + 1);
+    let end = text.indexOf('\n', m.index + m[0].length);
+    if (end < 0) end = text.length;
+    const line = text.slice(start, end).trim();
+    if (line.length <= 400 && !out.includes(line)) {
+      out.push(line);
+      if (out.length >= maxItems) break;
+    }
+  }
+  return out;
+}
+
+function extractAndValidateSourceBinding({ buildDir, expectedMainJsSha, secretValues = {} }) {
+  if (!buildDir) {
+    return { ok: false, main_dart_js_sha256: expectedMainJsSha || null, error: 'missing_build_dir' };
+  }
+  const mainJsPath = path.join(buildDir, 'main.dart.js');
+  const st = lstatSafe(mainJsPath);
+  if (!st || st.isSymbolicLink() || !st.isFile()) {
+    return { ok: false, main_dart_js_sha256: expectedMainJsSha || null, error: 'main_dart_js_missing_or_symlink' };
+  }
+  const rawBuf = fs.readFileSync(mainJsPath);
+  const actualSha = sha256Hex(rawBuf);
+  if (!HEX64_RE.test(String(expectedMainJsSha || '')) || actualSha !== expectedMainJsSha) {
+    return {
+      ok: false,
+      main_dart_js_sha256: actualSha,
+      expected_main_dart_js_sha256: expectedMainJsSha || null,
+      error: 'main_dart_js_sha256_mismatch',
+    };
+  }
+  const jsText = rawBuf.toString('utf8');
+  const { code, strings } = executableSource(jsText);
+
+  const fpCtor = extractJsConstructor(jsText, 'FinanceProvider', code);
+  if (!fpCtor.ok) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: fpCtor.error };
+  }
+  const piCtor = extractJsConstructor(jsText, 'PaymentInstructions', code);
+  if (!piCtor.ok) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: piCtor.error };
+  }
+
+  const fpParsed = parseConstructorAssignments(fpCtor.body);
+  const repoFields = [...new Set(fpParsed.assignments
+    .map((a) => a.prop)
+    .filter((p) => /^(?:_[A-Za-z0-9_]+\$)?_repository$/.test(p)))];
+  const hasAuth = fpParsed.assignments.some((a) => a.prop === 'auth');
+  const hasPlayerIdNull = fpParsed.assignments.some(
+    (a) => /^(?:_[A-Za-z0-9_]+\$)?_instructionsPlayerId$/.test(a.prop) && a.rhs === 'null',
+  );
+  const hasSessionIdNull = fpParsed.assignments.some(
+    (a) => /^(?:_[A-Za-z0-9_]+\$)?_instructionsSessionId$/.test(a.prop) && a.rhs === 'null',
+  );
+  const instrCandidates = [...new Set(fpParsed.assignments
+    .filter((a) => /^(?:_[A-Za-z0-9_]+\$)?_instructions$/.test(a.prop) && a.rhs === 'null')
+    .map((a) => a.prop))];
+  if (repoFields.length !== 1 || !hasAuth || !hasPlayerIdNull || !hasSessionIdNull || instrCandidates.length !== 1) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'finance_provider_constructor_contract_failed' };
+  }
+  const instructionsField = instrCandidates[0];
+  const repositoryField = repoFields[0];
+
+  const jsWithoutFp = code.slice(0, fpCtor.start) + code.slice(fpCtor.end);
+  const escInstr = escapeRegExp(instructionsField);
+  const fpNonNullAssignRe = new RegExp(`[A-Za-z_$][A-Za-z0-9_$]*\\.${escInstr}\\s*=\\s*(?!null\\b|undefined\\b)[^;\\n}]+`);
+  const fpNullResetRe = new RegExp(`[A-Za-z_$][A-Za-z0-9_$]*\\.${escInstr}\\s*=\\s*null\\b`);
+  const fpReadRe = new RegExp(`[A-Za-z_$][A-Za-z0-9_$]*\\.${escInstr}(?![A-Za-z0-9_$])\\s*(?:===|!==|[^=])`);
+  if (
+    !fpNonNullAssignRe.test(jsWithoutFp)
+    || !fpNullResetRe.test(jsWithoutFp)
+    || !fpReadRe.test(jsWithoutFp)
+    || !code.includes('fetchPaymentInstructions')
+    || !strings.has('get_payment_instructions')
+  ) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'finance_provider_field_use_unverified' };
+  }
+
+  const piParsed = parseConstructorAssignments(piCtor.body);
+  const piParamSet = new Set(piCtor.params);
+  const rsCandidates = [...new Set(piParsed.assignments
+    .filter((a) => /^(?:_[A-Za-z0-9_]+\$)?receiverSnapshot$/.test(a.prop) && piParamSet.has(a.rhs))
+    .map((a) => a.prop))];
+  if (rsCandidates.length !== 1) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'payment_instructions_constructor_contract_failed' };
+  }
+  const receiverSnapshotField = rsCandidates[0];
+
+  const jsWithoutPi = code.slice(0, piCtor.start) + code.slice(piCtor.end);
+  const escRs = escapeRegExp(receiverSnapshotField);
+  const piReadRe = new RegExp(`[A-Za-z_$][A-Za-z0-9_$]*\\.${escRs}(?![A-Za-z0-9_$])\\s*(?:===|!==|[^=])`);
+  if (!piReadRe.test(jsWithoutPi) || !strings.has('receiver_snapshot')) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'payment_instructions_field_use_unverified' };
+  }
+
+  const provAssignRe = /[A-Za-z_$][A-Za-z0-9_$]*\._provider\$_value\s*=\s*[^;,\n}]+/;
+  const provReadRe = /[A-Za-z_$][A-Za-z0-9_$]*\._provider\$_value(?![A-Za-z0-9_$])\s*(?:===|!==|[^=])/;
+  if (!provAssignRe.test(code) || !provReadRe.test(code)) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'provider_holder_field_use_unverified' };
+  }
+
+  const fpFieldUseSnippets = [
+    ...extractCompactMatches(jsWithoutFp, fpNonNullAssignRe, 1),
+    ...extractCompactMatches(jsWithoutFp, fpNullResetRe, 1),
+    ...extractCompactMatches(jsWithoutFp, fpReadRe, 1),
+  ];
+  const piFieldUseSnippets = extractCompactMatches(jsWithoutPi, piReadRe, 2);
+  const provHolderSnippets = [
+    ...extractCompactMatches(code, provAssignRe, 1),
+    ...extractCompactMatches(code, provReadRe, 1),
+  ];
+
+  const allSnippets = [
+    fpCtor.snippet,
+    piCtor.snippet,
+    ...fpFieldUseSnippets,
+    ...piFieldUseSnippets,
+    ...provHolderSnippets,
+  ];
+  if (hasSecretInSnippets(allSnippets, secretValues)) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'sensitive_pattern_in_source_binding_snippets' };
+  }
+
+  const core = {
+    finance_provider: {
+      constructor_name: 'FinanceProvider',
+      constructor_sha256: fpCtor.sha256,
+      field_use_verified: true,
+      instructions_field: instructionsField,
+      repository_field: repositoryField,
+    },
+    main_dart_js_sha256: actualSha,
+    payment_instructions: {
+      constructor_name: 'PaymentInstructions',
+      constructor_sha256: piCtor.sha256,
+      field_use_verified: true,
+      receiver_snapshot_field: receiverSnapshotField,
+    },
+    provider_holder_edge: PROVIDER_HOLDER_EDGE,
+  };
+  const bindingSha = sha256Hex(Buffer.from(canonicalJson(core), 'utf8'));
+  const sanitized = { ok: true, ...core, binding_sha256: bindingSha };
+  const companion = {
+    ok: true,
+    version: '1.0',
+    main_dart_js_sha256: actualSha,
+    provider_holder_edge: PROVIDER_HOLDER_EDGE,
+    provider_holder_snippets: provHolderSnippets,
+    finance_provider: {
+      ...core.finance_provider,
+      constructor_snippet: fpCtor.snippet,
+      field_use_snippets: fpFieldUseSnippets,
+    },
+    payment_instructions: {
+      ...core.payment_instructions,
+      constructor_snippet: piCtor.snippet,
+      field_use_snippets: piFieldUseSnippets,
+    },
+    binding_sha256: bindingSha,
+  };
+  if (Buffer.byteLength(JSON.stringify(companion, null, 2) + '\n', 'utf8') > MAX_SOURCE_BINDING_BYTES) {
+    return { ok: false, main_dart_js_sha256: actualSha, error: 'source_binding_artifact_exceeds_size_cap' };
+  }
+  return { ok: true, sanitized, companion };
+}
+
 function parseFrame(frame) {
   if (typeof frame !== 'string' || frame === '...') return null;
   const m = FRAME_RE.exec(frame);
@@ -616,37 +935,82 @@ function parseFrame(frame) {
   return { kind: m[1], label: m[2] || '', child: m[3] };
 }
 
-function hasOrderedDtoRetainerChain(frames) {
-  if (!Array.isArray(frames) || frames.length < 4 || frames[0] !== 'root' || frames.includes('...')) {
+function hasOrderedDtoRetainerChain(frames, options = {}) {
+  const { sourceBinding = null, canaryName = null, pathRecord = null } = options || {};
+  if (!sourceBinding || sourceBinding.ok !== true) return false;
+  const fp = sourceBinding.finance_provider;
+  const pi = sourceBinding.payment_instructions;
+  if (
+    sourceBinding.provider_holder_edge !== PROVIDER_HOLDER_EDGE
+    || !fp || fp.field_use_verified !== true || !fp.instructions_field
+    || !pi || pi.field_use_verified !== true || !pi.receiver_snapshot_field
+  ) {
     return false;
   }
+  if (!Array.isArray(frames) || frames.length < 6 || frames[0] !== 'root' || frames.includes('...')) {
+    return false;
+  }
+  if (pathRecord) {
+    if (pathRecord.reachable !== true || pathRecord.exact !== true) return false;
+    if (pathRecord.path_len !== frames.length - 1) return false;
+    if (pathRecord.path_sha256_12 !== sha12(frames.join('\n'))) return false;
+  }
+
   const parsed = frames.slice(1).map(parseFrame);
   if (parsed.some((p) => p === null)) return false;
+  if (parsed.some((f) => FORBIDDEN_DTO_LABEL_WORDS.some((w) => f.label.toLowerCase().includes(w)))) {
+    return false;
+  }
 
-  for (let i = 0; i < parsed.length - 2; i += 1) {
-    const step1 = parsed[i];
-    const step2 = parsed[i + 1];
+  const expectedInstrField = fp.instructions_field;
+  const expectedRsField = pi.receiver_snapshot_field;
+  const allowedCanaryKeys = canaryName ? new Set([canaryName]) : new Set(REQUIRED_CANARIES);
+
+  for (let i = 0; i <= parsed.length - 5; i += 1) {
+    const holder = parsed[i];
+    const step1 = parsed[i + 1];
+    const step2 = parsed[i + 2];
     if (
-      step1.kind === 'property'
-      && step1.label === '_finance_provider$_instructions'
-      && CONTAINER_CHILD_TYPES.has(step1.child)
+      holder.kind === 'property'
+      && holder.label === PROVIDER_HOLDER_EDGE
+      && holder.child === 'object'
+      && step1.kind === 'property'
+      && step1.label === expectedInstrField
+      && step1.child === 'object'
       && step2.kind === 'property'
-      && step2.label === 'receiverSnapshot'
-      && CONTAINER_CHILD_TYPES.has(step2.child)
+      && step2.label === expectedRsField
+      && step2.child === 'object'
     ) {
-      const suffix = parsed.slice(i + 2);
-      if (!suffix.length) continue;
-      const intermediates = suffix.slice(0, -1);
+      const suffix = parsed.slice(i + 3);
+      if (suffix.length < 2) continue;
+      const mapRoot = suffix[0];
+      const intermediates = suffix.slice(1, -1);
       const leaf = suffix[suffix.length - 1];
-      if (parsed.slice(i).some((f) => FORBIDDEN_DTO_LABEL_WORDS.some((w) => f.label.toLowerCase().includes(w)))) {
+      if (mapRoot.kind !== 'property' || mapRoot.child !== 'object' || !VALID_MAP_ROOT_PROPS.has(mapRoot.label)) {
         continue;
       }
-      if (intermediates.some((f) => !['property', 'element', 'internal'].includes(f.kind) || !CONTAINER_CHILD_TYPES.has(f.child))) {
+      if (leaf.kind !== 'property' || leaf.label !== 'hashMapCellValue' || !STRING_CHILD_TYPES.has(leaf.child)) {
         continue;
       }
-      if (['property', 'element', 'internal'].includes(leaf.kind) && STRING_CHILD_TYPES.has(leaf.child)) {
+      if (mapRoot.label === '_strings') {
+        if (intermediates.length !== 1) continue;
+        const keyEdge = intermediates[0];
+        if (keyEdge.kind !== 'property' || keyEdge.child !== 'object' || !allowedCanaryKeys.has(keyEdge.label)) {
+          continue;
+        }
         return true;
       }
+      if (mapRoot.label === '_first' || mapRoot.label === '_last') {
+        if (intermediates.some((f) => f.kind !== 'property' || f.child !== 'object' || !VALID_MAP_LINK_PROPS.has(f.label))) {
+          continue;
+        }
+        return true;
+      }
+      // _nums or _rest bucket traversal
+      if (intermediates.some((f) => !['property', 'element'].includes(f.kind) || !CONTAINER_CHILD_TYPES.has(f.child))) {
+        continue;
+      }
+      return true;
     }
   }
   return false;
@@ -682,8 +1046,9 @@ function computeSameDocumentAcrossCycles(cycles, expectedOrigin = null) {
   });
 }
 
-function assessPathAttribution(cycles) {
-  const ownerFrames = [];
+function assessPathAttribution(cycles, options = {}) {
+  const { sourceBinding = null, expectedMainJsSha = null } = options || {};
+  const ownerRecords = [];
   let allMeasured = Array.isArray(cycles) && cycles.length === 2;
 
   for (const cycle of cycles || []) {
@@ -694,25 +1059,53 @@ function assessPathAttribution(cycles) {
       if (!rec || rec.reachable !== true || !Array.isArray(rec.frames) || rec.frames.length < 2 || !rec.path_sha256_12) {
         allMeasured = false;
       } else {
-        ownerFrames.push(rec.frames);
+        ownerRecords.push({ name, rec });
       }
     }
   }
 
-  const dtoProven = allMeasured && ownerFrames.length === 4 && ownerFrames.every(hasOrderedDtoRetainerChain);
+  const bindingValid = Boolean(
+    sourceBinding
+    && sourceBinding.ok === true
+    && typeof sourceBinding.main_dart_js_sha256 === 'string'
+    && HEX64_RE.test(sourceBinding.main_dart_js_sha256)
+    && (!expectedMainJsSha || sourceBinding.main_dart_js_sha256 === expectedMainJsSha)
+  );
+  const dtoProven = allMeasured
+    && bindingValid
+    && ownerRecords.length === 4
+    && ownerRecords.every(({ name, rec }) => hasOrderedDtoRetainerChain(rec.frames, {
+      sourceBinding,
+      canaryName: name,
+      pathRecord: rec,
+    }));
+
+  const normalizedBinding = bindingValid
+    ? sourceBinding
+    : {
+      ok: false,
+      main_dart_js_sha256: expectedMainJsSha || (sourceBinding && sourceBinding.main_dart_js_sha256) || null,
+      error: (sourceBinding && sourceBinding.error) || 'source binding unavailable or mismatched',
+    };
+
   return {
     root_reachability_measured: allMeasured,
     dto_attribution_proven: dtoProven,
-    attribution_status: dtoProven ? 'proven' : 'unproven_under_minification',
+    attribution_status: dtoProven ? 'proven_artifact_bound' : (bindingValid ? 'unproven_ordered_chain_mismatch' : 'unproven_missing_or_invalid_source_binding'),
     claim_scope: dtoProven ? 'payment_instructions_receiver_snapshot_only' : 'narrow_rpc_payload_retention_only',
     scoped_verdict: dtoProven ? 'PASS_DTO_ATTRIBUTED' : (allMeasured ? 'PASS_NARROW_RPC_PAYLOAD_ONLY' : 'FAIL'),
     payment_instructions_coverage_gate: dtoProven ? 'PASS' : 'UNKNOWN/NOT_RUN',
-    proven_frames: dtoProven ? ownerFrames[0] : [],
+    source_binding: normalizedBinding,
+    proven_frames: dtoProven ? ownerRecords[0].rec.frames : [],
   };
 }
 
 function renderReport(summary) {
   const attr = summary.attribution_assessment || {};
+  const binding = attr.source_binding || {};
+  const bindingLabel = binding.ok
+    ? `verified (main.dart.js ${binding.main_dart_js_sha256.slice(0, 12)}, FinanceProvider.${binding.finance_provider && binding.finance_provider.instructions_field}, PaymentInstructions.${binding.payment_instructions && binding.payment_instructions.receiver_snapshot_field})`
+    : `unverified (${binding.error || 'missing'})`;
   const lines = [
     '# V2b — PaymentInstructions synthetic receiverSnapshot heap retention',
     '',
@@ -721,6 +1114,7 @@ function renderReport(summary) {
     `- Scoped verdict: **${attr.scoped_verdict || 'FAIL'}**`,
     `- PaymentInstructions coverage gate: ${attr.payment_instructions_coverage_gate || 'UNKNOWN/NOT_RUN'}`,
     `- Attribution: root_reachability_measured=${Boolean(attr.root_reachability_measured)}; dto_attribution_proven=${Boolean(attr.dto_attribution_proven)} (${attr.attribution_status || 'unknown'})`,
+    `- Source binding: ${bindingLabel}`,
     `- Claim scope: ${attr.claim_scope || 'narrow_rpc_payload_retention_only'} (synthetic receiverSnapshot keys only; no whole-model claim)`,
     `- Tested source: \`${summary.tested_source_sha}\` (git dirty: ${summary.git_dirty})`,
     `- Same document across cycles: ${Boolean(summary.same_document_across_cycles)}`,
@@ -751,15 +1145,16 @@ function renderReport(summary) {
   lines.push(...(findings.length ? findings.map((f) => `- ${f}`) : ['- none']));
   lines.push('', '## Cleanup', '', `- ${JSON.stringify(summary.cleanup || {})}`, '');
   lines.push('## Limitations', '',
-    '- Covers ONLY synthetic non-rendered JSON keys (`canary_instr_a`, `canary_instr_b`) carried via `get_payment_instructions` into `receiverSnapshot`.',
+    '- Covers ONLY synthetic non-rendered JSON keys (`canary_instr_a`, `canary_instr_b`) carried via `get_payment_instructions` into `receiverSnapshot` (no whole-model clean claim).',
     '- Rendered strings (`bank_code`, `account_number`, `account_name`, `reference`) remain unattributed.',
-    '- Under dart2js minification, V8 strong-root reachability does not by itself prove Dart-level DTO attribution unless unminified retainer frames (`PaymentInstructions`, `FinanceProvider`, `_instructions`, `receiverSnapshot`) are observed.',
+    '- Under dart2js compilation, V8 strong-root reachability proves Dart-level DTO attribution ONLY when served-artifact source binding (`main.dart.js` SHA + constructor/field validation) verifies an exact ordered retainer chain (`_provider$_value` -> bound instructions field -> bound `receiverSnapshot` field -> map edges).',
     '- Does not cover `AuthProvider` listener graphs, Dart VM desktop/mobile, Firefox, or Safari.', '');
   return lines.join('\n');
 }
 
-function writeEvidenceBundle(outDir, summary, logLines, secretValues) {
-  const leaks = findSentinelLeaks([...collectStrings(summary), ...logLines], secretValues);
+function writeEvidenceBundle(outDir, summary, logLines, secretValues, companionBindingArtifact = null) {
+  const companionStrings = companionBindingArtifact ? collectStrings(companionBindingArtifact) : [];
+  const leaks = findSentinelLeaks([...collectStrings(summary), ...logLines, ...companionStrings], secretValues);
   if (leaks.length > 0) {
     summary.findings = [...(summary.findings || []),
       `raw sensitive value reached publication (${leaks.join(', ')}); redacted, run failed`];
@@ -775,8 +1170,19 @@ function writeEvidenceBundle(outDir, summary, logLines, secretValues) {
   fs.writeFileSync(path.join(outDir, 'run.log'), cleanLogs, 'utf8');
   fs.writeFileSync(path.join(outDir, 'report.md'), cleanReport, 'utf8');
 
+  const filesToHash = ['summary.json', 'run.log', 'report.md'];
+  if (companionBindingArtifact && companionBindingArtifact.ok === true) {
+    const cleanBinding = redactValue(companionBindingArtifact, secretValues);
+    const bindingJson = JSON.stringify(cleanBinding, null, 2) + '\n';
+    if (Buffer.byteLength(bindingJson, 'utf8') > MAX_SOURCE_BINDING_BYTES) {
+      throw new Error('companion source_binding.json exceeded bounded artifact limit');
+    }
+    fs.writeFileSync(path.join(outDir, 'source_binding.json'), bindingJson, 'utf8');
+    filesToHash.push('source_binding.json');
+  }
+
   const hashFile = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-  const manifest = ['summary.json', 'run.log', 'report.md']
+  const manifest = filesToHash
     .map((name) => `${hashFile(path.join(outDir, name))}  ${name}`).join('\n') + '\n';
   fs.writeFileSync(path.join(outDir, 'hashes.sha256'), manifest, 'utf8');
   return cleanSummary;
@@ -1030,6 +1436,8 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
   let currentStage = 'startup';
   let currentEpoch = null;
   let activeCycle = null;
+  let sourceBindingResult = null;
+  const effectiveBuildDir = cfg.build_dir || hooks.buildDir || BUILD_DIR;
 
   try {
     if (cfg.owner_password) secretValues.owner_password = cfg.owner_password;
@@ -1042,11 +1450,11 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
       summary.environment.build = await hooks.prepareBuild();
     } else if (cfg.reuse_existing_server === true) {
       const prov = cfg.provenance || JSON.parse(fs.readFileSync(cfg.provenance_path, 'utf8'));
-      summary.environment.build = await verifyServedBuild({ webUrl: cfg.web_url, buildDir: BUILD_DIR, provenance: prov });
+      summary.environment.build = await verifyServedBuild({ webUrl: cfg.web_url, buildDir: effectiveBuildDir, provenance: prov });
     } else {
       const webPort = Number(new URL(cfg.web_url).port) || 8088;
       await assertPortFree(webPort);
-      const before = snapshotArtifacts(BUILD_DIR);
+      const before = snapshotArtifacts(effectiveBuildDir);
       const startedAt = Date.now();
       runCmd(process.platform === 'win32' ? 'flutter.bat' : 'flutter', [
         'build', 'web', '--profile',
@@ -1054,16 +1462,34 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
         `--dart-define=SUPABASE_URL=${cfg.supabase_url}`,
         `--dart-define=SUPABASE_ANON_KEY=${cfg.supabase_anon_key}`,
       ], { shell: process.platform === 'win32' });
-      assertArtifactsFresh(BUILD_DIR, startedAt, before);
-      ownServer = spawn(PY, ['-m', 'http.server', String(webPort), '--bind', '127.0.0.1', '--directory', BUILD_DIR],
+      assertArtifactsFresh(effectiveBuildDir, startedAt, before);
+      ownServer = spawn(PY, ['-m', 'http.server', String(webPort), '--bind', '127.0.0.1', '--directory', effectiveBuildDir],
         { cwd: ROOT, stdio: 'ignore' });
       await wait(1000);
       summary.environment.build = await verifyServedBuild({
         webUrl: cfg.web_url,
-        buildDir: BUILD_DIR,
-        provenance: { mode: 'profile', started_at: new Date(startedAt).toISOString(), artifacts: hashArtifacts(BUILD_DIR) },
+        buildDir: effectiveBuildDir,
+        provenance: { mode: 'profile', started_at: new Date(startedAt).toISOString(), artifacts: hashArtifacts(effectiveBuildDir) },
       });
       summary.environment.build.reused = false;
+    }
+
+    const expectedMainJsSha = summary.environment.build
+      && summary.environment.build.artifacts
+      ? summary.environment.build.artifacts['main.dart.js']
+      : null;
+    if (hooks.extractSourceBinding) {
+      sourceBindingResult = await hooks.extractSourceBinding({
+        buildDir: effectiveBuildDir,
+        expectedMainJsSha,
+        build: summary.environment.build,
+      });
+    } else {
+      sourceBindingResult = extractAndValidateSourceBinding({
+        buildDir: effectiveBuildDir,
+        expectedMainJsSha,
+        fsMod,
+      });
     }
 
     currentStage = 'fixture_create';
@@ -1268,7 +1694,13 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
     }
 
     summary.same_document_across_cycles = computeSameDocumentAcrossCycles(summary.cycles, origin0);
-    summary.attribution_assessment = assessPathAttribution(summary.cycles);
+    const bindingForAttr = sourceBindingResult && sourceBindingResult.ok
+      ? sourceBindingResult.sanitized
+      : (sourceBindingResult || null);
+    summary.attribution_assessment = assessPathAttribution(summary.cycles, {
+      sourceBinding: bindingForAttr,
+      expectedMainJsSha,
+    });
     const allCyclesPass = summary.cycles.length === 2
       && summary.cycles.every((c) => isCycleCompleteAndPassing(c, origin0));
     summary.verdict = allCyclesPass && summary.same_document_across_cycles ? 'PASS' : 'FAIL';
@@ -1371,7 +1803,16 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
 
     summary.same_document_across_cycles = computeSameDocumentAcrossCycles(summary.cycles, origin0);
     if (!summary.attribution_assessment) {
-      summary.attribution_assessment = assessPathAttribution(summary.cycles);
+      const fallbackExpectedSha = summary.environment.build && summary.environment.build.artifacts
+        ? summary.environment.build.artifacts['main.dart.js']
+        : null;
+      const fallbackBinding = sourceBindingResult && sourceBindingResult.ok
+        ? sourceBindingResult.sanitized
+        : (sourceBindingResult || null);
+      summary.attribution_assessment = assessPathAttribution(summary.cycles, {
+        sourceBinding: fallbackBinding,
+        expectedMainJsSha: fallbackExpectedSha,
+      });
     }
     const completeAndPassing = (
       summary.cycles.length === 2
@@ -1395,7 +1836,10 @@ async function runMeasurement({ cfg, cfgPath, outDir, hooks = {} }) {
     }
 
     summary.finished_at = new Date().toISOString();
-    const cleanSummary = writeEvidenceBundle(resolvedOutDir, summary, logLines, secretValues);
+    const companionBinding = sourceBindingResult && sourceBindingResult.ok
+      ? sourceBindingResult.companion
+      : null;
+    const cleanSummary = writeEvidenceBundle(resolvedOutDir, summary, logLines, secretValues, companionBinding);
     const exitCode = cleanSummary.status === 'RUN' && cleanSummary.verdict === 'PASS' ? 0 : 1;
     return { summary: cleanSummary, exitCode };
   }
@@ -1432,6 +1876,8 @@ module.exports = {
   streamSnapshotToFile,
   assertNoCanaryInEvaluate,
   checkOwnerPrecondition,
+  extractJsConstructor,
+  extractAndValidateSourceBinding,
   hasOrderedDtoRetainerChain,
   assessPathAttribution,
   computeSameDocumentAcrossCycles,

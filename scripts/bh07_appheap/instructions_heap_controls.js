@@ -281,54 +281,272 @@ async function runControls() {
     const leaks = runner.findSentinelLeaks([`leaky ${rawS1}`], { canary_instr_a: rawS1 });
     assert.deepEqual(leaks, ['canary_instr_a']);
 
-    // IH4: Negative controls - XHR buffer, single marker, non-property edge, reverse chain, unsourced fragment, truncated
-    const badChains = [
-      ['root', 'internal:(Global handles) -> synthetic', 'property:XMLHttpRequest -> object', 'property:responseText receiverSnapshot -> string'],
-      ['root', 'internal:(Global handles) -> synthetic', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-      ['root', 'internal:(Global handles) -> synthetic', 'internal:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-      ['root', 'internal:(Global handles) -> synthetic', 'property:receiverSnapshot -> object', 'property:_finance_provider$_instructions -> object', 'property:canary_instr_a -> string'],
-      ['root', 'internal:(Global handles) -> synthetic', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
-      ['root', 'internal:(Global handles) -> synthetic', 'property:FinanceProvider -> object', 'property:PaymentInstructions -> object', 'property:receiverSnapshot -> string'],
-      ['root', '...', 'property:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:canary_instr_a -> string'],
+    const makeSyntheticMainJs = ({
+      instructionsField = '_instructions',
+      receiverSnapshotField = 'receiverSnapshot',
+      includeProviderValue = true,
+      includeFieldUse = true,
+    } = {}) => `
+      var A = {
+        FinanceProvider: function FinanceProvider(t0, t1) {
+          var _ = this;
+          _._finance_provider$_repository = t0;
+          _.auth = t1;
+          _.${instructionsField} = _._instructionsPlayerId = _._instructionsSessionId = null;
+        },
+        PaymentInstructions: function PaymentInstructions(t0, t1, t2, t3, t4, t5, t6) {
+          var _ = this;
+          _.sessionId = t0;
+          _.playerId = t1;
+          _.${receiverSnapshotField} = t6;
+        }
+      };
+      ${includeFieldUse ? `
+      A.FinanceProvider.prototype = {
+        _resetInstructions$0: function() {
+          this.${instructionsField} = null;
+        },
+        fetchPaymentInstructions$1: function(s) {
+          var x = A.PaymentInstructions_fromJson(s);
+          this.${instructionsField} = x;
+          return this.${instructionsField};
+        },
+        get$paymentInstructions: function() {
+          return this.${instructionsField};
+        }
+      };
+      A.PaymentInstructions.prototype = {
+        get$bankCode: function() {
+          return this.${receiverSnapshotField}.$index(0, "bank_code");
+        }
+      };
+      A.PaymentInstructions_fromJson = function(j) {
+        return new A.PaymentInstructions(j["session_id"], j["player_id"], null, null, null, null, j["receiver_snapshot"]);
+      };
+      var rpcName = "get_payment_instructions";
+      ` : ''}
+      ${includeProviderValue ? `
+      A._CreateInheritedProviderState = function() { this._provider$_value = null; };
+      A._CreateInheritedProviderState.prototype = {
+        getValue: function() { return this._provider$_value; }
+      };
+      ` : ''}
+    `;
+
+    const buildTmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bh07_instr_srcbind_'));
+    let defaultBinding;
+    let mangledBinding;
+    try {
+      const defaultDir = path.join(buildTmp, 'default_web');
+      fs.mkdirSync(defaultDir);
+      const defaultJs = makeSyntheticMainJs({ instructionsField: '_instructions' });
+      fs.writeFileSync(path.join(defaultDir, 'main.dart.js'), defaultJs, 'utf8');
+      const defaultSha = crypto.createHash('sha256').update(Buffer.from(defaultJs, 'utf8')).digest('hex');
+      defaultBinding = runner.extractAndValidateSourceBinding({
+        buildDir: defaultDir,
+        expectedMainJsSha: defaultSha,
+      });
+      assert.equal(defaultBinding.ok, true);
+      assert.equal(defaultBinding.sanitized.finance_provider.instructions_field, '_instructions');
+      assert.equal(defaultBinding.sanitized.payment_instructions.receiver_snapshot_field, 'receiverSnapshot');
+      assert.equal(defaultBinding.sanitized.provider_holder_edge, '_provider$_value');
+      assert.equal(defaultBinding.sanitized.main_dart_js_sha256, defaultSha);
+
+      const usageStart = defaultJs.indexOf('A.FinanceProvider.prototype');
+      for (const [label, inertJs] of Object.entries({
+        block_comment: '/*\n' + defaultJs + '\n*/',
+        template_literal: 'const example = `\n' + defaultJs + '\n`;',
+        quoted_literal: 'const example = ' + JSON.stringify(defaultJs) + ';',
+        field_uses_comment: defaultJs.slice(0, usageStart) + '/*\n' + defaultJs.slice(usageStart) + '\n*/',
+      })) {
+        const inertDir = path.join(buildTmp, label);
+        fs.mkdirSync(inertDir);
+        fs.writeFileSync(path.join(inertDir, 'main.dart.js'), inertJs);
+        const inertSha = crypto.createHash('sha256').update(inertJs).digest('hex');
+        assert.equal(runner.extractAndValidateSourceBinding({ buildDir: inertDir, expectedMainJsSha: inertSha }).ok, false, label);
+      }
+
+      // Hash mismatch must fail closed
+      const hashMismatch = runner.extractAndValidateSourceBinding({
+        buildDir: defaultDir,
+        expectedMainJsSha: '0'.repeat(64),
+      });
+      assert.equal(hashMismatch.ok, false);
+
+      // Missing field use must fail closed
+      const noUseDir = path.join(buildTmp, 'no_use_web');
+      fs.mkdirSync(noUseDir);
+      const noUseJs = makeSyntheticMainJs({ includeFieldUse: false });
+      fs.writeFileSync(path.join(noUseDir, 'main.dart.js'), noUseJs, 'utf8');
+      const noUseSha = crypto.createHash('sha256').update(Buffer.from(noUseJs, 'utf8')).digest('hex');
+      assert.equal(runner.extractAndValidateSourceBinding({
+        buildDir: noUseDir,
+        expectedMainJsSha: noUseSha,
+      }).ok, false);
+
+      // Mangled field binding only works when main.dart.js actually defines that field
+      const mangledDir = path.join(buildTmp, 'mangled_web');
+      fs.mkdirSync(mangledDir);
+      const mangledJs = makeSyntheticMainJs({ instructionsField: '_finance_provider$_instructions' });
+      fs.writeFileSync(path.join(mangledDir, 'main.dart.js'), mangledJs, 'utf8');
+      const mangledSha = crypto.createHash('sha256').update(Buffer.from(mangledJs, 'utf8')).digest('hex');
+      mangledBinding = runner.extractAndValidateSourceBinding({
+        buildDir: mangledDir,
+        expectedMainJsSha: mangledSha,
+      });
+      assert.equal(mangledBinding.ok, true);
+      assert.equal(mangledBinding.sanitized.finance_provider.instructions_field, '_finance_provider$_instructions');
+    } finally {
+      fs.rmSync(buildTmp, { recursive: true, force: true });
+    }
+
+    const withHash = (frames, overrides = {}) => ({
+      reachable: true,
+      root_kind: 'gc_roots',
+      path_len: frames.length - 1,
+      frames,
+      path_sha256_12: crypto.createHash('sha256').update(frames.join('\n')).digest('hex').slice(0, 12),
+      string_nodes: 1,
+      exact: true,
+      ...overrides,
+    });
+
+    const realFramesA = [
+      'root',
+      'element -> synthetic',
+      'property:___InheritedProviderScopeElement__delega -> object',
+      'property:_provider$_value -> object',
+      'property:_instructions -> object',
+      'property:receiverSnapshot -> object',
+      'property:_strings -> object',
+      'property:canary_instr_a -> object',
+      'property:hashMapCellValue -> string',
     ];
-    for (const badFrames of badChains) {
+    const realFramesB = [
+      'root',
+      'element -> synthetic',
+      'property:___InheritedProviderScopeElement__delega -> object',
+      'property:_provider$_value -> object',
+      'property:_instructions -> object',
+      'property:receiverSnapshot -> object',
+      'property:_last -> object',
+      'property:hashMapCellValue -> string',
+    ];
+
+    // Positive control: real safe 4 owner paths with exact source binding
+    const appScan = JSON.parse(JSON.stringify(goodScan));
+    appScan.paths.canary_instr_a = withHash(realFramesA);
+    appScan.paths.canary_instr_b = withHash(realFramesB);
+    const attrApp = runner.assessPathAttribution(
+      [
+        { cycle: 1, epochs: { owner_active: appScan } },
+        { cycle: 2, epochs: { owner_active: appScan } },
+      ],
+      {
+        sourceBinding: defaultBinding.sanitized,
+        expectedMainJsSha: defaultBinding.sanitized.main_dart_js_sha256,
+      },
+    );
+    assert.equal(attrApp.dto_attribution_proven, true);
+    assert.equal(attrApp.payment_instructions_coverage_gate, 'PASS');
+    assert.equal(attrApp.scoped_verdict, 'PASS_DTO_ATTRIBUTED');
+
+    // Absent binding must reject to UNKNOWN / PASS_NARROW_RPC_PAYLOAD_ONLY (never silently accept _instructions or _finance_provider$_instructions)
+    for (const badBinding of [null, undefined, { ok: false, error: 'missing' }]) {
+      const noBindRes = runner.assessPathAttribution(
+        [
+          { cycle: 1, epochs: { owner_active: appScan } },
+          { cycle: 2, epochs: { owner_active: appScan } },
+        ],
+        { sourceBinding: badBinding, expectedMainJsSha: defaultBinding.sanitized.main_dart_js_sha256 },
+      );
+      assert.equal(noBindRes.dto_attribution_proven, false);
+      assert.equal(noBindRes.payment_instructions_coverage_gate, 'UNKNOWN/NOT_RUN');
+      assert.equal(noBindRes.scoped_verdict, 'PASS_NARROW_RPC_PAYLOAD_ONLY');
+    }
+
+    // Hash mismatch between build artifact SHA and sourceBinding SHA must reject
+    const badShaRes = runner.assessPathAttribution(
+      [
+        { cycle: 1, epochs: { owner_active: appScan } },
+        { cycle: 2, epochs: { owner_active: appScan } },
+      ],
+      { sourceBinding: defaultBinding.sanitized, expectedMainJsSha: 'f'.repeat(64) },
+    );
+    assert.equal(badShaRes.dto_attribution_proven, false);
+    assert.equal(badShaRes.payment_instructions_coverage_gate, 'UNKNOWN/NOT_RUN');
+    assert.equal(badShaRes.scoped_verdict, 'PASS_NARROW_RPC_PAYLOAD_ONLY');
+
+    // Negative controls: XHR/script, marker-only, wrongfield, upstreamholdermissing, reversechain, truncated, mismatchpayload
+    const badScans = [
+      // XHR/script
+      ['root', 'internal:(Global handles) -> synthetic', 'property:XMLHttpRequest -> object', 'property:responseText receiverSnapshot -> string'],
+      // marker-only
+      ['root', 'internal:(Global handles) -> synthetic', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // non-property edge
+      ['root', 'property:_provider$_value -> object', 'internal:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // reverse chain
+      ['root', 'property:_provider$_value -> object', 'property:receiverSnapshot -> object', 'property:_instructions -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // upstream provider holder missing
+      ['root', 'property:___InheritedProviderScopeElement__delega -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // wrong field (_finance_provider$_instructions when artifact binds _instructions)
+      ['root', 'property:_provider$_value -> object', 'property:_finance_provider$_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // wrong sibling field (_instructionsPlayerId)
+      ['root', 'property:_provider$_value -> object', 'property:_instructionsPlayerId -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+      // arbitrary string leaf without map edges
+      ['root', 'property:_provider$_value -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:arbitrary -> string'],
+      // truncated
+      ['root', '...', 'property:_provider$_value -> object', 'property:_instructions -> object', 'property:receiverSnapshot -> object', 'property:_last -> object', 'property:hashMapCellValue -> string'],
+    ].map((frames) => ({ a: withHash(frames), b: withHash(frames) }));
+
+    // Mismatch payload: exact=false, path_sha256_12 mismatch, wrong canary key under _strings
+    badScans.push({ a: withHash(realFramesA, { exact: false }), b: withHash(realFramesB) });
+    badScans.push({ a: withHash(realFramesA, { path_sha256_12: 'deadbeef1234' }), b: withHash(realFramesB) });
+    badScans.push({
+      a: withHash([
+        'root',
+        'property:_provider$_value -> object',
+        'property:_instructions -> object',
+        'property:receiverSnapshot -> object',
+        'property:_strings -> object',
+        'property:canary_instr_b -> object',
+        'property:hashMapCellValue -> string',
+      ]),
+      b: withHash(realFramesB),
+    });
+
+    for (const pair of badScans) {
       const badAttrScan = JSON.parse(JSON.stringify(goodScan));
-      badAttrScan.paths.canary_instr_a.frames = badFrames;
-      badAttrScan.paths.canary_instr_b.frames = badFrames;
-      const resBad = runner.assessPathAttribution([
-        { cycle: 1, epochs: { owner_active: badAttrScan } },
-        { cycle: 2, epochs: { owner_active: badAttrScan } },
-      ]);
-      assert.equal(resBad.dto_attribution_proven, false, `must reject chain: ${badFrames.join(' | ')}`);
+      badAttrScan.paths.canary_instr_a = pair.a;
+      badAttrScan.paths.canary_instr_b = pair.b;
+      const resBad = runner.assessPathAttribution(
+        [
+          { cycle: 1, epochs: { owner_active: badAttrScan } },
+          { cycle: 2, epochs: { owner_active: badAttrScan } },
+        ],
+        {
+          sourceBinding: defaultBinding.sanitized,
+          expectedMainJsSha: defaultBinding.sanitized.main_dart_js_sha256,
+        },
+      );
+      assert.equal(resBad.dto_attribution_proven, false, `must reject chain/payload: ${pair.a.frames.join(' | ')}`);
       assert.equal(resBad.payment_instructions_coverage_gate, 'UNKNOWN/NOT_RUN');
       assert.equal(resBad.scoped_verdict, 'PASS_NARROW_RPC_PAYLOAD_ONLY');
     }
 
-    // IH4: Positive control - source-bound ordered property chain through receiverSnapshot map to canary string
-    const appScan = JSON.parse(JSON.stringify(goodScan));
-    appScan.paths.canary_instr_a.frames = [
-      'root',
-      'internal:(Global handles) -> synthetic',
-      'property:closure -> object',
-      'property:_finance_provider$_instructions -> object',
-      'property:receiverSnapshot -> object',
-      'property:_map -> object',
-      'property:canary_instr_a -> string',
-    ];
-    appScan.paths.canary_instr_b.frames = [
-      'root',
-      'internal:(Global handles) -> synthetic',
-      'property:_finance_provider$_instructions -> object',
-      'property:receiverSnapshot -> object',
-      'element:3 -> string',
-    ];
-    const attrApp = runner.assessPathAttribution([
-      { cycle: 1, epochs: { owner_active: appScan } },
-      { cycle: 2, epochs: { owner_active: appScan } },
-    ]);
-    assert.equal(attrApp.dto_attribution_proven, true);
-    assert.equal(attrApp.payment_instructions_coverage_gate, 'PASS');
-    assert.equal(attrApp.scoped_verdict, 'PASS_DTO_ATTRIBUTED');
+    // Wrong field in reverse direction: _instructions rejected when mangledBinding binds _finance_provider$_instructions
+    const crossReject = runner.assessPathAttribution(
+      [
+        { cycle: 1, epochs: { owner_active: appScan } },
+        { cycle: 2, epochs: { owner_active: appScan } },
+      ],
+      {
+        sourceBinding: mangledBinding.sanitized,
+        expectedMainJsSha: mangledBinding.sanitized.main_dart_js_sha256,
+      },
+    );
+    assert.equal(crossReject.dto_attribution_proven, false);
+    assert.equal(crossReject.payment_instructions_coverage_gate, 'UNKNOWN/NOT_RUN');
 
     // IH5: Recovery state stays outside dumpsDir and is preserved if DB cleanup fails while dumps are deleted
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bh07_instr_recov_'));

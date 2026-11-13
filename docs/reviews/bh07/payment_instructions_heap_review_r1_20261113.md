@@ -22,3 +22,9 @@ Codex và reviewer chạy riêng17Python/5Node groups PASS. Reviewer xác nhận
 ## Sau sửa vòng2 — source/control gate
 
 Codex19Python/8Node groups PASS; reviewer chạy riêng19Python/8Node PASS. IH5 đóng trong runner/CLI/verifier: state còn hoặc unlink báo lỗi thì cleanup FAIL; DB cleanup lỗi vẫn giữ state phục hồi riêng tư. Partial-cycle scans/failure stage được giữ, origin scope an toàn và incomplete cycles không thể PASS. Reviewer không thấy P0/P1/P2 mới trong correction delta; đủ gate cho Codex smoke local. Không phải independent runtime hoặc DTO attribution đã đo; runtime tại checkpoint source này vẫn NOT RUN.
+
+## Vòng3 và Codex tự sửa sau giới hạn
+
+Runtime39302fe giữ verdict hẹp theo [báo cáo](payment_instructions_heap_runtime_20261113.md). Anti vòng3 bổ sung constructor/field binding với SHA artifact và ordered path thực tế, verifier bắt buộc `--build-dir` khi claim attribution. Reviewer riêng20Python/8Node PASS nhưng phát hiện P2 parser nhận code nằm hoàn toàn trong comment; không mở Anti vòng4.
+
+Codex trực tiếp sửa: lexical mask bảo toàn offsets, chỉ dùng phần code ngoài comment/string/template/regex cho constructor/assignment/use matching; RPC JSON field name kiểm từ literal token riêng. Python test mới5variant RED4subcases→GREEN; Node controls RED7/8→GREEN8/8. Full21Python PASS,8Node groups PASS; Node và Python độc lập trích binding giống hệt nhau từ real profile artifact (`_instructions`, `receiverSnapshot`). Probe private trên bốn path R1 khớp binding, không thay byte/verdict R1. Chưa có runtime mới cho source sửa tại checkpoint này. Không có whole-model/listener/native claim; full V2b/BH-07/V8 chưa nghiệm thu.
