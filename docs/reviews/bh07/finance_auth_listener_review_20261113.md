@@ -24,3 +24,7 @@ Root10Python/Node controls PASS. Prototype budget riêng đã qua điểm lỗi 
 ## 14/11 — Vòng3 và Codex sửa trực tiếp
 
 Actual build binding R3 PASS trên main.dart.js a20b3d22…; root/reviewer11Python và Node controls PASS. Reviewer tìm P2 resume parameter bị ghi đè vẫn binding ok=true. Codex thêm control tái hiện RED, trực tiếp chặn reassignment/compound/update của result parameter và alias; không giao Anti vòng4. Actual bind sau sửa exit0. Runtime vẫn NOT RUN tại checkpoint source; chưa kết luận toàn listener graph/BH-07.
+
+## 14/11 — Runtime R1 và sửa scanner
+
+Source c83764d sạch RUN/FAIL tại Owner listener method; Auth1/Finance1, hai DTO populated nhưng method null. Cleanup PASS, public21/94 khớp, Auth83→84. Fresh Guest calibration xác nhận generated prototype tên BoundClosure tự mang $_name; scanner break trước khi đọc. Root thêm control RED tái hiện và chuyển đọc own method trước terminal BoundClosure. Không sửa artifact FAIL hoặc claim runtime PASS.

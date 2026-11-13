@@ -1211,13 +1211,15 @@ def _inspect_tearoff(
             proto_is_provider = True
             break
         nxt_props = _property_edges(idx_data, nxt)
-        if nxt_name == 'BoundClosure':
-            bound_closure_on_chain = True
-            break
         if first_gen_proto_method is None and name_prop in nxt_props:
             m_node = nxt_props[name_prop]
             if _node_type(idx_data, m_node) == 'string':
                 first_gen_proto_method = _node_name(idx_data, m_node)
+        # V8 names the generated Object.create(BoundClosure.prototype)
+        # prototype BoundClosure too; inspect its own method before stopping.
+        if nxt_name == 'BoundClosure':
+            bound_closure_on_chain = True
+            break
         cur = nxt
         cur_props = nxt_props
 

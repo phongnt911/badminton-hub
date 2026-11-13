@@ -1,0 +1,2 @@
+[2026-11-13T22:29:44.086Z] starting cycle 1 (Owner -> logout -> cohost)
+[2026-11-13T22:30:24.063Z] aborted at stage=owner_active_scan epoch=owner_active: cycle 1 owner_active listener_graph FAIL: finance_listener_wrong_method,finance_match_count:0!=expected:1

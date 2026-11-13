@@ -1,0 +1,283 @@
+{
+  "scope": "guest_baseline_layout_calibration_only",
+  "full_listener_gate": "NOT_RUN",
+  "snapshot_bytes": 60449340,
+  "snapshot_sha256": "c3339fc17fe097ffaca744a781b81e3eaa43336781ab24f1ff63d5192ad04e8a",
+  "node_count": 529995,
+  "node_fields": [
+    "type",
+    "name",
+    "id",
+    "self_size",
+    "edge_count",
+    "detachedness"
+  ],
+  "edge_fields": [
+    "type",
+    "name_or_index",
+    "to_node"
+  ],
+  "rooted_auth_heap_object_ids": [
+    "511581"
+  ],
+  "providers": {
+    "AuthProvider": {
+      "all_object_nodes": 1,
+      "strong_root_reachable_count": 1,
+      "records": [
+        {
+          "strong_root_reachable": true,
+          "selected_properties": {
+            "_currentUser": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "null"
+            },
+            "_isLoading": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "false"
+            },
+            "_isSubmitting": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "false"
+            },
+            "ChangeNotifier__count": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__listeners": {
+              "node_type": "object",
+              "class_name": "Array",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__notificationCallStackDepth": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__reentrantlyRemovedListeners": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            }
+          },
+          "listener_slot_descriptors": [
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 0,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "_InheritedProviderScopeElement"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "markNeedsNotifyDependents$0"
+              ],
+              "prototype_debug": [
+                {
+                  "level": 0,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "BoundClosure"
+                },
+                {
+                  "level": 1,
+                  "key": "$_name",
+                  "target_type": "string",
+                  "target_name": "markNeedsNotifyDependents$0"
+                },
+                {
+                  "level": 1,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 2,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 3,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                },
+                {
+                  "level": 4,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                }
+              ]
+            },
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 1,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "SessionProvider"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "_session_provider$_onAuthChanged$0"
+              ],
+              "prototype_debug": [
+                {
+                  "level": 0,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "BoundClosure"
+                },
+                {
+                  "level": 1,
+                  "key": "$_name",
+                  "target_type": "string",
+                  "target_name": "_session_provider$_onAuthChanged$0"
+                },
+                {
+                  "level": 1,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 2,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 3,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                },
+                {
+                  "level": 4,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "SessionProvider": {
+      "all_object_nodes": 1,
+      "strong_root_reachable_count": 1,
+      "records": [
+        {
+          "strong_root_reachable": true,
+          "selected_properties": {
+            "auth": {
+              "node_type": "object",
+              "class_name": "AuthProvider",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__count": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__listeners": {
+              "node_type": "object",
+              "class_name": "Array",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__notificationCallStackDepth": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__reentrantlyRemovedListeners": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            }
+          },
+          "listener_slot_descriptors": [
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 0,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "_InheritedProviderScopeElement"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "markNeedsNotifyDependents$0"
+              ],
+              "prototype_debug": [
+                {
+                  "level": 0,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "BoundClosure"
+                },
+                {
+                  "level": 1,
+                  "key": "$_name",
+                  "target_type": "string",
+                  "target_name": "markNeedsNotifyDependents$0"
+                },
+                {
+                  "level": 1,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 2,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "<unrecognized>"
+                },
+                {
+                  "level": 3,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                },
+                {
+                  "level": 4,
+                  "key": "__proto__",
+                  "target_type": "object",
+                  "target_name": "Object"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ClubProvider": {
+      "all_object_nodes": 0,
+      "strong_root_reachable_count": 0,
+      "records": []
+    },
+    "FinanceProvider": {
+      "all_object_nodes": 0,
+      "strong_root_reachable_count": 0,
+      "records": []
+    }
+  }
+}

@@ -286,7 +286,7 @@ def build_tiny_listener_snapshot(
                     mstr = b.add_node('string', spec['method'])
                     b.add_edge(fin_nodes[0], 'property', '$_name', mstr)
                 else:
-                    gen_proto = b.add_node('object', 'Object')
+                    gen_proto = b.add_node('object', spec.get('generated_prototype_class', 'Object'))
                     b.add_edge(gen_proto, 'property', '__proto__', bound_closure_proto)
                     if spec.get('method') is not None:
                         b.add_edge(gen_proto, 'property', '$_name', b.add_node('string', spec['method']))
@@ -814,6 +814,16 @@ class TestFinanceAuthListenerBinding(unittest.TestCase):
 
 
 class TestFinanceAuthListenerGraphScanner(unittest.TestCase):
+    def test_generated_prototype_named_bound_closure(self):
+        raw = build_tiny_listener_snapshot(listener_slots=[
+            {'kind': 'finance', 'method': '_onAuthChanged$0', 'receiver_idx': 0,
+             'generated_prototype_class': 'BoundClosure'},
+        ])
+        obs = make_cdp_obs(count=1, current_user_null=False, instructions_null=False, finance_null=False)
+        result = graph_mod.scan_snapshot(raw, binding=self.binding, epoch='owner_active',
+                                         cdp_observations=obs, time_origin=1234.5)
+        self.assertEqual(result['verdict'], 'PASS', result['findings'])
+
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.build_dir = Path(self._tmp.name) / 'web'

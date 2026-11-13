@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "version": "1.0",
+  "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+  "provider_holder_edge": "_provider$_value",
+  "provider_holder_snippets": [
+    "_.element = _._initError = _._previousWidget = _._provider$_value = null;",
+    "_.element = _._initError = _._previousWidget = _._provider$_value = null;"
+  ],
+  "finance_provider": {
+    "constructor_name": "FinanceProvider",
+    "constructor_sha256": "0cecb39f841bb44dba05c2136753240f8876cb913e6c312f2ad84a41dfdda0e5",
+    "field_use_verified": true,
+    "instructions_field": "_instructions",
+    "repository_field": "_finance_provider$_repository",
+    "constructor_snippet": "FinanceProvider: function FinanceProvider(t0, t1, t2, t3) {\n      var _ = this;\n      _._finance_provider$_repository = t0;\n      _.auth = t1;\n      _._finance_provider$_authUserId = null;\n      _._finance_provider$_generation = 0;\n      _._finance_provider$_disposed = false;\n      _._finance_provider$_pendingRequests = t2;\n      _._instructions = _._instructionsPlayerId = _._instructionsSessionId = null;\n      _._isLoadingInstructions = false;\n      _._instructionsErrorMessage = null;\n      _._instructionsSerial = 0;\n      _._finance = _._financeSessionId = null;\n      _._isLoadingFinance = false;\n      _._financeErrorMessage = null;\n      _._financeSerial = 0;\n      _._sessionSummary = _._summarySessionId = null;\n      _._isLoadingSummary = false;\n      _._summaryErrorMessage = null;\n      _._summarySerial = 0;\n      _._ledger = _._ledgerClubId = null;\n      _._ledgerHasMore = _._isLoadingMoreLedger = _._isLoadingLedger = false;\n      _._ledgerErrorMessage = null;\n      _._ledgerSerial = 0;\n      _._finance_provider$_isSubmitting = false;\n      _._finance_provider$_submitErrorMessage = null;\n      _.ChangeNotifier__count = 0;\n      _.ChangeNotifier__listeners = t3;\n      _.ChangeNotifier__reentrantlyRemovedListeners = _.ChangeNotifier__notificationCallStackDepth = 0;\n    }",
+    "field_use_snippets": [
+      "_this._instructions = _this._instructionsPlayerId = _this._instructionsSessionId = null;",
+      "$async$self._instructions = null;",
+      "_this._instructions = _this._instructionsPlayerId = _this._instructionsSessionId = null;"
+    ]
+  },
+  "payment_instructions": {
+    "constructor_name": "PaymentInstructions",
+    "constructor_sha256": "df42a71d4f15e7d159467c6c0041d52e6161d5491cda1368a22af3ad790c59c0",
+    "field_use_verified": true,
+    "receiver_snapshot_field": "receiverSnapshot",
+    "constructor_snippet": "PaymentInstructions: function PaymentInstructions(t0, t1, t2, t3, t4, t5, t6, t7, t8) {\n      var _ = this;\n      _.playerId = t0;\n      _.billingState = t1;\n      _.amountDueVnd = t2;\n      _.totalPaidVnd = t3;\n      _.outstandingVnd = t4;\n      _.reference = t5;\n      _.receiverSnapshot = t6;\n      _.hasReceiver = t7;\n      _.canPay = t8;\n    }",
+    "field_use_snippets": [
+      "t1 = instructions.receiverSnapshot,"
+    ]
+  },
+  "binding_sha256": "7c1b10030ed6509f5fc5cb52b902fb6afea2242b8b9dc0c9a02cab5ba99d4d84"
+}

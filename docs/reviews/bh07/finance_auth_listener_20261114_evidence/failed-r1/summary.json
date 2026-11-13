@@ -1,0 +1,802 @@
+{
+  "gate": "V2b — PaymentInstructions synthetic receiverSnapshot heap retention",
+  "coverage_profile": "payment_instructions",
+  "status": "FAIL",
+  "verdict": "FAIL",
+  "measurement_surface": "Flutter Web profile build + Chrome DevTools Protocol HeapProfiler (V8 heap snapshot)",
+  "oracle": "synthetic receiverSnapshot UUIDs scanned in live V8 heap snapshots via heap_oracle.py",
+  "tested_source_sha": "c83764d79ccbc201f5bf603509b1c7316852fe87",
+  "git_dirty": false,
+  "same_document_across_cycles": false,
+  "instructions_coverage_contract": {
+    "version": "1.0",
+    "required_owner_load": [
+      "canary_instr_a",
+      "canary_instr_b"
+    ],
+    "scope": "synthetic_receiver_snapshot_map_values_only",
+    "dto": "PaymentInstructions",
+    "provider_field": "FinanceProvider._instructions",
+    "actor_isolation": "owner_only_disposable_club",
+    "payment_mutation_forbidden": true,
+    "rendered_strings_unattributed": [
+      "bank_code",
+      "account_number",
+      "account_name",
+      "reference"
+    ]
+  },
+  "environment": {
+    "os": "win32 10.0.22621",
+    "node": "v26.13.0",
+    "build": {
+      "mode": "profile",
+      "reused": true,
+      "explicit_provenance_verified": true,
+      "started_at": "2026-11-13T08:22:33.915Z",
+      "tested_source_sha": "aa755b5153fc16804171dbccf4f5c0971221e7ce",
+      "artifacts_root": "build/web",
+      "artifacts": {
+        ".last_build_id": "9536d4cf1128f756052c09bad7bcda75b1491e9fed3e319c37002251f0bb847e",
+        "assets/AssetManifest.bin": "00af55ad3d6f21898fe77e0ff092d1a1cda52c941b6860e9928d45c8af8c095d",
+        "assets/AssetManifest.bin.json": "8460b5f4299ca1ed677c5a54c8038ae9cf1f26f6e91966b1b767ca6cb6d2e5d2",
+        "assets/FontManifest.json": "cd7e03645bc44b2dd47b7cb626f51c4ecbf55a197ab77241628b47ac165fbe21",
+        "assets/NOTICES": "fdd07a12361f8a49d6f6e0c918909e0d7f004d77d91c155411525ae69a1b5509",
+        "assets/fonts/MaterialIcons-Regular.otf": "3a76af11097a60c207569b5e66d519c7131e06f50069270f337c1942bc865387",
+        "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "3d90c370aa4cf00dc57ee2b902f6652147c0f81e03e483df584a9c08b1687c9d",
+        "assets/shaders/ink_sparkle.frag": "2dca5ab93d4ec29e963f996f3916320ba60825e9537dfb149a68008c7a16b026",
+        "assets/shaders/stretch_effect.frag": "ab412f07a5b9b50b67a885b24dbe16929738ae28630407d6490c924caf0a3220",
+        "canvaskit/canvaskit.js": "bb559f6080c7d312ac2a912b4abec9f68ff3d3022d4a603c7796b9b31460642b",
+        "canvaskit/canvaskit.js.symbols": "384f80b392972c83fd4f262527e3d06215a297d33ed59732c726721e9d9311bd",
+        "canvaskit/canvaskit.wasm": "fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3",
+        "canvaskit/chromium/canvaskit.js": "6018b12bd8ed37e6952eee72d59c1cf7ad707ccdb74a0a45190010f77edd9068",
+        "canvaskit/chromium/canvaskit.js.symbols": "31c86fac6042dd8b756150832c1d15495d0d07742e2718f75dbdde5a5a91455e",
+        "canvaskit/chromium/canvaskit.wasm": "ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf",
+        "canvaskit/skwasm.js": "71d7d3e34bf71b52bdba3b588b103bba8148ba28de5754083e01b3398e7a6e1c",
+        "canvaskit/skwasm.js.symbols": "9137f1a3ae744dea575043abfc6e063a047e910e6dab1ee53e496c975d1c033e",
+        "canvaskit/skwasm.wasm": "e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1",
+        "canvaskit/skwasm_heavy.js": "cec554b46ddcf4c0e63d799e0556d546f42d2c3f69316fb4f67ed776f6104558",
+        "canvaskit/skwasm_heavy.js.symbols": "b6b79ed497e11d4cd13cc46724f9e289eacc744d2d185e31c72d595cdf62772b",
+        "canvaskit/skwasm_heavy.wasm": "565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635",
+        "canvaskit/webparagraph/canvaskit.js": "3110e3e4d9b7b5657d336f253aaca8acca5777cde9319fb69ac302d6ff5a8b23",
+        "canvaskit/webparagraph/canvaskit.js.symbols": "44d6c47919106235cf32252252490cdf798d907ee874ba343ab53dc94bc2a9dc",
+        "canvaskit/webparagraph/canvaskit.wasm": "0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254",
+        "canvaskit/wimp.js": "8fd8a47480c6eb0a374d159912d0b3fb15661b41f5c113ecdd39c2f01f2bee46",
+        "canvaskit/wimp.js.symbols": "b4907ebd33131302a8cd99f7c55f52357bdfde04f421b605a616ba8764ae1de4",
+        "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
+        "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
+        "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
+        "flutter_bootstrap.js": "f10aacd29b10cc0d38d9e78dde6cfddcd9bdeb77ceefebdb6974e84fc333b272",
+        "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
+        "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
+        "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
+        "icons/Icon-maskable-192.png": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c",
+        "icons/Icon-maskable-512.png": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929",
+        "index.html": "41182f961e471ef28c1a65605ba8b99739ed6964b19b7e4e1fab7b403333d2ee",
+        "main.dart.js": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+        "manifest.json": "83c0cd838556e5388ae6cf75d0244116dc590294c8c422a4f62deb4e41a0911e",
+        "version.json": "4ef1ff664b7e05badb37751633e18a67f08198113c28c8a4b2be5fb96b6fb83e"
+      },
+      "served_match": true
+    },
+    "chrome": "Edg/157.0.4341.46"
+  },
+  "sentinels": {
+    "canary_instr_a": {
+      "available": true,
+      "sha256_12": "2f65a979671c",
+      "length": 36,
+      "kind": "synthetic receiverSnapshot UUID (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "canary_instr_b": {
+      "available": true,
+      "sha256_12": "96f1a7fb59ae",
+      "length": 36,
+      "kind": "synthetic receiverSnapshot UUID (never rendered)",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "finance"
+    },
+    "probe": {
+      "available": true,
+      "sha256_12": "44f7ad608f24",
+      "length": 23,
+      "kind": "detector sanity marker",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "control"
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "same_document": true,
+      "time_origin": 1794608981351.9,
+      "epochs": {
+        "baseline": {
+          "ok": true,
+          "size_bytes": 60454522,
+          "sha256_12": "37e912c139c2",
+          "structure": {
+            "node_count": 529559,
+            "edge_count": 2281685,
+            "string_count": 165582,
+            "size_bytes": 60454522
+          },
+          "sentinels": {
+            "canary_instr_a": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "canary_instr_b": {
+              "present": false,
+              "occurrences": 0,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "canary_instr_a": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "canary_instr_b": {
+              "reachable": false,
+              "string_nodes": 0,
+              "exact": false
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:6 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "7ed0300796d7",
+              "string_nodes": 1,
+              "exact": true
+            }
+          },
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_finance_provider_instructions_and_finance_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "baseline",
+            "snapshot_sha256_12": "37e912c139c2",
+            "time_origin": 1794608981351.9,
+            "binding_sha256": "87acc372d01e4915d5f4bf6ade82e5216a68fad8a4c5cce83b9a7cb46fffa845",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "160275",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "native",
+                    "class_name": null,
+                    "class_recognized": true,
+                    "primitive_literal": "null",
+                    "is_null": true
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 2,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "163805",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": false,
+                        "receiver_matches_finance_class": false,
+                        "exact_finance_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "199969",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": false,
+                        "receiver_matches_finance_class": false,
+                        "exact_finance_match": false
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "finance_match_count": 0,
+                    "wrong_receiver_count": 0,
+                    "finance_wrong_method_count": 0,
+                    "other_listener_count": 2
+                  }
+                }
+              ]
+            },
+            "finance_provider": {
+              "all_object_nodes": 0,
+              "strong_root_reachable_count": 0,
+              "records": []
+            },
+            "rooted_auth_heap_object_ids": [
+              "160275"
+            ],
+            "rooted_finance_heap_object_ids": [],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "160275",
+              "time_origin_before": 1794608981351.9,
+              "time_origin_after": 1794608981351.9,
+              "before": {
+                "ChangeNotifier__count": 2,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 2,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "cdp_errors": [],
+              "object_group_released": true
+            },
+            "findings": [],
+            "verdict": "NOT_RUN_LAZY",
+            "ok": true
+          },
+          "time_origin": 1794608981351.9
+        },
+        "owner_active": {
+          "ok": true,
+          "size_bytes": 84018433,
+          "sha256_12": "a6aee0a276d1",
+          "structure": {
+            "node_count": 750629,
+            "edge_count": 3572258,
+            "string_count": 174931,
+            "size_bytes": 84018433
+          },
+          "sentinels": {
+            "canary_instr_a": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "canary_instr_b": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "finance"
+            },
+            "probe": {
+              "present": true,
+              "occurrences": 1,
+              "rendered": false,
+              "distinctive": true,
+              "scope": "control"
+            }
+          },
+          "paths": {
+            "canary_instr_a": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 21,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:66 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_instructions -> object",
+                "property:receiverSnapshot -> object",
+                "property:_strings -> object",
+                "property:canary_instr_a -> object",
+                "property:hashMapCellValue -> string"
+              ],
+              "path_sha256_12": "35973ad18922",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "canary_instr_b": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 20,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:66 -> closure",
+                "property:call$0 -> closure",
+                "internal:context -> object",
+                "context -> object",
+                "property:GestureBinding__instance -> object",
+                "property:WidgetsBinding__observers -> object",
+                "element -> object",
+                "property:_framework$_element -> object",
+                "property:_inheritedElements -> object",
+                "property:_persistent_hash_map$_root -> object",
+                "property:keyValuePairs -> object",
+                "element -> object",
+                "property:___InheritedProviderScopeElement__delega -> object",
+                "property:_provider$_value -> object",
+                "property:_instructions -> object",
+                "property:receiverSnapshot -> object",
+                "property:_last -> object",
+                "property:hashMapCellValue -> string"
+              ],
+              "path_sha256_12": "35ad01ea26cc",
+              "string_nodes": 1,
+              "exact": true
+            },
+            "probe": {
+              "reachable": true,
+              "root_kind": "gc_roots",
+              "path_len": 5,
+              "frames": [
+                "root",
+                "element -> synthetic",
+                "element -> synthetic",
+                "internal:6 / V8PerContextData::context_ -> native",
+                "internal:global_object -> object",
+                "property:__bh07heapProbe -> string"
+              ],
+              "path_sha256_12": "7ed0300796d7",
+              "string_nodes": 1,
+              "exact": true
+            }
+          },
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_finance_provider_instructions_and_finance_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "owner_active",
+            "snapshot_sha256_12": "a6aee0a276d1",
+            "time_origin": 1794608981351.9,
+            "binding_sha256": "87acc372d01e4915d5f4bf6ade82e5216a68fad8a4c5cce83b9a7cb46fffa845",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "160275",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "object",
+                    "class_name": "User",
+                    "class_recognized": true,
+                    "primitive_literal": null,
+                    "is_null": false
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 4,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "163805",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": false,
+                        "receiver_matches_finance_class": false,
+                        "exact_finance_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "199969",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": false,
+                        "receiver_matches_finance_class": false,
+                        "exact_finance_match": false
+                      },
+                      {
+                        "index": 2,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "1111279",
+                        "receiver_class": "ClubProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": false,
+                        "receiver_matches_finance_class": false,
+                        "exact_finance_match": false
+                      },
+                      {
+                        "index": 3,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "finance_wrong_method",
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": false,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "1059657",
+                        "receiver_class": "FinanceProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_finance": true,
+                        "receiver_matches_finance_class": true,
+                        "exact_finance_match": false
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "finance_match_count": 0,
+                    "wrong_receiver_count": 0,
+                    "finance_wrong_method_count": 1,
+                    "other_listener_count": 3
+                  }
+                }
+              ]
+            },
+            "finance_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "1059657",
+                  "selected_fields": {
+                    "_instructions": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "PaymentInstructions",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false
+                    },
+                    "_finance": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "SessionFinance",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false
+                    }
+                  }
+                }
+              ]
+            },
+            "rooted_auth_heap_object_ids": [
+              "160275"
+            ],
+            "rooted_finance_heap_object_ids": [
+              "1059657"
+            ],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "160275",
+              "time_origin_before": 1794608981351.9,
+              "time_origin_after": 1794608981351.9,
+              "before": {
+                "ChangeNotifier__count": 4,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 4,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "cdp_errors": [],
+              "finance_heap_object_id": "1059657",
+              "finance_selected_fields": {
+                "_instructions": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "PaymentInstructions"
+                },
+                "_finance": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "SessionFinance"
+                }
+              },
+              "object_group_released": true
+            },
+            "findings": [
+              "finance_listener_wrong_method",
+              "finance_match_count:0!=expected:1"
+            ],
+            "verdict": "FAIL",
+            "ok": false
+          },
+          "time_origin": 1794608981351.9
+        }
+      },
+      "verdict": {
+        "verdict": "FAIL",
+        "incomplete": true,
+        "failed_stage": "owner_active_scan",
+        "failed_epoch": "owner_active",
+        "findings": [
+          "cycle 1 owner_active listener_graph FAIL: finance_listener_wrong_method,finance_match_count:0!=expected:1"
+        ]
+      },
+      "last_stage": "owner_active_scan",
+      "failed_stage": "owner_active_scan",
+      "failed_epoch": "owner_active"
+    }
+  ],
+  "notes": [],
+  "residual_risks": [],
+  "findings": [
+    "cycle 1 owner_active listener_graph FAIL: finance_listener_wrong_method,finance_match_count:0!=expected:1"
+  ],
+  "cleanup": {
+    "disposable_instructions_club_id_sha256_12": "0464a0f1ffa9",
+    "disposable_instructions_session_id_sha256_12": "6e1f9ad1175d",
+    "canary_instr_a_sha256_12": "2f65a979671c",
+    "canary_instr_b_sha256_12": "96f1a7fb59ae",
+    "disposable_instructions_club_created": true,
+    "disposable_instructions_session_created": true,
+    "disposable_instructions_removed": true,
+    "disposable_instructions_verified_absent": true,
+    "disposable_instructions_cleanup_verified": true,
+    "zero_mutation_verified": true,
+    "baseline_fingerprint_equal": true,
+    "public_rows_schema_roles_equal": true,
+    "auth_rows_excluded": true,
+    "mutation_counts": {
+      "payments": 0,
+      "club_transactions": 0,
+      "audit_events": 0,
+      "operation_requests": 0
+    },
+    "auth_refresh_sequence": [
+      83,
+      84
+    ],
+    "public_tables": 21,
+    "public_rows": 94,
+    "before_fingerprint_sha256": "a97bc62f61ec8c6c05a81a0fffce77ec9f4ed8b900ee0238b57c7bd6a276efae",
+    "after_fingerprint_sha256": "d640fd961dc008682af4d6bf5734fb1730845764091e0f604806bb6134da35e4",
+    "recovery_state_retained": false,
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "ok": true
+  },
+  "error": "cycle 1 owner_active listener_graph FAIL: finance_listener_wrong_method,finance_match_count:0!=expected:1",
+  "failure": {
+    "stage": "owner_active_scan",
+    "epoch": "owner_active",
+    "cycle": 1,
+    "actor": "cohost",
+    "message": "cycle 1 owner_active listener_graph FAIL: finance_listener_wrong_method,finance_match_count:0!=expected:1"
+  },
+  "attribution_assessment": {
+    "root_reachability_measured": false,
+    "dto_attribution_proven": false,
+    "attribution_status": "unproven_ordered_chain_mismatch",
+    "claim_scope": "narrow_rpc_payload_retention_only",
+    "scoped_verdict": "FAIL",
+    "payment_instructions_coverage_gate": "UNKNOWN/NOT_RUN",
+    "source_binding": {
+      "ok": true,
+      "finance_provider": {
+        "constructor_name": "FinanceProvider",
+        "constructor_sha256": "0cecb39f841bb44dba05c2136753240f8876cb913e6c312f2ad84a41dfdda0e5",
+        "field_use_verified": true,
+        "instructions_field": "_instructions",
+        "repository_field": "_finance_provider$_repository"
+      },
+      "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+      "payment_instructions": {
+        "constructor_name": "PaymentInstructions",
+        "constructor_sha256": "df42a71d4f15e7d159467c6c0041d52e6161d5491cda1368a22af3ad790c59c0",
+        "field_use_verified": true,
+        "receiver_snapshot_field": "receiverSnapshot"
+      },
+      "provider_holder_edge": "_provider$_value",
+      "binding_sha256": "7c1b10030ed6509f5fc5cb52b902fb6afea2242b8b9dc0c9a02cab5ba99d4d84"
+    },
+    "proven_frames": []
+  },
+  "finished_at": "2026-11-13T22:30:27.264Z",
+  "listener_graph_binding": {
+    "ok": true,
+    "claim_scope": "auth_provider_rooted_listener_to_finance_provider_instructions_and_finance_only",
+    "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+    "base_binding": {
+      "ok": true,
+      "finance_provider": {
+        "constructor_name": "FinanceProvider",
+        "constructor_sha256": "0cecb39f841bb44dba05c2136753240f8876cb913e6c312f2ad84a41dfdda0e5",
+        "field_use_verified": true,
+        "instructions_field": "_instructions",
+        "repository_field": "_finance_provider$_repository"
+      },
+      "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+      "payment_instructions": {
+        "constructor_name": "PaymentInstructions",
+        "constructor_sha256": "df42a71d4f15e7d159467c6c0041d52e6161d5491cda1368a22af3ad790c59c0",
+        "field_use_verified": true,
+        "receiver_snapshot_field": "receiverSnapshot"
+      },
+      "provider_holder_edge": "_provider$_value",
+      "binding_sha256": "7c1b10030ed6509f5fc5cb52b902fb6afea2242b8b9dc0c9a02cab5ba99d4d84"
+    },
+    "auth_provider": {
+      "constructor_name": "AuthProvider",
+      "listeners_field": "ChangeNotifier__listeners",
+      "count_field": "ChangeNotifier__count",
+      "depth_field": "ChangeNotifier__notificationCallStackDepth",
+      "removed_field": "ChangeNotifier__reentrantlyRemovedListeners",
+      "current_user_field": "_currentUser"
+    },
+    "bound_closure": {
+      "constructor_name": "BoundClosure",
+      "receiver_field": "_receiver",
+      "interceptor_field": "_interceptor",
+      "tearoff_name_property": "$_name"
+    },
+    "finance_provider": {
+      "constructor_name": "FinanceProvider",
+      "auth_field": "auth",
+      "instructions_field": "_instructions",
+      "finance_field": "_finance",
+      "registration_getter": "get$_onAuthChanged",
+      "registration_method": "_onAuthChanged$0"
+    },
+    "payment_instructions": {
+      "constructor_name": "PaymentInstructions",
+      "receiver_snapshot_field": "receiverSnapshot"
+    },
+    "session_finance": {
+      "constructor_name": "SessionFinance"
+    },
+    "listener_binding_sha256": "87acc372d01e4915d5f4bf6ade82e5216a68fad8a4c5cce83b9a7cb46fffa845"
+  },
+  "listener_graph_assessment": {
+    "listener_graph_gate": "FAIL",
+    "claim_scope": "auth_provider_rooted_listener_to_finance_provider_instructions_and_finance_only",
+    "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+    "atomic_claim": false,
+    "problems": [
+      "c1_owner_active:FAIL"
+    ]
+  }
+}
