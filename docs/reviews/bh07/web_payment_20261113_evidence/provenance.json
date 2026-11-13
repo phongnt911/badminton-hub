@@ -1,0 +1,30 @@
+{
+  "base_commit": "4c48b86e973eb853ae64c0796c21427af77e6392",
+  "git_dirty_during_runtime": true,
+  "dirty_scope": "new test/tooling/docs only; app/backend/migrations unchanged",
+  "scenario_sha256": "ef12eaaad2e06166b7c9f7c4e69686023c5e5e735ab2febb19b656bb389924dd",
+  "finance_provider_sha256": "bcbc1d386392f67af33e8ee15f4363b8bc796cd5eeae7a5239dd449cc239d68e",
+  "built_and_served_main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+  "exact_driver_sha256": {
+    "edge": {
+      "submit": "c0718f396fe91dce3e7c26ef4f4050cffbf0f676f3aac3787ab74b23f29f81ca",
+      "confirm": "b18bf79e1a9b9fea48abdacfe569c44342c7b9f8d9df8dc7d21a008f4d05e752",
+      "verify": "8bba849fe957614a8e041af3b6d8c91a0b499548b2e7dad70472f0856be0992e"
+    },
+    "firefox": {
+      "submit": "52d9e47b16d68a4f37304efd7e17ab8ca3d524789bf5d01b380ab2e2a68451ea",
+      "confirm": "b15b65c321dd8a8dba470fd7074cb15a59418ea155418ba3282a482f149f7e5c",
+      "verify": "2f002f4398409dcac07c2eb73219702c00a0f999cba02b1c45a08861629f2df6"
+    }
+  },
+  "browsers": {
+    "Edge": "157.0.4341.46 headless",
+    "Firefox": "156.0 Playwright headless"
+  },
+  "build": "existing Flutter profile, no new build/Flutter test suite",
+  "implementation": "Anti CLI gemini-4-hydrogen-high --print-timeout 0; no scenario correction needed",
+  "root_review_fix": "DB confirmation metadata/entity_type gates, RED3 -> GREEN6 tests",
+  "runtime_operator": "Codex",
+  "independent_runtime": "NOT_RUN; source/control/artifact only",
+  "scope": "synthetic submit/confirm/Guest paid state; no real bank/webhook, no payment offline/replay/cash/reject/reverse/native claim"
+}

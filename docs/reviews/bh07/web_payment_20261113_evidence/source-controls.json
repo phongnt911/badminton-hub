@@ -1,0 +1,8 @@
+{
+  "expression": "PASS",
+  "payload_mutants_rejected": 9,
+  "money_controls": 3,
+  "json_controls": 4,
+  "request_filter_and_unexpected_mutation": "PASS",
+  "external_origin": "PASS"
+}

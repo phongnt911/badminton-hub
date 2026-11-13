@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "phase": "submit",
+  "submission_ui_verified": true,
+  "submitted_not_counted_paid": true,
+  "attempts": 1,
+  "rpc_status": 200,
+  "recorded_console_summary": {
+    "error_count": 1,
+    "warning_count": 6,
+    "pageerror_count": 0,
+    "offline_resource_errors": 0,
+    "qr_cors_errors": 1
+  },
+  "session_sha12": "bc434bd05a32",
+  "player_sha12": "385d6ac5a8d0",
+  "payment_sha12": "5e9bfda85f35",
+  "request_id_sha256": "c98dc1e883f0e1c2870a8b9ccc11816b0f69c50d521aff10ea73d23f4ca50fb2"
+}

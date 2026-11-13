@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "phase": "verify_guest",
+  "guest_verified": true,
+  "management_absent": true,
+  "submit_button_absent": true,
+  "qr_section_absent": true,
+  "no_mutation_performed": true,
+  "expected_fees": {
+    "due_vnd": 100000,
+    "paid_vnd": 100000,
+    "outstanding_vnd": 0
+  },
+  "recorded_console_summary": {
+    "error_count": 0,
+    "warning_count": 0,
+    "pageerror_count": 0,
+    "offline_resource_errors": 0,
+    "qr_cors_errors": 0
+  },
+  "session_sha12": "747ffca0fd04",
+  "player_sha12": "d9a84b532779",
+  "payment_sha12": "ac847b64d3ee"
+}

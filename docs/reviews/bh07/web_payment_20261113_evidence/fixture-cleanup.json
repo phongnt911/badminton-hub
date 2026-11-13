@@ -1,0 +1,34 @@
+{
+  "edge": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "747ffca0fd04",
+    "remaining": {
+      "session": 0,
+      "players": 0,
+      "revision": 0,
+      "expenses": 0,
+      "payments": 0,
+      "ledger": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  },
+  "firefox": {
+    "created": true,
+    "removed": true,
+    "verified_absent": true,
+    "session_sha12": "bc434bd05a32",
+    "remaining": {
+      "session": 0,
+      "players": 0,
+      "revision": 0,
+      "expenses": 0,
+      "payments": 0,
+      "ledger": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  }
+}

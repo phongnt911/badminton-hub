@@ -1,0 +1,25 @@
+{
+  "wrong_expected_amount100001": {
+    "status": "EXPECTED_REJECTION",
+    "before_mutation": true,
+    "db_pristine": {
+      "payments": 0,
+      "audits": 0,
+      "operations": 0
+    }
+  },
+  "first_edge_owner_profile": {
+    "status": "FAIL",
+    "stage": "home semantics bootstrap before login/confirm",
+    "later_probe": {
+      "visibility": "visible",
+      "focused": true,
+      "placeholder_count": 0,
+      "root_account_tab_count": 1
+    },
+    "root_cause": "not established",
+    "resolution_observed": "unused submit browsers and failed Owner browser closed; new Owner profile same source passed"
+  },
+  "final_phases": "all six UI phases PASS; first failure not retagged",
+  "independent_runtime": "NOT_RUN"
+}

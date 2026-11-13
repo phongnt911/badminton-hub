@@ -1,0 +1,29 @@
+{
+  "payment_count": 1,
+  "amount": 100000,
+  "method": "bank_transfer",
+  "status": "submitted",
+  "submitted_by_guest": true,
+  "confirmed_by_owner": false,
+  "confirmed_by_is_null": true,
+  "confirmed_at_is_null": true,
+  "submit_ops": 1,
+  "submit_audits": 1,
+  "all_submit_audits": 1,
+  "confirm_ops": 0,
+  "confirm_audits": 0,
+  "all_confirm_audits": 0,
+  "ledger_count": 0,
+  "ledger_total": 0,
+  "ledger_valid": true,
+  "total_paid": 0,
+  "outstanding": 100000,
+  "charges": [
+    100000,
+    100000
+  ],
+  "billing_current": true,
+  "payment_sha12": "5e9bfda85f35",
+  "submit_request_sha256": "c98dc1e883f0e1c2870a8b9ccc11816b0f69c50d521aff10ea73d23f4ca50fb2",
+  "confirm_request_sha256": null
+}

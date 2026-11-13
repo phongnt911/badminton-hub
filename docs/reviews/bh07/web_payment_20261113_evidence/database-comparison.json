@@ -1,0 +1,12 @@
+{
+  "public_rows_schema_roles_all_other_sequences_equal": true,
+  "public_tables": 21,
+  "public_rows": 94,
+  "auth_rows_excluded": true,
+  "auth_refresh_sequence": [
+    68,
+    75
+  ],
+  "before_sha256": "537d2053176d4290702609e76db690a5b0a2ab8b95ef9baa581be8e1f4e31951",
+  "after_sha256": "9e039179a35b52e90f00f5a09484722e34e5e39a214e2ac6279eee87bf69fa2a"
+}

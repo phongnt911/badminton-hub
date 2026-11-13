@@ -1,0 +1,32 @@
+FFF.....
+======================================================================
+FAIL: test_confirmation_metadata (__main__.Gate.test_confirmation_metadata) (confirmed=False, field='confirmed_by_is_null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_payment_gate.py", line 31, in test_confirmation_metadata
+    with self.subTest(confirmed=confirmed,field=k),self.assertRaises(AssertionError):gate(r,confirmed)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_confirmation_metadata (__main__.Gate.test_confirmation_metadata) (confirmed=False, field='confirmed_at_is_null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_payment_gate.py", line 31, in test_confirmation_metadata
+    with self.subTest(confirmed=confirmed,field=k),self.assertRaises(AssertionError):gate(r,confirmed)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+======================================================================
+FAIL: test_confirmation_metadata (__main__.Gate.test_confirmation_metadata) (confirmed=True, field='confirmed_at_is_null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\PHONGNT\Documents\GitHub\badminton-hub\.build\test_payment_gate.py", line 31, in test_confirmation_metadata
+    with self.subTest(confirmed=confirmed,field=k),self.assertRaises(AssertionError):gate(r,confirmed)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AssertionError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+FAILED (failures=3)

@@ -1,0 +1,31 @@
+{
+  "mode": "manually seeded completed/current synthetic fixture, not a measured lifecycle transition",
+  "fixtures": {
+    "edge": {
+      "owned": true,
+      "completed": true,
+      "receiver": true,
+      "players": 2,
+      "charges": [
+        100000,
+        100000
+      ],
+      "payments": 0,
+      "billing_current": true,
+      "preflight_absent": true
+    },
+    "firefox": {
+      "owned": true,
+      "completed": true,
+      "receiver": true,
+      "players": 2,
+      "charges": [
+        100000,
+        100000
+      ],
+      "payments": 0,
+      "billing_current": true,
+      "preflight_absent": true
+    }
+  }
+}
