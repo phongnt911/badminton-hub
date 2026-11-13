@@ -1,0 +1,14 @@
+{
+  "public_tables": 21,
+  "public_rows": 94,
+  "public_schema_roles_and_other_sequences_equal": true,
+  "auth_rows_excluded": true,
+  "overall_auth_refresh_sequence_since_root_preflight": [
+    75,
+    83
+  ],
+  "measured_bound_run_auth_refresh_sequence": [
+    79,
+    83
+  ]
+}

@@ -15,7 +15,7 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | R0 readiness | Đạt docs-only kế thừa | [31fced4](review_31fced4.md); chưa phải nghiệm thu V8 mới |
 | V1 browser/offline/reopen/late response | Đạt local kế thừa | [448c50f](v1_acceptance_448c50f.md) |
 | V2 đa thiết bị/browser/OS/deep link | PASS các kịch bản Web local đã đo; toàn V2 chưa đóng | Edge/Firefox headless: đọc/reopen/logout/deep-link, lifecycle offline/retry, QR fallback, submit/confirm payment; Edge clipboard PASS, Firefox clipboard NOT RUN. Firefox software-headed đọc PASS nhưng write input FAIL; headed mặc định UNKNOWN. [Web extension](web_v2_extension_runtime_20261113.md), [lifecycle/copy](web_lifecycle_copy_runtime_20261113.md), [payment](web_payment_runtime_20261113.md). Native/Safari còn thiếu; Android dừng theo owner |
-| V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web đã Đạt | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md); rendered retention unattributed, whole-model UNKNOWN, instructions/listener/native chưa có bằng chứng đầy đủ |
+| V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web và hai synthetic instructions map values đã Đạt local | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md), [instructions4433b15](payment_instructions_heap_runtime_20261113.md); rendered retention unattributed, whole-model/field coverage UNKNOWN, listener/native chưa đủ |
 | V3 managed backup/PITR/retention/offsite | NOT RUN | Listing 13/11 có staging ACTIVE_HEALTHY, tạo12/11; chưa có backup/PITR/policy/restore evidence. [Kiểm kê chỉ đọc và advisory chưa triage](staging_readonly_inventory_20261113.md) |
 | V4 concurrent backup/recovery | **PASS local/staging-like** | [Runtime sạch7589179 và review độc lập](recovery_site_url_runtime_final_20261110.md): authenticated HTTP overlap, restore P0, replay/fingerprint48bảng+schema khớp, cleanup8/8 |
 | V5 release staging/production restore/deploy | NOT RUN | Chưa có target/release/window/rollback được phê duyệt; không tác động remote release |
@@ -25,6 +25,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | V8 nghiệm thu toàn BH-07 | Chưa đủ điều kiện | Phải đóng mọi P0/P1/P2/FAIL và có bằng chứng hoặc owner decision hợp lệ cho các phần vận hành còn trống |
 
 ## Bằng chứng kiểm chứng gần nhất
+
+- 13/11/2026 source4433b15 sạch: instructions canary runtime mới RUN/PASS_DTO_ATTRIBUTED cho hai synthetic receiverSnapshot map values;2chu kỳ/8epochs cùngdocument, binding executable constructors/fields với artifactSHA, strictauditor0. DB21/94 khớp, zero mutation, fixture/dump/profile/state dọn, Auth79→83. Reviewer6hashes/39artifacts và strictauditor0; thiếubuilddir reject1; R1 giữnguyên. Không đóngwholeDTO/renderedfields/listener/native/fullV2b. [Báo cáo](payment_instructions_heap_runtime_20261113.md).
 
 - 13/11/2026 instructions canary runtime source39302fe sạch: hai chu kỳ/tám epochs Web profile cùng document, canary Owner reachable và vắng sau logout/actor, zero mutation; fixture/dump/profile/state dọn, baseline21/94 khớp, Auth75→79. Original verdict PASS_NARROW_RPC_PAYLOAD_ONLY, instructions attribution UNKNOWN/NOT RUN do matcher chưa có binding tên field artifact. Reviewer verify parent5hashes/original auditor0; không independent runtime. [Báo cáo](payment_instructions_heap_runtime_20261113.md). Không đóng toàn V2b/BH-07/V8.
 

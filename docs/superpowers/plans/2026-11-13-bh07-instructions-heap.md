@@ -14,21 +14,23 @@
 
 ## Task1: bounded companion tooling
 
-- [ ] Write failing controls for missing/unreachable canary, actor epochs, cleanup/baseline mismatch, raw output leakage, snapshot cap/write error, fixture ownership/collision. Observe RED.
-- [ ] Implement new fixture helper with collision preflight, exact ownership readback and cleanup finally; actual charge_revisions/payments/club_transactions schema, current billing source_version.
-- [ ] Implement same-document real UI runner, baseline → Owner instructions load/cancel → logout → Cohost → logout → Owner again → logout → Member; snapshot each relevant epoch, enforce stable document identity. Stream outside repo, remove private dumps/profiles on success/failure. Never inject canary into page evaluate or JS globals; only app RPC may load it.
-- [ ] Implement verifier requiring both canaries loaded/reachable in each Owner epoch, baseline absent and no strong-root reachability after logout/actor change; unknown/error fails. Require real app retaining-path attribution before a PaymentInstructions-specific conclusion; otherwise report narrow RPC-payload retention only.
+- [x] Write failing controls for missing/unreachable canary, actor epochs, cleanup/baseline mismatch, raw output leakage, snapshot cap/write error, fixture ownership/collision. Observe RED.
+- [x] Implement new fixture helper with collision preflight, exact ownership readback and cleanup finally; actual charge_revisions/payments/club_transactions schema, current billing source_version.
+- [x] Implement same-document real UI runner, baseline → Owner instructions load/cancel → logout → Cohost → logout → Owner again → logout → Member; snapshot each relevant epoch, enforce stable document identity. Stream outside repo, remove private dumps/profiles on success/failure. Never inject canary into page evaluate or JS globals; only app RPC may load it.
+- [x] Implement verifier requiring both canaries loaded/reachable in each Owner epoch, baseline absent and no strong-root reachability after logout/actor change; unknown/error fails. Require real app retaining-path attribution before a PaymentInstructions-specific conclusion; otherwise report narrow RPC-payload retention only.
 - [x] Run controls GREEN and hand off source/interfaces/commands without claiming runtime PASS. Source/control reviewed after2 correction rounds; Codex+reviewer separately19Python/8Node PASS.
 
 ## Task2: review and runtime
 
 - [x] Codex/reviewer review source/control failures and corrections, max3 Anti correction rounds. IH1–IH6 closed in reviewed source/control delta afterround2; live runtime pending.
-- [ ] Commit reviewed source for clean provenance; verify build/served all artifacts from unchanged app source/config. Smoke first; if measurement invalid, preserve FAIL/UNKNOWN and diagnose without widening claim.
-- [ ] Run full two-cycle measurement if smoke establishes preconditions. Capture exact scope, path/baseline evidence, no-payment DB gate, cleanup receipt and fingerprint equality; Auth changes separate.
-- [ ] Independent source/artifact review, preserve failed attempts, redact bundle, verify hashes and local links; commit progress/status without full BH-07 acceptance.
+- [x] Commit reviewed source for clean provenance; verify build/served all artifacts from unchanged app source/config. Smoke first; if measurement invalid, preserve FAIL/UNKNOWN and diagnose without widening claim.
+- [x] Run full two-cycle measurement if smoke establishes preconditions. Capture exact scope, path/baseline evidence, no-payment DB gate, cleanup receipt and fingerprint equality; Auth changes separate.
+- [x] Independent source/artifact review, preserve failed attempts, redact bundle, verify hashes and local links; commit progress/status without full BH-07 acceptance.
 
 ## Review focus
 
 Canaries must never be loaded through runner injection/console; full-snapshot serialized response matches are not proof of DTO attribution. Background RPC must not legitimately reload them for alternate actors. Dump stream failures and cap overflow must fail with cleanup. Fixture deletion must never adopt pre-existing rows. Reused served build needs exact artifact provenance and clean source; credentials never in public evidence.
 
 Reviewer plan check: missing app-path attribution cannot become PaymentInstructions coverage PASS; a narrower payload observation leaves that gate UNKNOWN/NOT RUN. Validate unique cycle/actor/document identities and every required epoch; missing/duplicate records fail. Persist attempted fixture IDs/marker before SQL and recover ownership after uncertain create response so finally cleanup still runs.
+
+Task2 complete within synthetic-map scope: source4433b15 clean2cycles/8epochs PASS_DTO_ATTRIBUTED; strictauditor0 withactualbuild, missingbuildreject1. Root21Python/8Node controls, independent source/control/artifact review6hashes/39artifacts; no independentruntime. R1 preserved, final docs/evidence commit follows. WholeDTO/listener/native/fullV2b/BH07 remain unaccepted.
