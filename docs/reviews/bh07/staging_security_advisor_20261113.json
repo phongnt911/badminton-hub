@@ -1,0 +1,849 @@
+{
+  "project_id": "mxqpukhfiugdwsjsbihj",
+  "source": "Supabase connected get_advisors security, read-only 2026-11-13",
+  "result": {
+    "lints": [
+      {
+        "name": "security_definer_view",
+        "title": "Security Definer View",
+        "level": "ERROR",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects views defined with the SECURITY DEFINER property. These views enforce Postgres permissions and row level security policies (RLS) of the view creator, rather than that of the querying user",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view",
+        "count": 2,
+        "findings": [
+          {
+            "detail": "View \\`public.public_session_summary\\` is defined with the SECURITY DEFINER property",
+            "metadata": {
+              "name": "public_session_summary",
+              "type": "view",
+              "schema": "public"
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "View \\`public.player_outstanding\\` is defined with the SECURITY DEFINER property",
+            "metadata": {
+              "name": "player_outstanding",
+              "type": "view",
+              "schema": "public"
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          }
+        ]
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "title": "Public Can Execute SECURITY DEFINER Function",
+        "level": "WARN",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects `SECURITY DEFINER` functions that are callable without signing in. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if it is not meant to be public.",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+        "count": 9,
+        "findings": [
+          {
+            "detail": "Function `public.bh06_bank_receiver_snapshot()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/bh06_bank_receiver_snapshot`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "bh06_bank_receiver_snapshot",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.bh06_sessions_receiver_snapshot()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/bh06_sessions_receiver_snapshot`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "bh06_sessions_receiver_snapshot",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_club_bank_account(p_club_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_club_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_club_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_host_bank_account()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_host_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_host_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_my_registration(p_session_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_my_registration`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_my_registration",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_session_public_detail(p_session_id uuid)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_session_public_detail`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_session_public_detail",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.handle_new_user()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_new_user`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "handle_new_user",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.handle_updated_at()` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_updated_at`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "handle_updated_at",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_public_sessions(p_area text, p_from timestamp with time zone, p_to timestamp with time zone, p_fee_mode text, p_only_available boolean, p_limit integer, p_offset integer)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_public_sessions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_public_sessions",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_area text, p_from timestamp with time zone, p_to timestamp with time zone, p_fee_mode text, p_only_available boolean, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          }
+        ]
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "title": "Signed-In Users Can Execute SECURITY DEFINER Function",
+        "level": "WARN",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects `SECURITY DEFINER` functions that are callable by signed-in users. Revoke `EXECUTE`, switch the function to `SECURITY INVOKER`, or move it out of your exposed API schema if signed-in users should not call it.",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+        "count": 62,
+        "findings": [
+          {
+            "detail": "Function `public.accept_waitlist_invitation(p_session_id uuid, p_invitation_id uuid, p_consent_note text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/accept_waitlist_invitation`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "accept_waitlist_invitation",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_invitation_id uuid, p_consent_note text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.add_club_member(p_club_id uuid, p_display_name text, p_phone_number text, p_contact_note text, p_user_id uuid, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/add_club_member`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "add_club_member",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_display_name text, p_phone_number text, p_contact_note text, p_user_id uuid, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.add_session_player(p_session_id uuid, p_member_id uuid, p_guest_name text, p_contact text, p_fee_exempt boolean, p_allow_waitlist boolean, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/add_session_player`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "add_session_player",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_member_id uuid, p_guest_name text, p_contact text, p_fee_exempt boolean, p_allow_waitlist boolean, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.bh06_bank_receiver_snapshot()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/bh06_bank_receiver_snapshot`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "bh06_bank_receiver_snapshot",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.bh06_sessions_receiver_snapshot()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/bh06_sessions_receiver_snapshot`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "bh06_sessions_receiver_snapshot",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.cancel_registration(p_session_id uuid, p_player_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/cancel_registration`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "cancel_registration",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_player_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.complete_session(p_session_id uuid, p_expected_version bigint, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/complete_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "complete_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_expected_version bigint, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.confirm_payment(p_payment_id uuid, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/confirm_payment`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "confirm_payment",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_payment_id uuid, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.create_club(p_name text, p_description text, p_visibility text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/create_club`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "create_club",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_name text, p_description text, p_visibility text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.create_session(p_venue_id uuid, p_title text, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_capacity integer, p_court_count integer, p_club_id uuid, p_description text, p_level_requirement text, p_visibility text, p_approval_mode text, p_fee_mode text, p_member_fee_vnd bigint, p_guest_fee_vnd bigint, p_registration_deadline timestamp with time zone, p_cancellation_deadline timestamp with time zone, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/create_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "create_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_venue_id uuid, p_title text, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_capacity integer, p_court_count integer, p_club_id uuid, p_description text, p_level_requirement text, p_visibility text, p_approval_mode text, p_fee_mode text, p_member_fee_vnd bigint, p_guest_fee_vnd bigint, p_registration_deadline timestamp with time zone, p_cancellation_deadline timestamp with time zone, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.decide_registration(p_session_id uuid, p_player_id uuid, p_decision text, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/decide_registration`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "decide_registration",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_player_id uuid, p_decision text, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.duplicate_session(p_session_id uuid, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/duplicate_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "duplicate_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.finalize_session_charges(p_session_id uuid, p_expected_version bigint, p_expected_billing_input_version bigint, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/finalize_session_charges`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "finalize_session_charges",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_expected_version bigint, p_expected_billing_input_version bigint, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_club_bank_account(p_club_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_club_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_club_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_club_detail(p_club_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_club_detail`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_club_detail",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_club_ledger(p_club_id uuid, p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_club_ledger`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_club_ledger",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_host_bank_account()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_host_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_host_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_my_registration(p_session_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_my_registration`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_my_registration",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_my_waitlist_invitation(p_session_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_my_waitlist_invitation`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_my_waitlist_invitation",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_payment_instructions(p_session_id uuid, p_player_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_payment_instructions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_payment_instructions",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_player_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_session_finance(p_session_id uuid, p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_session_finance`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_session_finance",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_session_payment_instructions(p_session_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_session_payment_instructions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_session_payment_instructions",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_session_public_detail(p_session_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_session_public_detail`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_session_public_detail",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.get_session_summary(p_session_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/get_session_summary`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "get_session_summary",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.handle_new_user()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_new_user`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "handle_new_user",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.handle_updated_at()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/handle_updated_at`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "handle_updated_at",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.has_club_role(p_club_id uuid, p_user_id uuid, p_roles text[])` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/has_club_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "has_club_role",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_club_id uuid, p_user_id uuid, p_roles text[]",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.has_session_finance_access(p_session_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/has_session_finance_access`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "has_session_finance_access",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.has_session_management_access(p_session_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/has_session_management_access`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "has_session_management_access",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.has_session_player_finance_access(p_session_player_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/has_session_player_finance_access`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "has_session_player_finance_access",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_session_player_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.has_session_staff_role(p_session_id uuid, p_user_id uuid, p_roles text[])` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/has_session_staff_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "has_session_staff_role",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_session_id uuid, p_user_id uuid, p_roles text[]",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.invite_waitlisted_player(p_session_id uuid, p_player_id uuid, p_expires_at timestamp with time zone, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/invite_waitlisted_player`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "invite_waitlisted_player",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_player_id uuid, p_expires_at timestamp with time zone, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.is_app_admin(p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/is_app_admin`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "is_app_admin",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.is_club_member_active(p_club_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/is_club_member_active`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "is_club_member_active",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_club_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.is_club_owner(p_club_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/is_club_owner`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "is_club_owner",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_club_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.is_session_host(p_session_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/is_session_host`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "is_session_host",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_session_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.is_session_participant(p_session_id uuid, p_user_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/is_session_participant`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "is_session_participant",
+              "schema": "public",
+              "language": "sql",
+              "arguments": "p_session_id uuid, p_user_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_club_members(p_club_id uuid, p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_club_members`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_club_members",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_my_clubs()` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_my_clubs`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_my_clubs",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_my_session_history(p_limit integer, p_offset integer, p_club_id uuid, p_from timestamp with time zone, p_to timestamp with time zone)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_my_session_history`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_my_session_history",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_limit integer, p_offset integer, p_club_id uuid, p_from timestamp with time zone, p_to timestamp with time zone",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_my_sessions(p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_my_sessions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_my_sessions",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_public_sessions(p_area text, p_from timestamp with time zone, p_to timestamp with time zone, p_fee_mode text, p_only_available boolean, p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_public_sessions`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_public_sessions",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_area text, p_from timestamp with time zone, p_to timestamp with time zone, p_fee_mode text, p_only_available boolean, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.list_session_players(p_session_id uuid, p_limit integer, p_offset integer)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/list_session_players`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "list_session_players",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_limit integer, p_offset integer",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.post_manual_club_transaction(p_club_id uuid, p_direction text, p_amount_vnd bigint, p_title text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/post_manual_club_transaction`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "post_manual_club_transaction",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_direction text, p_amount_vnd bigint, p_title text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.post_session_expense(p_session_id uuid, p_category text, p_title text, p_amount_vnd bigint, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/post_session_expense`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "post_session_expense",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_category text, p_title text, p_amount_vnd bigint, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.record_attendance(p_session_id uuid, p_player_id uuid, p_attendance text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/record_attendance`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "record_attendance",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_player_id uuid, p_attendance text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.record_cash_payment(p_player_id uuid, p_amount_vnd bigint, p_reference text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/record_cash_payment`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "record_cash_payment",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_player_id uuid, p_amount_vnd bigint, p_reference text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.reject_payment(p_payment_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/reject_payment`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "reject_payment",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_payment_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.request_join_session(p_session_id uuid, p_contact text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/request_join_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "request_join_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_contact text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.reverse_club_transaction(p_transaction_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/reverse_club_transaction`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "reverse_club_transaction",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_transaction_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.reverse_payment(p_payment_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/reverse_payment`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "reverse_payment",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_payment_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.reverse_session_expense(p_session_id uuid, p_expense_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/reverse_session_expense`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "reverse_session_expense",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_expense_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.revoke_waitlist_invitation(p_session_id uuid, p_invitation_id uuid, p_reason text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/revoke_waitlist_invitation`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "revoke_waitlist_invitation",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_invitation_id uuid, p_reason text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.set_club_bank_account(p_club_id uuid, p_bank_code text, p_account_number text, p_account_name text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/set_club_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "set_club_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_bank_code text, p_account_number text, p_account_name text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.set_club_member_role(p_club_id uuid, p_member_id uuid, p_role text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/set_club_member_role`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "set_club_member_role",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_member_id uuid, p_role text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.set_host_bank_account(p_bank_code text, p_account_number text, p_account_name text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/set_host_bank_account`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "set_host_bank_account",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_bank_code text, p_account_number text, p_account_name text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.set_session_lifecycle(p_session_id uuid, p_action text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/set_session_lifecycle`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "set_session_lifecycle",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_action text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.start_session(p_session_id uuid, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/start_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "start_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.submit_payment(p_player_id uuid, p_amount_vnd bigint, p_method text, p_reference text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/submit_payment`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "submit_payment",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_player_id uuid, p_amount_vnd bigint, p_method text, p_reference text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.update_club(p_club_id uuid, p_name text, p_description text, p_visibility text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/update_club`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "update_club",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_name text, p_description text, p_visibility text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.update_club_member_contact(p_club_id uuid, p_member_id uuid, p_display_name text, p_phone_number text, p_contact_note text, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/update_club_member_contact`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "update_club_member_contact",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_club_id uuid, p_member_id uuid, p_display_name text, p_phone_number text, p_contact_note text, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          },
+          {
+            "detail": "Function `public.update_session(p_session_id uuid, p_version bigint, p_venue_id uuid, p_title text, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_capacity integer, p_court_count integer, p_description text, p_level_requirement text, p_visibility text, p_approval_mode text, p_fee_mode text, p_member_fee_vnd bigint, p_guest_fee_vnd bigint, p_registration_deadline timestamp with time zone, p_cancellation_deadline timestamp with time zone, p_request_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/update_session`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+            "metadata": {
+              "name": "update_session",
+              "schema": "public",
+              "language": "plpgsql",
+              "arguments": "p_session_id uuid, p_version bigint, p_venue_id uuid, p_title text, p_starts_at timestamp with time zone, p_ends_at timestamp with time zone, p_capacity integer, p_court_count integer, p_description text, p_level_requirement text, p_visibility text, p_approval_mode text, p_fee_mode text, p_member_fee_vnd bigint, p_guest_fee_vnd bigint, p_registration_deadline timestamp with time zone, p_cancellation_deadline timestamp with time zone, p_request_id uuid",
+              "security_definer": true
+            },
+            "observed_at": "2026-11-13T08:14:56.595Z"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -14,9 +14,9 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | Concurrency HTTP/Auth | Đạt local kế thừa | [cbcc46c vòng2](review_cbcc46c_r2.md) |
 | R0 readiness | Đạt docs-only kế thừa | [31fced4](review_31fced4.md); chưa phải nghiệm thu V8 mới |
 | V1 browser/offline/reopen/late response | Đạt local kế thừa | [448c50f](v1_acceptance_448c50f.md) |
-| V2 đa thiết bị/browser/OS/deep link | NOT RUN cho phần ngoài matrix đã chốt | Flutter/Android SDK đã cài, Samsung SM-S926B Android17 đã kết nối; APK debug build/install/launch thành công với backend thử local; owner xác nhận UI login thành công. Chưa hoàn tất matrix/nghiệp vụ; [biên bản setup](android_local_device_setup_20261110.md) |
+| V2 đa thiết bị/browser/OS/deep link | PASS các kịch bản Web local đã đo; toàn V2 chưa đóng | Edge/Firefox headless: đọc/reopen/logout/deep-link, lifecycle offline/retry, QR fallback, submit/confirm payment; Edge clipboard PASS, Firefox clipboard NOT RUN. Firefox software-headed đọc PASS nhưng write input FAIL; headed mặc định UNKNOWN. [Web extension](web_v2_extension_runtime_20261113.md), [lifecycle/copy](web_lifecycle_copy_runtime_20261113.md), [payment](web_payment_runtime_20261113.md). Native/Safari còn thiếu; Android dừng theo owner |
 | V2b toàn bộ private heap/cache | Chưa đóng toàn phần; sentinel ID Web đã Đạt | [coverage map](v2b_coverage_map.md), [ledger b25aaef](review_b25aaef_ledger_final.md); rendered retention unattributed, whole-model UNKNOWN, instructions/listener/native chưa có bằng chứng đầy đủ |
-| V3 managed backup/PITR/retention/offsite | NOT RUN | Connected listing chỉ thấy1project badminton-hub INACTIVE, không thấy staging riêng trong account/connection này; không chứng minh các account khác không có môi trường |
+| V3 managed backup/PITR/retention/offsite | NOT RUN | Listing 13/11 có staging ACTIVE_HEALTHY, tạo12/11; chưa có backup/PITR/policy/restore evidence. [Kiểm kê chỉ đọc và advisory chưa triage](staging_readonly_inventory_20261113.md) |
 | V4 concurrent backup/recovery | **PASS local/staging-like** | [Runtime sạch7589179 và review độc lập](recovery_site_url_runtime_final_20261110.md): authenticated HTTP overlap, restore P0, replay/fingerprint48bảng+schema khớp, cleanup8/8 |
 | V5 release staging/production restore/deploy | NOT RUN | Chưa có target/release/window/rollback được phê duyệt; không tác động remote release |
 | V5b full reset local | Đạt runtime local kế thừa; harness classifier đã sửa/review delta | [b036e9e](review_b036e9e.md); [review harness mới](recovery_diagnostics_review_after_r2_20261110.md):22targetedPASS/16path-inventory controls, production V5b không đổi. Probe lịch sử duplicate-prefix không tương thích harness mới, không retag là replay PASS |
@@ -25,6 +25,10 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 | V8 nghiệm thu toàn BH-07 | Chưa đủ điều kiện | Phải đóng mọi P0/P1/P2/FAIL và có bằng chứng hoặc owner decision hợp lệ cho các phần vận hành còn trống |
 
 ## Bằng chứng kiểm chứng gần nhất
+
+- 13/11/2026 khảo sát V2b: [PaymentInstructions feasibility](payment_instructions_heap_feasibility_20261113.md) đề xuất hai canary tổng hợp trong receiverSnapshot trên fixture local riêng; review sửa contract billing và giới hạn kết luận. Chưa triển khai/chạy heap, không đóng instructions hoặc whole-model/listener/native.
+
+- 13/11/2026 kiểm kê remote chỉ đọc: staging `mxqpukhfiugdwsjsbihj` ACTIVE_HEALTHY; project gốc INACTIVE. Security Advisor có2ERROR view,9WARN anon và62WARN authenticated function cần đối chiếu thiết kế, chưa kết luận exploit hoặc đóng cảnh báo. Không restore/deploy/thay cấu hình; V3/V5 vẫn NOT RUN. [Kiểm kê](staging_readonly_inventory_20261113.md).
 
 - 13/11/2026 payment bổ sung: Edge/Firefox headless PASS Guest submit100000 (paid0/ledger0), Owner confirm (một ledger income100000 đúng payment/actor/request), Guest đăng nhập mới thấy100000/100000/0 và không QR/submit CTA. Hai fixture cleanup, baseline21public/94rows/schema/roles khớp, Auth sequence68→75. Không chuyển tiền thật/replay/offline-payment; full V2/BH-07/V8 chưa nghiệm thu. [Báo cáo payment](web_payment_runtime_20261113.md).
 
