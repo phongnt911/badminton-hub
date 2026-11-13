@@ -26,6 +26,8 @@ Nhánh `feat/bh07-completion-local`, checkpoint trước lượt giao mới `15f
 
 ## Bằng chứng kiểm chứng gần nhất
 
+- 13/11/2026 Auth listener Guest calibration: rooted Auth1/Session1, Club0/Finance0 do lazy; hai Auth slots resolve UI/Session tearoffs và `_receiver`; CDP own-property counter2/depth0/removed0, observergroup release, dump/profile/browser dọn. Snapshotkhông chứa scalar numericvalue; chưa Owner/logout/fullgraph, auth_listeners vẫnNOTRUN. Reviewer4hashes/source/doc, khôngindependent runtime. [Calibration](auth_listener_guest_calibration_20261113.md), [feasibility](auth_listener_heap_feasibility_20261113.md).
+
 - 13/11/2026 source4433b15 sạch: instructions canary runtime mới RUN/PASS_DTO_ATTRIBUTED cho hai synthetic receiverSnapshot map values;2chu kỳ/8epochs cùngdocument, binding executable constructors/fields với artifactSHA, strictauditor0. DB21/94 khớp, zero mutation, fixture/dump/profile/state dọn, Auth79→83. Reviewer6hashes/39artifacts và strictauditor0; thiếubuilddir reject1; R1 giữnguyên. Không đóngwholeDTO/renderedfields/listener/native/fullV2b. [Báo cáo](payment_instructions_heap_runtime_20261113.md).
 
 - 13/11/2026 instructions canary runtime source39302fe sạch: hai chu kỳ/tám epochs Web profile cùng document, canary Owner reachable và vắng sau logout/actor, zero mutation; fixture/dump/profile/state dọn, baseline21/94 khớp, Auth75→79. Original verdict PASS_NARROW_RPC_PAYLOAD_ONLY, instructions attribution UNKNOWN/NOT RUN do matcher chưa có binding tên field artifact. Reviewer verify parent5hashes/original auditor0; không independent runtime. [Báo cáo](payment_instructions_heap_runtime_20261113.md). Không đóng toàn V2b/BH-07/V8.

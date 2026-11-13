@@ -1,0 +1,169 @@
+{
+  "scope": "guest_baseline_layout_calibration_only",
+  "full_listener_gate": "NOT_RUN",
+  "snapshot_bytes": 60486354,
+  "snapshot_sha256": "7509c0ef3e26665d29b693a7b3a698f5d659bad45268b105f65170943f7903da",
+  "node_count": 529781,
+  "node_fields": [
+    "type",
+    "name",
+    "id",
+    "self_size",
+    "edge_count",
+    "detachedness"
+  ],
+  "edge_fields": [
+    "type",
+    "name_or_index",
+    "to_node"
+  ],
+  "rooted_auth_heap_object_ids": [
+    "808209"
+  ],
+  "providers": {
+    "AuthProvider": {
+      "all_object_nodes": 1,
+      "strong_root_reachable_count": 1,
+      "records": [
+        {
+          "strong_root_reachable": true,
+          "selected_properties": {
+            "_currentUser": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "null"
+            },
+            "_isLoading": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "false"
+            },
+            "_isSubmitting": {
+              "node_type": "native",
+              "class_name": null,
+              "primitive_literal": "false"
+            },
+            "ChangeNotifier__count": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__listeners": {
+              "node_type": "object",
+              "class_name": "Array",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__notificationCallStackDepth": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__reentrantlyRemovedListeners": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            }
+          },
+          "listener_slot_descriptors": [
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 0,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "_InheritedProviderScopeElement"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "markNeedsNotifyDependents$0"
+              ]
+            },
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 1,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "SessionProvider"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "_session_provider$_onAuthChanged$0"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "SessionProvider": {
+      "all_object_nodes": 1,
+      "strong_root_reachable_count": 1,
+      "records": [
+        {
+          "strong_root_reachable": true,
+          "selected_properties": {
+            "auth": {
+              "node_type": "object",
+              "class_name": "AuthProvider",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__count": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__listeners": {
+              "node_type": "object",
+              "class_name": "Array",
+              "primitive_literal": null
+            },
+            "ChangeNotifier__notificationCallStackDepth": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            },
+            "ChangeNotifier__reentrantlyRemovedListeners": {
+              "node_type": "number",
+              "class_name": null,
+              "primitive_literal": null,
+              "numeric_name": "not_decoded"
+            }
+          },
+          "listener_slot_descriptors": [
+            {
+              "node_type": "object",
+              "class_name": null,
+              "slot": 0,
+              "bound_receiver": [
+                {
+                  "node_type": "object",
+                  "class_name": "_InheritedProviderScopeElement"
+                }
+              ],
+              "recognized_tearoff_methods": [
+                "markNeedsNotifyDependents$0"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ClubProvider": {
+      "all_object_nodes": 0,
+      "strong_root_reachable_count": 0,
+      "records": []
+    },
+    "FinanceProvider": {
+      "all_object_nodes": 0,
+      "strong_root_reachable_count": 0,
+      "records": []
+    }
+  }
+}

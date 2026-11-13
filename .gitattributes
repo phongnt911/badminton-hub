@@ -17,3 +17,4 @@
 /scripts/bh07_browser/web_payment_scenario.js text eol=lf
 /docs/reviews/bh07/instructions_heap_r1_20261113_evidence/** -text whitespace=cr-at-eol
 /docs/reviews/bh07/instructions_heap_bound_20261113_evidence/** -text whitespace=cr-at-eol
+/docs/reviews/bh07/auth_listener_guest_20261113_evidence/** -text whitespace=cr-at-eol
