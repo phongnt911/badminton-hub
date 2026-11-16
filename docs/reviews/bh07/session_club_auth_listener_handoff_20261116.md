@@ -3,17 +3,26 @@
 - **Vai trò triển khai (implementer):** AGY (`gemini-4-hydrogen-xhigh`)
 - **Vai trò review & chạy kiểm chứng/runtime:** Codex
 - **Base commit lúc giao việc:** `b87dba6` (tài liệu kế hoạch [2026-11-16-bh07-session-club-listeners.md](../../superpowers/plans/2026-11-16-bh07-session-club-listeners.md) ghi tham chiếu `51013c7`; lệnh giao việc xác nhận base sạch `b87dba6`)
-- **Trạng thái thay đổi:** Đã hoàn tất **vòng sửa 2/3 (R2)** xử lý phần **SC4 P1** còn lại và các lỗi control **SC5 P2**, **SC6 P2** theo [session_club_auth_listener_review_r2_20261116.md](docs/reviews/bh07/session_club_auth_listener_review_r2_20261116.md) (sau vòng R1 theo [session_club_auth_listener_review_r1_20261116.md](docs/reviews/bh07/session_club_auth_listener_review_r1_20261116.md)); **SC3** đã được reviewer xác nhận độc lập từ R1 và được giữ nguyên; mã nguồn **để uncommitted** chờ Codex review/runtime.
-- **Tình trạng chạy kiểm thử tại AGY:**
-  - `python -X utf8 -m unittest scripts/bh07_appheap/test_session_club_auth_listener_graph.py -v`: **`PASS`** (chạy sau chỉnh sửa mã cuối cùng: **17/17 tests in 21.250s — `OK`**, gồm `test_real_build_web_main_dart_js_binding_if_present`, `test_wrong_receiver_rejected`, `test_callback_only_rooting_of_providers_passes`, `test_sc1`–`test_sc4`).
-  - `node scripts/bh07_appheap/session_club_auth_listener_controls.js`: **`PASS`** (chạy sau chỉnh sửa mã cuối cùng: **exit 0 — `ALL_SESSION_CLUB_AUTH_LISTENER_CONTROLS_PASS`**).
-  - Các bộ Finance & Instructions regressions, lệnh `bind` đơn lẻ, và **toàn bộ runtime trình duyệt / Supabase DB** là **`NOT RUN` tại AGY** (quy tắc cho phép theo phiên chỉ cấp cho 2 lệnh test Session/Club ở trên; không xin mở rộng quyền, không sinh subagent, không commit).
+- **Trạng thái thay đổi:** Đã hoàn tất **vòng sửa 3/3 (R3 — vòng cuối AGY)** xử lý **SC7 P2** theo [session_club_auth_listener_review_r3_20261116.md](session_club_auth_listener_review_r3_20261116.md) (giữ nguyên toàn bộ **SC1–SC6** đã đóng ở R1/R2 theo [session_club_auth_listener_review_r1_20261116.md](session_club_auth_listener_review_r1_20261116.md) và [session_club_auth_listener_review_r2_20261116.md](session_club_auth_listener_review_r2_20261116.md)); base `7c79880`, mã nguồn **để uncommitted** chờ Codex review/chạy runtime mới.
+- **Tình trạng chạy kiểm thử tại AGY (sau chỉnh sửa cuối cùng):**
+  - `python -X utf8 -m unittest scripts/bh07_appheap/test_session_club_auth_listener_graph.py -v`: **`PASS`** (**17/17 tests in 21.431s — `OK`**).
+  - `node scripts/bh07_appheap/session_club_auth_listener_controls.js`: **`PASS`** (**exit 0 — `ALL_SESSION_CLUB_AUTH_LISTENER_CONTROLS_PASS`**).
+  - Các bộ Finance & Instructions regressions, lệnh `bind` đơn lẻ, và **runtime trình duyệt / Supabase DB mới sau sửa SC7** đều là **`NOT RUN` tại AGY** (chỉ được phép chạy 2 lệnh kiểm tra Session/Club ở trên; không xin mở rộng quyền, không sinh subagent, không commit).
 
 ---
 
-## 0. Bản vá vòng sửa 2/3 (SC4 P1, SC5 P2, SC6 P2) & vết R1 (SC1–SC3)
+## 0. Bản vá vòng sửa 3/3 (SC7 P2) & vết R1–R2 (SC1–SC6)
 
-### Vòng 2/3 (R2)
+### Vòng 3/3 (R3 — tối thiểu chỉ sửa đường gán detector probe SC7 P2)
+1. **SC7 P2 (Tách riêng từ điển `guardSecrets` khỏi `secretValues.probe` ở đúng hai điểm gán probe chủ đích):**
+   - Trong [run_session_club_auth_listener.js](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L286-L304), thêm helper chuyên dụng `assignDetectorProbe(cdp, probeValue, secretValues)` (và export trong [L1102](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L1102)):
+     - Chỉ gán biểu thức duy nhất `window.__bh07scProbe = ${JSON.stringify(probeValue)}` (không mở bypass `safeEvaluate` tổng quát).
+     - Lọc bỏ duy nhất key `'probe'` tạo `guardSecrets`, giữ lại toàn bộ bí mật thực (`owner_password`, `cohost_password`, `member_password`, `supabase_anon_key`, toàn bộ `fixture_*`) khi gọi `piRunner.assertNoCanaryInEvaluate` và `piRunner.safeEvaluate`, đồng thời kiểm mismatch nếu `secretValues.probe !== probeValue`.
+   - Áp dụng đúng tại hai điểm gán probe chủ đích trong [run_session_club_auth_listener.js](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L840-L853) (`baseline_probe` và `owner_session_and_club`), hỗ trợ fallback `handled === false` trong `runEpochAction` ([L829-L838](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L829-L838)) để control mock chạy qua `defaultFn()` thật; giữ nguyên đầy đủ `secretValues.probe` cho mọi khâu che dấu xuất bản (`log`, `sanitizeDiagnostic`, `buildCleanupSummary`, `writeSessionClubEvidence`) và cho các lời gọi `safeEvaluate` khác.
+   - Bổ sung Node control trong [session_club_auth_listener_controls.js](../../../scripts/bh07_appheap/session_club_auth_listener_controls.js#L1023-L1081) (`testAssignDetectorProbeWithRealSafeEvaluate`) và kích hoạt đường `baseline` thật trong `buildMockRunSetup` ([L690-L694](../../../scripts/bh07_appheap/session_club_auth_listener_controls.js#L690-L694), [L764-L769](../../../scripts/bh07_appheap/session_club_auth_listener_controls.js#L764-L769), [L874-L884](../../../scripts/bh07_appheap/session_club_auth_listener_controls.js#L874-L884)) qua `PI_RUNNER.safeEvaluate` thật: cho phép probe tổng hợp hợp lệ, giữ nguyên từ chối `PI_RUNNER.safeEvaluate(..., secretValues)` khi chứa `probe`, và từ chối mọi thử nghiệm chèn `fixture_sentinel_1`/`fixture_sentinel_2`/`fixture_club_id`/`owner_password`/`supabase_anon_key` hoặc giá trị ghép/mismatch, đồng thời xác nhận bundle xuất bản không rò `probeValue`.
+   - **Lưu ý chuyển tiếp cho Codex khi chạy runtime mới (ngoài phạm vi R3 chỉ sửa 2 điểm probe):** Theo phạm vi vòng R3, hai điểm gọi `piRunner.loginActor(..., secretValues)` tại [L850](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L850) và [L873](../../../scripts/bh07_appheap/run_session_club_auth_listener.js#L873) vẫn được giữ nguyên; lưu ý [run_payment_instructions_heap.js](../../../scripts/bh07_appheap/run_payment_instructions_heap.js#L1304) kiểm tra `assertNoCanaryInEvaluate(password, canaries)`, nên nếu `secretValues` đang chứa `owner_password`/`cohost_password`/`member_password` thì khi runtime đi qua `baseline_probe` tới bước đăng nhập có thể vấp kiểm tra này (Instructions runner gốc chỉ truyền `canaries` không chứa password đăng nhập vào `loginActor`).
+
+### Vòng 2/3 (R2 — đã giữ nguyên)
 1. **SC4 P1 (Ngữ pháp biểu thức bảo toàn giá trị tối thiểu cho dart2js, bịt lỗ hổng comma/ternary & alias giả):**
    - Trong [session_club_auth_listener_graph.py](../../../scripts/bh07_appheap/session_club_auth_listener_graph.py#L443-L759), loại bỏ hoàn toàn nhận diện theo substring (`rhs_uses_res` / `re.search` trên `args_inner` / `rhs_is_tainted_expr` / `rhs_is_ctor_from_taint`) và thay bằng ngữ pháp đóng tối thiểu khớp đúng mã compiler dart2js thực ([build/web/main.dart.js](build/web/main.dart.js)):
      - `_strip_outer_parens_no_comma` ([L517-L530](../../../scripts/bh07_appheap/session_club_auth_listener_graph.py#L517-L530)): chỉ bóc ngoặc nhóm đơn, từ chối mọi biểu thức có toán tử dấu phẩy `,` ở depth 0 (`($async$result, {})`, `(m, null)`, v.v.).
@@ -109,7 +118,7 @@ Nếu Codex muốn đóng `club_bank_account_gate == PASS` trên fixture dùng 1
 
 ## 4. Danh sách RED→GREEN Controls & trạng thái kiểm tra tại AGY
 
-### Python (`scripts/bh07_appheap/test_session_club_auth_listener_graph.py` — `17/17 OK`, `21.250s`)
+### Python (`scripts/bh07_appheap/test_session_club_auth_listener_graph.py` — `17/17 OK`, `21.431s`)
 1. `test_executable_binding_succeeds_and_rejects_comment_or_literal_masking` + `test_real_build_web_main_dart_js_binding_if_present`: chứng minh parser chỉ nhận mã thực thi, suy ra đúng `Session0`/`Club`/`BankAccount`/`SessionHistoryPage`, từ chối comment/string literal, thiếu `_instance_0_u`, thiếu `addListener$1` factory wiring, thiếu reset bất kỳ field nào trong `_onAuthChanged$0`, và pass trên `build/web/main.dart.js` thực.
 2. `test_wrong_receiver_rejected` + `test_callback_only_rooting_of_providers_passes`: **SC5** kiểm chứng bác bỏ receiver sai loại/thiếu `_receiver`/cạnh `_receiver` yếu/object khác (`session_bound_to_club`, `session_missing_receiver`, `session_weak_receiver_and_unrooted`, `club_bound_to_weak_receiver`, `session_bound_to_user_object`, `club_bound_to_object`) và xác nhận **callback-only rooting** (cạnh mạnh `Auth -> listeners -> tear_off -> _receiver`) giữ root hợp lệ cho `SessionProvider` và `ClubProvider` (`PASS`).
 3. `test_wrong_method_and_prototype_spoof_rejected`: sai tên method, spoof `$_name` trên instance slot, hoặc `__proto__` trỏ ngược về provider → `FAIL`.
@@ -123,8 +132,9 @@ Nếu Codex muốn đóng `club_bank_account_gate == PASS` trên fixture dùng 1
 
 ### Node (`scripts/bh07_appheap/session_club_auth_listener_controls.js` — `exit 0`, `ALL_SESSION_CLUB_AUTH_LISTENER_CONTROLS_PASS`)
 1. `testObserveAuthAndTargetProviders`: kiểm wire shape CDP `result.result` vs legacy `result.object`, `ownProperties: true, generatePreview: false`, cấm gọi `Runtime.callFunctionOn`, ép `Runtime.releaseObjectGroup` khi đọc lỗi, phát hiện getter, unsafe integer, lệch `timeOrigin`, và FL4 không lộ giá trị chuỗi thô.
-2. `testExtractSessionClubBinding`: kiểm CLI `bind` qua Python từ Node (hợp lệ, sai SHA, thiếu đăng ký, thiếu reset bank, **SC2** `$async$temp1 = A` vs overwritten/comment-masked alias, **SC4** R1/R2 discarded/`return null`/overwritten/comma-discard/false-ternary/alias-spoof).
-3. `testMockedTwoCycleRuns` (với **SC6** `Map`-based snapshot interner giữ toàn bộ edge là số nguyên): chạy end-to-end 2 chu kỳ / 8 epoch (chế độ đủ bank `PASS` + `verify --require-bank-account` exit 0; chế độ thiếu bank `PARTIAL_NOT_RUN` + `verify` exit 0 và `--require-bank-account` exit 1; RED wrong receiver + stale secret ở Cycle 2 `post_logout` xác nhận FL4 sạch ở bundle FAIL; RED lỗi DB cleanup giữ nguyên `statePath` và vẫn xóa `dumpsDir`; **SC3** RED reused Owner `currentSessionObjId` & RED stripped `target_heap_object_id` ở cả `owner_active` lẫn `post_actor`).
+2. `testAssignDetectorProbeWithRealSafeEvaluate` (**SC7**): kiểm helper `assignDetectorProbe` qua `PI_RUNNER.safeEvaluate` thật — cho phép probe tổng hợp đã đăng ký, giữ nguyên từ chối `PI_RUNNER.safeEvaluate(..., secretValues)` khi chứa `probe`, bác bỏ mọi thử nghiệm chèn `fixture_sentinel_1`/`fixture_sentinel_2`/`fixture_club_id`/`owner_password`/`supabase_anon_key` hoặc giá trị ghép/mismatch.
+3. `testExtractSessionClubBinding`: kiểm CLI `bind` qua Python từ Node (hợp lệ, sai SHA, thiếu đăng ký, thiếu reset bank, **SC2** `$async$temp1 = A` vs overwritten/comment-masked alias, **SC4** R1/R2 discarded/`return null`/overwritten/comma-discard/false-ternary/alias-spoof).
+4. `testMockedTwoCycleRuns` (với **SC6** `Map`-based snapshot interner giữ toàn bộ edge là số nguyên & **SC7** `baseline` chạy qua `defaultFn()` -> `assignDetectorProbe` -> `PI_RUNNER.safeEvaluate` thật kèm kiểm redaction `probeValue` trong bundle): chạy end-to-end 2 chu kỳ / 8 epoch (chế độ đủ bank `PASS` + `verify --require-bank-account` exit 0; chế độ thiếu bank `PARTIAL_NOT_RUN` + `verify` exit 0 và `--require-bank-account` exit 1; RED wrong receiver + stale secret ở Cycle 2 `post_logout` xác nhận FL4 sạch ở bundle FAIL; RED lỗi DB cleanup giữ nguyên `statePath` và vẫn xóa `dumpsDir`; **SC3** RED reused Owner `currentSessionObjId` & RED stripped `target_heap_object_id` ở cả `owner_active` lẫn `post_actor`).
 
 ---
 
@@ -160,6 +170,6 @@ python -X utf8 scripts/bh07_appheap/session_club_auth_listener_graph.py verify d
 
 ## 6. Giới hạn kết luận (Claim Limits)
 
-- Runtime trình duyệt và Supabase DB hiện là **`NOT RUN`** cho tới khi Codex thực thi thực tế trên source sạch với receipt DB before/after/cleanup.
+- Runtime trình duyệt và Supabase DB mới (sau vòng sửa SC7) hiện là **`NOT RUN`** tại AGY cho tới khi Codex thực thi thực tế trên source sạch với receipt DB before/after/cleanup. (Lần chạy runtime trước trên `7c79880` fail tại `baseline_probe` theo [session_club_auth_listener_review_r3_20261116.md](session_club_auth_listener_review_r3_20261116.md).)
 - Khi có runtime PASS, kết luận vẫn chỉ giới hạn ở đồ thị hữu hạn `AuthProvider -> SessionProvider` (3 field đã chọn) và `AuthProvider -> ClubProvider` (3 field đã chọn, với `currentBankAccount` tách gate `NOT_RUN` nếu thiếu bank row) trên Flutter Web profile V8/CDP non-atomic.
 - Toàn bộ `auth_listeners`, các provider/model còn lại, V2/V2b toàn cục, native mobile/desktop, Firefox/Safari và toàn bộ BH-07/V8 vẫn **chưa nghiệm thu**. Không merge/push/deploy/pilot/BH-08.

@@ -283,6 +283,33 @@ async function observeAuthAndTargetProviders({
   return obsResult;
 }
 
+async function assignDetectorProbe(cdp, probeValue, secretValues = {}) {
+  if (typeof probeValue !== 'string' || !probeValue) {
+    throw new Error('detector probeValue must be a non-empty string');
+  }
+  const guardSecrets = Object.fromEntries(
+    Object.entries(secretValues || {}).filter(([key]) => key !== 'probe'),
+  );
+  const expr = `window.__bh07scProbe = ${JSON.stringify(probeValue)}`;
+  piRunner.assertNoCanaryInEvaluate(expr, guardSecrets);
+  if (
+    secretValues
+    && Object.prototype.hasOwnProperty.call(secretValues, 'probe')
+    && secretValues.probe !== probeValue
+  ) {
+    throw new Error('detector probeValue mismatch with secretValues.probe');
+  }
+  return piRunner.safeEvaluate(cdp, expr, guardSecrets);
+}
+
+async function loginMeasuredActor(cdp, email, password, secretValues) {
+  // Mật khẩu được nhập qua UI; dữ liệu fixture vẫn bị cấm đưa vào input.
+  const inputGuards = Object.fromEntries(Object.entries(secretValues).filter(
+    ([key]) => !['owner_password', 'cohost_password', 'member_password'].includes(key),
+  ));
+  return piRunner.loginActor(cdp, email, password, inputGuards);
+}
+
 async function openOwnerSessionAndClub(cdp, fixtureMeta) {
   if (!fixtureMeta || !fixtureMeta.session_title || !fixtureMeta.club_name) {
     throw new Error('fixtureMeta.session_title and fixtureMeta.club_name are required for Owner UI preconditions');
@@ -807,7 +834,10 @@ async function runSessionClubAuthListener({
 
       const runEpochAction = async (epName, defaultFn) => {
         if (userHooks.performEpochAction) {
-          await userHooks.performEpochAction({ cdp, step, epName, fixtureMeta, probeValue });
+          const handled = await userHooks.performEpochAction({ cdp, step, epName, fixtureMeta, probeValue });
+          if (handled === false) {
+            await defaultFn();
+          }
         } else {
           await defaultFn();
         }
@@ -816,16 +846,16 @@ async function runSessionClubAuthListener({
       currentStage = 'baseline_probe';
       cycleRecord.last_stage = currentStage;
       await runEpochAction('baseline', async () => {
-        await piRunner.safeEvaluate(cdp, `window.__bh07scProbe = ${JSON.stringify(probeValue)}`, secretValues);
+        await assignDetectorProbe(cdp, probeValue, secretValues);
       });
       await scanOneEpoch('baseline', `c${step.cycle}_baseline`);
 
       currentStage = 'owner_session_and_club';
       cycleRecord.last_stage = currentStage;
       await runEpochAction('owner_active', async () => {
-        await piRunner.loginActor(cdp, cfg.owner_email || 'ownera@example.test', cfg.owner_password, secretValues);
+        await loginMeasuredActor(cdp, cfg.owner_email || 'ownera@example.test', cfg.owner_password, secretValues);
         await openOwnerSessionAndClub(cdp, fixtureMeta);
-        await piRunner.safeEvaluate(cdp, `window.__bh07scProbe = ${JSON.stringify(probeValue)}`, secretValues);
+        await assignDetectorProbe(cdp, probeValue, secretValues);
       });
       await scanOneEpoch('owner_active', `c${step.cycle}_owner_active`);
 
@@ -848,7 +878,7 @@ async function runSessionClubAuthListener({
       currentStage = 'actor_navigation';
       cycleRecord.last_stage = currentStage;
       await runEpochAction('post_actor', async () => {
-        await piRunner.loginActor(cdp, step.email, step.password, secretValues);
+        await loginMeasuredActor(cdp, step.email, step.password, secretValues);
         if (step.actor === 'cohost') await piRunner.openCohostSummary(cdp);
         else await openMemberHistorySettled(cdp);
       });
@@ -1075,8 +1105,10 @@ module.exports = {
   DEFAULT_SELECTED_FIELDS,
   buildSessionClubAllowedClasses,
   extractSessionClubBinding,
+  assignDetectorProbe,
   observeAuthAndTargetProviders,
   openOwnerSessionAndClub,
+  loginMeasuredActor,
   openMemberHistorySettled,
   renderSessionClubReport,
   writeSessionClubEvidence,

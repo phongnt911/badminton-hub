@@ -13,6 +13,7 @@ const path = require('node:path');
 const PY = process.env.PYTHON || 'python';
 const SC_GRAPH_PY = path.join(__dirname, 'session_club_auth_listener_graph.py');
 const SC_RUNNER = require('./run_session_club_auth_listener.js');
+const PI_RUNNER = require('./run_payment_instructions_heap.js');
 
 function sha256Hex(bufOrText) {
   return crypto.createHash('sha256').update(bufOrText).digest('hex');
@@ -685,7 +686,12 @@ function buildMockRunSetup(tmpDir, {
   let currentCtx = { cycle: 1, actor: 'cohost', epoch: 'baseline' };
   const mutKey = () => `c${currentCtx.cycle}_${currentCtx.epoch}`;
   const mockCdp = makeMockCdp();
+  const evalCalls = [];
   const wrappedCdp = {
+    evaluate: async (expression) => {
+      evalCalls.push(expression);
+      return true;
+    },
     send: async (method, params) => {
       if (method === 'Runtime.evaluate' && /performance\.timeOrigin/.test((params && params.expression) || '')) {
         return { result: { result: { type: 'number', value: 12345.6 } } };
@@ -759,6 +765,9 @@ function buildMockRunSetup(tmpDir, {
       if (epName !== 'cycle1_logout') {
         currentCtx = { cycle: step.cycle, actor: step.actor, epoch: epName };
       }
+      if (epName === 'baseline') {
+        return false;
+      }
     },
     streamSnapshotToFile: async ({ outFile }) => {
       if (throwCaptureAt && mutKey() === throwCaptureAt) {
@@ -829,7 +838,7 @@ function buildMockRunSetup(tmpDir, {
     },
   };
 
-  return { cfg, cfgPath, outDir, buildDir, dumpsDir, statePath, privMarker, requireBankAccount, userHooks };
+  return { cfg, cfgPath, outDir, buildDir, dumpsDir, statePath, privMarker, requireBankAccount, userHooks, evalCalls };
 }
 
 function runPyVerify(outDir, buildDir, { requireBank = false } = {}) {
@@ -865,6 +874,17 @@ async function testMockedTwoCycleRuns() {
     assert.equal(pyVer.status, 0, JSON.stringify(pyVer.payload));
     assert.equal(pyVer.payload.ok, true);
     assert.equal(pyVer.payload.assessment.session_club_listener_gate, 'PASS');
+
+    // SC7 integration check: baseline ran real assignDetectorProbe -> safeEvaluate -> evaluate, AND probe stayed redacted
+    assert.equal(setup.evalCalls.length, 2);
+    const probeMatches = setup.evalCalls.map((expr) => expr.match(/^window\.__bh07scProbe = "(BH07SCLISTENERPROBE-[0-9a-f]{8})"$/));
+    assert.ok(probeMatches.every(Boolean), `unexpected baseline probe evaluate calls: ${JSON.stringify(setup.evalCalls)}`);
+    const injectedProbe = probeMatches[0][1];
+    assert.equal(summary.sentinels.probe.sha256_12, PI_RUNNER.sha12(injectedProbe));
+    const pubText = ['summary.json', 'run.log', 'report.md', 'source_binding.json']
+      .map((f) => fs.readFileSync(path.join(setup.outDir, f), 'utf8')).join('\n');
+    assert.ok(!pubText.includes(injectedProbe), 'raw detector probe leaked to publication artifacts');
+    assert.ok(!pubText.includes(setup.privMarker), 'raw fixture club_id leaked to publication artifacts');
   } finally {
     fs.rmSync(okTmp, { recursive: true, force: true });
   }
@@ -1000,8 +1020,95 @@ async function testMockedTwoCycleRuns() {
   }
 }
 
+async function testAssignDetectorProbeWithRealSafeEvaluate() {
+  const probeValue = 'BH07SCLISTENERPROBE-cafebabe';
+  const secretValues = {
+    owner_password: 'test-owner-password-not-secret',
+    cohost_password: 'test-cohost-password-not-secret',
+    member_password: 'test-member-password-not-secret',
+    supabase_anon_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.synthetic_anon_key_payload',
+    fixture_club_id: '11111111-2222-4333-8444-555555555500',
+    fixture_sentinel_1: '11111111-2222-4333-8444-555555555507',
+    fixture_sentinel_2: '11111111-2222-4333-8444-555555555508',
+    probe: probeValue,
+  };
+  const evalCalls = [];
+  const evalCdp = {
+    async evaluate(expression) {
+      evalCalls.push(expression);
+      return true;
+    },
+  };
+
+  // 1. Positive: intended synthetic control probe succeeds via real piRunner.safeEvaluate
+  await SC_RUNNER.assignDetectorProbe(evalCdp, probeValue, secretValues);
+  assert.equal(evalCalls.length, 1);
+  assert.equal(evalCalls[0], `window.__bh07scProbe = ${JSON.stringify(probeValue)}`);
+
+  // 2. General safeEvaluate with full secretValues STILL rejects injecting probe
+  await assert.rejects(
+    () => PI_RUNNER.safeEvaluate(evalCdp, `window.__bh07scProbe = ${JSON.stringify(probeValue)}`, secretValues),
+    /refusing to inject canary \(probe\) via evaluate or input/,
+  );
+
+  // 3. RED: assignDetectorProbe STILL rejects actual private fixture/canary/credential injection
+  for (const [label, forbiddenVal] of [
+    ['fixture_sentinel_1', secretValues.fixture_sentinel_1],
+    ['fixture_sentinel_2', secretValues.fixture_sentinel_2],
+    ['fixture_club_id', secretValues.fixture_club_id],
+    ['owner_password', secretValues.owner_password],
+    ['supabase_anon_key', secretValues.supabase_anon_key],
+    ['composite_with_sentinel_1', `${probeValue}_${secretValues.fixture_sentinel_1}`],
+  ]) {
+    await assert.rejects(
+      () => SC_RUNNER.assignDetectorProbe(evalCdp, forbiddenVal, secretValues),
+      /refusing to inject canary .* via evaluate or input/,
+      `expected assignDetectorProbe to reject ${label}`,
+    );
+  }
+  await assert.rejects(
+    () => SC_RUNNER.assignDetectorProbe(evalCdp, secretValues.fixture_sentinel_1, {
+      ...secretValues,
+      probe: secretValues.fixture_sentinel_1,
+    }),
+    /refusing to inject canary .* via evaluate or input/,
+  );
+  await assert.rejects(
+    () => SC_RUNNER.assignDetectorProbe(evalCdp, 'UNREGISTERED_PROBE_VALUE_1234', secretValues),
+    /mismatch/,
+  );
+  assert.equal(evalCalls.length, 1);
+}
+
+async function testLoginMeasuredActorKeepsPrivateCanaryGuard() {
+  const password = 'SYNTHETIC_LOGIN_PASSWORD_20261116';
+  const privateCanary = 'PRIVATE_FIXTURE_CANARY_20261116';
+  const secrets = { owner_password: password, cohost_password: password,
+    member_password: password, fixture_sentinel_1: privateCanary };
+  const inputs = [];
+  const cdp = {
+    clickSemantic: async () => {},
+    waitForSemantic: async () => {},
+    send: async (method, params) => {
+      if (method === 'Input.insertText') inputs.push(params.text);
+      return { result: {} };
+    },
+  };
+  const login = SC_RUNNER.loginMeasuredActor || PI_RUNNER.loginActor;
+  await login(cdp, 'owner@example.test', password, secrets);
+  assert.deepEqual(inputs, ['owner@example.test', password]);
+  await assert.rejects(
+    () => login(cdp, 'owner@example.test', privateCanary, secrets),
+    /refusing to inject canary/,
+  );
+  assert.equal(inputs.length, 2);
+  assert.equal(secrets.owner_password, password);
+}
+
 async function main() {
+  await testLoginMeasuredActorKeepsPrivateCanaryGuard();
   await testObserveAuthAndTargetProviders();
+  await testAssignDetectorProbeWithRealSafeEvaluate();
   await testExtractSessionClubBinding();
   await testMockedTwoCycleRuns();
   console.log('ALL_SESSION_CLUB_AUTH_LISTENER_CONTROLS_PASS');
