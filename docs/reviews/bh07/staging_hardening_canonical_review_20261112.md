@@ -1,0 +1,9 @@
+# Canonical hardening migration — packaging review, 12/11/2026
+
+**Không có P1/P2 trong delta đóng gói canonical được review.** Reviewer đọc toàn bộ [migration mới](../../../supabase/migrations/20261112151424_bh07_role_helper_hardening.sql) và chạy read-only `git diff --no-index` với [candidate đã review](../../../scripts/bh07_staging/role_helper_hardening.sql): khác biệt duy nhất là comment đầu file. Diff exit1 biểu thị có thay đổi comment, không phải kiểm thử lỗi. Toàn bộ22statement executable giữ nguyên thứ tự/nội dung:10REVOKE PUBLIC/anon,10GRANT authenticated,2ALTER FUNCTION search_path. Không thêm DDL/body/view/data change ngoài phạm vi đã chốt.
+
+Reviewer kiểm SHA256 thực: `bcc8ef85cccc9dbd480cb9ee8c1fd831eef7d6e042b187e074fe93887a133819`, khớp hash canonical được bàn giao. Việc tạo migration bằng CLI sau khi owner cho phép `npx.cmd` thay thế trạng thái noncanonical trước đây; không thay đổi kết luận [review candidate](staging_hardening_review_final_20261112.md) hoặc retag local runtime receipt thành đã chạy canonical/hosted.
+
+Review này chỉ xác nhận packaging tương đương candidate. Không chạy lại Docker, hosted SQL/DDL/Auth hoặc preflight remote. Preflight18migration/21RLS và counts rỗng/all10anon EXECUTE true là thông tin do Codex triển khai cung cấp, không phải lần reviewer tự đo. Nếu áp dụng, phạm vi target vẫn chỉ staging test mới đã được duyệt `mxqpukhfiugdwsjsbihj`; lịch sử hosted execution-time versions phải được đối chiếu đúng, không suy thành cho phép CLI push toàn bộ history hoặc tác động project cũ.
+
+Hosted grant/HTTP/advisor verification vẫn phải thực hiện sau áp dụng. Authenticated arbitrary-UUID probing, view/advisor khác, managed backup/restore và toàn BH-07/V8 không được đóng bởi packaging review; không có risk acceptance/deploy/pilot/BH-08 được tự cấp. Reviewer chỉ tạo báo cáo này, không sửa migration hoặc tài nguyên môi trường.

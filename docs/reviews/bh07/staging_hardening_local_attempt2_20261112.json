@@ -1,0 +1,13 @@
+{
+  "scope": "local PostgreSQL17 + auth.uid stub, NOT hosted/Auth/acceptance",
+  "container_name": "bh07-staging-verify-19f3eef0cef2",
+  "checks": [],
+  "cleanup_verified": true,
+  "container_id": "b3730af3ac23a7be5b91d47287744246bd49285960b5ab21c10438945fb71703",
+  "status": "FAIL",
+  "failure": {
+    "stage": "canonical_migrations",
+    "type": "RuntimeError",
+    "message": "roles: psql: error: connection to server on socket \"/var/run/postgresql/.s.PGSQL.5432\" failed: FATAL:  the database system is shutting down"
+  }
+}
