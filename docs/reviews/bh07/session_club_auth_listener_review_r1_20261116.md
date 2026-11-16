@@ -1,0 +1,12 @@
+# Session/Club listener review R1 — CHƯA ĐẠT
+
+Baseb87dba6; AGY working-tree handoff16/11. Codex and separate reviewer inspect source/controls; no new browser/DB/heap runtime. No conclusion of an application data leak.
+
+- **SC1 P2:** `session_club_auth_listener_graph.py:541` calls undefined `_read_bounded_bytes`; new Python12tests produce18errors and Node exits1. Reuse bounded helper from base_graph. Static symtable check found this sole undefined global.
+- **SC2 P2:** After in-process diagnostic alias only (no file edit), both synthetic and actual `build/web` binding fail `session_current_session_field_invalid:[]`. `_verify_repo_rpc_model_method` line291 starts a JS alias matcher with `\b`; this cannot match `$async$temp1` after whitespace. Trace confirms executable RPC found and aliases identified, but method returnsFalse. Add exact async-A-alias positive/negative controls, preserve comment/literal masking and overwrite rejection.
+- **SC3 P1:** Separate reviewer reproduced missing `target_heap_object_id` bypassing post-actor reuse rejection. Removing IDs from owner/post_actor synthetic bundle still yields verified_ok=True/overallPASS; a stale Owner Session0 ID410 correctly fails until the post_actor ID is removed. Require valid IDs for every populated object selected field needed for refetch comparison and reject missing/invalid IDs; no implicit `None != owner` allowance. Verify must recompute owner IDs rather than trust claimed maps.
+- **SC4 P1:** `_verify_repo_rpc_model_method` accepts unused deserializer call plus `return null`. Offline helper probe `this.client.rpc("get_session_public_detail"); A.Session_Session$fromJson(id); return null;` returnsTrue with a genuine Session0 deserializer. Artifact binding must establish returned/awaited value flow to the actual provider field, not merely coexistence of RPC/deserializer calls. Add discarded/overwritten/null-return controls and retain actual-build compatibility.
+
+Fresh legacy regression: Finance+Instructions35Python PASS; Finance Node control groups PASS. New controls have not passed; no runtime attempted. RED logs ignored under `.build/session-club-{python,node}-r0-20261116.log`; diagnostic monkeypatch log is not a passing implementation result.
+
+Return these concrete findings to AGY correction1/3 with file-only tools. Existing three-round limit and Codex residual-fix authorization remain. No app/schema/remote changes, no historical evidence mutation, no risk acceptance/main merge/deploy/pilot/BH-08.

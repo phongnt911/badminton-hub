@@ -644,8 +644,10 @@ def _verify_factory_listener_wiring(
     repository_field: str,
     reg_getter: str,
     require_repo_ctor: bool,
+    provider_class: str = 'FinanceProvider',
+    repo_class: str = 'FinanceRepository',
 ) -> bool:
-    """Verify bounded factory constructs FinanceProvider with verified AuthProvider and wires addListener$1(fin.<reg_getter>())."""
+    """Verify bounded factory constructs provider with verified AuthProvider and wires addListener$1(prov.<reg_getter>())."""
     fp_parsed = pi_verifier._parse_constructor_assignments(fp_ctor.get('body') or '')
     fp_params = fp_ctor.get('params') or []
     auth_indices = {
@@ -663,8 +665,11 @@ def _verify_factory_listener_wiring(
     auth_param_idx = next(iter(auth_indices))
     repo_param_idx = next(iter(repo_indices))
 
+    prov_esc = re.escape(provider_class)
+    repo_esc = re.escape(repo_class)
+
     valid_wirings = 0
-    for m in re.finditer(r'\bnew\s+A\.FinanceProvider\s*\(', exe_code):
+    for m in re.finditer(rf'\bnew\s+A\.{prov_esc}\s*\(', exe_code):
         fn_open, fn_close = _find_enclosing_function_bounds(exe_code, m.start())
         if fn_open is None or fn_close is None:
             continue
@@ -713,14 +718,14 @@ def _verify_factory_listener_wiring(
         if re.search(rf'(?<![.\w$]){re.escape(auth_arg)}\s*=(?!=)', pre_ctor[last_auth_init.end():lhs_m.start()]):
             continue
 
-        # When async FinanceRepository path is active, verify repo argument was constructed as FinanceRepository.
+        # When async repository path is active, verify repo argument was constructed as expected repo_class.
         if require_repo_ctor:
             if not re.fullmatch(r'[A-Za-z_$][A-Za-z0-9_$]*', repo_arg):
-                if not re.match(r'^new\s+A\.FinanceRepository\s*\(', repo_arg):
+                if not re.match(rf'^new\s+A\.{repo_esc}\s*\(', repo_arg):
                     continue
             else:
                 repo_init_matches = list(re.finditer(
-                    rf'(?:^|[;,\{{\n\r]|\b(?:var|let|const)\s)\s*{re.escape(repo_arg)}\s*=\s*new\s+A\.FinanceRepository\s*\(',
+                    rf'(?:^|[;,\{{\n\r]|\b(?:var|let|const)\s)\s*{re.escape(repo_arg)}\s*=\s*new\s+A\.{repo_esc}\s*\(',
                     pre_ctor[:lhs_m.start()],
                 ))
                 if not repo_init_matches:
@@ -1158,38 +1163,31 @@ def _normalize_listener_slots(idx_data: dict, listeners_node: int, cdp_count: in
     }
 
 
-def _inspect_tearoff(
+def _inspect_tearoff_core(
     idx_data: dict,
     slot_node: int,
     *,
-    binding: dict,
-    rooted_finance_set: set[int],
-    all_finance_set: set[int],
+    receiver_field: str,
+    name_prop: str,
+    allowed_classes: frozenset[str],
+    disallowed_proto_classes: frozenset[str] = PROTOTYPE_DISALLOWED_CLASSES,
 ) -> dict:
+    """Inspect a listener slot node for receiver identity and BoundClosure generated-prototype $_name."""
     is_null, is_hole, _ = _classify_nullish(idx_data, slot_node)
     if is_null or is_hole:
         return {'is_null_or_hole': True, 'is_null': is_null}
 
-    allowed_cls = _allowed_classes(binding)
-    allowed_methods = _allowed_methods(binding)
     props = _property_edges(idx_data, slot_node)
-    receiver_field = binding['bound_closure']['receiver_field']
-    name_prop = binding['bound_closure']['tearoff_name_property']
-    reg_method = binding['finance_provider']['registration_method']
-    fin_class = binding['finance_provider']['constructor_name']
-
     recv_node = props.get(receiver_field)
     if recv_node is not None:
         raw_recv_id = _node_id(idx_data, recv_node)
         recv_id = str(int(raw_recv_id)) if (type(raw_recv_id) is int and raw_recv_id >= 0) else None
         recv_ntype = _sanitize_node_type(_node_type(idx_data, recv_node))
-        recv_class, recv_recognized = _sanitize_class_label(recv_ntype, _node_name(idx_data, recv_node), allowed_cls)
+        recv_class, recv_recognized = _sanitize_class_label(recv_ntype, _node_name(idx_data, recv_node), allowed_classes)
     else:
         recv_id = None
         recv_class = None
         recv_recognized = False
-    recv_is_rooted_finance = recv_node in rooted_finance_set if recv_node is not None else False
-    recv_is_any_finance = recv_node in all_finance_set if recv_node is not None else False
 
     # Resolve $_name strictly from generated tearoff prototype (never instance-only, never provider node)
     raw_method_name = None
@@ -1209,7 +1207,7 @@ def _inspect_tearoff(
         seen_proto.add(nxt)
         proto_hops += 1
         nxt_name = _node_name(idx_data, nxt)
-        if nxt_name in PROTOTYPE_DISALLOWED_CLASSES:
+        if nxt_name in disallowed_proto_classes:
             proto_is_provider = True
             break
         nxt_props = _property_edges(idx_data, nxt)
@@ -1229,13 +1227,66 @@ def _inspect_tearoff(
         raw_method_name = first_gen_proto_method
         method_on_gen_proto = True
 
+    slot_ntype = _sanitize_node_type(_node_type(idx_data, slot_node))
+    safe_slot_class, _ = _sanitize_class_label(slot_ntype, _node_name(idx_data, slot_node), STRUCTURAL_SLOT_NODE_CLASSES)
+
+    return {
+        'is_null_or_hole': False,
+        'is_null': False,
+        'node_class': safe_slot_class,
+        'recv_node': recv_node,
+        'receiver_heap_object_id': recv_id,
+        'receiver_class': recv_class,
+        'receiver_class_recognized': recv_recognized,
+        'raw_method_name': raw_method_name,
+        'method_on_generated_prototype': method_on_gen_proto,
+        'bound_closure_on_proto_chain': bound_closure_on_chain,
+        'proto_is_provider': proto_is_provider,
+    }
+
+
+def _inspect_tearoff(
+    idx_data: dict,
+    slot_node: int,
+    *,
+    binding: dict,
+    rooted_finance_set: set[int],
+    all_finance_set: set[int],
+) -> dict:
+    allowed_cls = _allowed_classes(binding)
+    allowed_methods = _allowed_methods(binding)
+    reg_method = binding['finance_provider']['registration_method']
+    fin_class = binding['finance_provider']['constructor_name']
+
+    core = _inspect_tearoff_core(
+        idx_data,
+        slot_node,
+        receiver_field=binding['bound_closure']['receiver_field'],
+        name_prop=binding['bound_closure']['tearoff_name_property'],
+        allowed_classes=allowed_cls,
+        disallowed_proto_classes=PROTOTYPE_DISALLOWED_CLASSES,
+    )
+    if core.get('is_null_or_hole'):
+        return core
+
+    recv_node = core['recv_node']
+    recv_id = core['receiver_heap_object_id']
+    recv_class = core['receiver_class']
+    recv_recognized = core['receiver_class_recognized']
+    raw_method_name = core['raw_method_name']
+    method_on_gen_proto = core['method_on_generated_prototype']
+    bound_closure_on_chain = core['bound_closure_on_proto_chain']
+    proto_is_provider = core['proto_is_provider']
+    safe_slot_class = core['node_class']
+
+    recv_is_rooted_finance = recv_node in rooted_finance_set if recv_node is not None else False
+    recv_is_any_finance = recv_node in all_finance_set if recv_node is not None else False
+
     exact_method = method_on_gen_proto and raw_method_name == reg_method
     exact_finance_match = exact_method and recv_is_rooted_finance
     safe_method_name, method_recognized = (
         _sanitize_method_label(raw_method_name, allowed_methods) if method_on_gen_proto else (None, False)
     )
-    slot_ntype = _sanitize_node_type(_node_type(idx_data, slot_node))
-    safe_slot_class, _ = _sanitize_class_label(slot_ntype, _node_name(idx_data, slot_node), STRUCTURAL_SLOT_NODE_CLASSES)
 
     if exact_finance_match:
         kind = 'finance_listener'
