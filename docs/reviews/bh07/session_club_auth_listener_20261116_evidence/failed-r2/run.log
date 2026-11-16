@@ -1,0 +1,2 @@
+[2026-11-16T02:30:06.793Z] starting cycle 1 (Owner -> logout -> cohost)
+[2026-11-16T02:31:48.397Z] aborted at stage=post_actor_scan epoch=post_actor: cycle 1 post_actor listener_graph FAIL: slot_3_invalid_prototype_method_flags

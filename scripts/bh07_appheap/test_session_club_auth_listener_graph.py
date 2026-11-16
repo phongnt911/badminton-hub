@@ -1162,6 +1162,21 @@ class TestRedControlsScanner(unittest.TestCase):
                 res = sc_graph.scan_snapshot(snap, binding=self.binding, epoch='owner_active', cycle_num=1, actor='cohost', cdp_observations=cdp, time_origin=12345.6)
                 self.assertEqual(res['verdict'], 'PASS', res)
 
+    def test_finance_listener_metadata_does_not_expand_selected_targets(self):
+        slots = [
+            {'receiver_kind': 'session', 'method': '_session_provider$_onAuthChanged$0'},
+            {'receiver_kind': 'club', 'method': '_club_provider$_onAuthChanged$0'},
+            {'receiver_class': 'FinanceProvider', 'method': '_onAuthChanged$0'},
+        ]
+        res = sc_graph.scan_snapshot(build_sc_snapshot(listener_slots=slots),
+            binding=self.binding, epoch='owner_active', cycle_num=1, actor='cohost',
+            cdp_observations=make_sc_cdp(count=3), time_origin=12345.6)
+        self.assertEqual(res['verdict'], 'PASS', res.get('findings'))
+        slot = res['auth_provider']['records'][0]['listener_slots']['active_slots'][2]
+        self.assertEqual(slot['kind'], 'other_listener')
+        self.assertFalse(slot['exact_session_match'])
+        self.assertFalse(slot['exact_club_match'])
+
     def test_wrong_method_and_prototype_spoof_rejected(self):
         for label, slots in (
             ('wrong_method_on_session', [

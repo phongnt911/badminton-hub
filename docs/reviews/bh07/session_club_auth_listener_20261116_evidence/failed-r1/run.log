@@ -1,0 +1,2 @@
+[2026-11-16T02:19:58.371Z] starting cycle 1 (Owner -> logout -> cohost)
+[2026-11-16T02:19:58.373Z] aborted at stage=baseline_probe: refusing to inject canary (probe) via evaluate or input

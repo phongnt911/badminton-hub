@@ -1,0 +1,1386 @@
+{
+  "gate": "V2b — AuthProvider -> SessionProvider / ClubProvider finite listener graph",
+  "coverage_profile": "session_club_auth_listener",
+  "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+  "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+  "atomic_claim": false,
+  "require_bank_account": false,
+  "status": "FAIL",
+  "verdict": "FAIL",
+  "measurement_surface": "Flutter Web profile build + V8 heap snapshot + read-only CDP own-properties",
+  "oracle": "artifact-bound constructor/tearoff/reset verification + finite SessionProvider/ClubProvider listener subgraph",
+  "tested_source_sha": "e9af8d7b53c878e2d31deefbc7e6579ca2038c98",
+  "git_dirty": false,
+  "same_document_across_cycles": false,
+  "environment": {
+    "os": "win32 10.0.22621",
+    "node": "v26.13.0",
+    "build": {
+      "mode": "profile",
+      "reused": false,
+      "explicit_provenance_verified": true,
+      "started_at": "2026-11-16T02:29:10.605Z",
+      "tested_source_sha": null,
+      "artifacts_root": "build/web",
+      "artifacts": {
+        ".last_build_id": "9536d4cf1128f756052c09bad7bcda75b1491e9fed3e319c37002251f0bb847e",
+        "assets/AssetManifest.bin": "00af55ad3d6f21898fe77e0ff092d1a1cda52c941b6860e9928d45c8af8c095d",
+        "assets/AssetManifest.bin.json": "8460b5f4299ca1ed677c5a54c8038ae9cf1f26f6e91966b1b767ca6cb6d2e5d2",
+        "assets/FontManifest.json": "cd7e03645bc44b2dd47b7cb626f51c4ecbf55a197ab77241628b47ac165fbe21",
+        "assets/NOTICES": "fdd07a12361f8a49d6f6e0c918909e0d7f004d77d91c155411525ae69a1b5509",
+        "assets/fonts/MaterialIcons-Regular.otf": "3a76af11097a60c207569b5e66d519c7131e06f50069270f337c1942bc865387",
+        "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "3d90c370aa4cf00dc57ee2b902f6652147c0f81e03e483df584a9c08b1687c9d",
+        "assets/shaders/ink_sparkle.frag": "2dca5ab93d4ec29e963f996f3916320ba60825e9537dfb149a68008c7a16b026",
+        "assets/shaders/stretch_effect.frag": "ab412f07a5b9b50b67a885b24dbe16929738ae28630407d6490c924caf0a3220",
+        "canvaskit/canvaskit.js": "bb559f6080c7d312ac2a912b4abec9f68ff3d3022d4a603c7796b9b31460642b",
+        "canvaskit/canvaskit.js.symbols": "384f80b392972c83fd4f262527e3d06215a297d33ed59732c726721e9d9311bd",
+        "canvaskit/canvaskit.wasm": "fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3",
+        "canvaskit/chromium/canvaskit.js": "6018b12bd8ed37e6952eee72d59c1cf7ad707ccdb74a0a45190010f77edd9068",
+        "canvaskit/chromium/canvaskit.js.symbols": "31c86fac6042dd8b756150832c1d15495d0d07742e2718f75dbdde5a5a91455e",
+        "canvaskit/chromium/canvaskit.wasm": "ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf",
+        "canvaskit/skwasm.js": "71d7d3e34bf71b52bdba3b588b103bba8148ba28de5754083e01b3398e7a6e1c",
+        "canvaskit/skwasm.js.symbols": "9137f1a3ae744dea575043abfc6e063a047e910e6dab1ee53e496c975d1c033e",
+        "canvaskit/skwasm.wasm": "e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1",
+        "canvaskit/skwasm_heavy.js": "cec554b46ddcf4c0e63d799e0556d546f42d2c3f69316fb4f67ed776f6104558",
+        "canvaskit/skwasm_heavy.js.symbols": "b6b79ed497e11d4cd13cc46724f9e289eacc744d2d185e31c72d595cdf62772b",
+        "canvaskit/skwasm_heavy.wasm": "565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635",
+        "canvaskit/webparagraph/canvaskit.js": "3110e3e4d9b7b5657d336f253aaca8acca5777cde9319fb69ac302d6ff5a8b23",
+        "canvaskit/webparagraph/canvaskit.js.symbols": "44d6c47919106235cf32252252490cdf798d907ee874ba343ab53dc94bc2a9dc",
+        "canvaskit/webparagraph/canvaskit.wasm": "0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254",
+        "canvaskit/wimp.js": "8fd8a47480c6eb0a374d159912d0b3fb15661b41f5c113ecdd39c2f01f2bee46",
+        "canvaskit/wimp.js.symbols": "b4907ebd33131302a8cd99f7c55f52357bdfde04f421b605a616ba8764ae1de4",
+        "canvaskit/wimp.wasm": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c",
+        "favicon.png": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015",
+        "flutter.js": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe",
+        "flutter_bootstrap.js": "a1a47090427978a48eb1b65d7ff725ce92767cb4e00a0782992456576eac5b55",
+        "flutter_service_worker.js": "dbfbe64ae5be5b462abb97338eb9af783ed4ed57a8c73a53c2a44488a26f6416",
+        "icons/Icon-192.png": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3",
+        "icons/Icon-512.png": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe",
+        "icons/Icon-maskable-192.png": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c",
+        "icons/Icon-maskable-512.png": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929",
+        "index.html": "41182f961e471ef28c1a65605ba8b99739ed6964b19b7e4e1fab7b403333d2ee",
+        "main.dart.js": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+        "manifest.json": "83c0cd838556e5388ae6cf75d0244116dc590294c8c422a4f62deb4e41a0911e",
+        "version.json": "4ef1ff664b7e05badb37751633e18a67f08198113c28c8a4b2be5fb96b6fb83e"
+      },
+      "served_match": true
+    },
+    "chrome": "Edg/157.0.4341.60"
+  },
+  "sentinels": {
+    "probe": {
+      "available": true,
+      "length": 28,
+      "sha256_12": "cd071ea6867e",
+      "rendered": false,
+      "distinctive": true,
+      "scope": "control"
+    }
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "actor": "cohost",
+      "same_document": true,
+      "time_origin": 1794796203940,
+      "epochs": {
+        "baseline": {
+          "epoch": "baseline",
+          "ok": true,
+          "time_origin": 1794796203940,
+          "size_bytes": 60466613,
+          "sha256_12": "74c27c467b34",
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "baseline",
+            "snapshot_sha256_12": "74c27c467b34",
+            "time_origin": 1794796203940,
+            "binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116395",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "native",
+                    "class_name": null,
+                    "class_recognized": true,
+                    "primitive_literal": "null",
+                    "is_null": true
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 2,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "matched_target": null,
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "markNeedsNotifyDependents$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116397",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "session_listener",
+                        "matched_target": "session_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_session_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116443",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": true,
+                        "receiver_matches_session_class": true,
+                        "exact_session_match": true,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "session_match_count": 1,
+                    "club_match_count": 0,
+                    "wrong_receiver_count": 0,
+                    "target_wrong_method_count": 0,
+                    "other_listener_count": 1
+                  }
+                }
+              ]
+            },
+            "session_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116443",
+                  "selected_fields": {
+                    "_currentSessionId": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentSession": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_session_provider$_history": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    }
+                  }
+                }
+              ]
+            },
+            "club_provider": {
+              "all_object_nodes": 0,
+              "strong_root_reachable_count": 0,
+              "records": []
+            },
+            "rooted_auth_heap_object_ids": [
+              "116395"
+            ],
+            "rooted_session_heap_object_ids": [
+              "116443"
+            ],
+            "rooted_club_heap_object_ids": [],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "116395",
+              "time_origin_before": 1794796203940,
+              "time_origin_after": 1794796203940,
+              "before": {
+                "ChangeNotifier__count": 2,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 2,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "cdp_errors": [],
+              "session_heap_object_id": "116443",
+              "session_selected_fields": {
+                "_currentSessionId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentSession": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_session_provider$_history": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                }
+              },
+              "object_group_released": true
+            },
+            "target_status": {
+              "session_provider": "PASS",
+              "club_provider_core": "NOT_RUN_LAZY",
+              "club_provider_bank_account": "NOT_RUN_LAZY",
+              "bank_populated_at_epoch": false
+            },
+            "findings": [],
+            "verdict": "NOT_RUN_LAZY",
+            "ok": true
+          }
+        },
+        "owner_active": {
+          "epoch": "owner_active",
+          "ok": true,
+          "time_origin": 1794796203940,
+          "size_bytes": 73755381,
+          "sha256_12": "647a26018798",
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "owner_active",
+            "snapshot_sha256_12": "647a26018798",
+            "time_origin": 1794796203940,
+            "binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116395",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "object",
+                    "class_name": "User",
+                    "class_recognized": true,
+                    "primitive_literal": null,
+                    "is_null": false
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 3,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "matched_target": null,
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "markNeedsNotifyDependents$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116397",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "session_listener",
+                        "matched_target": "session_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_session_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116443",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": true,
+                        "receiver_matches_session_class": true,
+                        "exact_session_match": true,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 2,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "club_listener",
+                        "matched_target": "club_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_club_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "1199431",
+                        "receiver_class": "ClubProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": true,
+                        "receiver_matches_club_class": true,
+                        "exact_club_match": true
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "session_match_count": 1,
+                    "club_match_count": 1,
+                    "wrong_receiver_count": 0,
+                    "target_wrong_method_count": 0,
+                    "other_listener_count": 1
+                  }
+                }
+              ]
+            },
+            "session_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116443",
+                  "selected_fields": {
+                    "_currentSessionId": {
+                      "present": true,
+                      "node_type": "string",
+                      "class_name": null,
+                      "class_recognized": false,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": null
+                    },
+                    "_currentSession": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "Session0",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": "1240417"
+                    },
+                    "_session_provider$_history": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "SessionHistoryPage",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": "1240413"
+                    }
+                  }
+                }
+              ]
+            },
+            "club_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "1199431",
+                  "selected_fields": {
+                    "_currentClubId": {
+                      "present": true,
+                      "node_type": "string",
+                      "class_name": null,
+                      "class_recognized": false,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": null
+                    },
+                    "_currentClub": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "Club",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": "1154935"
+                    },
+                    "_currentBankAccount": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    }
+                  }
+                }
+              ]
+            },
+            "rooted_auth_heap_object_ids": [
+              "116395"
+            ],
+            "rooted_session_heap_object_ids": [
+              "116443"
+            ],
+            "rooted_club_heap_object_ids": [
+              "1199431"
+            ],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "116395",
+              "time_origin_before": 1794796203940,
+              "time_origin_after": 1794796203940,
+              "before": {
+                "ChangeNotifier__count": 3,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 3,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "cdp_errors": [],
+              "session_heap_object_id": "116443",
+              "session_selected_fields": {
+                "_currentSessionId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "string",
+                  "class_name": null
+                },
+                "_currentSession": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "Session0"
+                },
+                "_session_provider$_history": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "SessionHistoryPage"
+                }
+              },
+              "club_heap_object_id": "1199431",
+              "club_selected_fields": {
+                "_currentClubId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "string",
+                  "class_name": null
+                },
+                "_currentClub": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "Club"
+                },
+                "_currentBankAccount": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                }
+              },
+              "object_group_released": true
+            },
+            "target_status": {
+              "session_provider": "PASS",
+              "club_provider_core": "PASS",
+              "club_provider_bank_account": "NOT_RUN",
+              "bank_populated_at_epoch": false
+            },
+            "findings": [],
+            "verdict": "PASS",
+            "ok": true
+          }
+        },
+        "post_logout": {
+          "epoch": "post_logout",
+          "ok": true,
+          "time_origin": 1794796203940,
+          "size_bytes": 70749511,
+          "sha256_12": "83451db7ee66",
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "post_logout",
+            "snapshot_sha256_12": "83451db7ee66",
+            "time_origin": 1794796203940,
+            "binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116395",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "native",
+                    "class_name": null,
+                    "class_recognized": true,
+                    "primitive_literal": "null",
+                    "is_null": true
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 3,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "matched_target": null,
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "markNeedsNotifyDependents$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116397",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "session_listener",
+                        "matched_target": "session_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_session_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116443",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": true,
+                        "receiver_matches_session_class": true,
+                        "exact_session_match": true,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 2,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "club_listener",
+                        "matched_target": "club_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_club_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "1199431",
+                        "receiver_class": "ClubProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": true,
+                        "receiver_matches_club_class": true,
+                        "exact_club_match": true
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "session_match_count": 1,
+                    "club_match_count": 1,
+                    "wrong_receiver_count": 0,
+                    "target_wrong_method_count": 0,
+                    "other_listener_count": 1
+                  }
+                }
+              ]
+            },
+            "session_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116443",
+                  "selected_fields": {
+                    "_currentSessionId": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentSession": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_session_provider$_history": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    }
+                  }
+                }
+              ]
+            },
+            "club_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "1199431",
+                  "selected_fields": {
+                    "_currentClubId": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentClub": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentBankAccount": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    }
+                  }
+                }
+              ]
+            },
+            "rooted_auth_heap_object_ids": [
+              "116395"
+            ],
+            "rooted_session_heap_object_ids": [
+              "116443"
+            ],
+            "rooted_club_heap_object_ids": [
+              "1199431"
+            ],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "116395",
+              "time_origin_before": 1794796203940,
+              "time_origin_after": 1794796203940,
+              "before": {
+                "ChangeNotifier__count": 3,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 3,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": true,
+                "value_type": "null",
+                "class_name": null
+              },
+              "cdp_errors": [],
+              "session_heap_object_id": "116443",
+              "session_selected_fields": {
+                "_currentSessionId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentSession": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_session_provider$_history": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                }
+              },
+              "club_heap_object_id": "1199431",
+              "club_selected_fields": {
+                "_currentClubId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentClub": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentBankAccount": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                }
+              },
+              "object_group_released": true
+            },
+            "target_status": {
+              "session_provider": "PASS",
+              "club_provider_core": "PASS",
+              "club_provider_bank_account": "PASS",
+              "bank_populated_at_epoch": false
+            },
+            "findings": [],
+            "verdict": "PASS",
+            "ok": true
+          }
+        },
+        "post_actor": {
+          "epoch": "post_actor",
+          "ok": false,
+          "time_origin": 1794796203940,
+          "size_bytes": 83367462,
+          "sha256_12": "699a590971a6",
+          "listener_graph": {
+            "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+            "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+            "atomic_claim": false,
+            "epoch": "post_actor",
+            "snapshot_sha256_12": "699a590971a6",
+            "time_origin": 1794796203940,
+            "binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57",
+            "structure_ok": true,
+            "ambiguous_layout": false,
+            "caps_exceeded": false,
+            "auth_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116395",
+                  "current_user": {
+                    "present": true,
+                    "node_type": "object",
+                    "class_name": "User",
+                    "class_recognized": true,
+                    "primitive_literal": null,
+                    "is_null": false
+                  },
+                  "listener_slots": {
+                    "normalization_ambiguous": false,
+                    "reason": null,
+                    "caps_exceeded": false,
+                    "active_count": 4,
+                    "active_slots": [
+                      {
+                        "index": 0,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "matched_target": null,
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "markNeedsNotifyDependents$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116397",
+                        "receiver_class": "_InheritedProviderScopeElement",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 1,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "session_listener",
+                        "matched_target": "session_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_session_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "116443",
+                        "receiver_class": "SessionProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": true,
+                        "receiver_matches_session_class": true,
+                        "exact_session_match": true,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      },
+                      {
+                        "index": 2,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "club_listener",
+                        "matched_target": "club_provider",
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": "_club_provider$_onAuthChanged$0",
+                        "method_recognized": true,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "1199431",
+                        "receiver_class": "ClubProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": true,
+                        "receiver_matches_club_class": true,
+                        "exact_club_match": true
+                      },
+                      {
+                        "index": 3,
+                        "is_null_or_hole": false,
+                        "is_null": false,
+                        "kind": "other_listener",
+                        "matched_target": null,
+                        "wrong_receiver_target": null,
+                        "wrong_method_target": null,
+                        "node_class": "tear_off",
+                        "method_name": null,
+                        "method_recognized": false,
+                        "method_on_generated_prototype": true,
+                        "bound_closure_on_proto_chain": true,
+                        "proto_is_provider": false,
+                        "receiver_heap_object_id": "2319349",
+                        "receiver_class": "FinanceProvider",
+                        "receiver_class_recognized": true,
+                        "receiver_is_rooted_session": false,
+                        "receiver_matches_session_class": false,
+                        "exact_session_match": false,
+                        "receiver_is_rooted_club": false,
+                        "receiver_matches_club_class": false,
+                        "exact_club_match": false
+                      }
+                    ],
+                    "unmapped_active_slots": [],
+                    "null_holes_in_active_range": [],
+                    "trailing_non_null_count": 0,
+                    "session_match_count": 1,
+                    "club_match_count": 1,
+                    "wrong_receiver_count": 0,
+                    "target_wrong_method_count": 0,
+                    "other_listener_count": 2
+                  }
+                }
+              ]
+            },
+            "session_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "116443",
+                  "selected_fields": {
+                    "_currentSessionId": {
+                      "present": true,
+                      "node_type": "string",
+                      "class_name": null,
+                      "class_recognized": false,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": null
+                    },
+                    "_currentSession": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "Session0",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": "2315273"
+                    },
+                    "_session_provider$_history": {
+                      "present": true,
+                      "node_type": "object",
+                      "class_name": "SessionHistoryPage",
+                      "class_recognized": true,
+                      "primitive_literal": null,
+                      "is_null": false,
+                      "target_heap_object_id": "2402687"
+                    }
+                  }
+                }
+              ]
+            },
+            "club_provider": {
+              "all_object_nodes": 1,
+              "strong_root_reachable_count": 1,
+              "records": [
+                {
+                  "heap_object_id": "1199431",
+                  "selected_fields": {
+                    "_currentClubId": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentClub": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    },
+                    "_currentBankAccount": {
+                      "present": true,
+                      "node_type": "native",
+                      "class_name": null,
+                      "class_recognized": true,
+                      "primitive_literal": "null",
+                      "is_null": true,
+                      "target_heap_object_id": null
+                    }
+                  }
+                }
+              ]
+            },
+            "rooted_auth_heap_object_ids": [
+              "116395"
+            ],
+            "rooted_session_heap_object_ids": [
+              "116443"
+            ],
+            "rooted_club_heap_object_ids": [
+              "1199431"
+            ],
+            "cdp_observations": {
+              "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+              "atomic_claim": false,
+              "auth_heap_object_id": "116395",
+              "time_origin_before": 1794796203940,
+              "time_origin_after": 1794796203940,
+              "before": {
+                "ChangeNotifier__count": 4,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "after": {
+                "ChangeNotifier__count": 4,
+                "ChangeNotifier__notificationCallStackDepth": 0,
+                "ChangeNotifier__reentrantlyRemovedListeners": 0
+              },
+              "counters_match": true,
+              "quiescent": true,
+              "auth_current_user": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_before": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "auth_current_user_after": {
+                "present": true,
+                "has_getter": false,
+                "is_null": false,
+                "value_type": "object",
+                "class_name": "User"
+              },
+              "cdp_errors": [],
+              "session_heap_object_id": "116443",
+              "session_selected_fields": {
+                "_currentSessionId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "string",
+                  "class_name": null
+                },
+                "_currentSession": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "Session0"
+                },
+                "_session_provider$_history": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": false,
+                  "value_type": "object",
+                  "class_name": "SessionHistoryPage"
+                }
+              },
+              "club_heap_object_id": "1199431",
+              "club_selected_fields": {
+                "_currentClubId": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentClub": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                },
+                "_currentBankAccount": {
+                  "present": true,
+                  "has_getter": false,
+                  "is_null": true,
+                  "value_type": "null",
+                  "class_name": null
+                }
+              },
+              "object_group_released": true
+            },
+            "target_status": {
+              "session_provider": "FAIL",
+              "club_provider_core": "FAIL",
+              "club_provider_bank_account": "FAIL",
+              "bank_populated_at_epoch": false
+            },
+            "findings": [
+              "slot_3_invalid_prototype_method_flags"
+            ],
+            "verdict": "FAIL",
+            "ok": false
+          }
+        }
+      },
+      "verdict": {
+        "verdict": "FAIL",
+        "incomplete": true,
+        "failed_stage": "post_actor_scan",
+        "failed_epoch": "post_actor",
+        "findings": [
+          "cycle 1 post_actor listener_graph FAIL: slot_3_invalid_prototype_method_flags"
+        ]
+      },
+      "last_stage": "post_actor_scan"
+    }
+  ],
+  "notes": [],
+  "findings": [
+    "cycle 1 post_actor listener_graph FAIL: slot_3_invalid_prototype_method_flags"
+  ],
+  "cleanup": {
+    "disposable_instructions_club_id_sha256_12": "e94e6a82b5cf",
+    "disposable_instructions_session_id_sha256_12": "ed0f1adf1dff",
+    "canary_instr_a_sha256_12": "ff66c72c5d4e",
+    "canary_instr_b_sha256_12": "9f75ac536d06",
+    "disposable_instructions_club_created": true,
+    "disposable_instructions_session_created": true,
+    "disposable_instructions_removed": true,
+    "disposable_instructions_verified_absent": true,
+    "disposable_instructions_cleanup_verified": true,
+    "zero_mutation_verified": true,
+    "baseline_fingerprint_equal": true,
+    "public_rows_schema_roles_equal": true,
+    "auth_rows_excluded": true,
+    "mutation_counts": {
+      "payments": 0,
+      "club_transactions": 0,
+      "audit_events": 0,
+      "operation_requests": 0
+    },
+    "auth_refresh_sequence": [
+      88,
+      90
+    ],
+    "public_tables": 21,
+    "public_rows": 94,
+    "before_fingerprint_sha256": "c465cdb928bcada8edeb08363e3660a4b6d7999deada2342363ce7d536352e49",
+    "after_fingerprint_sha256": "10c0e38a53d75f03434ecfee8f936df68bbd41bc916aba4319110bf7bd988a55",
+    "recovery_state_retained": false,
+    "dump_dir_outside_repo": true,
+    "raw_snapshots_remaining": 0,
+    "dumps_dir_removed": true,
+    "chrome_profile_dir_removed": true,
+    "ok": true
+  },
+  "listener_graph_binding": {
+    "ok": true,
+    "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+    "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+    "auth_provider": {
+      "constructor_name": "AuthProvider",
+      "listeners_field": "ChangeNotifier__listeners",
+      "count_field": "ChangeNotifier__count",
+      "depth_field": "ChangeNotifier__notificationCallStackDepth",
+      "removed_field": "ChangeNotifier__reentrantlyRemovedListeners",
+      "current_user_field": "_currentUser"
+    },
+    "bound_closure": {
+      "constructor_name": "BoundClosure",
+      "receiver_field": "_receiver",
+      "interceptor_field": "_interceptor",
+      "tearoff_name_property": "$_name"
+    },
+    "models": {
+      "session": {
+        "constructor_name": "Session0"
+      },
+      "session_history_page": {
+        "constructor_name": "SessionHistoryPage"
+      },
+      "club": {
+        "constructor_name": "Club"
+      },
+      "bank_account": {
+        "constructor_name": "BankAccount"
+      }
+    },
+    "session_provider": {
+      "constructor_name": "SessionProvider",
+      "auth_field": "auth",
+      "repository_field": "_session_provider$_repository",
+      "session_id_field": "_currentSessionId",
+      "current_session_field": "_currentSession",
+      "history_field": "_session_provider$_history",
+      "registration_getter": "get$_session_provider$_onAuthChanged",
+      "registration_method": "_session_provider$_onAuthChanged$0"
+    },
+    "club_provider": {
+      "constructor_name": "ClubProvider",
+      "auth_field": "auth",
+      "repository_field": "_club_provider$_repository",
+      "club_id_field": "_currentClubId",
+      "current_club_field": "_currentClub",
+      "bank_account_field": "_currentBankAccount",
+      "registration_getter": "get$_club_provider$_onAuthChanged",
+      "registration_method": "_club_provider$_onAuthChanged$0"
+    },
+    "listener_binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57"
+  },
+  "error": "cycle 1 post_actor listener_graph FAIL: slot_3_invalid_prototype_method_flags",
+  "failure": {
+    "stage": "post_actor_scan",
+    "epoch": "post_actor",
+    "cycle": 1,
+    "actor": "cohost",
+    "message": "cycle 1 post_actor listener_graph FAIL: slot_3_invalid_prototype_method_flags"
+  },
+  "session_club_assessment": {
+    "session_listener_gate": "FAIL",
+    "club_core_listener_gate": "FAIL",
+    "club_bank_account_gate": "FAIL",
+    "session_club_listener_gate": "FAIL",
+    "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+    "observation_mode": "hybrid_snapshot_plus_readonly_cdp_own_properties",
+    "atomic_claim": false
+  },
+  "finished_at": "2026-11-16T02:31:52.181Z"
+}

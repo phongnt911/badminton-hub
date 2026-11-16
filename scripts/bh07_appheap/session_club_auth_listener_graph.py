@@ -152,6 +152,8 @@ def _allowed_classes(binding: dict | None) -> frozenset[str]:
 
 def _allowed_methods(binding: dict | None) -> frozenset[str]:
     methods = set(base_graph.STRUCTURAL_METHOD_ALLOWLIST)
+    # Metadata only for the lazy Finance listener; no Finance state/registration gate.
+    methods.add('_onAuthChanged$0')
     if isinstance(binding, dict):
         for sec in ('session_provider', 'club_provider'):
             info = binding.get(sec)

@@ -1,0 +1,9 @@
+# Lazy Finance metadata correction — 16/11/2026
+
+Clean runtime sourcee9af8d7 reached cycle1 Owner/logout, then FAIL post_actor_scan (`slot_3_invalid_prototype_method_flags`). Cohost summary lazily creates FinanceProvider; its genuine BoundClosure generated-prototype method was sanitized to null because Session/Club metadata allowlist omitted it. Snapshot preserved method/prototype flags and Finance receiver metadata; selected Session/Club listeners both matched correctly. No completed two-cycle verdict is claimed.
+
+Codex confirms current build Finance source bindingok=True, registration_method `_onAuthChanged$0`. Added RED test with a third Finance listener: initially FAIL `slot_2_invalid_prototype_method_flags`. Minimal allowlist addition preserves this exact name as **metadata only**. Test checks `other_listener` and both exact selected-target flags false. Session/Club artifact bindings, receiver identity and reset predicates remain required.
+
+Fresh Codex regression:53Python PASS/57.545s (new Session/Club plus Finance/Instructions); Node Session/Club controls exit0/ALL_SESSION_CLUB_AUTH_LISTENER_CONTROLS_PASS. Separate reviewer inspected the two-line scanner delta/test and ran metadata + wrong-method/prototype tests:2PASS; no P0/P1/P2 in delta. This is source/control closure, not independent runtime QA.
+
+R2 FAIL bundle preserved byte-for-byte under session_club_auth_listener_20261116_evidence/failed-r2. Both historical FAIL bundle original hashes verify. Root DB comparison preflight->afterR2:21public tables/94rows/schema/roles/other sequences match, Auth88->90; fixture/dumps/state/profile cleanup verified. Evidence attribute rule preserves new bundle bytes under autocrlf. Runtime R3 remains NOT RUN at this checkpoint. No Finance state/registration acceptance added, no full graph/model/BH-07/V8 acceptance, main merge/deploy/pilot/BH-08 or remote operation.

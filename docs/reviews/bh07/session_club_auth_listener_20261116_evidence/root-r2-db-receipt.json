@@ -1,0 +1,17 @@
+{
+  "equal": true,
+  "mismatches": [],
+  "auth_rows_excluded": true,
+  "auth_refresh_sequence": [
+    88,
+    90
+  ],
+  "public_tables": 21,
+  "public_rows": 94,
+  "before_sha256": "c465cdb928bcada8edeb08363e3660a4b6d7999deada2342363ce7d536352e49",
+  "after_sha256": "10c0e38a53d75f03434ecfee8f936df68bbd41bc916aba4319110bf7bd988a55",
+  "scope": "root_preflight_to_after_r2",
+  "runtime_verdict": "FAIL",
+  "failure_stage": "post_actor_scan",
+  "fixture_profile_dumps_state_cleanup_verified": true
+}
