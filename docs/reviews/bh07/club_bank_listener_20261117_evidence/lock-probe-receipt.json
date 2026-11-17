@@ -1,0 +1,41 @@
+{
+  "probe": "cleanup_parent_lock_at_pre_parent_delete_boundary",
+  "checks": {
+    "reached_after_absence_before_parent_delete": true,
+    "foreign_insert_blocked": true,
+    "foreign_reparent_blocked": true,
+    "target_cleanup_transaction_committed": true,
+    "foreign_side_row_preserved_and_insert_absent": true
+  },
+  "source_sha": "7614c6a79984e3d73653cc5ec4cbd0e4164dd8a5",
+  "git_dirty": false,
+  "fixture_module_sha256": "caa09cb6802bfd099f94ae13007fba5d137e8cc676ad7d6cb9a4a84be9250482",
+  "probe_script_sha256": "5e948d28c72767ed9033b0e7db2551afdaaaa7c717956eed98caf1005bd97c47",
+  "generated_cleanup_sha256": "404a45f1c6675da9e9fbb767d37a9be0027d75368ea1d621cc2059d31c47bac6",
+  "fixture_cleanup": [
+    {
+      "cleanup_ok": true,
+      "bank_absent": true
+    },
+    {
+      "cleanup_ok": true,
+      "bank_absent": true
+    }
+  ],
+  "root_db_comparison": {
+    "equal": true,
+    "mismatches": [],
+    "auth_rows_excluded": true,
+    "auth_refresh_sequence": [
+      94,
+      94
+    ],
+    "public_tables": 21,
+    "public_rows": 94,
+    "before_sha256": "5f0ad1a9ff2779ed2f5af832742c0fa6b79923ebcd0823098c37f4ab8da7d1ba",
+    "after_sha256": "5f0ad1a9ff2779ed2f5af832742c0fa6b79923ebcd0823098c37f4ab8da7d1ba"
+  },
+  "private_state_absent": true,
+  "empty_private_directory_retained": true,
+  "ok": true
+}

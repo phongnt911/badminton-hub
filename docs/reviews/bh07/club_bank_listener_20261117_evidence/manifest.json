@@ -1,0 +1,13 @@
+{
+  "scope": "redacted_runtime_and_controlled_local_lock_probe",
+  "files": {
+    "lock-probe-receipt.json": "9dde691025a6d9fa9a7fdc81f6855e090164e7fdaf20d6de6b753fcd8e85d6d4",
+    "probe_club_bank_cleanup_lock.py": "5e948d28c72767ed9033b0e7db2551afdaaaa7c717956eed98caf1005bd97c47",
+    "root-db-receipt.json": "5b9f886a69238d97e98ea75835fa78ff9c0b47cdb24c530823b0f21b3881d889",
+    "run/hashes.sha256": "203b0b6b88e9251159984eef8f1867cd8e2d551df30b3e849b0c416163d7c6bc",
+    "run/report.md": "3a9bd6f4962d95bd0165e8e3305a075e80824d288197f851c70dc67912c64e90",
+    "run/run.log": "c99079d0bed9cad70e8819fd44d2f727ffa20f9fd53113c5f950867d1ed72647",
+    "run/source_binding.json": "fab56ab1549245fe36697f6c9564a623c02058e6dd114d803b2b179f2b418bef",
+    "run/summary.json": "8654470d72b10527bcdf184e31ce9ff08c01fc9bab22a05813741586f8507143"
+  }
+}

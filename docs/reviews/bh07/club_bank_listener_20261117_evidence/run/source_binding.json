@@ -1,0 +1,54 @@
+{
+  "ok": true,
+  "claim_scope": "auth_provider_rooted_listener_to_session_and_club_provider_selected_fields_only",
+  "main_dart_js_sha256": "a20b3d22a011fb511a76ee4daa11167410a6a61a2aba3f796f8ae0e1e65fe83e",
+  "auth_provider": {
+    "constructor_name": "AuthProvider",
+    "listeners_field": "ChangeNotifier__listeners",
+    "count_field": "ChangeNotifier__count",
+    "depth_field": "ChangeNotifier__notificationCallStackDepth",
+    "removed_field": "ChangeNotifier__reentrantlyRemovedListeners",
+    "current_user_field": "_currentUser"
+  },
+  "bound_closure": {
+    "constructor_name": "BoundClosure",
+    "receiver_field": "_receiver",
+    "interceptor_field": "_interceptor",
+    "tearoff_name_property": "$_name"
+  },
+  "models": {
+    "session": {
+      "constructor_name": "Session0"
+    },
+    "session_history_page": {
+      "constructor_name": "SessionHistoryPage"
+    },
+    "club": {
+      "constructor_name": "Club"
+    },
+    "bank_account": {
+      "constructor_name": "BankAccount"
+    }
+  },
+  "session_provider": {
+    "constructor_name": "SessionProvider",
+    "auth_field": "auth",
+    "repository_field": "_session_provider$_repository",
+    "session_id_field": "_currentSessionId",
+    "current_session_field": "_currentSession",
+    "history_field": "_session_provider$_history",
+    "registration_getter": "get$_session_provider$_onAuthChanged",
+    "registration_method": "_session_provider$_onAuthChanged$0"
+  },
+  "club_provider": {
+    "constructor_name": "ClubProvider",
+    "auth_field": "auth",
+    "repository_field": "_club_provider$_repository",
+    "club_id_field": "_currentClubId",
+    "current_club_field": "_currentClub",
+    "bank_account_field": "_currentBankAccount",
+    "registration_getter": "get$_club_provider$_onAuthChanged",
+    "registration_method": "_club_provider$_onAuthChanged$0"
+  },
+  "listener_binding_sha256": "e061096293c9b0fd742e2325ff3e0c10de177dfb3a8fb61642dc22bc8ac66e57"
+}

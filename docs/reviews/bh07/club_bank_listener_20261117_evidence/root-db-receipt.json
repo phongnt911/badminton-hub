@@ -1,0 +1,13 @@
+{
+  "equal": true,
+  "mismatches": [],
+  "auth_rows_excluded": true,
+  "auth_refresh_sequence": [
+    94,
+    98
+  ],
+  "public_tables": 21,
+  "public_rows": 94,
+  "before_sha256": "5f0ad1a9ff2779ed2f5af832742c0fa6b79923ebcd0823098c37f4ab8da7d1ba",
+  "after_sha256": "5fab178fa419c27d3f3da5623100226153b8117c137330bebc837f6bdb717067"
+}

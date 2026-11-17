@@ -1,3 +1,5 @@
+**17/11/2026 — Bounded Session/Club including BankAccount:** [runtime7614c6a](club_bank_listener_runtime_20261117.md) PASS local for six selected provider fields/registrations; Owner populated, logout null, listener registrations intentionally remain. Hybrid/non-atomic,2cycles/8epochs; full graph/model/native coverage remains incomplete. Prior16NovPARTIAL and all historical evidence retain original verdicts.
+
 **14/11/2026 — Cập nhật bounded Auth→Finance:** [runtime70a71ba](finance_auth_listener_runtime_20261114.md) PASS local cho một registered Finance tearoff và hai field `_instructions`/`_finance`, hai chu kỳ/tám epochs, hybrid snapshot/CDP non-atomic. Owner loaded, postlogout null, listener vẫn sống. Full auth_listeners gồm Club/Session contracts và other fields/native vẫn NOT RUN/UNKNOWN. Các dòng lịch sử dưới đây giữ nguyên phạm vi.
 
 **13/11/2026 — Hai synthetic receiverSnapshot map values Đạt local tại source sạch4433b15:** Hai chu kỳ/tám epochs Edge profile; path qua Provider value→_instructions→receiverSnapshot→map cell, binding constructor/field với đúng main.dart.js SHA và strict auditor0. Baseline/logout/actor vắng; zero mutation, fixture/dump/profile/state dọn, DB21/94 khớp, Auth79→83. Chỉ hai giá trị JSON tổng hợp; không đóng toàn PaymentInstructions, rendered QR/reference/bank, listener/native hoặc toàn V2b/BH-07/V8. [Báo cáo](payment_instructions_heap_runtime_20261113.md). Các mốc dưới giữ lịch sử.
@@ -66,7 +68,7 @@ Bản đồ này vạch rõ từng thực thể dữ liệu riêng tư nhạy c�
 | Thực thể | Chi tiết Kỹ thuật | Trạng thái Hiện tại | Yêu cầu để Nghiệm thu Đầy đủ |
 | :--- | :--- | :--- | :--- |
 | **Danh tính thành viên CLB (`roster_identities`)** | - Model: [`SessionPlayer.id`](../../../lib/models/session.dart#L237) (`player_a`, `player_b`)<br>- Provider: [`SessionProvider`](../../../lib/providers/session_provider.dart)<br>- UI: [`SessionDetailScreen`](../../../lib/screens/session_detail_screen.dart)<br>- Scope: `identity`, Distinctive: `true` | **ĐÃ BÁO CÁO DẠNG NOTE**.<br>Biến mất ở `post_logout` và `post_member`; còn reachable ở `post_cohost` (path len 18). Phép đo bộ nhớ không thể khẳng định Cohost có quyền fetch lại hay không. | Cần kiểm tra quyền (Authorization/RLS) độc lập bằng HTTP/API test ở tầng backend (đã đạt ở BH-06), không dùng heap snapshot để kết luận quyền. |
-| **Bộ lắng nghe Auth (`auth_listeners`)** | - Lớp: `addListener(_onAuthChanged)` trong `FinanceProvider`, `ClubProvider`, `SessionProvider`<br>- Quản lý generation & serial | **ĐÃ ĐO NHÁNH FINANCE HẸP; FULL GRAPH NOT RUN**. [14/11 runtime](finance_auth_listener_runtime_20261114.md): đúng một rooted Finance tearoff receiver, hai field populated→null qua logout; Club/Session contracts và field khác chưa đóng.<br>AST audit xác nhận 0 static mutable collection và Provider unit test kiểm tra `removeListener`, nhưng **Web profile heap object graph của active listener nodes CHƯA ĐƯỢC ĐO**. Không nhận AST zero-static là bằng chứng heap sạch. | Cần probe bộ nhớ đối tượng (object retention graph) trên heap runtime để xác minh không còn listener closure trỏ giữ model sau sign-out. |
+| **Bộ lắng nghe Auth (`auth_listeners`)** | `addListener(_onAuthChanged)` in Finance/Club/Session providers; generation/serial lifecycle | **BOUNDED BRANCHES MEASURED; FULL GRAPH NOT RUN.** [Finance14Nov](finance_auth_listener_runtime_20261114.md) and [Session/Club17Nov](club_bank_listener_runtime_20261117.md): selected fields populated→null on logout, correct rooted tearoff receivers, registrations intentionally survive. | Other fields/lists/pending requests, whole-model/native/disposal remain UNKNOWN/NOT RUN; do not require provider/listener disappearance at logout or infer global heap cleanliness. |
 
 ---
 
@@ -80,9 +82,9 @@ Dựa trên mở rộng đo thực tế và phân tích DTO:
 - **PaymentInstructions đo một phần:** hai synthetic receiverSnapshot map values PASS với source-bound attribution; các field khác và QR heap chưa đủ bằng chứng.
 - **Màn hình đã mở nhưng chưa có Sentinel thích hợp:** 1 (`session_summary`).
 - **Dữ liệu danh tính báo cáo dạng Note:** 1 (`roster_identities`).
-- **Bộ lắng nghe Auth trên Web heap object graph:** 1 (`auth_listeners` - NOT RUN).
+- **Auth Web object graph:** one full-coverage group still open; finite Finance/Session/Club selected-field branches measured separately, not full graph acceptance.
 - **Lưu ý kỹ thuật về phân loại (Groups Overlap):** Ma trận có các phân loại chồng lấn: `payments` gồm payment_id đã đạt và payment_ref còn unattributed; PaymentInstructions chỉ đo hai map values, không phải toàn DTO. Các nhóm phân loại có sự giao thoa (overlap) về mặt đối tượng, không mang tính cộng gộp số học thuần túy (not additive).
-- **Đánh giá chung:** Toàn bộ V2b §4.4 và BH-07 **CHƯA ĐỦ ĐIỀU KIỆN NGHIỆM THU**. Giữ UNKNOWN/NOT RUN cho field coverage PaymentInstructions ngoài hai synthetic map values, `auth_listeners` Web graph và toàn bộ Dart VM native desktop/mobile; toàn bộ app-wide retention / whole-model giữ UNKNOWN. Tuyệt đối không merge/push/deploy/pilot/BH-08 khi chưa có sự phê duyệt tích hợp của chủ dự án.
+- **Đánh giá chung:** Toàn bộ V2b §4.4 và BH-07 **CHƯA ĐỦ ĐIỀU KIỆN NGHIỆM THU**. Giữ UNKNOWN/NOT RUN cho field coverage PaymentInstructions ngoài hai synthetic map values, phần chưa đo của `auth_listeners` Web graph và toàn bộ Dart VM native desktop/mobile; toàn bộ app-wide retention / whole-model giữ UNKNOWN. Tuyệt đối không merge/push/deploy/pilot/BH-08 khi chưa có sự phê duyệt tích hợp của chủ dự án.
 
 ## 4. Lộ trình Kỹ thuật Đề xuất để Đóng Hoàn toàn V2b §4.4
 
@@ -92,7 +94,7 @@ Dựa trên mở rộng đo thực tế và phân tích DTO:
    - Ledger transaction ID đã đo tại b25aaef; không mở lại phép đo ID đã chốt hoặc suy ra whole-model sạch.
    - Hai synthetic receiverSnapshot map values đã đo bằng companion runner riêng tại4433b15. Nếu mở rộng QR/rendered field coverage, xác lập sentinel/attribution contract mới; reference có render và activeRevisionId dùng chung không là sentinel độc quyền hợp lệ.
 3. **Probe bộ nhớ đối tượng (object retention graph) cho Auth Listeners trên Web heap**:
-   - Xác minh active listener closure không trỏ giữ tham chiếu mạnh tới các model/provider sau khi đăng xuất.
+   - Measure remaining selected state/model retention contracts; root provider/listener registrations intentionally stay alive after logout and do not by themselves establish a leak or whole-model cleanliness.
 4. **Văn bản Chấp thuận Rủi ro Tồn đọng (Residual-Risk Acceptance)**:
    - Chủ dự án xem xét và ký biên bản chấp thuận rủi ro tồn đọng cho 4 nhóm rủi ro tồn lưu (4 residual groups gồm 5 giá trị sentinel: `expense`, `expense2`, `payment_ref`, `bank`, `receiver`, qua 20 bản ghi) với thuộc tính `UNATTRIBUTED` (một đường dẫn BFS không thể loại trừ các đường dẫn app hay đường dẫn khác).
 5. **Đo heap trên Dart VM (desktop hoặc mobile)**:
