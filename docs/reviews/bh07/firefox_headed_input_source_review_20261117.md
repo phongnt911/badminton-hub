@@ -1,0 +1,7 @@
+# Firefox headed input diagnostic source/control review
+
+AGY Gemini4Hydrogen(XHigh) delivered phase1 and one correction round on base1e1a67e. Codex and separate reviewer each ran19Node controls PASS after FF1/FF2 correction. Reviewer replayed auth/prefix-RPC/external POST negatives (FAIL/counter1) and Account/Login RAF-false negatives (FAIL at the correct step); no P1/P2 remains in the reviewed diagnostic delta.
+
+The probe uses real physical locator/keyboard actions with benign synthetic input and never submits. Bootstrap of Flutter accessibility semantics is explicitly separate. Telemetry is bounded/redacted and observer cleanup checked. Exact read-RPC allowlist is empty for this Guest Home→Account→login-dialog flow; all non-read requests fail rather than trusting RPC names. Physical action RAF false/unknown cannot become PASS. Explicit launcher headless=false/CLI --headed, not UA alone, will establish headed provenance.
+
+Live browser diagnostic is NOT RUN at this checkpoint. Prior software-headed workflow FAIL and default-headed rendering UNKNOWN remain unchanged. Environment anon renewal command was rejected by policy, not retried or applied; expired anon remains. No-submit UI diagnostic only, no Guest authorization/read-success claim. Existing39profile artifacts from7614c6a were verified against file and HTTP bytes and intentionally reused, not rebuilt. No lifecycle/app/backend/schema/remote changes or full V2/BH-07/V8 acceptance.

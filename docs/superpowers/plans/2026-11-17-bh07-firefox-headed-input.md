@@ -14,3 +14,5 @@ Owner requested continued BH-07 work; coding assigned to AGY Gemini4Hydrogen(XHi
 - [ ] Run feasible corrected software-headed lifecycle/offline/retry with fresh owned fixture and DB oracle; preserve all old failures and honest default-headed/native/browser limits. Publish dated source-bound evidence/status and sync feature only. If root cause remains unestablished, report exact diagnostic evidence and FAIL/UNKNOWN without claiming closure.
 
 No main merge/deploy/remote release/load/pilot/BH-08, no owner risk acceptance. Full V2/V2b/BH-07/V8 remains unaccepted. Use --print-timeout0; scoped per-session permissions only, never bypass policy/global settings.
+
+**Preflight ruling:** the combined preparation command including local anon renewal was rejected by environment policy; no renewal was applied or retried via another route. Proceed with no-submit UI diagnostics only, expired-anon limitation explicit. Reuse existing39profile artifacts bound to7614c6a after file/HTTP hash verification; no fresh build or Guest authorization/read-success claim. Any later lifecycle/Guest acceptance must respect this unresolved limitation.
