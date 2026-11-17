@@ -105,12 +105,17 @@ def load_and_validate_config(config_path=None, config_dict=None):
     if not re.fullmatch(r'[A-Za-z0-9_.+-]+@[A-Za-z0-9.-]+', owner_email):
         raise ValueError('invalid owner_email format')
 
+    include_club_bank = cfg.get('include_club_bank', False)
+    if not isinstance(include_club_bank, bool):
+        raise ValueError('include_club_bank must be a strict boolean')
+
     return {
         **cfg,
         'db_container': db_container,
         'supabase_url': f'{parsed.scheme}://{host if ":" not in host else f"[{host}]"}:{ALLOWED_SUPABASE_PORT}',
         'docker_exe': docker_exe,
         'owner_email': owner_email,
+        'include_club_bank': include_club_bank,
     }
 
 
@@ -363,6 +368,13 @@ def _write_private_json_atomic(path, data):
         pass
 
 
+def _require_nonempty_str(value, label):
+    """Validate that a value is a non-empty string free of NUL bytes."""
+    if not isinstance(value, str) or not value.strip() or '\x00' in value:
+        raise ValueError(f'{label} must be a non-empty string without NUL bytes')
+    return value
+
+
 class DisposableInstructionsFixture:
     """Manages an isolated, UUID-owned disposable fixture for PaymentInstructions heap tests."""
 
@@ -370,8 +382,17 @@ class DisposableInstructionsFixture:
                  session_id=None, player_id=None, revision_id=None, charge_id=None,
                  marker_id=None, sentinel_1=None, sentinel_2=None, nonce=None,
                  owner_email='ownera@example.test',
+                 include_club_bank=False, club_bank_account_id=None,
+                 club_bank_code=None, club_account_number=None,
+                 club_account_name=None,
+                 club_bank_removed=False, club_bank_verified_absent=False,
                  preflight_absent=False, insert_attempted=False, created=False,
                  removed=False, verified_absent=False, refused=None, error=None):
+        if not isinstance(include_club_bank, bool):
+            raise ValueError('include_club_bank must be a strict boolean')
+        if not isinstance(club_bank_removed, bool) or not isinstance(club_bank_verified_absent, bool):
+            raise ValueError('club_bank_removed and club_bank_verified_absent must be strict booleans')
+
         self.run_id = validate_uuid(run_id or uuid.uuid4(), 'run_id')
         self.club_id = validate_uuid(club_id or uuid.uuid4(), 'club_id')
         self.club_member_id = validate_uuid(club_member_id or uuid.uuid4(), 'club_member_id')
@@ -397,6 +418,42 @@ class DisposableInstructionsFixture:
             if self.sentinel_1 in label or self.sentinel_2 in label:
                 raise ValueError('rendered fixture field must not embed sentinel UUID')
 
+        self.include_club_bank = include_club_bank
+        if self.include_club_bank:
+            if club_bank_account_id is not None and not isinstance(club_bank_account_id, str):
+                raise ValueError('club_bank_account_id must be a UUID string')
+            self.club_bank_account_id = validate_uuid(
+                club_bank_account_id if club_bank_account_id is not None else uuid.uuid4(),
+                'club_bank_account_id',
+            )
+            self.club_bank_code = _require_nonempty_str(
+                club_bank_code if club_bank_code is not None else 'VCB',
+                'club_bank_code',
+            )
+            self.club_account_number = _require_nonempty_str(
+                club_account_number if club_account_number is not None else f'99990000{uuid.uuid4().int % 100000000:08d}',
+                'club_account_number',
+            )
+            self.club_account_name = _require_nonempty_str(
+                club_account_name if club_account_name is not None else f'BH07 SYNTH BANK {self.nonce.upper()}',
+                'club_account_name',
+            )
+            for label in (self.club_bank_code, self.club_account_number, self.club_account_name):
+                if (self.sentinel_1 in label or self.sentinel_2 in label
+                        or self.club_id in label or self.club_bank_account_id in label):
+                    raise ValueError('rendered bank field must not embed sentinel or entity UUID')
+            self.club_bank_removed = club_bank_removed
+            self.club_bank_verified_absent = club_bank_verified_absent
+        else:
+            if any(v is not None for v in (club_bank_account_id, club_bank_code, club_account_number, club_account_name)) or club_bank_removed or club_bank_verified_absent:
+                raise ValueError('club_bank fields are forbidden when include_club_bank is false')
+            self.club_bank_account_id = None
+            self.club_bank_code = None
+            self.club_account_number = None
+            self.club_account_name = None
+            self.club_bank_removed = False
+            self.club_bank_verified_absent = False
+
         self.preflight_absent = bool(preflight_absent)
         self.insert_attempted = bool(insert_attempted)
         self.created = bool(created)
@@ -408,7 +465,7 @@ class DisposableInstructionsFixture:
 
     def to_private_state(self):
         """Serialize complete state (only for private temp path outside repo/published bundle)."""
-        return {
+        state = {
             'run_id': self.run_id,
             'club_id': self.club_id,
             'club_member_id': self.club_member_id,
@@ -430,10 +487,37 @@ class DisposableInstructionsFixture:
             'error': self.error,
             'before_fingerprint': self.before_fingerprint,
         }
+        if self.include_club_bank:
+            state.update({
+                'include_club_bank': True,
+                'club_bank_account_id': self.club_bank_account_id,
+                'club_bank_code': self.club_bank_code,
+                'club_account_number': self.club_account_number,
+                'club_account_name': self.club_account_name,
+                'club_bank_removed': self.club_bank_removed,
+                'club_bank_verified_absent': self.club_bank_verified_absent,
+            })
+        return state
 
     @classmethod
     def from_state_file(cls, state_path):
         data = json.loads(Path(state_path).read_text(encoding='utf-8'))
+        if not isinstance(data, dict):
+            raise ValueError('state file must contain a JSON object')
+        if 'include_club_bank' in data:
+            inc = data['include_club_bank']
+            if not isinstance(inc, bool):
+                raise ValueError('include_club_bank in state must be a strict boolean')
+        else:
+            inc = False
+        for flag_key in ('club_bank_removed', 'club_bank_verified_absent'):
+            if flag_key in data and not isinstance(data[flag_key], bool):
+                raise ValueError(f'{flag_key} in state must be a strict boolean')
+        if inc:
+            for req_key in ('club_bank_account_id', 'club_bank_code', 'club_account_number', 'club_account_name'):
+                if req_key not in data or data[req_key] is None:
+                    raise ValueError(f'{req_key} is required when include_club_bank is true')
+
         obj = cls(
             run_id=data['run_id'],
             club_id=data['club_id'],
@@ -447,6 +531,13 @@ class DisposableInstructionsFixture:
             sentinel_2=data['sentinel_2'],
             nonce=data['nonce'],
             owner_email=data.get('owner_email', 'ownera@example.test'),
+            include_club_bank=inc,
+            club_bank_account_id=data.get('club_bank_account_id'),
+            club_bank_code=data.get('club_bank_code'),
+            club_account_number=data.get('club_account_number'),
+            club_account_name=data.get('club_account_name'),
+            club_bank_removed=data.get('club_bank_removed', False),
+            club_bank_verified_absent=data.get('club_bank_verified_absent', False),
             preflight_absent=data.get('preflight_absent', False),
             insert_attempted=data.get('insert_attempted', False),
             created=data.get('created', False),
@@ -459,8 +550,8 @@ class DisposableInstructionsFixture:
         return obj
 
     def public_metadata(self):
-        """Return safe, redacted fixture metadata for runner/logs (no raw sentinels)."""
-        return {
+        """Return safe, redacted fixture metadata for runner/logs (no raw sentinels or bank values)."""
+        meta = {
             'club_name': self.club_name,
             'session_title': self.session_title,
             'player_name': self.player_name,
@@ -472,6 +563,15 @@ class DisposableInstructionsFixture:
                 'canary_instr_b': {'sha256_12': sha12(self.sentinel_2), 'length': len(self.sentinel_2)},
             },
         }
+        if self.include_club_bank:
+            meta['club_bank_included'] = True
+            meta['club_bank'] = {
+                'club_bank_account_id_sha256_12': sha12(self.club_bank_account_id),
+                'bank_code_sha256_12': sha12(self.club_bank_code),
+                'account_number_sha256_12': sha12(self.club_account_number),
+                'account_name_sha256_12': sha12(self.club_account_name),
+            }
+        return meta
 
     def preflight(self, db):
         """Verify DB readiness, owner/venue anchors, and zero UUID collisions."""
@@ -487,6 +587,10 @@ class DisposableInstructionsFixture:
         if not anchors.get('owner_id') or not anchors.get('venue_id'):
             raise FixtureError('required owner auth user or active venue anchor missing')
 
+        bank_collision_expr = (
+            f" + (SELECT count(*) FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} OR club_id = {_sql_literal(self.club_id)})"
+            if self.include_club_bank else ''
+        )
         collision = db.query_json(
             'SELECT json_build_object(\'collision_count\', '
             f"(SELECT count(*) FROM public.clubs WHERE id = {_sql_literal(self.club_id)}) + "
@@ -494,7 +598,8 @@ class DisposableInstructionsFixture:
             f"(SELECT count(*) FROM public.sessions WHERE id = {_sql_literal(self.session_id)}) + "
             f"(SELECT count(*) FROM public.session_players WHERE id = {_sql_literal(self.player_id)}) + "
             f"(SELECT count(*) FROM public.charge_revisions WHERE id = {_sql_literal(self.revision_id)}) + "
-            f"(SELECT count(*) FROM public.session_charges WHERE id = {_sql_literal(self.charge_id)}));"
+            f"(SELECT count(*) FROM public.session_charges WHERE id = {_sql_literal(self.charge_id)})"
+            f"{bank_collision_expr});"
         )
         if int(collision.get('collision_count', -1)) != 0:
             self.preflight_absent = False
@@ -532,13 +637,20 @@ class DisposableInstructionsFixture:
             'canary_instr_b': self.sentinel_2,
         }, separators=(',', ':'))
 
+        bank_insert_sql = ''
+        if self.include_club_bank:
+            bank_insert_sql = f"""
+INSERT INTO public.club_bank_accounts (id, club_id, bank_code, account_number, account_name, status)
+VALUES ({_sql_literal(self.club_bank_account_id)}, {_sql_literal(self.club_id)}, {_sql_literal(self.club_bank_code)}, {_sql_literal(self.club_account_number)}, {_sql_literal(self.club_account_name)}, 'active');
+"""
+
         insert_sql = f"""BEGIN;
 INSERT INTO public.clubs (id, owner_user_id, name, description, visibility, status)
 VALUES ({_sql_literal(self.club_id)}, {_sql_literal(owner_id)}, {_sql_literal(self.club_name)}, {_sql_literal(self.marker_text)}, 'private', 'active');
 
 INSERT INTO public.club_members (id, club_id, user_id, display_name, role, status, joined_at)
 VALUES ({_sql_literal(self.club_member_id)}, {_sql_literal(self.club_id)}, {_sql_literal(owner_id)}, 'Owner A', 'owner', 'active', now());
-
+{bank_insert_sql}
 INSERT INTO public.sessions (
   id, club_id, host_user_id, venue_id, title, description,
   starts_at, ends_at, capacity, court_count, visibility, lifecycle,
@@ -576,6 +688,14 @@ COMMIT;"""
 
         db.exec_sql(insert_sql, fixture=self)
 
+        bank_readback_fields = ''
+        if self.include_club_bank:
+            bank_readback_fields = (
+                f", 'club_bank_count', (SELECT count(*) FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)})"
+                f", 'club_bank_for_club_count', (SELECT count(*) FROM public.club_bank_accounts WHERE club_id = {_sql_literal(self.club_id)})"
+                f", 'club_bank_exact', EXISTS(SELECT 1 FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} AND club_id = {_sql_literal(self.club_id)} AND bank_code = {_sql_literal(self.club_bank_code)} AND account_number = {_sql_literal(self.club_account_number)} AND account_name = {_sql_literal(self.club_account_name)} AND status = 'active')"
+                f", 'session_receiver_bank_unlinked', (SELECT receiver_club_bank_account_id IS NULL FROM public.sessions WHERE id = {_sql_literal(self.session_id)})"
+            )
         readback = db.query_json(
             'SELECT json_build_object('
             "'readback_verify', true, "
@@ -586,8 +706,17 @@ COMMIT;"""
             f"'player_guest', (SELECT user_id IS NULL AND registration_status = 'confirmed' FROM public.session_players WHERE id = {_sql_literal(self.player_id)}), "
             f"'billing_current', (SELECT public.session_billing_state({_sql_literal(self.session_id)}) = 'current'), "
             f"'canary_a', (SELECT receiver_snapshot->>'canary_instr_a' FROM public.sessions WHERE id = {_sql_literal(self.session_id)}), "
-            f"'canary_b', (SELECT receiver_snapshot->>'canary_instr_b' FROM public.sessions WHERE id = {_sql_literal(self.session_id)}));"
+            f"'canary_b', (SELECT receiver_snapshot->>'canary_instr_b' FROM public.sessions WHERE id = {_sql_literal(self.session_id)})"
+            f"{bank_readback_fields});"
         )
+        bank_readback_ok = True
+        if self.include_club_bank:
+            bank_readback_ok = (
+                int(readback.get('club_bank_count', -1)) == 1
+                and int(readback.get('club_bank_for_club_count', -1)) == 1
+                and readback.get('club_bank_exact') is True
+                and readback.get('session_receiver_bank_unlinked') is True
+            )
         if (readback.get('ok') is not True
                 or readback.get('club_private') is not True
                 or int(readback.get('member_count', 0)) != 1
@@ -595,7 +724,8 @@ COMMIT;"""
                 or readback.get('player_guest') is not True
                 or readback.get('billing_current') is not True
                 or readback.get('canary_a') != self.sentinel_1
-                or readback.get('canary_b') != self.sentinel_2):
+                or readback.get('canary_b') != self.sentinel_2
+                or not bank_readback_ok):
             self.error = 'post_insert_readback_mismatch'
             raise OwnershipError('fixture readback verification failed')
 
@@ -610,13 +740,21 @@ COMMIT;"""
         return self.public_metadata()
 
     def _query_ownership(self, db):
+        bank_fields = ''
+        if self.include_club_bank:
+            bank_fields = (
+                f", 'bank_id_count', (SELECT count(*) FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)})"
+                f", 'bank_club_count', (SELECT count(*) FROM public.club_bank_accounts WHERE club_id = {_sql_literal(self.club_id)})"
+                f", 'bank_owned', coalesce((SELECT bool_and(club_id = {_sql_literal(self.club_id)} AND bank_code = {_sql_literal(self.club_bank_code)} AND account_number = {_sql_literal(self.club_account_number)} AND account_name = {_sql_literal(self.club_account_name)} AND status = 'active') FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)}), false)"
+            )
         return db.query_json(
             'SELECT json_build_object('
             "'ownership_check', true, "
             f"'session_count', (SELECT count(*) FROM public.sessions WHERE id = {_sql_literal(self.session_id)}), "
             f"'session_owned', coalesce((SELECT bool_and(description = {_sql_literal(self.marker_text)}) FROM public.sessions WHERE id = {_sql_literal(self.session_id)}), false), "
             f"'club_count', (SELECT count(*) FROM public.clubs WHERE id = {_sql_literal(self.club_id)}), "
-            f"'club_owned', coalesce((SELECT bool_and(description = {_sql_literal(self.marker_text)}) FROM public.clubs WHERE id = {_sql_literal(self.club_id)}), false));"
+            f"'club_owned', coalesce((SELECT bool_and(description = {_sql_literal(self.marker_text)}) FROM public.clubs WHERE id = {_sql_literal(self.club_id)}), false)"
+            f"{bank_fields});"
         )
 
     def check_zero_mutations(self, db):
@@ -625,6 +763,11 @@ COMMIT;"""
         if (int(own.get('session_count', 0)) != 1 or own.get('session_owned') is not True
                 or int(own.get('club_count', 0)) != 1 or own.get('club_owned') is not True):
             raise OwnershipError('cannot verify zero mutations: fixture ownership mismatch')
+        if self.include_club_bank and (
+                int(own.get('bank_id_count', 0)) != 1
+                or int(own.get('bank_club_count', 0)) != 1
+                or own.get('bank_owned') is not True):
+            raise OwnershipError('cannot verify zero mutations: fixture bank ownership mismatch')
 
         counts = db.query_json(
             'SELECT json_build_object('
@@ -666,10 +809,20 @@ COMMIT;"""
             c_count = int(own.get('club_count', 0))
             s_owned = own.get('session_owned') is True
             c_owned = own.get('club_owned') is True
+            b_id_count = int(own.get('bank_id_count', 0)) if self.include_club_bank else 0
+            b_club_count = int(own.get('bank_club_count', 0)) if self.include_club_bank else 0
+            b_owned = (own.get('bank_owned') is True) if self.include_club_bank else False
 
-            if (s_count > 0 and not s_owned) or (c_count > 0 and not c_owned):
+            bank_mismatch = False
+            if self.include_club_bank:
+                bank_mismatch = (
+                    (b_id_count > 0 and (not b_owned or b_id_count != 1 or c_count != 1 or not c_owned))
+                    or (b_club_count > 0 and (b_id_count != 1 or b_club_count != 1 or not b_owned))
+                )
+
+            if (s_count > 0 and not s_owned) or (c_count > 0 and not c_owned) or bank_mismatch:
                 errors.append('ownership_mismatch_refused_delete')
-            elif s_count > 0 or c_count > 0:
+            elif s_count > 0 or c_count > 0 or b_id_count > 0 or b_club_count > 0:
                 if not self.insert_attempted:
                     errors.append('unattempted_fixture_found_refused_delete')
                 else:
@@ -682,8 +835,41 @@ COMMIT;"""
                     except Exception as exc:
                         errors.append(f'zero_mutation_check_failed: {exc}')
 
-                    delete_sql = f"""BEGIN;
+                    bank_lock_sql = ''
+                    bank_guard_sql = ''
+                    bank_delete_sql = ''
+                    if self.include_club_bank:
+                        # Lock parent club first FOR UPDATE to block concurrent FK KEY SHARE insert/reparent
+                        # until cleanup COMMITs, then lock matching bank rows FOR UPDATE before ownership checks.
+                        bank_lock_sql = (
+                            f"SELECT id FROM public.clubs WHERE id = {_sql_literal(self.club_id)} FOR UPDATE;\n"
+                            f"SELECT id FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} OR club_id = {_sql_literal(self.club_id)} ORDER BY id FOR UPDATE;\n"
+                        )
+                        bank_guard_sql = f"""
+  IF EXISTS (SELECT 1 FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} OR club_id = {_sql_literal(self.club_id)})
+     AND ((SELECT count(*) FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)}) <> 1
+          OR (SELECT count(*) FROM public.club_bank_accounts WHERE club_id = {_sql_literal(self.club_id)}) <> 1
+          OR NOT EXISTS (
+            SELECT 1 FROM public.club_bank_accounts
+            WHERE id = {_sql_literal(self.club_bank_account_id)}
+              AND club_id = {_sql_literal(self.club_id)}
+              AND bank_code = {_sql_literal(self.club_bank_code)}
+              AND account_number = {_sql_literal(self.club_account_number)}
+              AND account_name = {_sql_literal(self.club_account_name)}
+              AND status = 'active'
+          )
+          OR NOT EXISTS (SELECT 1 FROM public.clubs WHERE id = {_sql_literal(self.club_id)} AND description = {_sql_literal(self.marker_text)})) THEN
+    RAISE EXCEPTION 'ownership mismatch on club_bank_accounts';
+  END IF;"""
+                        bank_delete_sql = f"""DELETE FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} AND club_id = {_sql_literal(self.club_id)} AND bank_code = {_sql_literal(self.club_bank_code)} AND account_number = {_sql_literal(self.club_account_number)} AND account_name = {_sql_literal(self.club_account_name)} AND status = 'active';
 DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)} OR club_id = {_sql_literal(self.club_id)}) THEN
+    RAISE EXCEPTION 'club_bank_accounts still present before clubs delete';
+  END IF;
+END $$;
+"""
+                    delete_sql = f"""BEGIN;
+{bank_lock_sql}DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM public.sessions WHERE id = {_sql_literal(self.session_id)})
      AND NOT EXISTS (SELECT 1 FROM public.sessions WHERE id = {_sql_literal(self.session_id)} AND description = {_sql_literal(self.marker_text)}) THEN
     RAISE EXCEPTION 'ownership mismatch on sessions';
@@ -691,23 +877,31 @@ DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM public.clubs WHERE id = {_sql_literal(self.club_id)})
      AND NOT EXISTS (SELECT 1 FROM public.clubs WHERE id = {_sql_literal(self.club_id)} AND description = {_sql_literal(self.marker_text)}) THEN
     RAISE EXCEPTION 'ownership mismatch on clubs';
-  END IF;
+  END IF;{bank_guard_sql}
 END $$;
 DELETE FROM public.session_charges WHERE id = {_sql_literal(self.charge_id)} AND revision_id = {_sql_literal(self.revision_id)};
 DELETE FROM public.charge_revisions WHERE id = {_sql_literal(self.revision_id)} AND session_id = {_sql_literal(self.session_id)};
 DELETE FROM public.session_players WHERE id = {_sql_literal(self.player_id)} AND session_id = {_sql_literal(self.session_id)};
 DELETE FROM public.sessions WHERE id = {_sql_literal(self.session_id)} AND description = {_sql_literal(self.marker_text)};
-DELETE FROM public.club_members WHERE id = {_sql_literal(self.club_member_id)} AND club_id = {_sql_literal(self.club_id)};
+{bank_delete_sql}DELETE FROM public.club_members WHERE id = {_sql_literal(self.club_member_id)} AND club_id = {_sql_literal(self.club_id)};
 DELETE FROM public.clubs WHERE id = {_sql_literal(self.club_id)} AND description = {_sql_literal(self.marker_text)};
 COMMIT;"""
                     db.exec_sql(delete_sql, fixture=self)
                     self.removed = True
+                    if self.include_club_bank and b_id_count > 0:
+                        self.club_bank_removed = True
             else:
                 zero_mut_ok = True
         except Exception as exc:
             errors.append(f'cleanup_exec_failed: {exc}')
 
         try:
+            bank_rem_fields = ''
+            if self.include_club_bank:
+                bank_rem_fields = (
+                    f", 'club_bank_accounts_by_id', (SELECT count(*) FROM public.club_bank_accounts WHERE id = {_sql_literal(self.club_bank_account_id)})"
+                    f", 'club_bank_accounts_by_club', (SELECT count(*) FROM public.club_bank_accounts WHERE club_id = {_sql_literal(self.club_id)})"
+                )
             rem = db.query_json(
                 'SELECT json_build_object('
                 "'remaining_counts', true, "
@@ -716,17 +910,26 @@ COMMIT;"""
                 f"'sessions', (SELECT count(*) FROM public.sessions WHERE id = {_sql_literal(self.session_id)}), "
                 f"'session_players', (SELECT count(*) FROM public.session_players WHERE id = {_sql_literal(self.player_id)}), "
                 f"'charge_revisions', (SELECT count(*) FROM public.charge_revisions WHERE id = {_sql_literal(self.revision_id)}), "
-                f"'session_charges', (SELECT count(*) FROM public.session_charges WHERE id = {_sql_literal(self.charge_id)}));"
+                f"'session_charges', (SELECT count(*) FROM public.session_charges WHERE id = {_sql_literal(self.charge_id)})"
+                f"{bank_rem_fields});"
             )
-            rem_total = sum(
+            base_rem_total = sum(
                 int(rem.get(k, 1))
                 for k in ('clubs', 'club_members', 'sessions', 'session_players', 'charge_revisions', 'session_charges')
             )
+            if self.include_club_bank:
+                bank_rem_total = int(rem.get('club_bank_accounts_by_id', 1)) + int(rem.get('club_bank_accounts_by_club', 1))
+                self.club_bank_verified_absent = (bank_rem_total == 0)
+                rem_total = base_rem_total + bank_rem_total
+            else:
+                rem_total = base_rem_total
             self.verified_absent = (rem_total == 0)
             if not self.verified_absent:
                 errors.append('rows_remaining_after_cleanup')
         except Exception as exc:
             self.verified_absent = False
+            if self.include_club_bank:
+                self.club_bank_verified_absent = False
             errors.append(f'verify_absent_failed: {exc}')
 
         use_before = before_fingerprint if before_fingerprint is not None else self.before_fingerprint
@@ -768,6 +971,10 @@ COMMIT;"""
             and baseline_equal is True
             and not err_str
             and (self.removed is True if self.created else True)
+            and (
+                (self.club_bank_verified_absent is True and (self.club_bank_removed is True if self.created else True))
+                if self.include_club_bank else True
+            )
         )
         receipt = {
             'disposable_instructions_club_id_sha256_12': sha12(self.club_id),
@@ -784,6 +991,16 @@ COMMIT;"""
             'public_rows_schema_roles_equal': bool(baseline_equal),
             'auth_rows_excluded': True,
         }
+        if self.include_club_bank:
+            receipt.update({
+                'disposable_instructions_club_bank_included': True,
+                'disposable_instructions_club_bank_id_sha256_12': sha12(self.club_bank_account_id),
+                'disposable_instructions_club_bank_account_number_sha256_12': sha12(self.club_account_number),
+                'disposable_instructions_club_bank_account_name_sha256_12': sha12(self.club_account_name),
+                'disposable_instructions_club_bank_created': self.created is True,
+                'disposable_instructions_club_bank_removed': self.club_bank_removed is True,
+                'disposable_instructions_club_bank_verified_absent': self.club_bank_verified_absent is True,
+            })
         if mutation_counts is not None:
             receipt['mutation_counts'] = mutation_counts
         if baseline_cmp is not None:
@@ -830,7 +1047,10 @@ def main(argv=None):
     state_path = validate_state_path(args.state)
 
     if args.cmd == 'create':
-        fixture = DisposableInstructionsFixture(owner_email=cfg['owner_email'])
+        fixture = DisposableInstructionsFixture(
+            owner_email=cfg['owner_email'],
+            include_club_bank=cfg['include_club_bank'],
+        )
         meta = fixture.create(db, state_path=state_path, capture_baseline=True)
         print(json.dumps(meta, indent=2))
         return 0

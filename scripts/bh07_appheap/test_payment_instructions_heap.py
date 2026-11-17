@@ -1,8 +1,10 @@
 import hashlib
 import json
 import os
+import re
 import tempfile
 import unittest
+from unittest import mock
 import uuid
 from pathlib import Path
 
@@ -14,10 +16,21 @@ class FakeDb:
     """In-memory mock for DockerPsqlClient without touching any real DB or Docker."""
 
     def __init__(self, *, collision=False, fail_insert_after_commit=False,
-                 foreign_session=False, mutation_counts=None):
+                 foreign_session=False, mutation_counts=None,
+                 bank_collision=False, foreign_bank=False,
+                 fail_bank_readback=False, leave_bank_on_delete=False,
+                 session_linked_to_bank=False, rollback_on_insert_error=False,
+                 on_before_delete_locks=None):
         self.collision = collision
         self.fail_insert_after_commit = fail_insert_after_commit
         self.foreign_session = foreign_session
+        self.bank_collision = bank_collision
+        self.foreign_bank = foreign_bank
+        self.fail_bank_readback = fail_bank_readback
+        self.leave_bank_on_delete = leave_bank_on_delete
+        self.session_linked_to_bank = session_linked_to_bank
+        self.rollback_on_insert_error = rollback_on_insert_error
+        self.on_before_delete_locks = on_before_delete_locks
         self.mutation_counts = mutation_counts or {
             'payments': 0,
             'club_transactions': 0,
@@ -26,6 +39,7 @@ class FakeDb:
         }
         self.clubs = {}
         self.club_members = {}
+        self.club_bank_accounts = {}
         self.sessions = {}
         self.session_players = {}
         self.charge_revisions = {}
@@ -43,26 +57,63 @@ class FakeDb:
         if 'FROM auth.users' in sql:
             return {'owner_id': self.owner_id, 'venue_id': self.venue_id}
         if 'collision_count' in sql:
-            return {'collision_count': 1 if self.collision else 0}
+            if self.collision:
+                return {'collision_count': 1}
+            if 'public.club_bank_accounts' in sql:
+                if self.bank_collision:
+                    return {'collision_count': 1}
+                for row in self.club_bank_accounts.values():
+                    if f"id = '{row['id']}'" in sql or f"club_id = '{row['club_id']}'" in sql:
+                        return {'collision_count': 1}
+            return {'collision_count': 0}
         if 'ownership_check' in sql:
             rows = list(self.sessions.values())
             if self.foreign_session:
-                return {'session_count': 1, 'session_owned': False, 'club_count': 1, 'club_owned': False}
-            if not rows:
-                return {'session_count': 0, 'session_owned': False, 'club_count': len(self.clubs), 'club_owned': False}
-            s = rows[0]
+                res = {'session_count': 1, 'session_owned': False, 'club_count': 1, 'club_owned': False}
+                if 'bank_id_count' in sql:
+                    res.update({
+                        'bank_id_count': len(self.club_bank_accounts),
+                        'bank_club_count': len(self.club_bank_accounts),
+                        'bank_owned': False,
+                    })
+                return res
             c = list(self.clubs.values())[0] if self.clubs else {}
-            return {
+            s = rows[0] if rows else {}
+            res = {
                 'session_count': len(self.sessions),
-                'session_owned': s.get('description') == s.get('_expected_marker'),
+                'session_owned': bool(rows) and s.get('description') == s.get('_expected_marker'),
                 'club_count': len(self.clubs),
-                'club_owned': c.get('description') == c.get('_expected_marker'),
+                'club_owned': bool(self.clubs) and c.get('description') == c.get('_expected_marker'),
             }
+            if 'bank_id_count' in sql:
+                m_bid = re.search(r"'bank_id_count',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE id = '([^']+)'\)", sql)
+                m_cid = re.search(r"'bank_club_count',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE club_id = '([^']+)'\)", sql)
+                q_bid = m_bid.group(1) if m_bid else None
+                q_cid = m_cid.group(1) if m_cid else None
+                id_rows = [r for r in self.club_bank_accounts.values() if r['id'] == q_bid]
+                club_rows = [r for r in self.club_bank_accounts.values() if r['club_id'] == q_cid]
+                bank_owned = False
+                if len(id_rows) == 1 and not self.foreign_bank:
+                    r = id_rows[0]
+                    bank_owned = (
+                        r.get('status') == 'active'
+                        and f"club_id = '{r['club_id']}'" in sql
+                        and f"bank_code = '{r['bank_code']}'" in sql
+                        and f"account_number = '{r['account_number']}'" in sql
+                        and f"account_name = '{r['account_name']}'" in sql
+                        and "status = 'active'" in sql
+                    )
+                res.update({
+                    'bank_id_count': len(id_rows),
+                    'bank_club_count': len(club_rows),
+                    'bank_owned': bank_owned,
+                })
+            return res
         if 'readback_verify' in sql:
             if not self.sessions or not self.clubs:
                 return {'ok': False}
             s = list(self.sessions.values())[0]
-            return {
+            res = {
                 'ok': True,
                 'club_private': list(self.clubs.values())[0]['visibility'] == 'private',
                 'member_count': len(self.club_members),
@@ -72,12 +123,37 @@ class FakeDb:
                 'canary_a': s['receiver_snapshot']['canary_instr_a'],
                 'canary_b': s['receiver_snapshot']['canary_instr_b'],
             }
+            if 'public.club_bank_accounts' in sql:
+                m_bid = re.search(r"'club_bank_count',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE id = '([^']+)'\)", sql)
+                m_cid = re.search(r"'club_bank_for_club_count',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE club_id = '([^']+)'\)", sql)
+                q_bid = m_bid.group(1) if m_bid else None
+                q_cid = m_cid.group(1) if m_cid else None
+                id_rows = [r for r in self.club_bank_accounts.values() if r['id'] == q_bid]
+                club_rows = [r for r in self.club_bank_accounts.values() if r['club_id'] == q_cid]
+                exact = False
+                if len(id_rows) == 1 and not self.fail_bank_readback:
+                    r = id_rows[0]
+                    exact = (
+                        r.get('status') == 'active'
+                        and f"club_id = '{r['club_id']}'" in sql
+                        and f"bank_code = '{r['bank_code']}'" in sql
+                        and f"account_number = '{r['account_number']}'" in sql
+                        and f"account_name = '{r['account_name']}'" in sql
+                        and "status = 'active'" in sql
+                    )
+                res.update({
+                    'club_bank_count': len(id_rows),
+                    'club_bank_for_club_count': len(club_rows),
+                    'club_bank_exact': exact,
+                    'session_receiver_bank_unlinked': not self.session_linked_to_bank,
+                })
+            return res
         if 'mutation_counts' in sql:
             return dict(self.mutation_counts)
         if 'remaining_counts' in sql:
             total = (len(self.clubs) + len(self.club_members) + len(self.sessions)
                      + len(self.session_players) + len(self.charge_revisions) + len(self.session_charges))
-            return {
+            res = {
                 'clubs': len(self.clubs),
                 'club_members': len(self.club_members),
                 'sessions': len(self.sessions),
@@ -86,14 +162,36 @@ class FakeDb:
                 'session_charges': len(self.session_charges),
                 'total': total,
             }
+            if 'public.club_bank_accounts' in sql:
+                m_bid = re.search(r"'club_bank_accounts_by_id',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE id = '([^']+)'\)", sql)
+                m_cid = re.search(r"'club_bank_accounts_by_club',\s*\(SELECT count\(\*\) FROM public\.club_bank_accounts WHERE club_id = '([^']+)'\)", sql)
+                q_bid = m_bid.group(1) if m_bid else None
+                q_cid = m_cid.group(1) if m_cid else None
+                by_id = sum(1 for r in self.club_bank_accounts.values() if r['id'] == q_bid)
+                by_club = sum(1 for r in self.club_bank_accounts.values() if r['club_id'] == q_cid)
+                res['club_bank_accounts_by_id'] = by_id
+                res['club_bank_accounts_by_club'] = by_club
+                res['total'] = total + by_id + by_club
+            return res
         return {}
 
-    def apply_fixture_insert(self, fixture):
+    def apply_fixture_insert(self, fixture, sql=''):
         self.clubs[fixture.club_id] = {
             'id': fixture.club_id, 'visibility': 'private',
             'description': fixture.marker_text, '_expected_marker': fixture.marker_text,
         }
         self.club_members[fixture.club_member_id] = {'id': fixture.club_member_id, 'club_id': fixture.club_id}
+        if getattr(fixture, 'include_club_bank', False) and 'INSERT INTO public.club_bank_accounts' in sql:
+            assert sql.index('INSERT INTO public.clubs') < sql.index('INSERT INTO public.club_bank_accounts')
+            assert sql.index('INSERT INTO public.club_bank_accounts') < sql.index('INSERT INTO public.sessions')
+            self.club_bank_accounts[fixture.club_bank_account_id] = {
+                'id': fixture.club_bank_account_id,
+                'club_id': fixture.club_id,
+                'bank_code': fixture.club_bank_code,
+                'account_number': fixture.club_account_number,
+                'account_name': fixture.club_account_name,
+                'status': 'active',
+            }
         self.sessions[fixture.session_id] = {
             'id': fixture.session_id, 'club_id': fixture.club_id,
             'description': fixture.marker_text, '_expected_marker': fixture.marker_text,
@@ -112,12 +210,74 @@ class FakeDb:
     def exec_sql(self, sql, fixture=None):
         self.sql_log.append(('EXEC', sql))
         if 'INSERT INTO public.clubs' in sql and fixture is not None:
-            self.apply_fixture_insert(fixture)
+            if not (self.fail_insert_after_commit and self.rollback_on_insert_error):
+                self.apply_fixture_insert(fixture, sql)
             if self.fail_insert_after_commit:
                 raise RuntimeError('simulated uncertain commit timeout after server commit')
         elif 'DELETE FROM public.sessions' in sql:
+            if self.on_before_delete_locks is not None:
+                hook = self.on_before_delete_locks
+                self.on_before_delete_locks = None
+                hook(self, sql)
             if self.foreign_session:
                 raise RuntimeError('ownership mismatch refused delete')
+            if 'DELETE FROM public.club_bank_accounts' in sql:
+                if self.foreign_bank:
+                    raise RuntimeError('ownership mismatch on club_bank_accounts')
+                m_lock_club = re.search(
+                    r"SELECT id FROM public\.clubs WHERE id = '([^']+)' FOR UPDATE;",
+                    sql,
+                )
+                m_lock_bank = re.search(
+                    r"SELECT id FROM public\.club_bank_accounts WHERE id = '([^']+)' OR club_id = '([^']+)' ORDER BY id FOR UPDATE;",
+                    sql,
+                )
+                assert m_lock_club is not None and m_lock_bank is not None
+                q_cid = m_lock_club.group(1)
+                q_bid = m_lock_bank.group(1)
+                assert m_lock_bank.group(2) == q_cid
+                assert (
+                    sql.index('BEGIN;')
+                    < m_lock_club.start()
+                    < m_lock_bank.start()
+                    < sql.index('DO $$')
+                    < sql.index('DELETE FROM public.sessions')
+                    < sql.index('DELETE FROM public.club_bank_accounts')
+                    < sql.index('DELETE FROM public.clubs')
+                    < sql.index('COMMIT;')
+                )
+                assert sql.count('BEGIN;') == 1 and sql.count('COMMIT;') == 1
+                id_rows = [r for r in self.club_bank_accounts.values() if r['id'] == q_bid]
+                club_rows = [r for r in self.club_bank_accounts.values() if r['club_id'] == q_cid]
+                if id_rows or club_rows:
+                    if len(id_rows) != 1 or len(club_rows) != 1 or id_rows[0] is not club_rows[0]:
+                        raise RuntimeError('ownership mismatch on club_bank_accounts')
+                    r = id_rows[0]
+                    c_row = self.clubs.get(q_cid)
+                    if (
+                        r.get('status') != 'active'
+                        or not c_row
+                        or c_row.get('description') != c_row.get('_expected_marker')
+                        or f"club_id = '{r['club_id']}'" not in sql
+                        or f"bank_code = '{r['bank_code']}'" not in sql
+                        or f"account_number = '{r['account_number']}'" not in sql
+                        or f"account_name = '{r['account_name']}'" not in sql
+                        or "status = 'active'" not in sql
+                    ):
+                        raise RuntimeError('ownership mismatch on club_bank_accounts')
+                if not self.leave_bank_on_delete:
+                    for bid in list(self.club_bank_accounts):
+                        r = self.club_bank_accounts[bid]
+                        if (
+                            r.get('status') == 'active'
+                            and f"id = '{r['id']}'" in sql
+                            and f"club_id = '{r['club_id']}'" in sql
+                            and f"bank_code = '{r['bank_code']}'" in sql
+                            and f"account_number = '{r['account_number']}'" in sql
+                            and f"account_name = '{r['account_name']}'" in sql
+                            and "status = 'active'" in sql
+                        ):
+                            del self.club_bank_accounts[bid]
             self.session_charges.clear()
             self.charge_revisions.clear()
             self.session_players.clear()
@@ -300,6 +460,498 @@ class TestFixtureLifecycle(unittest.TestCase):
             receipt = fx2.cleanup(db_foreign, before_fingerprint=db_foreign.fingerprint(), state_path=state_path)
             self.assertFalse(receipt['disposable_instructions_cleanup_verified'])
             self.assertTrue(state_path.exists())
+
+    def test_include_club_bank_malformed_flag_and_default_off_compatibility(self):
+        base_cfg = {
+            'db_container': 'bh07-android-db',
+            'supabase_url': 'http://127.0.0.1:54321',
+            'docker_exe': 'docker',
+            'owner_email': 'ownera@example.test',
+        }
+        default_cfg = fx.load_and_validate_config(config_dict=base_cfg)
+        self.assertIs(default_cfg['include_club_bank'], False)
+
+        for bad_flag in ('true', 'false', 1, 0, None, []):
+            with self.assertRaises(ValueError):
+                fx.load_and_validate_config(config_dict={**base_cfg, 'include_club_bank': bad_flag})
+            with self.assertRaises(ValueError):
+                fx.DisposableInstructionsFixture(include_club_bank=bad_flag)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            db = FakeDb()
+            fixture = fx.DisposableInstructionsFixture()
+            self.assertIs(fixture.include_club_bank, False)
+            meta = fixture.public_metadata()
+            self.assertNotIn('club_bank_included', meta)
+            self.assertNotIn('club_bank', meta)
+
+            state_path = Path(tmp) / 'default_state.json'
+            fixture.create(db, state_path=state_path, capture_baseline=True)
+            state_data = json.loads(state_path.read_text(encoding='utf-8'))
+            self.assertNotIn('include_club_bank', state_data)
+            self.assertEqual(len(db.club_bank_accounts), 0)
+            self.assertFalse(any('club_bank_accounts' in sql for _, sql in db.sql_log))
+
+            receipt = fixture.cleanup(db, state_path=state_path)
+            self.assertTrue(receipt['disposable_instructions_cleanup_verified'])
+            self.assertFalse(any(k.startswith('disposable_instructions_club_bank_') for k in receipt))
+            self.assertFalse(any(k.startswith(('disposable_bank_', 'disposable_ledger_')) for k in receipt))
+
+            # Backward-compatible load of historical state lacking include_club_bank
+            legacy_path = Path(tmp) / 'legacy_state.json'
+            legacy_fx = fx.DisposableInstructionsFixture()
+            legacy_state = legacy_fx.to_private_state()
+            legacy_state.pop('include_club_bank', None)
+            legacy_path.write_text(json.dumps(legacy_state), encoding='utf-8')
+            reloaded_legacy = fx.DisposableInstructionsFixture.from_state_file(legacy_path)
+            self.assertIs(reloaded_legacy.include_club_bank, False)
+
+            # Reject malformed persisted include_club_bank states
+            bad_states = [
+                {**legacy_state, 'include_club_bank': 'true'},
+                {**legacy_state, 'include_club_bank': 1},
+                {**legacy_state, 'include_club_bank': None},
+                {**legacy_state, 'include_club_bank': True},  # missing bank fields
+                {
+                    **legacy_state,
+                    'include_club_bank': True,
+                    'club_bank_account_id': str(uuid.uuid4()),
+                    'club_bank_code': 'VCB',
+                    'club_account_number': 9999000012345678,
+                    'club_account_name': 'BH07 SYNTH BANK',
+                },
+                {
+                    **legacy_state,
+                    'include_club_bank': False,
+                    'club_bank_account_id': str(uuid.uuid4()),
+                },
+            ]
+            for idx, bad_state in enumerate(bad_states):
+                bad_path = Path(tmp) / f'bad_state_{idx}.json'
+                bad_path.write_text(json.dumps(bad_state), encoding='utf-8')
+                with self.assertRaises(ValueError):
+                    fx.DisposableInstructionsFixture.from_state_file(bad_path)
+
+    def test_include_club_bank_opt_in_create_readback_reload_and_redaction(self):
+        import contextlib
+        import io
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg_path = Path(tmp) / 'cfg.json'
+            cfg_path.write_text(json.dumps({
+                'db_container': 'bh07-android-db',
+                'supabase_url': 'http://127.0.0.1:54321',
+                'docker_exe': 'docker',
+                'owner_email': 'ownera@example.test',
+                'include_club_bank': True,
+            }), encoding='utf-8')
+            state_path = Path(tmp) / 'bank_state.json'
+            db = FakeDb()
+
+            with mock.patch.object(fx, 'DockerPsqlClient', return_value=db):
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    rc = fx.main(['create', '--config', str(cfg_path), '--state', str(state_path)])
+                self.assertEqual(rc, 0)
+                meta = json.loads(buf.getvalue())
+
+                state_raw = json.loads(state_path.read_text(encoding='utf-8'))
+                self.assertIs(state_raw['include_club_bank'], True)
+                self.assertIs(state_raw['created'], True)
+                self.assertIs(state_raw['insert_attempted'], True)
+                bank_id = state_raw['club_bank_account_id']
+                uuid.UUID(bank_id)
+                self.assertEqual(state_raw['club_bank_code'], 'VCB')
+                self.assertRegex(state_raw['club_account_number'], r'^99990000\d{8}$')
+                self.assertTrue(state_raw['club_account_name'].startswith('BH07 SYNTH BANK '))
+
+                self.assertIs(meta.get('club_bank_included'), True)
+                self.assertEqual(meta['club_bank']['club_bank_account_id_sha256_12'], fx.sha12(bank_id))
+                self.assertEqual(meta['club_bank']['bank_code_sha256_12'], fx.sha12(state_raw['club_bank_code']))
+                self.assertEqual(meta['club_bank']['account_number_sha256_12'], fx.sha12(state_raw['club_account_number']))
+                self.assertEqual(meta['club_bank']['account_name_sha256_12'], fx.sha12(state_raw['club_account_name']))
+
+                meta_json = json.dumps(meta)
+                for secret in (
+                    bank_id,
+                    state_raw['club_account_number'],
+                    state_raw['club_account_name'],
+                    state_raw['sentinel_1'],
+                    state_raw['sentinel_2'],
+                ):
+                    self.assertNotIn(secret, meta_json)
+
+                self.assertEqual(len(db.club_bank_accounts), 1)
+                self.assertEqual(db.club_bank_accounts[bank_id]['status'], 'active')
+                reloaded = fx.DisposableInstructionsFixture.from_state_file(state_path)
+                self.assertIs(reloaded.include_club_bank, True)
+                self.assertEqual(reloaded.club_bank_account_id, bank_id)
+                self.assertEqual(reloaded.club_account_number, state_raw['club_account_number'])
+
+                buf_chk = io.StringIO()
+                with contextlib.redirect_stdout(buf_chk):
+                    rc_chk = fx.main(['check', '--config', str(cfg_path), '--state', str(state_path)])
+                self.assertEqual(rc_chk, 0)
+
+                buf_cln = io.StringIO()
+                with contextlib.redirect_stdout(buf_cln):
+                    rc_cln = fx.main(['cleanup', '--config', str(cfg_path), '--state', str(state_path)])
+                self.assertEqual(rc_cln, 0)
+                receipt = json.loads(buf_cln.getvalue())
+
+            self.assertFalse(state_path.exists())
+            self.assertEqual(len(db.club_bank_accounts), 0)
+            self.assertEqual(len(db.clubs), 0)
+            self.assertIs(receipt['disposable_instructions_club_bank_included'], True)
+            self.assertEqual(receipt['disposable_instructions_club_bank_id_sha256_12'], fx.sha12(bank_id))
+            self.assertEqual(receipt['disposable_instructions_club_bank_account_number_sha256_12'], fx.sha12(state_raw['club_account_number']))
+            self.assertEqual(receipt['disposable_instructions_club_bank_account_name_sha256_12'], fx.sha12(state_raw['club_account_name']))
+            self.assertIs(receipt['disposable_instructions_club_bank_created'], True)
+            self.assertIs(receipt['disposable_instructions_club_bank_removed'], True)
+            self.assertIs(receipt['disposable_instructions_club_bank_verified_absent'], True)
+            self.assertIs(receipt['disposable_instructions_cleanup_verified'], True)
+            self.assertFalse(any(k.startswith(('disposable_bank_', 'disposable_ledger_')) for k in receipt))
+
+            receipt_json = json.dumps(receipt)
+            for secret in (
+                bank_id,
+                state_raw['club_account_number'],
+                state_raw['club_account_name'],
+                state_raw['sentinel_1'],
+                state_raw['sentinel_2'],
+            ):
+                self.assertNotIn(secret, receipt_json)
+
+            # Post-insert readback mismatch or accidental session link must fail closed
+            for bad_db in (FakeDb(fail_bank_readback=True), FakeDb(session_linked_to_bank=True)):
+                fx_bad = fx.DisposableInstructionsFixture(include_club_bank=True)
+                with self.assertRaises(fx.OwnershipError):
+                    fx_bad.create(bad_db, state_path=Path(tmp) / f'rb_{id(bad_db)}.json')
+
+    def test_include_club_bank_uuid_collision_refused_and_never_deletes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            # Generic bank_collision flag
+            db = FakeDb(bank_collision=True)
+            fixture = fx.DisposableInstructionsFixture(include_club_bank=True)
+            with self.assertRaises(fx.FixtureCollisionError):
+                fixture.create(db, state_path=Path(tmp) / 'col_flag.json')
+            self.assertFalse(any(kind == 'EXEC' for kind, _ in db.sql_log))
+            receipt = fixture.cleanup(db)
+            self.assertIs(receipt['disposable_instructions_club_bank_included'], True)
+            self.assertFalse(receipt['disposable_instructions_club_bank_created'])
+            self.assertFalse(receipt['disposable_instructions_club_bank_removed'])
+            self.assertFalse(receipt['disposable_instructions_club_bank_verified_absent'])
+            self.assertFalse(receipt['disposable_instructions_cleanup_verified'])
+            self.assertFalse(any('DELETE' in sql for _, sql in db.sql_log))
+
+            # Preexisting bank row matching bank_id or club_id must never be deleted
+            for key_kind in ('bank_id', 'club_id'):
+                db2 = FakeDb()
+                fx2 = fx.DisposableInstructionsFixture(include_club_bank=True)
+                existing_id = fx2.club_bank_account_id if key_kind == 'bank_id' else str(uuid.uuid4())
+                existing_club = fx2.club_id if key_kind == 'club_id' else str(uuid.uuid4())
+                db2.club_bank_accounts[existing_id] = {
+                    'id': existing_id,
+                    'club_id': existing_club,
+                    'bank_code': 'TCB',
+                    'account_number': '190011112222',
+                    'account_name': 'REAL CLUB BANK',
+                    'status': 'active',
+                }
+                with self.assertRaises(fx.FixtureCollisionError):
+                    fx2.create(db2, state_path=Path(tmp) / f'col_{key_kind}.json')
+                self.assertFalse(any(kind == 'EXEC' for kind, _ in db2.sql_log))
+                rec2 = fx2.cleanup(db2)
+                self.assertFalse(rec2['disposable_instructions_cleanup_verified'])
+                self.assertIn(existing_id, db2.club_bank_accounts)
+                self.assertFalse(any('DELETE' in sql for _, sql in db2.sql_log))
+
+    def test_include_club_bank_uncertain_commit_recovery_and_rollback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            # (a) Timeout after commit on DB server -> recovery reloads bank fields and cleans child-first
+            db_committed = FakeDb(fail_insert_after_commit=True)
+            state_a = Path(tmp) / 'uncertain_committed.json'
+            fx_a = fx.DisposableInstructionsFixture(include_club_bank=True)
+            with self.assertRaises(RuntimeError):
+                fx_a.create(db_committed, state_path=state_a, capture_baseline=True)
+            self.assertTrue(state_a.exists())
+            reloaded_a = fx.DisposableInstructionsFixture.from_state_file(state_a)
+            self.assertIs(reloaded_a.include_club_bank, True)
+            self.assertIs(reloaded_a.insert_attempted, True)
+            self.assertIs(reloaded_a.created, False)
+            self.assertEqual(len(db_committed.club_bank_accounts), 1)
+            receipt_a, exit_a = fx.finalize_cli_cleanup(reloaded_a, db_committed, state_a)
+            self.assertEqual(exit_a, 0)
+            self.assertFalse(state_a.exists())
+            self.assertEqual(len(db_committed.club_bank_accounts), 0)
+            self.assertEqual(len(db_committed.clubs), 0)
+            self.assertIs(receipt_a['disposable_instructions_club_bank_included'], True)
+            self.assertIs(receipt_a['disposable_instructions_club_bank_created'], False)
+            self.assertIs(receipt_a['disposable_instructions_club_bank_removed'], True)
+            self.assertIs(receipt_a['disposable_instructions_club_bank_verified_absent'], True)
+            self.assertIs(receipt_a['disposable_instructions_cleanup_verified'], True)
+
+            # (b) Transaction rolled back on DB server -> zero DELETEs, absent verified
+            db_rolled = FakeDb(fail_insert_after_commit=True, rollback_on_insert_error=True)
+            state_b = Path(tmp) / 'uncertain_rolledback.json'
+            fx_b = fx.DisposableInstructionsFixture(include_club_bank=True)
+            with self.assertRaises(RuntimeError):
+                fx_b.create(db_rolled, state_path=state_b, capture_baseline=True)
+            reloaded_b = fx.DisposableInstructionsFixture.from_state_file(state_b)
+            receipt_b, exit_b = fx.finalize_cli_cleanup(reloaded_b, db_rolled, state_b)
+            self.assertEqual(exit_b, 0)
+            self.assertFalse(state_b.exists())
+            self.assertFalse(any('DELETE' in sql for _, sql in db_rolled.sql_log))
+            self.assertIs(receipt_b['disposable_instructions_club_bank_created'], False)
+            self.assertIs(receipt_b['disposable_instructions_club_bank_removed'], False)
+            self.assertIs(receipt_b['disposable_instructions_club_bank_verified_absent'], True)
+            self.assertIs(receipt_b['disposable_instructions_cleanup_verified'], True)
+
+    def test_include_club_bank_foreign_reparented_extra_and_tampered_refuses_delete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            def _make_created(name):
+                db = FakeDb()
+                st = Path(tmp) / f'{name}.json'
+                f = fx.DisposableInstructionsFixture(include_club_bank=True)
+                f.create(db, state_path=st, capture_baseline=True)
+                db.sql_log.clear()
+                return db, st, f
+
+            # (a) Reparented bank row: same bank_id, different club_id
+            db_a, st_a, fx_a = _make_created('reparented')
+            db_a.club_bank_accounts[fx_a.club_bank_account_id]['club_id'] = str(uuid.uuid4())
+            with self.assertRaises(fx.OwnershipError):
+                fx_a.check_zero_mutations(db_a)
+            rec_a, code_a = fx.finalize_cli_cleanup(fx_a, db_a, st_a)
+            self.assertEqual(code_a, 1)
+            self.assertFalse(rec_a['disposable_instructions_cleanup_verified'])
+            self.assertIn('ownership', rec_a.get('error', ''))
+            self.assertTrue(st_a.exists())
+            self.assertEqual(len(db_a.club_bank_accounts), 1)
+            self.assertEqual(len(db_a.clubs), 1)
+            self.assertFalse(any('DELETE' in sql for _, sql in db_a.sql_log))
+
+            # (b1) Foreign bank row attached to our club_id (different id, alongside ours -> ON DELETE CASCADE hazard)
+            db_b1, st_b1, fx_b1 = _make_created('extra_same_club')
+            extra_id = str(uuid.uuid4())
+            db_b1.club_bank_accounts[extra_id] = {
+                'id': extra_id, 'club_id': fx_b1.club_id,
+                'bank_code': 'ACB', 'account_number': '555566667777', 'account_name': 'REAL OTHER BANK', 'status': 'inactive',
+            }
+            with self.assertRaises(fx.OwnershipError):
+                fx_b1.check_zero_mutations(db_b1)
+            rec_b1, code_b1 = fx.finalize_cli_cleanup(fx_b1, db_b1, st_b1)
+            self.assertEqual(code_b1, 1)
+            self.assertFalse(rec_b1['disposable_instructions_cleanup_verified'])
+            self.assertIn('ownership', rec_b1.get('error', ''))
+            self.assertIn(extra_id, db_b1.club_bank_accounts)
+            self.assertIn(fx_b1.club_id, db_b1.clubs)
+            self.assertFalse(any('DELETE' in sql for _, sql in db_b1.sql_log))
+
+            # (b2) Only foreign bank row attached to our club_id (ours missing)
+            db_b2, st_b2, fx_b2 = _make_created('only_foreign_same_club')
+            del db_b2.club_bank_accounts[fx_b2.club_bank_account_id]
+            db_b2.club_bank_accounts[extra_id] = {
+                'id': extra_id, 'club_id': fx_b2.club_id,
+                'bank_code': 'ACB', 'account_number': '555566667777', 'account_name': 'REAL OTHER BANK', 'status': 'active',
+            }
+            rec_b2, code_b2 = fx.finalize_cli_cleanup(fx_b2, db_b2, st_b2)
+            self.assertEqual(code_b2, 1)
+            self.assertFalse(rec_b2['disposable_instructions_cleanup_verified'])
+            self.assertIn(extra_id, db_b2.club_bank_accounts)
+            self.assertIn(fx_b2.club_id, db_b2.clubs)
+            self.assertFalse(any('DELETE' in sql for _, sql in db_b2.sql_log))
+
+            # (c) Tampered bank fields (account_number, bank_code, account_name, status)
+            for field_name, fake_val in (
+                ('account_number', '1111222233334444'),
+                ('bank_code', 'BIDV'),
+                ('account_name', 'TAMPERED NAME'),
+                ('status', 'inactive'),
+            ):
+                db_c, st_c, fx_c = _make_created(f'tamper_{field_name}')
+                db_c.club_bank_accounts[fx_c.club_bank_account_id][field_name] = fake_val
+                with self.assertRaises(fx.OwnershipError):
+                    fx_c.check_zero_mutations(db_c)
+                rec_c, code_c = fx.finalize_cli_cleanup(fx_c, db_c, st_c)
+                self.assertEqual(code_c, 1)
+                self.assertFalse(rec_c['disposable_instructions_cleanup_verified'])
+                self.assertIn('ownership', rec_c.get('error', ''))
+                self.assertEqual(len(db_c.club_bank_accounts), 1)
+                self.assertFalse(any('DELETE' in sql for _, sql in db_c.sql_log))
+
+            # (d) Orphan bank row when parent club is missing
+            db_d, st_d, fx_d = _make_created('orphan_bank')
+            db_d.clubs.clear()
+            db_d.sessions.clear()
+            with self.assertRaises(fx.OwnershipError):
+                fx_d.check_zero_mutations(db_d)
+            rec_d, code_d = fx.finalize_cli_cleanup(fx_d, db_d, st_d)
+            self.assertEqual(code_d, 1)
+            self.assertFalse(rec_d['disposable_instructions_cleanup_verified'])
+            self.assertIn('ownership', rec_d.get('error', ''))
+            self.assertEqual(len(db_d.club_bank_accounts), 1)
+            self.assertFalse(any('DELETE' in sql for _, sql in db_d.sql_log))
+
+    def test_include_club_bank_child_first_absence_and_baseline_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            # Verify child-first DELETE order + in-transaction SQL guard before deleting clubs
+            db = FakeDb()
+            st = Path(tmp) / 'order.json'
+            fixture = fx.DisposableInstructionsFixture(include_club_bank=True)
+            fixture.create(db, state_path=st, capture_baseline=True)
+            rec_ok, exit_ok = fx.finalize_cli_cleanup(fixture, db, st)
+            self.assertEqual(exit_ok, 0)
+            self.assertIs(rec_ok['disposable_instructions_cleanup_verified'], True)
+            delete_sqls = [sql for kind, sql in db.sql_log if kind == 'EXEC' and 'DELETE FROM public.club_bank_accounts' in sql]
+            self.assertEqual(len(delete_sqls), 1)
+            dsql = delete_sqls[0]
+            pos_sess = dsql.index('DELETE FROM public.sessions')
+            pos_bank = dsql.index('DELETE FROM public.club_bank_accounts')
+            pos_club = dsql.index('DELETE FROM public.clubs')
+            self.assertLess(pos_sess, pos_bank)
+            self.assertLess(pos_bank, pos_club)
+            between = dsql[pos_bank:pos_club]
+            self.assertIn('public.club_bank_accounts', between)
+            self.assertIn('RAISE EXCEPTION', between)
+
+            # Verify absence verification fails closed if bank row persists after DELETE
+            db_rem = FakeDb(leave_bank_on_delete=True)
+            st_rem = Path(tmp) / 'leave_bank.json'
+            fx_rem = fx.DisposableInstructionsFixture(include_club_bank=True)
+            fx_rem.create(db_rem, state_path=st_rem, capture_baseline=True)
+            rec_rem, exit_rem = fx.finalize_cli_cleanup(fx_rem, db_rem, st_rem)
+            self.assertEqual(exit_rem, 1)
+            self.assertTrue(st_rem.exists())
+            self.assertFalse(rec_rem['disposable_instructions_club_bank_verified_absent'])
+            self.assertFalse(rec_rem['disposable_instructions_verified_absent'])
+            self.assertFalse(rec_rem['disposable_instructions_cleanup_verified'])
+            self.assertIn('rows_remaining_after_cleanup', rec_rem.get('error', ''))
+
+            # Verify baseline fingerprint drift/missing still deletes owned bank + club and fails receipt
+            db_fp = FakeDb()
+            db_fp.public_override = {
+                'public.clubs': {'rows': 2, 'sha256': 'a' * 64},
+                'public.payments': {'rows': 1, 'sha256': 'b' * 64},
+                'public.club_bank_accounts': {'rows': 1, 'sha256': 'd' * 64},
+            }
+            st_fp = Path(tmp) / 'fp_drift.json'
+            fx_fp = fx.DisposableInstructionsFixture(include_club_bank=True)
+            fx_fp.create(db_fp, state_path=st_fp, capture_baseline=True)
+            rec_fp, exit_fp = fx.finalize_cli_cleanup(fx_fp, db_fp, st_fp)
+            self.assertEqual(exit_fp, 1)
+            self.assertTrue(st_fp.exists())
+            self.assertEqual(len(db_fp.club_bank_accounts), 0)
+            self.assertEqual(len(db_fp.clubs), 0)
+            self.assertIs(rec_fp['disposable_instructions_club_bank_removed'], True)
+            self.assertIs(rec_fp['disposable_instructions_club_bank_verified_absent'], True)
+            self.assertIs(rec_fp['disposable_instructions_removed'], True)
+            self.assertIs(rec_fp['disposable_instructions_verified_absent'], True)
+            self.assertIs(rec_fp['baseline_fingerprint_equal'], False)
+            self.assertIs(rec_fp['disposable_instructions_cleanup_verified'], False)
+
+    def test_include_club_bank_row_lock_order_and_toctou_interleaving_control(self):
+        """Verify SQL FOR UPDATE lock order, default-off omission, and mocked pre-lock TOCTOU refusal.
+
+        Note: FakeDb tests SQL statement placement and post-precheck in-transaction re-evaluation in
+        memory; it does NOT prove PostgreSQL multi-connection FOR UPDATE / KEY SHARE lock blocking.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            # 1) Default-off cleanup SQL preserves exact lock-free behavior (zero FOR UPDATE)
+            db_off = FakeDb()
+            st_off = Path(tmp) / 'off_locks.json'
+            fx_off = fx.DisposableInstructionsFixture(include_club_bank=False)
+            fx_off.create(db_off, state_path=st_off, capture_baseline=True)
+            rec_off, code_off = fx.finalize_cli_cleanup(fx_off, db_off, st_off)
+            self.assertEqual(code_off, 0)
+            self.assertTrue(rec_off['disposable_instructions_cleanup_verified'])
+            self.assertFalse(any('FOR UPDATE' in sql for _, sql in db_off.sql_log))
+            self.assertFalse(any('club_bank_accounts' in sql for _, sql in db_off.sql_log))
+
+            # 2) Opt-in cleanup SQL places parent club lock immediately after BEGIN, then bank lock,
+            #    then DO $$ re-evaluation guard, then child-first deletes through COMMIT
+            db_on = FakeDb()
+            st_on = Path(tmp) / 'on_locks.json'
+            fx_on = fx.DisposableInstructionsFixture(include_club_bank=True)
+            fx_on.create(db_on, state_path=st_on, capture_baseline=True)
+            rec_on, code_on = fx.finalize_cli_cleanup(fx_on, db_on, st_on)
+            self.assertEqual(code_on, 0)
+            self.assertTrue(rec_on['disposable_instructions_cleanup_verified'])
+
+            ownership_sqls = [sql for kind, sql in db_on.sql_log if kind == 'QUERY' and 'ownership_check' in sql]
+            self.assertTrue(ownership_sqls)
+            self.assertTrue(all("status = 'active'" in sql for sql in ownership_sqls))
+
+            del_sqls = [sql for kind, sql in db_on.sql_log if kind == 'EXEC' and 'DELETE FROM public.club_bank_accounts' in sql]
+            self.assertEqual(len(del_sqls), 1)
+            dsql = del_sqls[0]
+            club_lock_stmt = f"SELECT id FROM public.clubs WHERE id = '{fx_on.club_id}' FOR UPDATE;"
+            bank_lock_stmt = (
+                f"SELECT id FROM public.club_bank_accounts WHERE id = '{fx_on.club_bank_account_id}' "
+                f"OR club_id = '{fx_on.club_id}' ORDER BY id FOR UPDATE;"
+            )
+            self.assertIn(club_lock_stmt, dsql)
+            self.assertIn(bank_lock_stmt, dsql)
+            pos_begin = dsql.index('BEGIN;')
+            pos_club_lock = dsql.index(club_lock_stmt)
+            pos_bank_lock = dsql.index(bank_lock_stmt)
+            pos_do_guard = dsql.index('DO $$')
+            pos_del_sess = dsql.index('DELETE FROM public.sessions')
+            pos_del_bank = dsql.index('DELETE FROM public.club_bank_accounts')
+            pos_del_club = dsql.index('DELETE FROM public.clubs')
+            pos_commit = dsql.index('COMMIT;')
+            self.assertEqual(dsql[pos_begin + len('BEGIN;'):pos_club_lock].strip(), '')
+            self.assertEqual(dsql[pos_club_lock + len(club_lock_stmt):pos_bank_lock].strip(), '')
+            self.assertLess(pos_bank_lock, pos_do_guard)
+            self.assertLess(pos_do_guard, pos_del_sess)
+            self.assertLess(pos_del_sess, pos_del_bank)
+            self.assertLess(pos_del_bank, pos_del_club)
+            self.assertLess(pos_del_club, pos_commit)
+            self.assertEqual(dsql.count('BEGIN;'), 1)
+            self.assertEqual(dsql.count('COMMIT;'), 1)
+            guard_block = dsql[pos_do_guard:pos_del_sess]
+            self.assertIn("status = 'active'", guard_block)
+            del_bank_stmt = dsql[pos_del_bank:dsql.index(';', pos_del_bank) + 1]
+            self.assertIn("status = 'active'", del_bank_stmt)
+
+            # 3) Honest mocked TOCTOU interleaving control: concurrent write occurs AFTER
+            #    _query_ownership & check_zero_mutations pass, right as delete_sql enters.
+            for mode in ('concurrent_foreign_insert', 'concurrent_status_inactive', 'concurrent_reparent'):
+                def _make_hook(interleave_mode, fixture_obj):
+                    def _hook(mock_db, _sql):
+                        if interleave_mode == 'concurrent_foreign_insert':
+                            extra_bid = str(uuid.uuid4())
+                            mock_db.club_bank_accounts[extra_bid] = {
+                                'id': extra_bid,
+                                'club_id': fixture_obj.club_id,
+                                'bank_code': 'ACB',
+                                'account_number': '555566667777',
+                                'account_name': 'CONCURRENT OTHER BANK',
+                                'status': 'inactive',
+                            }
+                        elif interleave_mode == 'concurrent_status_inactive':
+                            mock_db.club_bank_accounts[fixture_obj.club_bank_account_id]['status'] = 'inactive'
+                        elif interleave_mode == 'concurrent_reparent':
+                            mock_db.club_bank_accounts[fixture_obj.club_bank_account_id]['club_id'] = str(uuid.uuid4())
+                    return _hook
+
+                db_i = FakeDb()
+                st_i = Path(tmp) / f'interleave_{mode}.json'
+                fx_i = fx.DisposableInstructionsFixture(include_club_bank=True)
+                fx_i.create(db_i, state_path=st_i, capture_baseline=True)
+                db_i.on_before_delete_locks = _make_hook(mode, fx_i)
+
+                expected_banks = 2 if mode == 'concurrent_foreign_insert' else 1
+                rec_i, code_i = fx.finalize_cli_cleanup(fx_i, db_i, st_i)
+                self.assertEqual(code_i, 1, mode)
+                self.assertTrue(st_i.exists(), mode)
+                self.assertFalse(rec_i['disposable_instructions_cleanup_verified'], mode)
+                self.assertFalse(rec_i['disposable_instructions_removed'], mode)
+                self.assertFalse(rec_i['disposable_instructions_club_bank_removed'], mode)
+                self.assertIn('ownership mismatch on club_bank_accounts', rec_i.get('error', ''), mode)
+                self.assertEqual(len(db_i.club_bank_accounts), expected_banks, mode)
+                self.assertEqual(len(db_i.clubs), 1, mode)
+                self.assertEqual(len(db_i.sessions), 1, mode)
 
 
 def _make_synthetic_main_js(*, instructions_field='_instructions', receiver_snapshot_field='receiverSnapshot',
