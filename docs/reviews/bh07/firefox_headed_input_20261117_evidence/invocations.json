@@ -1,0 +1,200 @@
+{
+  "root_execution_receipt": true,
+  "cases": [
+    {
+      "case": "default-baseline",
+      "session": "bh07-ff17-default-baseline",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-default-baseline",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/default-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-default-baseline.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "d38d23865ef0b48071ea71b39ca87b692d233860d18276d5c165d2664674ef29",
+        "probe": "b6d239f905fa1cd60560471e18fcbaab6c1b01d081d99e0730d01d8257b849fc",
+        "close": "1b827a378bcbac0311a499cd9edc1ac37caaec5074046c0ac1b8887cbefd5649"
+      }
+    },
+    {
+      "case": "default-bring_to_front",
+      "session": "bh07-ff17-default-bring_to_front",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-default-bring_to_front",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/default-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-default-bring_to_front.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "9d0f66736ff6f1014e7dcd07e46df5094702501fab5e1d789de31c68831fd275",
+        "probe": "ce29f32f0167806dd1b3b1b89c736a22dff1510aab9d9c2dd7b26a105b4e116b",
+        "close": "a9464195bf77c5a30b1b77bb870c485be3935ce9721ba285a346577df6670c9b"
+      }
+    },
+    {
+      "case": "software-baseline",
+      "session": "bh07-ff17-software-baseline",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-software-baseline",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/software-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-software-baseline.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "05267a3d9a43bd046b11b23e4d75cfdf5509fe268fb29c2468d8c3ce622f2cdb",
+        "probe": "7135830c08437e2bba64b2ce8c1a3347aeaaddb927f4f85c23de3a3f18d470e7",
+        "close": "96e91d9cf5ab4169cc9e1291d5418e64155bde4b2a8e1e9e91a99c39e6573ec7"
+      }
+    },
+    {
+      "case": "software-bring_to_front",
+      "session": "bh07-ff17-software-bring_to_front",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-software-bring_to_front",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/software-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-software-bring_to_front.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "eb0c9c626702224403f749c2e51aecdbcb572fe3496e1bbd8509167438606ff3",
+        "probe": "0f6602f2f6acdcf66da25dae026d89ad1e189a9f938dd9140c31cf10f41ef669",
+        "close": "e28f95efffe7a30f245f34fca38ad5ff5bc86d42f65f6c689679312f57031370"
+      }
+    },
+    {
+      "case": "default-no-occlusion",
+      "session": "bh07-ff17-default-no-occlusion",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-default-no-occlusion",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/default-no-occlusion-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-default-no-occlusion.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "1b5e91099ede0f7ec067ae070bc6c468592499c8dd9ada89ef1eddd272522af3",
+        "probe": "2854abe84c6a13ace5c9a35d9e65a17b9b1198aab43f128de24f76c692f9a8ec",
+        "close": "c829032991e7b6acbda6d00e62c99aba1f8c656b8f5037874049ba85cc9dbb49"
+      }
+    },
+    {
+      "case": "occlusion-off-repeat",
+      "session": "bh07-ff17-occlusion-off-repeat",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-occlusion-off-repeat",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/occlusion-off-repeat-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-occlusion-off-repeat.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "75dae53c7591583cb47e8939952bbdd3be8882e03093e20062d62694b7eb9ce1",
+        "probe": "38f92ad0e0c79e277df0d8abcbcba5ccafa15e920dfc11af826b0daec1bdf379",
+        "close": "1e68e452dcddc48dc21ae14b8bc527feec49d905712924577663b32221ab09c3"
+      }
+    },
+    {
+      "case": "occlusion-on-control",
+      "session": "bh07-ff17-occlusion-on-control",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-occlusion-on-control",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/occlusion-on-control-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-occlusion-on-control.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "20675a9bc7314f920a554a68677917abcdd67007ea4150a4515280201e58fa41",
+        "probe": "d0a68b78478288e3c37f5ea3fd17a82e4f35979a742588f7f64acebfc0902d83",
+        "close": "17ea8757b22fc2781d8ec6626fcedd7a06a5fffdd2466ad1c1ec48a6b7c71698"
+      }
+    },
+    {
+      "case": "occlusion-off-final",
+      "session": "bh07-ff17-occlusion-off-final",
+      "open_argv": [
+        "npx.cmd",
+        "--no-install",
+        "playwright-cli",
+        "-s=bh07-ff17-occlusion-off-final",
+        "open",
+        "about:blank",
+        "--browser=firefox",
+        "--headed",
+        "--config=.build/bh07-firefox-headed-input/occlusion-off-final-config.json"
+      ],
+      "probe_file": ".build/bh07-firefox-headed-input/driver-occlusion-off-final.js",
+      "open_exit": 0,
+      "probe_exit": 0,
+      "close_exit": 0,
+      "local_log_sha256": {
+        "open": "5adc7159021b4392ea15b4c1ae9bee698cff4c2e087e98caf81750914cd182b6",
+        "probe": "98aab1e8b3b092dc989ffa2b49a55c67b9a47c9fe8b013be0be2c2b24de58d8e",
+        "close": "7c945cc62dfc5dd715e5545c7f3687a294268ed1869ec3d5e5b7db5873c2497c"
+      }
+    }
+  ],
+  "extra_driver_transform": "Default baseline source; replace its three screenshot path prefixes only. No behavioral edits.",
+  "extra_configs": "Default baseline launch plus only widget.windows.window_occlusion_tracking.enabled false/true, headless false retained.",
+  "extra_driver_serialization": "repeat/on-control/final: source read_text normalizes LF, write_text on Windows serializes CRLF; first default-no-occlusion driver uses LF. Reconstruct hashes with those line endings."
+}

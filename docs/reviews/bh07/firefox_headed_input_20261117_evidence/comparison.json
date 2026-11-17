@@ -1,0 +1,98 @@
+[
+  {
+    "case": "default-baseline",
+    "status": "FAIL",
+    "failure_stage": "account_tab_click",
+    "account_raf": false,
+    "trusted_clicks": 0,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "default-bring_to_front",
+    "status": "FAIL",
+    "failure_stage": "account_tab_click",
+    "account_raf": false,
+    "trusted_clicks": 0,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "software-baseline",
+    "status": "PASS",
+    "failure_stage": null,
+    "account_raf": true,
+    "trusted_clicks": 4,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "software-bring_to_front",
+    "status": "FAIL",
+    "failure_stage": "account_tab_click",
+    "account_raf": false,
+    "trusted_clicks": 0,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "default-no-occlusion",
+    "status": "PASS",
+    "failure_stage": null,
+    "account_raf": true,
+    "trusted_clicks": 4,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "occlusion-off-repeat",
+    "status": "PASS",
+    "failure_stage": null,
+    "account_raf": true,
+    "trusted_clicks": 4,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "occlusion-on-control",
+    "status": "PASS",
+    "failure_stage": null,
+    "account_raf": true,
+    "trusted_clicks": 4,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  },
+  {
+    "case": "occlusion-off-final",
+    "status": "PASS",
+    "failure_stage": null,
+    "account_raf": true,
+    "trusted_clicks": 4,
+    "safety_checks": {
+      "auth_or_mutation_request_count": 0,
+      "auth_storage_key_count": 0,
+      "no_submit_verified": true
+    }
+  }
+]

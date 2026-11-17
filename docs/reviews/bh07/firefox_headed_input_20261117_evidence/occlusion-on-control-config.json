@@ -1,0 +1,11 @@
+{
+  "browser": {
+    "browserName": "firefox",
+    "launchOptions": {
+      "headless": false,
+      "firefoxUserPrefs": {
+        "widget.windows.window_occlusion_tracking.enabled": true
+      }
+    }
+  }
+}

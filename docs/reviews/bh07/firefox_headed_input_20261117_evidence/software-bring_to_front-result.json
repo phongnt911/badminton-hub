@@ -1,0 +1,243 @@
+{
+  "diagnosticOnly": true,
+  "ok": false,
+  "status": "FAIL",
+  "failure_stage": "account_tab_click",
+  "error_code": "ACCOUNT_TAB_CLICK_TIMEOUT",
+  "config": {
+    "render_mode": "software",
+    "focus_mode": "bring_to_front",
+    "browser_name": "firefox",
+    "bring_to_front_calls": 2,
+    "base_origin": "http://127.0.0.1:8088",
+    "no_submit": true,
+    "no_headless_fallback": true,
+    "no_force_or_dom_click_for_app": true
+  },
+  "total_duration_ms": 17324,
+  "initial_page_state": {
+    "visibility_state": "visible",
+    "has_focus": true,
+    "active_element_top_tag": "body",
+    "active_element_tag": "body",
+    "active_element_role": "none",
+    "window_inner": {
+      "width": 1280,
+      "height": 843
+    },
+    "window_outer": {
+      "width": 1296,
+      "height": 936
+    },
+    "device_pixel_ratio": 1,
+    "playwright_viewport": null
+  },
+  "after_goto_state": {
+    "visibility_state": "visible",
+    "has_focus": true,
+    "active_element_top_tag": "body",
+    "active_element_tag": "body",
+    "active_element_role": "none",
+    "window_inner": {
+      "width": 1280,
+      "height": 843
+    },
+    "window_outer": {
+      "width": 1296,
+      "height": 936
+    },
+    "device_pixel_ratio": 1,
+    "playwright_viewport": null
+  },
+  "after_bring_to_front_state": {
+    "visibility_state": "visible",
+    "has_focus": true,
+    "active_element_top_tag": "body",
+    "active_element_tag": "body",
+    "active_element_role": "none",
+    "window_inner": {
+      "width": 1280,
+      "height": 843
+    },
+    "window_outer": {
+      "width": 1296,
+      "height": 936
+    },
+    "device_pixel_ratio": 1,
+    "playwright_viewport": null
+  },
+  "semantics_bootstrap": {
+    "attempted": true,
+    "placeholder_found": true,
+    "placeholder_clicked": true,
+    "account_tab_visible": true,
+    "attempts": 1,
+    "duration_ms": 1478,
+    "status": "PASS",
+    "error_code": null
+  },
+  "steps": {
+    "account_tab_click": {
+      "status": "FAIL",
+      "error_code": "ACCOUNT_TAB_CLICK_TIMEOUT",
+      "duration_ms": 15052,
+      "pre_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "other",
+          "active_element_tag": "other",
+          "active_element_role": "none",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "target": {
+          "count": 1,
+          "visible": true,
+          "enabled": true,
+          "rect": {
+            "x": 1024,
+            "y": 763,
+            "width": 256,
+            "height": 80,
+            "center_x": 1152,
+            "center_y": 803,
+            "in_viewport": true
+          },
+          "target_pointer_events_css": "all",
+          "active_element_matches_target": false,
+          "element_from_point": {
+            "status": "exact_target",
+            "top_tag": "flt-semantics",
+            "tag": "flt-semantics",
+            "role": "tab",
+            "shadow_depth": 0,
+            "pointer_events_css": "all",
+            "hit_matches_target": true
+          }
+        }
+      },
+      "post_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flutter-view",
+          "active_element_tag": "flutter-view",
+          "active_element_role": "none",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "raf_commit": false,
+        "raf_commit_state": "timed_out",
+        "raf_elapsed_ms": 5008
+      },
+      "event_delta": {
+        "pointerdown_trusted": 1,
+        "pointerdown_untrusted": 0,
+        "pointerup_trusted": 0,
+        "pointerup_untrusted": 0,
+        "mousedown_trusted": 1,
+        "mousedown_untrusted": 0,
+        "mouseup_trusted": 0,
+        "mouseup_untrusted": 0,
+        "click_trusted": 0,
+        "click_untrusted": 0,
+        "keydown_trusted": 0,
+        "keydown_untrusted": 0,
+        "focusin_count": 1,
+        "blur_count": 1
+      }
+    },
+    "account_guest_view": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    },
+    "login_cta_click": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    },
+    "login_dialog_open": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    },
+    "email_input": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    },
+    "password_input": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    },
+    "post_input_tab_blur": {
+      "status": "NOT_RUN",
+      "error_code": null,
+      "duration_ms": 0
+    }
+  },
+  "observer_summary": {
+    "installed": true,
+    "cleaned_up": true,
+    "capped": false,
+    "totals": {
+      "pointerdown_trusted": 1,
+      "pointerdown_untrusted": 0,
+      "pointerup_trusted": 0,
+      "pointerup_untrusted": 0,
+      "mousedown_trusted": 1,
+      "mousedown_untrusted": 0,
+      "mouseup_trusted": 0,
+      "mouseup_untrusted": 0,
+      "click_trusted": 0,
+      "click_untrusted": 0,
+      "keydown_trusted": 0,
+      "keydown_untrusted": 0,
+      "focusin_count": 1,
+      "blur_count": 1
+    }
+  },
+  "safety_checks": {
+    "auth_or_mutation_request_count": 0,
+    "auth_storage_key_count": 0,
+    "no_submit_verified": true
+  },
+  "recorded_console_summary": {
+    "error_count": 0,
+    "warning_count": 3,
+    "pageerror_count": 0
+  },
+  "screenshots": [
+    {
+      "stage": "home_guest",
+      "path": ".build/bh07-firefox-headed-input/software-bring_to_front-home.png",
+      "taken": true,
+      "error_code": null
+    },
+    {
+      "stage": "failure",
+      "path": ".build/bh07-firefox-headed-input/software-bring_to_front-failure.png",
+      "taken": true,
+      "error_code": null
+    }
+  ]
+}

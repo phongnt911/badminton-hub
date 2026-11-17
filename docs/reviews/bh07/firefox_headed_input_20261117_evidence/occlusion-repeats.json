@@ -1,0 +1,35 @@
+[
+  {
+    "case": "occlusion-off-repeat",
+    "pref": false,
+    "open_exit": 0,
+    "probe_exit": 0,
+    "close_exit": 0,
+    "status": "PASS",
+    "failure_stage": null,
+    "driver_sha256": "ab323122e31005471019108bdecf492d22a1fa77df37c19be895ee27e9a45ff3",
+    "config_sha256": "61fc4305bed23d9a68e1229ae86139ad0db07a0df6a4eccef8b50619e076acd2"
+  },
+  {
+    "case": "occlusion-on-control",
+    "pref": true,
+    "open_exit": 0,
+    "probe_exit": 0,
+    "close_exit": 0,
+    "status": "PASS",
+    "failure_stage": null,
+    "driver_sha256": "4dc9b5f068e87e80447ca9d8b11dd8771a7f1e6ae349badfc572cf4d7d7b893b",
+    "config_sha256": "177d173ba92689150c59754d7b5dc53cd43f6db0719c8f4c1b63a08cab820c50"
+  },
+  {
+    "case": "occlusion-off-final",
+    "pref": false,
+    "open_exit": 0,
+    "probe_exit": 0,
+    "close_exit": 0,
+    "status": "PASS",
+    "failure_stage": null,
+    "driver_sha256": "a1e0bf442fc7373068e1e438a284d1e335cc2aceb6832910399917c662e69c28",
+    "config_sha256": "61fc4305bed23d9a68e1229ae86139ad0db07a0df6a4eccef8b50619e076acd2"
+  }
+]

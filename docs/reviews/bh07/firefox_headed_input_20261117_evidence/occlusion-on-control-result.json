@@ -1,0 +1,544 @@
+{
+  "diagnosticOnly": true,
+  "ok": true,
+  "status": "PASS",
+  "failure_stage": null,
+  "error_code": null,
+  "config": {
+    "render_mode": "default",
+    "focus_mode": "baseline",
+    "browser_name": "firefox",
+    "bring_to_front_calls": 0,
+    "base_origin": "http://127.0.0.1:8088",
+    "no_submit": true,
+    "no_headless_fallback": true,
+    "no_force_or_dom_click_for_app": true
+  },
+  "total_duration_ms": 13877,
+  "initial_page_state": {
+    "visibility_state": "visible",
+    "has_focus": true,
+    "active_element_top_tag": "body",
+    "active_element_tag": "body",
+    "active_element_role": "none",
+    "window_inner": {
+      "width": 1280,
+      "height": 843
+    },
+    "window_outer": {
+      "width": 1296,
+      "height": 936
+    },
+    "device_pixel_ratio": 1,
+    "playwright_viewport": null
+  },
+  "after_goto_state": {
+    "visibility_state": "visible",
+    "has_focus": true,
+    "active_element_top_tag": "body",
+    "active_element_tag": "body",
+    "active_element_role": "none",
+    "window_inner": {
+      "width": 1280,
+      "height": 843
+    },
+    "window_outer": {
+      "width": 1296,
+      "height": 936
+    },
+    "device_pixel_ratio": 1,
+    "playwright_viewport": null
+  },
+  "after_bring_to_front_state": null,
+  "semantics_bootstrap": {
+    "attempted": true,
+    "placeholder_found": true,
+    "placeholder_clicked": true,
+    "account_tab_visible": true,
+    "attempts": 1,
+    "duration_ms": 1751,
+    "status": "PASS",
+    "error_code": null
+  },
+  "steps": {
+    "account_tab_click": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 8757,
+      "pre_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "other",
+          "active_element_tag": "other",
+          "active_element_role": "none",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "target": {
+          "count": 1,
+          "visible": true,
+          "enabled": true,
+          "rect": {
+            "x": 1024,
+            "y": 763,
+            "width": 256,
+            "height": 80,
+            "center_x": 1152,
+            "center_y": 803,
+            "in_viewport": true
+          },
+          "target_pointer_events_css": "all",
+          "active_element_matches_target": false,
+          "element_from_point": {
+            "status": "exact_target",
+            "top_tag": "flt-semantics",
+            "tag": "flt-semantics",
+            "role": "tab",
+            "shadow_depth": 0,
+            "pointer_events_css": "all",
+            "hit_matches_target": true
+          }
+        }
+      },
+      "post_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flt-semantics",
+          "active_element_tag": "flt-semantics",
+          "active_element_role": "tab",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "raf_commit": true,
+        "raf_commit_state": "committed",
+        "raf_elapsed_ms": 99
+      },
+      "event_delta": {
+        "pointerdown_trusted": 1,
+        "pointerdown_untrusted": 0,
+        "pointerup_trusted": 1,
+        "pointerup_untrusted": 0,
+        "mousedown_trusted": 1,
+        "mousedown_untrusted": 0,
+        "mouseup_trusted": 1,
+        "mouseup_untrusted": 0,
+        "click_trusted": 1,
+        "click_untrusted": 0,
+        "keydown_trusted": 0,
+        "keydown_untrusted": 0,
+        "focusin_count": 1,
+        "blur_count": 1
+      }
+    },
+    "account_guest_view": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 69,
+      "post_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flt-semantics",
+          "active_element_tag": "flt-semantics",
+          "active_element_role": "tab",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "raf_commit": true,
+        "raf_commit_state": "committed",
+        "raf_elapsed_ms": 31
+      }
+    },
+    "login_cta_click": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 517,
+      "pre_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flt-semantics",
+          "active_element_tag": "flt-semantics",
+          "active_element_role": "tab",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "target": {
+          "count": 1,
+          "visible": true,
+          "enabled": true,
+          "rect": {
+            "x": 20,
+            "y": 310,
+            "width": 1240,
+            "height": 32,
+            "center_x": 640,
+            "center_y": 326,
+            "in_viewport": true
+          },
+          "target_pointer_events_css": "all",
+          "active_element_matches_target": false,
+          "element_from_point": {
+            "status": "exact_target",
+            "top_tag": "flt-semantics",
+            "tag": "flt-semantics",
+            "role": "button",
+            "shadow_depth": 0,
+            "pointer_events_css": "all",
+            "hit_matches_target": true
+          }
+        }
+      },
+      "post_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flt-semantics",
+          "active_element_tag": "flt-semantics",
+          "active_element_role": "button",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "raf_commit": true,
+        "raf_commit_state": "committed",
+        "raf_elapsed_ms": 138
+      },
+      "event_delta": {
+        "pointerdown_trusted": 1,
+        "pointerdown_untrusted": 0,
+        "pointerup_trusted": 1,
+        "pointerup_untrusted": 0,
+        "mousedown_trusted": 1,
+        "mousedown_untrusted": 0,
+        "mouseup_trusted": 1,
+        "mouseup_untrusted": 0,
+        "click_trusted": 1,
+        "click_untrusted": 0,
+        "keydown_trusted": 0,
+        "keydown_untrusted": 0,
+        "focusin_count": 3,
+        "blur_count": 3
+      }
+    },
+    "login_dialog_open": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 44,
+      "email_visible": true,
+      "password_visible": true,
+      "submit_button_visible": true,
+      "post_state": {
+        "page": {
+          "visibility_state": "visible",
+          "has_focus": true,
+          "active_element_top_tag": "flt-semantics",
+          "active_element_tag": "flt-semantics",
+          "active_element_role": "button",
+          "window_inner": {
+            "width": 1280,
+            "height": 843
+          },
+          "window_outer": {
+            "width": 1296,
+            "height": 936
+          },
+          "device_pixel_ratio": 1,
+          "playwright_viewport": null
+        },
+        "raf_commit": true,
+        "raf_commit_state": "committed",
+        "raf_elapsed_ms": 23
+      }
+    },
+    "email_input": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 1435,
+      "value_retained": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "pre_page": {
+            "visibility_state": "visible",
+            "has_focus": true,
+            "active_element_top_tag": "flt-semantics",
+            "active_element_tag": "flt-semantics",
+            "active_element_role": "button",
+            "window_inner": {
+              "width": 1280,
+              "height": 843
+            },
+            "window_outer": {
+              "width": 1296,
+              "height": 936
+            },
+            "device_pixel_ratio": 1,
+            "playwright_viewport": null
+          },
+          "pre_target": {
+            "count": 1,
+            "visible": true,
+            "enabled": true,
+            "rect": {
+              "x": 24,
+              "y": 298,
+              "width": 1240,
+              "height": 54,
+              "center_x": 644,
+              "center_y": 325,
+              "in_viewport": true
+            },
+            "target_pointer_events_css": "all",
+            "active_element_matches_target": false,
+            "element_from_point": {
+              "status": "exact_target",
+              "top_tag": "input",
+              "tag": "input",
+              "role": "none",
+              "shadow_depth": 0,
+              "pointer_events_css": "all",
+              "hit_matches_target": true
+            }
+          },
+          "click_duration_ms": 156,
+          "click_ok": true,
+          "active_element_matched_after_click": true,
+          "pre_type_raf_commit": true,
+          "pre_type_raf_commit_state": "committed",
+          "pre_type_raf_elapsed_ms": 3,
+          "type_ok": true,
+          "post_type_raf_commit": true,
+          "post_type_raf_commit_state": "committed",
+          "post_type_raf_elapsed_ms": 8,
+          "value_retained": true,
+          "event_delta": {
+            "pointerdown_trusted": 1,
+            "pointerdown_untrusted": 0,
+            "pointerup_trusted": 1,
+            "pointerup_untrusted": 0,
+            "mousedown_trusted": 1,
+            "mousedown_untrusted": 0,
+            "mouseup_trusted": 1,
+            "mouseup_untrusted": 0,
+            "click_trusted": 1,
+            "click_untrusted": 0,
+            "keydown_trusted": 34,
+            "keydown_untrusted": 0,
+            "focusin_count": 1,
+            "blur_count": 1
+          }
+        }
+      ]
+    },
+    "password_input": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 900,
+      "value_retained": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "pre_page": {
+            "visibility_state": "visible",
+            "has_focus": true,
+            "active_element_top_tag": "input",
+            "active_element_tag": "input",
+            "active_element_role": "none",
+            "window_inner": {
+              "width": 1280,
+              "height": 843
+            },
+            "window_outer": {
+              "width": 1296,
+              "height": 936
+            },
+            "device_pixel_ratio": 1,
+            "playwright_viewport": null
+          },
+          "pre_target": {
+            "count": 1,
+            "visible": true,
+            "enabled": true,
+            "rect": {
+              "x": 24,
+              "y": 362,
+              "width": 1240,
+              "height": 54,
+              "center_x": 644,
+              "center_y": 389,
+              "in_viewport": true
+            },
+            "target_pointer_events_css": "all",
+            "active_element_matches_target": false,
+            "element_from_point": {
+              "status": "exact_target",
+              "top_tag": "input",
+              "tag": "input",
+              "role": "none",
+              "shadow_depth": 0,
+              "pointer_events_css": "all",
+              "hit_matches_target": true
+            }
+          },
+          "click_duration_ms": 105,
+          "click_ok": true,
+          "active_element_matched_after_click": true,
+          "pre_type_raf_commit": true,
+          "pre_type_raf_commit_state": "committed",
+          "pre_type_raf_elapsed_ms": 32,
+          "type_ok": true,
+          "post_type_raf_commit": true,
+          "post_type_raf_commit_state": "committed",
+          "post_type_raf_elapsed_ms": 6,
+          "value_retained": true,
+          "event_delta": {
+            "pointerdown_trusted": 1,
+            "pointerdown_untrusted": 0,
+            "pointerup_trusted": 1,
+            "pointerup_untrusted": 0,
+            "mousedown_trusted": 1,
+            "mousedown_untrusted": 0,
+            "mouseup_trusted": 1,
+            "mouseup_untrusted": 0,
+            "click_trusted": 1,
+            "click_untrusted": 0,
+            "keydown_trusted": 23,
+            "keydown_untrusted": 0,
+            "focusin_count": 1,
+            "blur_count": 1
+          }
+        }
+      ]
+    },
+    "post_input_tab_blur": {
+      "status": "PASS",
+      "error_code": null,
+      "duration_ms": 77,
+      "raf_commit": true,
+      "raf_commit_state": "committed",
+      "raf_elapsed_ms": 34,
+      "email_retained_after_blur": true,
+      "password_retained_after_blur": true,
+      "post_state": {
+        "visibility_state": "visible",
+        "has_focus": true,
+        "active_element_top_tag": "flt-semantics",
+        "active_element_tag": "flt-semantics",
+        "active_element_role": "button",
+        "window_inner": {
+          "width": 1280,
+          "height": 843
+        },
+        "window_outer": {
+          "width": 1296,
+          "height": 936
+        },
+        "device_pixel_ratio": 1,
+        "playwright_viewport": null
+      },
+      "event_delta": {
+        "pointerdown_trusted": 0,
+        "pointerdown_untrusted": 0,
+        "pointerup_trusted": 0,
+        "pointerup_untrusted": 0,
+        "mousedown_trusted": 0,
+        "mousedown_untrusted": 0,
+        "mouseup_trusted": 0,
+        "mouseup_untrusted": 0,
+        "click_trusted": 0,
+        "click_untrusted": 0,
+        "keydown_trusted": 1,
+        "keydown_untrusted": 0,
+        "focusin_count": 1,
+        "blur_count": 1
+      }
+    }
+  },
+  "observer_summary": {
+    "installed": true,
+    "cleaned_up": true,
+    "capped": false,
+    "totals": {
+      "pointerdown_trusted": 4,
+      "pointerdown_untrusted": 0,
+      "pointerup_trusted": 4,
+      "pointerup_untrusted": 0,
+      "mousedown_trusted": 4,
+      "mousedown_untrusted": 0,
+      "mouseup_trusted": 4,
+      "mouseup_untrusted": 0,
+      "click_trusted": 4,
+      "click_untrusted": 0,
+      "keydown_trusted": 58,
+      "keydown_untrusted": 0,
+      "focusin_count": 7,
+      "blur_count": 7
+    }
+  },
+  "safety_checks": {
+    "auth_or_mutation_request_count": 0,
+    "auth_storage_key_count": 0,
+    "no_submit_verified": true
+  },
+  "recorded_console_summary": {
+    "error_count": 0,
+    "warning_count": 3,
+    "pageerror_count": 0
+  },
+  "screenshots": [
+    {
+      "stage": "home_guest",
+      "path": ".build/bh07-firefox-headed-input/occlusion-on-control-home.png",
+      "taken": true,
+      "error_code": null
+    },
+    {
+      "stage": "login_synthetic",
+      "path": ".build/bh07-firefox-headed-input/occlusion-on-control-login-synthetic.png",
+      "taken": true,
+      "error_code": null
+    }
+  ]
+}

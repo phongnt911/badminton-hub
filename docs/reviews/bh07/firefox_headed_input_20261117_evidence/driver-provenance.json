@@ -1,0 +1,45 @@
+{
+  "source_sha": "8c7b8eca8ff68b09e6abf1d7408a3b3947031118",
+  "git_dirty": false,
+  "probe_source_sha256": "e1705bfb5303a2f00c9ecb4738592f23e2f4d418248d24ce9644e8054c8bec36",
+  "cases": [
+    {
+      "name": "default-baseline",
+      "render": "default",
+      "focus": "baseline",
+      "driver": ".build\\bh07-firefox-headed-input\\driver-default-baseline.js",
+      "driver_sha256": "e1705bfb5303a2f00c9ecb4738592f23e2f4d418248d24ce9644e8054c8bec36",
+      "config": ".build\\bh07-firefox-headed-input\\default-config.json",
+      "config_sha256": "007b009afa1b18ed5a4c510d91e3461e8d1c626e6dc01cb1cfebc0e3b9b8d6eb"
+    },
+    {
+      "name": "default-bring_to_front",
+      "render": "default",
+      "focus": "bring_to_front",
+      "driver": ".build\\bh07-firefox-headed-input\\driver-default-bring_to_front.js",
+      "driver_sha256": "0e9c6782752fe53e2586793e08ced8826670eb043b05e3128fffad294db1a685",
+      "config": ".build\\bh07-firefox-headed-input\\default-config.json",
+      "config_sha256": "007b009afa1b18ed5a4c510d91e3461e8d1c626e6dc01cb1cfebc0e3b9b8d6eb"
+    },
+    {
+      "name": "software-baseline",
+      "render": "software",
+      "focus": "baseline",
+      "driver": ".build\\bh07-firefox-headed-input\\driver-software-baseline.js",
+      "driver_sha256": "107f650d49a871667dbfe40c741d561ff1dab59c09f0967075139512d45f8ccb",
+      "config": ".build\\bh07-firefox-headed-input\\software-config.json",
+      "config_sha256": "27b5d08ae234e5c511657e8c38c77ed111f6b6d964a0b99c9ff2693292ef0bb9"
+    },
+    {
+      "name": "software-bring_to_front",
+      "render": "software",
+      "focus": "bring_to_front",
+      "driver": ".build\\bh07-firefox-headed-input\\driver-software-bring_to_front.js",
+      "driver_sha256": "63de1306915be4d10c69729c05ceefc90d5597cda700b5e39ecff0234cad19e0",
+      "config": ".build\\bh07-firefox-headed-input\\software-config.json",
+      "config_sha256": "27b5d08ae234e5c511657e8c38c77ed111f6b6d964a0b99c9ff2693292ef0bb9"
+    }
+  ],
+  "mutations_expected": 0,
+  "headless": false
+}

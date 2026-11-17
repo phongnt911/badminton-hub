@@ -1,0 +1,10 @@
+{
+  "local_anon_expired": true,
+  "key_renewal_command_policy_blocked": true,
+  "key_renewal_applied": false,
+  "diagnostic_no_submit_only": true,
+  "guest_authorization_not_accepted": true,
+  "fresh_build": false,
+  "reused_profile_source": "7614c6a79984e3d73653cc5ec4cbd0e4164dd8a5",
+  "served_artifacts_match": 39
+}

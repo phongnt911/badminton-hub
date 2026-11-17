@@ -1,0 +1,11 @@
+{
+  "source_sha": "8c7b8eca8ff68b09e6abf1d7408a3b3947031118",
+  "git_dirty": false,
+  "hypothesis_only": true,
+  "single_changed_launch_pref": {
+    "widget.windows.window_occlusion_tracking.enabled": false
+  },
+  "driver_transform": "three screenshot output names only",
+  "driver_sha256": "d442b8c5484dc3ad4de17823cf6bfdbd981a14757099252102630f855cafe906",
+  "config_sha256": "29a25653848dc5213de02e6631e59d1f19271d712eedbc5cddfa2e40e6ca51f9"
+}

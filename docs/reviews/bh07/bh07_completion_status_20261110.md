@@ -1,3 +1,5 @@
+**17/11/2026 — Firefox headed input diagnostic PARTIAL, cause UNKNOWN:** clean source8c7b8ec; eight no-submit cases (5PASS/3FAIL), default/software RAF/input stalls reproduced; bringToFront not a fix, occlusion enabled control also PASS so no causal closure.19Node controls PASS, DB21/94 unchanged/Auth98→98; sessions/server closed, containers restored stopped. Expired anon retained after policy-blocked renewal; no Guest authorization/lifecycle acceptance. Full V2/BH-07/V8 chưa nghiệm thu, không main merge/deploy/pilot/BH-08. [Báo cáo](firefox_headed_input_runtime_20261117.md).
+
 **17/11/2026:** [Club BankAccount required-bank runtime](club_bank_listener_runtime_20261117.md) PASS local, clean source7614c6a,2cycles/8epochs; prior16NovPARTIAL unchanged. Six selected Session/Club fields only; full listeners/V2b/BH-07/V8 chưa nghiệm thu.
 
 **16/11/2026:** [Session/Club listener runtime](session_club_auth_listener_runtime_20261116.md): Session/Club core PASS local, BankAccount NOT RUN, overall PARTIAL_NOT_RUN;2cycles/8epochs,53Python/Node controls PASS. Full listeners/V2b/BH-07/V8 chưa nghiệm thu.

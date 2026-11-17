@@ -1,0 +1,8 @@
+{
+  "browser": {
+    "browserName": "firefox",
+    "launchOptions": {
+      "headless": false
+    }
+  }
+}
